@@ -1,0 +1,1107 @@
+{
+  "orders": {
+    "-OTXNgHOG0V4PLRQTV_A": {
+      "canceledAt": "2025-08-05T07:31:51.441Z",
+      "createdAt": "2025-06-24T14:40:25.284Z",
+      "id": "-OTXNgHOG0V4PLRQTV_A",
+      "pickupPreference": {
+        "date": "",
+        "timeSlot": "morning"
+      },
+      "shoes": [
+        {
+          "id": "sneakers",
+          "name": "Sneakers",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 35000,
+      "updatedAt": "2025-08-05T07:31:51.441Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OTXNjZyVmfZPQKP_gpp": {
+      "canceledAt": "2025-08-05T07:31:46.209Z",
+      "createdAt": "2025-06-24T14:40:38.761Z",
+      "id": "-OTXNjZyVmfZPQKP_gpp",
+      "pickupPreference": {
+        "date": "2025-06-26",
+        "timeSlot": "afternoon"
+      },
+      "shoes": [
+        {
+          "id": "sneakers",
+          "name": "Sneakers",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 35000,
+      "updatedAt": "2025-08-05T07:31:46.209Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OTXNoK2h5HhMx1qN970": {
+      "createdAt": "2025-06-24T14:40:58.222Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-07-20T09:31:13.549Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OTXNoK2h5HhMx1qN970",
+      "pickup": {
+        "date": "2025-07-03",
+        "notes": "",
+        "scheduledAt": "2025-07-03T01:45:10.900Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-07-03T01:45:11.125Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-06-26",
+        "timeSlot": "afternoon"
+      },
+      "processedAt": "2025-07-20T09:30:58.953Z",
+      "receivedAt": "2025-07-20T09:30:49.806Z",
+      "shoes": [
+        {
+          "id": "sneakers",
+          "name": "Sneakers",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 35000,
+      "updatedAt": "1753003919455",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OUDbKpAbMV6l78pMX_k": {
+      "canceledAt": "2025-08-05T07:31:40.418Z",
+      "createdAt": "2025-07-03T04:48:30.558Z",
+      "id": "-OUDbKpAbMV6l78pMX_k",
+      "pickupPreference": {
+        "date": "2025-07-04",
+        "timeSlot": "evening"
+      },
+      "shoes": [
+        {
+          "id": "running",
+          "name": "Running Shoes",
+          "price": 40000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 40000,
+      "updatedAt": "2025-08-05T07:31:40.418Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OUDbN7Gp1KbMvQBxgMH": {
+      "canceledAt": "2025-08-05T07:31:35.219Z",
+      "createdAt": "2025-07-03T04:48:39.973Z",
+      "id": "-OUDbN7Gp1KbMvQBxgMH",
+      "pickupPreference": {
+        "date": "2025-07-10",
+        "timeSlot": "evening"
+      },
+      "shoes": [
+        {
+          "id": "running",
+          "name": "Running Shoes",
+          "price": 40000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 40000,
+      "updatedAt": "2025-08-05T07:31:35.219Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OUDbSLGMTvEKuvetiCP": {
+      "canceledAt": "2025-08-05T07:31:29.835Z",
+      "createdAt": "2025-07-03T04:49:01.348Z",
+      "id": "-OUDbSLGMTvEKuvetiCP",
+      "pickupPreference": {
+        "date": "2025-07-04",
+        "timeSlot": "evening"
+      },
+      "shoes": [
+        {
+          "id": "running",
+          "name": "Running Shoes",
+          "price": 40000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 40000,
+      "updatedAt": "2025-08-05T07:31:29.835Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OUDbhRXxsEBwFWMK44K": {
+      "canceledAt": "2025-08-05T07:31:24.454Z",
+      "createdAt": "2025-07-03T04:50:07.285Z",
+      "id": "-OUDbhRXxsEBwFWMK44K",
+      "pickupPreference": {
+        "date": "2025-07-10",
+        "timeSlot": "afternoon"
+      },
+      "shoes": [
+        {
+          "id": "running",
+          "name": "Running Shoes",
+          "price": 40000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 40000,
+      "updatedAt": "2025-08-05T07:31:24.454Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OUDbmYvNmL1xHAsE79o": {
+      "canceledAt": "2025-08-05T07:31:18.969Z",
+      "createdAt": "2025-07-03T04:50:28.238Z",
+      "id": "-OUDbmYvNmL1xHAsE79o",
+      "pickupPreference": {
+        "date": "2025-07-10",
+        "timeSlot": "afternoon"
+      },
+      "shoes": [
+        {
+          "id": "heels",
+          "name": "High Heels",
+          "price": 45000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 45000,
+      "updatedAt": "2025-08-05T07:31:18.969Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OUDc1tvVxyrX07VF1ux": {
+      "canceledAt": "2025-08-05T07:31:13.731Z",
+      "createdAt": "2025-07-03T04:51:35.182Z",
+      "id": "-OUDc1tvVxyrX07VF1ux",
+      "pickupPreference": {
+        "date": "2025-07-10",
+        "timeSlot": "afternoon"
+      },
+      "shoes": [
+        {
+          "id": "casual",
+          "name": "Casual Shoes",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 35000,
+      "updatedAt": "2025-08-05T07:31:13.731Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OVQtDAnCICIo-zQHJvV": {
+      "createdAt": "2025-07-18T04:57:21.956Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-07-30T02:08:56.146Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OVQtDAnCICIo-zQHJvV",
+      "pickup": {
+        "date": "2025-07-20",
+        "notes": "",
+        "scheduledAt": "2025-07-20T09:26:13.302Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-07-20T09:26:13.376Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "",
+        "timeSlot": "morning"
+      },
+      "processedAt": "2025-07-30T01:50:29.026Z",
+      "receivedAt": "2025-07-30T01:50:18.928Z",
+      "shoes": [
+        {
+          "id": "running",
+          "name": "Running Shoes",
+          "price": 40000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 40000,
+      "updatedAt": "1755177598191",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OVx-acsyZqeSgnKCMFH": {
+      "createdAt": "2025-07-24T15:17:09.918Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-05T08:03:40.841Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OVx-acsyZqeSgnKCMFH",
+      "pickup": {
+        "date": "2025-07-31",
+        "notes": "",
+        "scheduledAt": "2025-07-30T04:53:51.579Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-07-30T04:53:51.695Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-07-27",
+        "timeSlot": "afternoon"
+      },
+      "processedAt": "2025-08-05T08:03:05.755Z",
+      "receivedAt": "2025-08-05T08:02:40.318Z",
+      "shoes": [
+        {
+          "id": "sepatu-nike",
+          "name": "sepatu nike",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 35000,
+      "updatedAt": "1755177598958",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OVx-c2_ws6NUSLusEXP": {
+      "createdAt": "2025-07-24T15:17:15.723Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-05T08:01:22.138Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OVx-c2_ws6NUSLusEXP",
+      "pickup": {
+        "date": "2025-07-30",
+        "notes": "",
+        "scheduledAt": "2025-07-30T02:10:18.203Z",
+        "timeSlot": "morning"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-07-30T02:10:18.287Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-07-27",
+        "timeSlot": "evening"
+      },
+      "processedAt": "2025-08-05T08:00:50.712Z",
+      "receivedAt": "2025-08-05T08:00:42.253Z",
+      "shoes": [
+        {
+          "id": "sepatu-nike",
+          "name": "sepatu nike",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 35000,
+      "updatedAt": "1755177599514",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OWFztN4vPgnPfOFaped": {
+      "cancelReason": "Berubah pikiran",
+      "canceledAt": "2025-07-28T12:32:32.067Z",
+      "createdAt": "2025-07-28T12:26:27.254Z",
+      "id": "-OWFztN4vPgnPfOFaped",
+      "pickupPreference": {
+        "date": "2025-07-31",
+        "timeSlot": "morning"
+      },
+      "shoes": [
+        {
+          "id": "sepatu-brodo",
+          "name": "sepatu brodo",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 35000,
+      "updatedAt": "2025-07-28T12:32:32.067Z",
+      "userAddress": "Jalan Syarif Hidayatullah, Tungkal II, Tungkal Ilir, Tanjung Jabung Barat, Jambi, Sumatra, 36512, Indonesia",
+      "userEmail": "rikomendrofa@gmail.com",
+      "userId": "YN0RHvPELSVIjaUNspcEXTSeMvj2",
+      "userName": "riko mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OWG0W88IS-AecGUJw6m": {
+      "createdAt": "2025-07-28T12:33:32.282Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-07-30T01:46:03.830Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OWG0W88IS-AecGUJw6m",
+      "pickup": {
+        "date": "2025-08-02",
+        "notes": "",
+        "scheduledAt": "2025-07-28T12:38:31.949Z",
+        "timeSlot": "evening"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-07-28T12:38:31.986Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-08-02",
+        "timeSlot": "evening"
+      },
+      "processedAt": "2025-07-30T01:42:29.133Z",
+      "receivedAt": "2025-07-30T01:42:21.165Z",
+      "shoes": [
+        {
+          "id": "sneaker",
+          "name": "sneaker",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 35000,
+      "updatedAt": "1755177600064",
+      "userAddress": "Jalan Syarif Hidayatullah, Tungkal II, Tungkal Ilir, Tanjung Jabung Barat, Jambi, Sumatra, 36512, Indonesia",
+      "userEmail": "rikomendrofa@gmail.com",
+      "userId": "YN0RHvPELSVIjaUNspcEXTSeMvj2",
+      "userName": "riko mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OWOrWciJKXhYByrKkQj": {
+      "createdAt": "2025-07-30T05:46:24.730Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-05T08:05:13.047Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OWOrWciJKXhYByrKkQj",
+      "pickup": {
+        "date": "2025-07-31",
+        "notes": "",
+        "scheduledAt": "2025-07-30T05:48:04.074Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-07-30T05:48:04.250Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-07-31",
+        "timeSlot": "afternoon"
+      },
+      "processedAt": "2025-08-05T08:02:57.265Z",
+      "receivedAt": "2025-08-05T08:02:34.171Z",
+      "shoes": [
+        {
+          "id": "sepatu-bot",
+          "name": "Sepatu bot",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 35000,
+      "updatedAt": "1755177600567",
+      "userAddress": "Jalan Syarif Hidayatullah, Tungkal II, Tungkal Ilir, Tanjung Jabung Barat, Jambi, Sumatra, 36512, Indonesia",
+      "userEmail": "rikomendrofa@gmail.com",
+      "userId": "YN0RHvPELSVIjaUNspcEXTSeMvj2",
+      "userName": "riko mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OWV1EEalc00bUWGLyNq": {
+      "canceledAt": "2025-08-05T07:31:07.888Z",
+      "createdAt": "2025-07-31T10:30:55.619Z",
+      "id": "-OWV1EEalc00bUWGLyNq",
+      "pickupPreference": {
+        "date": "2025-08-02",
+        "timeSlot": "afternoon"
+      },
+      "shoes": [
+        {
+          "id": "sepatu-kulit",
+          "name": "sepatu kulit",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 35000,
+      "updatedAt": "2025-08-05T07:31:07.888Z",
+      "userAddress": "coblong\ntubagus ismail dalam",
+      "userEmail": "erwinmendrofa258@gmail.com",
+      "userId": "Sny3K4xTmxXvJYiXmBcLgzxdPz13",
+      "userName": "erwin putra pratama mendrofa",
+      "userPhone": "081379931733"
+    },
+    "-OWo3vTTpNVUbuJZgdxZ": {
+      "createdAt": "2025-08-04T07:55:05.888Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-05T08:00:28.490Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OWo3vTTpNVUbuJZgdxZ",
+      "pickup": {
+        "date": "2025-08-14",
+        "notes": "",
+        "scheduledAt": "2025-08-04T07:55:49.631Z",
+        "timeSlot": "morning"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-04T07:55:49.992Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-08-14",
+        "timeSlot": "morning"
+      },
+      "processedAt": "2025-08-05T07:59:55.010Z",
+      "receivedAt": "2025-08-05T07:59:46.470Z",
+      "serviceType": "regular",
+      "shoes": [
+        {
+          "imageUrl": "",
+          "name": "",
+          "price": 0,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 0,
+      "updatedAt": "1755177601366",
+      "userAddress": "WCJR+3R Pangkal Duri, East Tanjung Jabung Regency, Jambi, Indonesia",
+      "userEmail": "test@test.com",
+      "userId": "v5dnKBlImchTKUqm3LhwdxJBYlg2",
+      "userName": "Testing",
+      "userPhone": "08812312323"
+    },
+    "-OWtAwINmmhEN28mYILh": {
+      "createdAt": "2025-08-05T07:43:50.626Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-05T08:06:53.974Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OWtAwINmmhEN28mYILh",
+      "pickup": {
+        "date": "2025-08-07",
+        "notes": "",
+        "scheduledAt": "2025-08-05T07:44:51.948Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-05T07:44:52.087Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-08-07",
+        "timeSlot": "afternoon"
+      },
+      "processedAt": "2025-08-05T07:47:21.963Z",
+      "receivedAt": "2025-08-05T07:47:11.574Z",
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "kulit",
+          "name": "Kulit",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 35000,
+      "updatedAt": "1755177573706",
+      "userAddress": "5FJ7+Q2M, Jl. Kapten Darham, Tungkal IV Desa, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "riko1@gmail.com",
+      "userId": "33lmnDHSMxM147buWntEPpU5VC52",
+      "userName": "Riko",
+      "userPhone": "081379931733"
+    },
+    "-OWtCLsVHrAeUky2AnQR": {
+      "createdAt": "2025-08-05T07:50:01.524Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-05T07:55:33.738Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "id": "-OWtCLsVHrAeUky2AnQR",
+      "pickup": {
+        "date": "2025-08-07",
+        "notes": "",
+        "scheduledAt": "2025-08-05T07:50:13.556Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-05T07:50:13.727Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "Kurir 1"
+      },
+      "pickupPreference": {
+        "date": "2025-08-07",
+        "timeSlot": "afternoon"
+      },
+      "processedAt": "2025-08-05T07:52:21.859Z",
+      "receivedAt": "2025-08-05T07:52:09.413Z",
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "kulit",
+          "name": "Kulit",
+          "price": 30000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 30000,
+      "updatedAt": "1755177568992",
+      "userAddress": "5FJ7+Q2M, Jl. Kapten Darham, Tungkal IV Desa, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "riko1@gmail.com",
+      "userId": "33lmnDHSMxM147buWntEPpU5VC52",
+      "userName": "Riko",
+      "userPhone": "081379931733"
+    },
+    "-OWtH8YPnEuVA489RONK": {
+      "createdAt": "2025-08-05T08:10:57.669Z",
+      "id": "-OWtH8YPnEuVA489RONK",
+      "pickupPreference": {
+        "date": "2025-08-07",
+        "timeSlot": "afternoon"
+      },
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "casual-1754381421580",
+          "name": "Casual Shoes",
+          "price": 45000,
+          "quantity": 1
+        }
+      ],
+      "status": "pending",
+      "totalPrice": 45000,
+      "userAddress": "5FJ7+Q2M, Jl. Kapten Darham, Tungkal IV Desa, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "riko1@gmail.com",
+      "userId": "33lmnDHSMxM147buWntEPpU5VC52",
+      "userName": "Riko",
+      "userPhone": "081379931733"
+    },
+    "-OWtPdF2_LS1LwWCf-E9": {
+      "createdAt": "2025-08-05T08:48:04.640Z",
+      "id": "-OWtPdF2_LS1LwWCf-E9",
+      "pickup": {
+        "date": "2025-08-05",
+        "notes": "",
+        "scheduledAt": "2025-08-05T09:02:35.828Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-05T09:02:35.904Z",
+        "id": "FiwnYCXXN9SMGpuSllUqCwVIaNK2",
+        "name": "ayyub"
+      },
+      "pickupPreference": {
+        "date": "2025-08-09",
+        "timeSlot": "afternoon"
+      },
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "sepatu-kasual",
+          "name": "sepatu kasual",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "status": "scheduled",
+      "totalPrice": 35000,
+      "updatedAt": "2025-08-05T09:02:35.904Z",
+      "userAddress": "5FH7+R8X, Jl. K. H. Dewantara, Tungkal III, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "demo1@gmail.com",
+      "userId": "j6WD9Wo32mOhfWdV9p4y040L0lh1",
+      "userName": "demo1",
+      "userPhone": "081379931733"
+    },
+    "-OXO985TFuCNxFNNjHag": {
+      "cancelReason": "Berubah pikiran",
+      "canceledAt": "2025-08-13T08:43:15.008Z",
+      "createdAt": "2025-08-11T12:43:55.431Z",
+      "id": "-OXO985TFuCNxFNNjHag",
+      "pickup": {
+        "date": "2025-08-13",
+        "notes": "",
+        "scheduledAt": "2025-08-11T14:13:51.232Z",
+        "timeSlot": "morning"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-11T14:13:51.297Z",
+        "id": "FiwnYCXXN9SMGpuSllUqCwVIaNK2",
+        "name": "ayyub"
+      },
+      "pickupPreference": {
+        "date": "2025-08-13",
+        "timeSlot": "morning"
+      },
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "sneakers-1754916114214",
+          "name": "Sneakers",
+          "price": 60000,
+          "quantity": 1
+        }
+      ],
+      "status": "canceled",
+      "totalPrice": 60000,
+      "updatedAt": "2025-08-13T08:43:15.008Z",
+      "userAddress": "5FH7+R8X, Jl. K. H. Dewantara, Tungkal III, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "demo1@gmail.com",
+      "userId": "j6WD9Wo32mOhfWdV9p4y040L0lh1",
+      "userName": "demo1",
+      "userPhone": "081379931733"
+    },
+    "-OXXatmuNoEwyqPDNONS": {
+      "createdAt": "2025-08-13T08:46:04.860Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-14T18:32:15.483Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "rilva abam"
+      },
+      "id": "-OXXatmuNoEwyqPDNONS",
+      "pickup": {
+        "date": "2025-08-16",
+        "notes": "",
+        "scheduledAt": "2025-08-13T08:46:26.766Z",
+        "timeSlot": "afternoon"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-13T08:46:26.793Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "rilva abam"
+      },
+      "pickupPreference": {
+        "date": "2025-08-16",
+        "timeSlot": "afternoon"
+      },
+      "processedAt": "2025-08-13T08:47:35.149Z",
+      "receivedAt": "2025-08-13T08:47:28.468Z",
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "sneakers-1755074756819",
+          "name": "Sneakers",
+          "price": 60000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivered",
+      "totalPrice": 60000,
+      "updatedAt": "1755196450864",
+      "userAddress": "5FH7+R8X, Jl. K. H. Dewantara, Tungkal III, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "demo1@gmail.com",
+      "userId": "j6WD9Wo32mOhfWdV9p4y040L0lh1",
+      "userName": "demo1",
+      "userPhone": "081379931733"
+    },
+    "-OXXczBlZ6QP4KSzz2mb": {
+      "createdAt": "2025-08-13T08:55:11.282Z",
+      "id": "-OXXczBlZ6QP4KSzz2mb",
+      "pickupPreference": {
+        "date": "2025-08-16",
+        "timeSlot": "afternoon"
+      },
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "sneakers-1755075294561",
+          "name": "Sneakers",
+          "price": 60000,
+          "quantity": 1
+        }
+      ],
+      "status": "pending",
+      "totalPrice": 60000,
+      "updatedAt": "2025-08-13T09:36:23.711Z",
+      "userAddress": "5FH7+R8X, Jl. K. H. Dewantara, Tungkal III, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "demo1@gmail.com",
+      "userId": "j6WD9Wo32mOhfWdV9p4y040L0lh1",
+      "userName": "demo1",
+      "userPhone": "081379931733"
+    },
+    "-OXdpmwk2jv8wOULODCi": {
+      "createdAt": "2025-08-14T18:28:28.928Z",
+      "deliveryCourier": {
+        "assignedAt": "2025-08-14T18:35:03.678Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "rilva abam"
+      },
+      "id": "-OXdpmwk2jv8wOULODCi",
+      "pickup": {
+        "date": "2025-08-17",
+        "notes": "",
+        "scheduledAt": "2025-08-14T18:29:24.089Z",
+        "timeSlot": "evening"
+      },
+      "pickupCourier": {
+        "assignedAt": "2025-08-14T18:29:24.119Z",
+        "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+        "name": "rilva abam"
+      },
+      "pickupPreference": {
+        "date": "2025-08-17",
+        "timeSlot": "evening"
+      },
+      "processedAt": "2025-08-14T18:34:43.469Z",
+      "receivedAt": "2025-08-14T18:34:35.460Z",
+      "serviceType": "express",
+      "shoes": [
+        {
+          "id": "sneakers-1755196089834",
+          "name": "Sneakers",
+          "price": 60000,
+          "quantity": 1
+        }
+      ],
+      "status": "delivery-in-progress",
+      "totalPrice": 60000,
+      "updatedAt": "1755196516690",
+      "userAddress": "5FH7+R8X, Jl. K. H. Dewantara, Tungkal III, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "userEmail": "demo1@gmail.com",
+      "userId": "j6WD9Wo32mOhfWdV9p4y040L0lh1",
+      "userName": "demo1",
+      "userPhone": "081379931733"
+    }
+  },
+  "payments": {
+    "-OWO-EOPyJ-xrThcic0J": {
+      "created_at": "2025-07-30T01:44:54.010Z",
+      "customer_details": {
+        "email": "rikomendrofa@gmail.com",
+        "first_name": "riko mendrofa",
+        "phone": "081379931733"
+      },
+      "gross_amount": 35000,
+      "item_details": [
+        {
+          "id": "sneaker",
+          "name": "sneaker",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "order_id": "-OWG0W88IS-AecGUJw6m",
+      "payment_type": "pending",
+      "snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v4/redirection/cc8a1998-b630-44a3-acf0-88bad8bda7be",
+      "snap_token": "cc8a1998-b630-44a3-acf0-88bad8bda7be",
+      "transaction_id": "TSL--OWG0W88IS-AecGUJw6m-1753839891514",
+      "transaction_status": "pending",
+      "updated_at": "2025-07-30T01:45:11.807Z"
+    },
+    "-OWtBrOtvcWGxgGULJtJ": {
+      "created_at": "2025-08-05T07:47:52.606Z",
+      "customer_details": {
+        "email": "riko1@gmail.com",
+        "first_name": "Riko",
+        "phone": "081379931733"
+      },
+      "gross_amount": 35000,
+      "item_details": [
+        {
+          "id": "kulit",
+          "name": "Kulit",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "order_id": "-OWtAwINmmhEN28mYILh",
+      "payment_type": "pending",
+      "snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v4/redirection/2393ced1-8d98-4c04-8e88-4492a6121fd9",
+      "snap_token": "2393ced1-8d98-4c04-8e88-4492a6121fd9",
+      "transaction_id": "TSL--OWtAwINmmhEN28mYILh-1754380070226",
+      "transaction_status": "pending",
+      "updated_at": "2025-08-05T07:47:52.606Z"
+    },
+    "-OWtCwb5XJcuBKUoFPev": {
+      "created_at": "2025-08-05T07:52:36.061Z",
+      "customer_details": {
+        "email": "riko1@gmail.com",
+        "first_name": "Riko",
+        "phone": "081379931733"
+      },
+      "gross_amount": 30000,
+      "item_details": [
+        {
+          "id": "kulit",
+          "name": "Kulit",
+          "price": 30000,
+          "quantity": 1
+        }
+      ],
+      "order_id": "-OWtCLsVHrAeUky2AnQR",
+      "payment_type": "pending",
+      "snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v4/redirection/9c3ccf06-ce0f-4198-86b5-32a5c61b7bf8",
+      "snap_token": "9c3ccf06-ce0f-4198-86b5-32a5c61b7bf8",
+      "transaction_id": "TSL--OWtCLsVHrAeUky2AnQR-1754380354524",
+      "transaction_status": "pending",
+      "updated_at": "2025-08-05T07:54:31.070Z"
+    },
+    "-OXXbKgShWOfPnlmm46P": {
+      "created_at": "2025-08-13T08:47:59.134Z",
+      "customer_details": {
+        "email": "demo1@gmail.com",
+        "first_name": "demo1",
+        "phone": "081379931733"
+      },
+      "gross_amount": 60000,
+      "item_details": [
+        {
+          "id": "sneakers-1755074756819",
+          "name": "Sneakers",
+          "price": 60000,
+          "quantity": 1
+        }
+      ],
+      "order_id": "-OXXatmuNoEwyqPDNONS",
+      "payment_type": "pending",
+      "snap_redirect_url": "https://app.sandbox.midtrans.com/snap/v4/redirection/243a7f0f-b4bf-4d5c-87fb-a38bd78f7f7d",
+      "snap_token": "243a7f0f-b4bf-4d5c-87fb-a38bd78f7f7d",
+      "transaction_id": "TSL--OXXatmuNoEwyqPDNONS-1755074876220",
+      "transaction_status": "pending",
+      "updated_at": "2025-08-13T08:49:13.523Z"
+    }
+  },
+  "shoeTypes": [
+    {
+      "description": "Sepatu santai dengan desain sporty",
+      "id": "sneakers",
+      "name": "Sneakers",
+      "price": 35000
+    },
+    {
+      "description": "Sepatu khusus untuk olahraga lari",
+      "id": "running",
+      "name": "Running Shoes",
+      "price": 40000
+    },
+    {
+      "description": "Sepatu santai untuk sehari-hari",
+      "id": "casual",
+      "name": "Casual Shoes",
+      "price": 35000
+    },
+    {
+      "description": "Sepatu formal untuk acara resmi",
+      "id": "formal",
+      "name": "Formal Shoes",
+      "price": 45000
+    },
+    {
+      "description": "Sepatu boots dengan sol tebal",
+      "id": "boots",
+      "name": "Boots",
+      "price": 50000
+    },
+    {
+      "description": "Sepatu tanpa tali yang mudah dipakai",
+      "id": "slip_on",
+      "name": "Slip-on Shoes",
+      "price": 30000
+    },
+    {
+      "description": "Sepatu slip-on dengan desain elegan",
+      "id": "loafers",
+      "name": "Loafers",
+      "price": 40000
+    },
+    {
+      "description": "Alas kaki terbuka untuk santai",
+      "id": "sandals",
+      "name": "Sandals",
+      "price": 25000
+    },
+    {
+      "description": "Sepatu datar untuk wanita",
+      "id": "flat_shoes",
+      "name": "Flat Shoes",
+      "price": 30000
+    },
+    {
+      "description": "Sepatu hak tinggi untuk wanita",
+      "id": "heels",
+      "name": "High Heels",
+      "price": 45000
+    },
+    {
+      "description": "Sepatu wanita dengan hak penuh",
+      "id": "wedges",
+      "name": "Wedges",
+      "price": 40000
+    },
+    {
+      "description": "Sepatu dengan sol anyaman tali",
+      "id": "espadrilles",
+      "name": "Espadrilles",
+      "price": 35000
+    },
+    {
+      "description": "Sepatu dengan jahitan tampak depan",
+      "id": "moccasins",
+      "name": "Moccasins",
+      "price": 40000
+    },
+    {
+      "description": "Sepatu untuk aktivitas olahraga",
+      "id": "athletic",
+      "name": "Athletic Shoes",
+      "price": 45000
+    },
+    {
+      "description": "Sepatu formal dengan tali",
+      "id": "oxfords",
+      "name": "Oxfords",
+      "price": 50000
+    }
+  ],
+  "users": {
+    "2M8S1kKfqIQy5jJD4rC0DUgz9Ys1": {
+      "createdAt": "2025-05-22T07:48:52.267Z",
+      "email": "admin@tungkalshoes.com",
+      "name": "Admin Tungkal Shoes",
+      "phone": "08123456778",
+      "role": "admin",
+      "updatedAt": "2025-05-22T07:48:52.267Z"
+    },
+    "4VauiOTKTrfuG8obCkOvUOWOtjo1": {
+      "area": "Tungkal Utara",
+      "createdAt": "2025-05-22T19:06:18.511Z",
+      "email": "kurir@gmail.com",
+      "fcmToken": "ctk562pZSxy7l7X8qido1E:APA91bHwUAn38uPmPDDc0AEvRE1IaC_9QKgilM08Q2utwrQ3vgBoulN0JQ5rQXQHRb3A9JcKN-ISRzi2Q-WkoMXELKsj1K4EhZndHwpMmoLzXhJEJSnQRjU",
+      "id": "4VauiOTKTrfuG8obCkOvUOWOtjo1",
+      "location": {
+        "lastLocationUpdate": "2025-08-15T03:43:20.305Z",
+        "latitude": -6.886606,
+        "longitude": 107.6181113
+      },
+      "name": "rilva abam",
+      "phone": "081231421209",
+      "role": "courier",
+      "status": "active",
+      "updatedAt": "2025-08-13T09:24:32.044Z",
+      "vehicle": "Motor"
+    },
+    "BDJ9jMC1a8Y5WhiNosiK00RiEsx2": {
+      "address": "Jl. Sultan Hasanudin No.55, Tungkal IV Desa, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "createdAt": "2025-08-05T08:41:46.066Z",
+      "email": "demoaplikasi1@gmail.com",
+      "name": "demo",
+      "phone": "0813799313774",
+      "role": "user",
+      "updatedAt": "2025-08-05T08:50:23.795Z"
+    },
+    "FiwnYCXXN9SMGpuSllUqCwVIaNK2": {
+      "createdAt": "2025-08-05T08:53:05.524Z",
+      "email": "ayyub@gmail.com",
+      "id": "FiwnYCXXN9SMGpuSllUqCwVIaNK2",
+      "name": "ayyub",
+      "phone": "081379931733",
+      "role": "courier",
+      "status": "active",
+      "updatedAt": "2025-08-05T08:53:05.524Z"
+    },
+    "fWlyvVF2nEZHk2RirAXFNU4Oa8G3": {
+      "address": "5FJ7+Q2M, Jl. Kapten Darham, Tungkal IV Desa, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "createdAt": "2025-08-05T08:36:04.429Z",
+      "email": "demoaplikasi@gmail.com",
+      "name": "demo aplikasi",
+      "phone": "0813799313773",
+      "role": "user"
+    },
+    "j6WD9Wo32mOhfWdV9p4y040L0lh1": {
+      "address": "5FH7+R8X, Jl. K. H. Dewantara, Tungkal III, Kec. Tungkal Ilir, Kabupaten Tanjung Jabung Barat, Jambi 36514, Indonesia",
+      "createdAt": "2025-08-05T08:45:54.357Z",
+      "email": "demo1@gmail.com",
+      "name": "demo1",
+      "phone": "081379931733",
+      "role": "user",
+      "updatedAt": "2025-08-13T09:04:40.449Z"
+    },
+    "rfn77NBZ7lheXd7xHAplpX04i413": {
+      "address": "WFP6+5M Pangkal Duri, East Tanjung Jabung Regency, Jambi, Indonesia",
+      "createdAt": "2025-08-06T03:21:08.380Z",
+      "email": "erwinmendrofa@gmail.com",
+      "name": "erwin",
+      "phone": "62081379931797",
+      "role": "user"
+    }
+  }
+}

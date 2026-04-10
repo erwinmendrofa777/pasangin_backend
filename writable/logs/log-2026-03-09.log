@@ -1,0 +1,510 @@
+DEBUG - 2026-03-09 08:10:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:10:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:10:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:10:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:11:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:11:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:32:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:32:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 08:32:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-09 08:33:08 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/surveys/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:34:22 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/surveys/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:38:57 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/projects/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:39:03 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/projects/1000', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:39:16 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/detail/1000', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:39:43 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/detail/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:39:54 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/detail/8', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:40:01 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/detail/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:40:25 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/detail/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:40:59 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/surveys/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:41:11 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/designs/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:41:22 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/progress/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:41:30 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/renovation/invoices/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:48:12 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/history/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:48:24 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/history/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:49:40 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/requests/detail/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:49:55 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/requests/detail/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:50:24 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/requests/detail/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:51:17 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/requests/detail/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:54:34 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/surveys/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:58:07 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/designs/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 08:58:55 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/design/invoices/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:06:52 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/project/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:07:14 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/detail/7', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:07:39 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/detail/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:23:19 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/detail/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:24:11 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/surveys/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:24:20 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/designs/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:24:29 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/progress/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:24:39 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/invoices/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 09:24:48 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/construction/rabs/100', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+ERROR - 2026-03-09 10:27:41 --> Email: Unable to send email using SMTP. Your server might not be configured to send mail using this method.
+ERROR - 2026-03-09 10:27:41 --> 220 smtp.gmail.com ESMTP d2e1a72fcca58-829a465b6c7sm8149028b3a.25 - gsmtp
+
+hello: 250-smtp.gmail.com at your service, [103.175.80.3]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+from: 250 2.1.0 OK d2e1a72fcca58-829a465b6c7sm8149028b3a.25 - gsmtp
+
+to: 250 2.1.5 OK d2e1a72fcca58-829a465b6c7sm8149028b3a.25 - gsmtp
+
+data: 354 Go ahead d2e1a72fcca58-829a465b6c7sm8149028b3a.25 - gsmtp
+
+
+quit: 250 2.0.0 OK  1773026855 d2e1a72fcca58-829a465b6c7sm8149028b3a.25 - gsmtp
+
+The following SMTP error was encountered: 250 2.0.0 OK  1773026855 d2e1a72fcca58-829a465b6c7sm8149028b3a.25 - gsmtp
+
+The following SMTP error was encountered: 
+CRITICAL - 2026-03-09 10:53:22 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Syntax error
+[Method: POST, Route: api/register]
+in VENDORPATH\codeigniter4\framework\system\HTTP\IncomingRequest.php on line 406.
+ 1 VENDORPATH\codeigniter4\framework\system\HTTP\IncomingRequest.php(406): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON('Syntax error')
+ 2 APPPATH\Controllers\Api\AuthController.php(194): CodeIgniter\HTTP\IncomingRequest->getJSON(true)
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\AuthController->register()
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\AuthController))
+ 5 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 9 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 11:30:45 --> ErrorException: Array to string conversion
+[Method: GET, Route: api/products]
+in APPPATH\Controllers\Api\ProductApi.php on line 83.
+ 1 APPPATH\Controllers\Api\ProductApi.php(83): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Array to string conversion', 'D:\\Program Files\\backend_core\\app\\Controllers\\Api\\ProductApi.php', 83)
+ 2 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->index()
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 11:35:29 --> TypeError: Unsupported operand types: string - int
+[Method: GET, Route: api/products]
+in APPPATH\Controllers\Api\ProductApi.php on line 54.
+ 1 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->index()
+ 2 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 11:37:21 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/products', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 11:39:11 --> TypeError: Unsupported operand types: string - int
+[Method: GET, Route: api/products]
+in APPPATH\Controllers\Api\ProductApi.php on line 54.
+ 1 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->index()
+ 2 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 12:04:53 --> TypeError: CodeIgniter\Database\BaseBuilder::limit(): Argument #1 ($value) must be of type ?int, string given, called in D:\Program Files\backend_core\vendor\codeigniter4\framework\system\Model.php on line 756
+[Method: GET, Route: api/products]
+in VENDORPATH\codeigniter4\framework\system\Database\BaseBuilder.php on line 1514.
+ 1 VENDORPATH\codeigniter4\framework\system\Model.php(756): CodeIgniter\Database\BaseBuilder->limit('4', 0)
+ 2 APPPATH\Controllers\Api\ProductApi.php(74): CodeIgniter\Model->__call('limit', [...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->index()
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 5 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 9 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-09 13:54:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-09 13:54:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-03-09 14:15:52 --> Unknown column 'DISTINCT' in 'field list'
+in VENDORPATH\codeigniter4\framework\system\Database\MySQLi\Connection.php on line 300.
+ 1 VENDORPATH\codeigniter4\framework\system\Database\MySQLi\Connection.php(300): mysqli->query('SELECT `DISTINCT` `city`
+FROM `suppliers`', 0)
+ 2 VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `DISTINCT` `city`
+FROM `suppliers`')
+ 3 VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `DISTINCT` `city`
+FROM `suppliers`')
+ 4 VENDORPATH\codeigniter4\framework\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `DISTINCT` `city`
+FROM `suppliers`', [], false)
+ 5 VENDORPATH\codeigniter4\framework\system\Model.php(756): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Api\ProductApi.php(44): CodeIgniter\Model->__call('get', [])
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->regions()
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 9 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+13 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 14:15:52 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'DISTINCT' in 'field list'
+[Method: GET, Route: api/suppliers/regions]
+in VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php on line 724.
+ 1 VENDORPATH\codeigniter4\framework\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `DISTINCT` `city`
+FROM `suppliers`', [], false)
+ 2 VENDORPATH\codeigniter4\framework\system\Model.php(756): CodeIgniter\Database\BaseBuilder->get()
+ 3 APPPATH\Controllers\Api\ProductApi.php(44): CodeIgniter\Model->__call('get', [])
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->regions()
+ 5 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+10 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 14:15:52 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'DISTINCT' in 'field list'
+in VENDORPATH\codeigniter4\framework\system\Database\MySQLi\Connection.php on line 310.
+ 1 VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `DISTINCT` `city`
+FROM `suppliers`')
+ 2 VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `DISTINCT` `city`
+FROM `suppliers`')
+ 3 VENDORPATH\codeigniter4\framework\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `DISTINCT` `city`
+FROM `suppliers`', [], false)
+ 4 VENDORPATH\codeigniter4\framework\system\Model.php(756): CodeIgniter\Database\BaseBuilder->get()
+ 5 APPPATH\Controllers\Api\ProductApi.php(44): CodeIgniter\Model->__call('get', [])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->regions()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+CRITICAL - 2026-03-09 14:15:52 --> [Caused by] mysqli_sql_exception: Unknown column 'DISTINCT' in 'field list'
+in VENDORPATH\codeigniter4\framework\system\Database\MySQLi\Connection.php on line 300.
+ 1 VENDORPATH\codeigniter4\framework\system\Database\MySQLi\Connection.php(300): mysqli->query('SELECT `DISTINCT` `city`
+FROM `suppliers`', 0)
+ 2 VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `DISTINCT` `city`
+FROM `suppliers`')
+ 3 VENDORPATH\codeigniter4\framework\system\Database\BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `DISTINCT` `city`
+FROM `suppliers`')
+ 4 VENDORPATH\codeigniter4\framework\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `DISTINCT` `city`
+FROM `suppliers`', [], false)
+ 5 VENDORPATH\codeigniter4\framework\system\Model.php(756): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Api\ProductApi.php(44): CodeIgniter\Model->__call('get', [])
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Api\ProductApi->regions()
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Api\ProductApi))
+ 9 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+13 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:51:06 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:51:24 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:52:12 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:52:22 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:52:40 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:53:52 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-09 14:53:57 --> [DEPRECATED] Creation of dynamic property CodeIgniter\HTTP\IncomingRequest::$user is deprecated in APPPATH\Filters\Auth.php on line 59.
+ 1 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), null)
+ 2 VENDORPATH\codeigniter4\framework\system\Filters\Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 3 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(465): CodeIgniter\Filters\Filters->run('api/cart/delete', 'before')
+ 4 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')

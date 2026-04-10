@@ -1,0 +1,133 @@
+DEBUG - 2026-01-26 05:51:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 08:59:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:00:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:09:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:09:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:09:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-01-26 09:09:40 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/supplier/edit.php"
+[Method: GET, Route: admin/suppliers/edit/3]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('admin/supplier/edit.php')
+ 2 SYSTEMPATH/Common.php(1199): CodeIgniter\View\View->render('admin/supplier/edit', [], true)
+ 3 APPPATH/Controllers/Admin/SupplierController.php(122): view('admin/supplier/edit', [...])
+ 4 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Admin\SupplierController->edit('3')
+ 5 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\SupplierController))
+ 6 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2026-01-26 09:09:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:12:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:12:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:12:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:12:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:12:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:12:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:13:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:13:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:13:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-01-26 09:13:27 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/supplier/edit.php"
+[Method: GET, Route: admin/suppliers/edit/3]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('admin/supplier/edit.php')
+ 2 SYSTEMPATH/Common.php(1199): CodeIgniter\View\View->render('admin/supplier/edit', [], true)
+ 3 APPPATH/Controllers/Admin/SupplierController.php(122): view('admin/supplier/edit', [...])
+ 4 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Admin\SupplierController->edit('3')
+ 5 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\SupplierController))
+ 6 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2026-01-26 09:13:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:13:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:17:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:17:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:17:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:17:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 09:17:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-01-26 16:41:03 --> Error: Class "Firebase\JWT\ExpiredException" not found
+[Method: POST, Route: api/update-fcm-token]
+in APPPATH/ThirdParty/php-jwt/src/JWT.php on line 176.
+ 1 APPPATH/Filters/Auth.php(56): Firebase\JWT\JWT::decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvYmFja2VuZC5wYXNhbmdpbi5jby5pZCIsImlhdCI6MTc2OTE1MzQ0NCwiZXhwIjoxNzY5MjM5ODQ0LCJ1aWQiOiI1In0.48FdakdNGWAMZY37iBNVEcakKe3txBlO8coLWAZL4tk', Object(Firebase\JWT\Key))
+ 2 SYSTEMPATH/Filters/Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), [...])
+ 3 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 4 SYSTEMPATH/CodeIgniter.php(479): CodeIgniter\Filters\Filters->run('api/update-fcm-token', 'before')
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-01-26 16:41:06 --> Error: Class "Firebase\JWT\ExpiredException" not found
+[Method: GET, Route: api/content/tips]
+in APPPATH/ThirdParty/php-jwt/src/JWT.php on line 176.
+ 1 APPPATH/Filters/Auth.php(56): Firebase\JWT\JWT::decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvYmFja2VuZC5wYXNhbmdpbi5jby5pZCIsImlhdCI6MTc2OTE1MzQ0NCwiZXhwIjoxNzY5MjM5ODQ0LCJ1aWQiOiI1In0.48FdakdNGWAMZY37iBNVEcakKe3txBlO8coLWAZL4tk', Object(Firebase\JWT\Key))
+ 2 SYSTEMPATH/Filters/Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), [...])
+ 3 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 4 SYSTEMPATH/CodeIgniter.php(479): CodeIgniter\Filters\Filters->run('api/content/tips', 'before')
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-01-26 16:41:06 --> Error: Class "Firebase\JWT\ExpiredException" not found
+[Method: GET, Route: api/content/banners]
+in APPPATH/ThirdParty/php-jwt/src/JWT.php on line 176.
+ 1 APPPATH/Filters/Auth.php(56): Firebase\JWT\JWT::decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvYmFja2VuZC5wYXNhbmdpbi5jby5pZCIsImlhdCI6MTc2OTE1MzQ0NCwiZXhwIjoxNzY5MjM5ODQ0LCJ1aWQiOiI1In0.48FdakdNGWAMZY37iBNVEcakKe3txBlO8coLWAZL4tk', Object(Firebase\JWT\Key))
+ 2 SYSTEMPATH/Filters/Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), [...])
+ 3 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 4 SYSTEMPATH/CodeIgniter.php(479): CodeIgniter\Filters\Filters->run('api/content/banners', 'before')
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-01-26 16:44:57 --> Error: Class "Firebase\JWT\ExpiredException" not found
+[Method: POST, Route: api/update-fcm-token]
+in APPPATH/ThirdParty/php-jwt/src/JWT.php on line 176.
+ 1 APPPATH/Filters/Auth.php(56): Firebase\JWT\JWT::decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvYmFja2VuZC5wYXNhbmdpbi5jby5pZCIsImlhdCI6MTc2OTE1MzQ0NCwiZXhwIjoxNzY5MjM5ODQ0LCJ1aWQiOiI1In0.48FdakdNGWAMZY37iBNVEcakKe3txBlO8coLWAZL4tk', Object(Firebase\JWT\Key))
+ 2 SYSTEMPATH/Filters/Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), [...])
+ 3 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 4 SYSTEMPATH/CodeIgniter.php(479): CodeIgniter\Filters\Filters->run('api/update-fcm-token', 'before')
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-01-26 16:45:00 --> Error: Class "Firebase\JWT\ExpiredException" not found
+[Method: GET, Route: api/content/banners]
+in APPPATH/ThirdParty/php-jwt/src/JWT.php on line 176.
+ 1 APPPATH/Filters/Auth.php(56): Firebase\JWT\JWT::decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvYmFja2VuZC5wYXNhbmdpbi5jby5pZCIsImlhdCI6MTc2OTE1MzQ0NCwiZXhwIjoxNzY5MjM5ODQ0LCJ1aWQiOiI1In0.48FdakdNGWAMZY37iBNVEcakKe3txBlO8coLWAZL4tk', Object(Firebase\JWT\Key))
+ 2 SYSTEMPATH/Filters/Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), [...])
+ 3 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 4 SYSTEMPATH/CodeIgniter.php(479): CodeIgniter\Filters\Filters->run('api/content/banners', 'before')
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2026-01-26 16:45:00 --> Error: Class "Firebase\JWT\ExpiredException" not found
+[Method: GET, Route: api/content/tips]
+in APPPATH/ThirdParty/php-jwt/src/JWT.php on line 176.
+ 1 APPPATH/Filters/Auth.php(56): Firebase\JWT\JWT::decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczpcL1wvYmFja2VuZC5wYXNhbmdpbi5jby5pZCIsImlhdCI6MTc2OTE1MzQ0NCwiZXhwIjoxNzY5MjM5ODQ0LCJ1aWQiOiI1In0.48FdakdNGWAMZY37iBNVEcakKe3txBlO8coLWAZL4tk', Object(Firebase\JWT\Key))
+ 2 SYSTEMPATH/Filters/Filters.php(241): App\Filters\Auth->before(Object(CodeIgniter\HTTP\IncomingRequest), [...])
+ 3 SYSTEMPATH/Filters/Filters.php(221): CodeIgniter\Filters\Filters->runBefore([...])
+ 4 SYSTEMPATH/CodeIgniter.php(479): CodeIgniter\Filters\Filters->run('api/content/tips', 'before')
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2026-01-26 18:45:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-01-26 18:45:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

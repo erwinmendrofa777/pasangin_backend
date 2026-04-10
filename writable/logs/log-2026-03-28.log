@@ -1,0 +1,513 @@
+DEBUG - 2026-03-28 08:39:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:39:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:39:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:39:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:40:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:40:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:40:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 08:56:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 09:24:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 09:24:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 09:25:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 09:26:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 09:26:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 09:43:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 09:43:21 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 09:43:21 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 09:43:21 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 09:43:21 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 09:43:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 09:43:23 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 09:43:23 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 09:43:23 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 09:43:23 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 10:32:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 10:35:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 10:44:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 10:45:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 10:45:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 10:45:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 10:46:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:06:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:08:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:08:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:11:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 11:11:16 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:11:16 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:11:16 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:11:16 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 11:11:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:11:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 11:11:22 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:11:22 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:11:22 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 43.
+ 1 APPPATH\Views\admin\construction\index.php(43): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:11:22 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 47.
+ 1 APPPATH\Views\admin\construction\index.php(47): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 11:21:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 11:21:33 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:21:33 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:21:33 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:21:33 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 11:21:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 11:21:53 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:21:53 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:21:53 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:21:53 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 11:33:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 11:33:53 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:33:53 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:33:53 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 11:33:53 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 11:33:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:34:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:34:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:34:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:34:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:42:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:44:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:47:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:50:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:52:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:54:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:54:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:55:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:55:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:56:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 11:59:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 12:01:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:03:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:06:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:10:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:10:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:15:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:16:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:19:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:26:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:28:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:29:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:29:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:30:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:31:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:31:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:31:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:31:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:33:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:40:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:40:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:41:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:43:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:48:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 13:57:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:01:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:02:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:15:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:15:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:16:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:16:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:16:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:16:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:28:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:28:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:29:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:29:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:33:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:33:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:34:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:37:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:37:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:38:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:38:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 14:52:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-03-28 14:52:19 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 14:52:19 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 14:52:19 --> [DEPRECATED] substr(): Passing null to parameter #1 ($string) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 109.
+ 1 APPPATH\Views\admin\construction\index.php(109): substr(null, 0, 25)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+WARNING - 2026-03-28 14:52:19 --> [DEPRECATED] strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in APPPATH\Views\admin\construction\index.php on line 113.
+ 1 APPPATH\Views\admin\construction\index.php(113): strtotime(null)
+ 2 VENDORPATH\codeigniter4\framework\system\View\View.php(238): include('D:\\Program Files\\backend_core\\app\\Views\\admin\\construction\\index.php')
+ 3 VENDORPATH\codeigniter4\framework\system\View\View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1199): CodeIgniter\View\View->render('admin/construction/index', [], true)
+ 5 APPPATH\Controllers\Admin\Construction.php(31): view('admin/construction/index', [...])
+ 6 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(951): App\Controllers\Admin\Construction->index()
+ 7 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\Construction))
+ 8 VENDORPATH\codeigniter4\framework\system\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('D:\\Program Files\\backend_core\\public\\index.php')
+DEBUG - 2026-03-28 14:52:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 20:21:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 20:21:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 20:21:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 20:21:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-03-28 20:21:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

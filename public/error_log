@@ -1,0 +1,129 @@
+[25-Dec-2025 19:31:27 Asia/Jakarta] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/stuh8812/backend_core/app/ThirdParty/vendor_manual/sngrl/Message.php on line 4
+[25-Dec-2025 19:31:35 Asia/Jakarta] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/stuh8812/backend_core/app/ThirdParty/vendor_manual/sngrl/Message.php on line 4
+[26-Dec-2025 06:03:50 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function passthru() in /home/stuh8812/public_html/backend.pasangin.co.id/jalankan_composer.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/stuh8812/public_html/backend.pasangin.co.id/jalankan_composer.php on line 15
+[26-Dec-2025 06:05:05 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function proc_open() in /home/stuh8812/public_html/backend.pasangin.co.id/jalankan_composer.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/stuh8812/public_html/backend.pasangin.co.id/jalankan_composer.php on line 27
+[26-Dec-2025 09:33:55 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:33:55 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:33:59 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:33:59 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:03 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:06 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:19 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:22 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:25 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:28 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:34 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:34:50 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:35:06 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:35:10 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:35:13 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:35:18 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 09:35:27 Asia/Jakarta] PHP Fatal error:  Cannot redeclare App\Controllers\Admin\ChatController::sendMessage() in /home/stuh8812/backend_core/app/Controllers/Admin/ChatController.php on line 138
+[26-Dec-2025 16:04:53 Asia/Jakarta] PHP Warning:  scandir(/home/stuh8812/public_html/backend.pasangin.co.id/../vendor): Failed to open directory: No such file or directory in /home/stuh8812/public_html/backend.pasangin.co.id/cek_vendor.php on line 8
+[26-Dec-2025 16:04:53 Asia/Jakarta] PHP Warning:  scandir(): (errno 2): No such file or directory in /home/stuh8812/public_html/backend.pasangin.co.id/cek_vendor.php on line 8
+[05-Jan-2026 04:59:02 Asia/Jakarta] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/stuh8812/backend_core/app/Controllers/Admin/Renovation.php on line 5
+[05-Jan-2026 05:20:46 Asia/Jakarta] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/stuh8812/backend_core/app/Controllers/Api/RenovationApi.php on line 5
+[21-Jan-2026 09:23:12 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:23:46 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:24:37 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:25:32 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:26:34 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:27:24 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:27:31 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:29:52 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[21-Jan-2026 09:30:51 Asia/Jakarta] PHP Fatal error:  Uncaught CodeIgniter\Format\Exceptions\FormatException: Failed to parse JSON string. Error: Malformed UTF-8 characters, possibly incorrectly encoded in /home/stuh8812/backend_core/system/Format/JSONFormatter.php:47
+Stack trace:
+#0 /home/stuh8812/backend_core/system/Format/JSONFormatter.php(47): CodeIgniter\Format\Exceptions\FormatException::forInvalidJSON('Malformed UTF-8...')
+#1 /home/stuh8812/backend_core/system/API/ResponseTrait.php(347): CodeIgniter\Format\JSONFormatter->format(Array)
+#2 /home/stuh8812/backend_core/system/API/ResponseTrait.php(106): CodeIgniter\Debug\ExceptionHandler->format(Array)
+#3 /home/stuh8812/backend_core/system/Debug/ExceptionHandler.php(95): CodeIgniter\Debug\ExceptionHandler->respond(Array, 404)
+#4 /home/stuh8812/backend_core/system/Debug/Exceptions.php(162): CodeIgniter\Debug\ExceptionHandler->handle(Object(CodeIgniter\Exceptions\PageNotFoundException), Object(CodeIgniter\HTTP\IncomingRequest), Object(CodeIgniter\HTTP\Response), 404, 1)
+#5 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler(Object(CodeIgniter\Exceptions\PageNotFoundException))
+#6 {main}
+  thrown in /home/stuh8812/backend_core/system/Format/JSONFormatter.php on line 47
+[09-Feb-2026 13:25:23 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[09-Feb-2026 13:25:59 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[09-Feb-2026 13:26:18 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[09-Feb-2026 15:00:38 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[09-Feb-2026 15:01:29 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[10-Feb-2026 08:34:23 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[14-Feb-2026 08:59:21 Asia/Jakarta] PHP Fatal error:  Cannot declare class App\Controllers\Admin\Renovation, because the name is already in use in /home/stuh8812/backend_core/app/Views/admin/renovation/detail.php on line 9
+[23-Feb-2026 19:55:23 Asia/Jakarta] PHP Fatal error:  Cannot declare class Config\Filters, because the name is already in use in /home/stuh8812/backend_core/app/Config/Routes.php on line 13
