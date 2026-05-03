@@ -46,9 +46,15 @@ Tambah Banner Baru
                     </div>
 
                     <div class="form-group mb-0 text-right">
+                        <?php if (can('banner_create')): ?>
                         <button type="submit" class="btn btn-primary btn-lg btn-icon icon-right ladda-button" data-style="zoom-in">
                             <span class="ladda-label"><i class="fas fa-save"></i> Simpan Banner</span>
                         </button>
+                        <?php else: ?>
+                        <button type="button" class="btn btn-secondary btn-lg btn-icon icon-right" disabled>
+                            <i class="fas fa-lock"></i> Akses Ditolak
+                        </button>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>

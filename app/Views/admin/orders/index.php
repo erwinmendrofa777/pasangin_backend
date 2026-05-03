@@ -1,231 +1,330 @@
 <?= $this->extend('layout/app') ?>
 
 <?= $this->section('title') ?>
-Manajemen Pesanan
+Kelola Pesanan
 <?= $this->endSection() ?>
 
 <?= $this->section('page_title') ?>
-Manajemen Pesanan
+Kelola Pesanan
 <?= $this->endSection() ?>
 
 <?= $this->section('style') ?>
 <style>
-    /* Custom styling for search input */
-    #searchInput {
-        border-radius: 5px 0 0 5px;
-        border-right: none;
+    /* ===== HEADER CARD ===== */
+    .page-header-card {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 60%, #084298 100%);
+        border: none;
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
     }
-    
-    #searchInput:focus {
-        box-shadow: none;
-        border-color: #6777ef;
+    .page-header-card::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 200px; height: 200px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 50%;
     }
-    
-    .input-group-text {
-        border-radius: 0 5px 5px 0;
-        border-left: none;
-        background-color: #6777ef;
-        color: white;
-        border-color: #6777ef;
+    .page-header-card::after {
+        content: '';
+        position: absolute;
+        bottom: -80px; left: -30px;
+        width: 260px; height: 260px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 50%;
     }
-    
-    /* Highlight search results */
+
+    /* ===== SEARCH INPUT ===== */
+    .search-wrapper { position: relative; }
+    .search-wrapper .search-icon {
+        position: absolute; left: 16px; top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd; font-size: 0.95rem;
+        pointer-events: none;
+        z-index: 5;
+    }
+    .search-wrapper input {
+        padding-left: 44px !important;
+        border-radius: 12px !important;
+        border: 1.5px solid #dee2e6;
+        transition: all 0.2s ease;
+        font-size: 0.88rem;
+        height: 42px;
+    }
+    .search-wrapper input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13,110,253,0.1);
+    }
+    .search-wrapper input::placeholder { color: #adb5bd; opacity: 0.8; }
+
+    /* ===== TABLE CARD ===== */
+    .table-card {
+        border: none;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        background: #fff;
+    }
+    .table-card .card-body { padding: 0; }
+
+    /* ===== TABLE ===== */
+    #table-1 { margin-bottom: 0 !important; }
+    #table-1 thead tr {
+        background: #f0f6ff;
+    }
+    #table-1 thead th {
+        color: #0d6efd;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dce8ff;
+        border-top: none;
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+    #table-1 tbody tr {
+        transition: background 0.15s ease;
+    }
+    #table-1 tbody tr:hover {
+        background: #f8fbff !important;
+    }
+    #table-1 tbody td {
+        padding: 12px;
+        vertical-align: middle;
+        border-color: #f0f4fa;
+        font-size: 0.88rem;
+        color: #343a40;
+    }
+
+    /* ===== BADGES ===== */
+    .status-badge {
+        border-radius: 50px;
+        padding: 4px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .status-paid { background: #d1fae5; color: #065f46; }
+    .status-pending  { background: #fef9c3; color: #854d0e; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-default  { background: #e9ecef; color: #495057; }
+
+    /* ===== ACTION BUTTONS ===== */
+    .btn-action {
+        width: 34px; height: 34px;
+        border-radius: 9px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.82rem;
+        border: none;
+        transition: all 0.18s ease;
+        text-decoration: none;
+    }
+    .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .btn-action-detail { background: #0d6efd; color: #0d6efd; }
+    .btn-action-detail:hover { background: #0d6efd; color: #fff; }
+
+    /* ===== FOOTER DATATABLE ===== */
+    .dt-footer {
+        padding: 14px 20px;
+        border-top: 1px solid #f0f4fa;
+        background: #fafcff;
+    }
+    .dataTables_info { font-size: 0.82rem; color: #6c757d !important; }
+    .dataTables_paginate .paginate_button {
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+    }
+    .dataTables_paginate .paginate_button.current {
+        background: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #fff !important;
+    }
+    .dataTables_paginate .paginate_button:hover:not(.current) {
+        background: #e7f0ff !important;
+        border-color: #e7f0ff !important;
+        color: #0d6efd !important;
+    }
     mark {
-        background-color: #fffbdd;
-        color: #856404;
-        padding: 1px 2px;
-        border-radius: 2px;
+        background-color: #dbeafe;
+        color: #1d4ed8;
+        padding: 1px 3px;
+        border-radius: 3px;
     }
-    
-    /* DataTables custom styling */
-    .dataTables_length select {
-        background-color: #fff;
-        border: 1px solid #e4e6fc;
-        border-radius: 5px;
-        padding: 5px 10px;
-    }
-    
-    .dataTables_info {
-        color: #6c757d;
-        font-size: 14px;
-    }
-    
-    /* Responsive adjustments */
+
     @media (max-width: 768px) {
-        .card-header-action {
-            flex-direction: column;
-            gap: 10px;
+        .page-header-card {
+            border-radius: 12px;
         }
-        
-        .card-header-action .input-group {
+
+        .page-header-card > .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 12px;
+        }
+
+        .table-card-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 16px;
+            padding: 16px !important;
+        }
+
+        .header-actions {
             width: 100% !important;
+        }
+
+        .search-wrapper {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .dt-footer {
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px !important;
+        }
+
+        #table-1 th,
+        #table-1 td {
+            white-space: nowrap;
         }
     }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="row">
-  <div class="col-12">
 
-    <div class="card shadow">
-      <div class="card-header">
-        <h4>Daftar Semua Pesanan</h4>
-        <div class="card-header-action d-flex gap-2">
-            <div class="input-group" style="width: 300px;">
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, email, telepon, role...">
-                <div class="input-group-append">
-                    <span class="input-group-text" style="height: 32px;">
-                        <i class="fas fa-search"></i>
-                    </span>
-                </div>
+<!-- ===== TABLE CARD ===== -->
+<div class="card table-card">
+
+    <!-- Card Header: Search -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 table-card-header" style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
+        <h6 class="mb-0 fw-bold text-primary d-flex align-items-center" style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
+            <i class="fas fa-list me-2"></i>Daftar Pesanan
+        </h6>
+        <div class="d-flex flex-column flex-sm-row gap-2 header-actions">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control" id="searchInput"
+                       placeholder="Cari ID, nama penerima...">
             </div>
         </div>
-      </div>
-      <div class="card-body pt-0">
-        <div class="table-responsive">
-          <table class="table table-striped table-md table-hover" id="table-1">
-            <thead class="text-center">
-              <tr>
-                <th class="text-center">No</th>
-                <th class="text-center">ID Order</th>
-                <th class="text-center">Pelanggan</th>
-                <th class="text-center">Item & Supplier</th>
-                <th class="text-center">Total Harga</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Tanggal</th>
-                <th class="text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php if (!empty($orders)) : ?>
-                <?php foreach ($orders as $key => $order) : ?>
-                  <tr class="text-center align-middle">
-                    <td><?= $key + 1 ?></td>
-                    <td><strong><?= esc($order['order_id']) ?></strong></td>
-                    <td>
-                        <?= esc($order['recipient_name']) ?><br>
-                        <small class="text-muted"><?= esc($order['recipient_phone']) ?></small>
-                    </td>
-                    <td>
-                        <ul class="list-unstyled mb-0">
-                            <?php foreach ($order['items'] as $item) : ?>
-                                <li class="mb-2 pb-1 border-bottom">
-                                    <span class="badge badge-info mb-1" style="font-size: 9px;"><?= esc($item['supplier_name']) ?></span><br>
-                                    <small><strong><?= esc($item['product_name']) ?></strong> (x<?= $item['quantity'] ?>)</small>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </td>
-                    <td><strong>Rp <?= number_format($order['total_price'], 0, ',', '.') ?></strong></td>
-                    <td>
-                      <?php 
-                        $statusClass = '';
-                        if (in_array($order['status'], ['PAID', 'SETTLEMENT', 'SHIPPED', 'COMPLETED'])) $statusClass = 'badge-success';
-                        if (in_array($order['status'], ['CANCELLED', 'EXPIRED'])) $statusClass = 'badge-danger';
-                        if (in_array($order['status'], ['PENDING', 'UNPAID'])) $statusClass = 'text-bg-warning text-white';
-                      ?>
-                      <div class="badge <?= $statusClass ?>"><?= esc($order['status']) ?></div>
-                    </td>
-                    <td><?= date('d M Y', strtotime($order['created_at'])) ?><br><small><?= date('H:i', strtotime($order['created_at'])) ?></small></td>
-                    <td class="text-center">
-                      <form action="<?= site_url('admin/orders/update/' . $order['id']) ?>" method="POST" class="d-inline">
-                        <div class="input-group">
-                            <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
-                                <option value="PENDING" <?= $order['status'] == 'PENDING' ? 'selected' : '' ?>>PENDING</option>
-                                <option value="UNPAID" <?= $order['status'] == 'UNPAID' ? 'selected' : '' ?>>UNPAID</option>
-                                <option value="PAID" <?= $order['status'] == 'PAID' ? 'selected' : '' ?>>PAID</option>
-                                <option value="SETTLEMENT" <?= $order['status'] == 'SETTLEMENT' ? 'selected' : '' ?>>SETTLEMENT</option>
-                                <option value="SHIPPED" <?= $order['status'] == 'SHIPPED' ? 'selected' : '' ?>>SHIPPED</option>
-                                <option value="COMPLETED" <?= $order['status'] == 'COMPLETED' ? 'selected' : '' ?>>COMPLETED</option>
-                                <option value="CANCELLED" <?= $order['status'] == 'CANCELLED' ? 'selected' : '' ?>>CANCELLED</option>
-                            </select>
-                        </div>
-                      </form>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              <?php else : ?>
-                <tr>
-                  <td colspan="8" class="text-center">Tidak ada data pesanan yang ditemukan.</td>
-                </tr>
-              <?php endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="table-1" style="width:100%">
+                <thead class="text-center">
+                    <tr>
+                        <th class="text-center">No</th>
+                        <th class="text-center">ID Order</th>
+                        <th class="text-center">Nama Penerima</th>
+                        <th class="text-center">Total Harga</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($orders)) : ?>
+                        <?php foreach ($orders as $key => $order) : ?>
+                        <tr class="text-center align-middle">
+                            <td>
+                                <span class="fw-semibold text-muted" style="font-size:0.82rem;"><?= $key + 1 ?></span>
+                            </td>
+                            <td class="fw-bold"><?= esc($order['order_id']) ?></td>
+                            <td class="text-start ps-3 fw-semibold text-dark"><?= esc($order['recipient_name']) ?></td>
+                            <td class="fw-bold text-primary">Rp <?= number_format($order['total_price'], 0, ',', '.') ?></td>
+                            <td>
+                                <?php
+                                $status = $order['status'];
+                                $sClass = 'status-default';
+                                $sIcon = 'fas fa-circle';
+                                if (in_array($status, ['PAID', 'SETTLEMENT', 'SHIPPED', 'COMPLETED'])) {
+                                    $sClass = 'status-paid';
+                                    $sIcon = 'fas fa-check-circle';
+                                } elseif (in_array($status, ['CANCELLED', 'EXPIRED'])) {
+                                    $sClass = 'status-cancelled';
+                                    $sIcon = 'fas fa-times-circle';
+                                } elseif (in_array($status, ['PENDING', 'UNPAID'])) {
+                                    $sClass = 'status-pending';
+                                    $sIcon = 'fas fa-clock';
+                                }
+                                ?>
+                                <span class="status-badge <?= $sClass ?>">
+                                    <i class="<?= $sIcon ?>"></i> <?= esc($status) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <?php if (can('orders')): ?>
+                                    <a href="<?= base_url('admin/orders/detail/' . $order['id']) ?>"
+                                       class="btn-action btn-action-detail"
+                                       data-toggle="tooltip" title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
 <script>
-// Konfigurasi Trigger Otomatis dari Flashdata (Server Side)
+/* ===== Flash Messages ===== */
 <?php if (session()->getFlashdata('success')) : ?>
-    iziToast.success({
-        timeout: 20000,
-        title: 'Berhasil',
-        message: '<?= session()->getFlashdata('success') ?>',
-        position: 'topCenter'
-    });
+iziToast.success({ timeout: 5000, title: 'Berhasil', message: '<?= session()->getFlashdata('success') ?>', position: 'topCenter' });
 <?php endif; ?>
-
 <?php if (session()->getFlashdata('error')) : ?>
-    iziToast.error({
-        timeout: 20000,
-        title: 'Gagal',
-        message: '<?= session()->getFlashdata('error') ?>',
-        position: 'topCenter'
-    });
+iziToast.error({ timeout: 5000, title: 'Gagal', message: '<?= session()->getFlashdata('error') ?>', position: 'topCenter' });
 <?php endif; ?>
-// end konfigurasi
 
 $(document).ready(function() {
-    // Konfigurasi DataTables dengan fitur search yang enhanced
+    /* ===== DataTables ===== */
     var table = $('#table-1').DataTable({
         "language": {
             "search": "Cari:",
             "lengthMenu": "Tampilkan _MENU_ data per halaman",
-            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            "info": "Menampilkan _START_ - _END_ dari _TOTAL_ data",
             "paginate": {
-                "first": "Pertama",
-                "last": "Terakhir",
-                "next": "Selanjutnya", 
-                "previous": "Sebelumnya"
+                "first": "Pertama", "last": "Terakhir",
+                "next": "Selanjutnya", "previous": "Sebelumnya"
             },
             "emptyTable": "Tidak ada data yang tersedia",
             "zeroRecords": "Tidak ada data yang cocok ditemukan"
         },
-        "columnDefs": [
-            { "sortable": false, "targets": [1,2,3,4,5,6,7] } // Foto dan Aksi tidak bisa di-sort
-        ],
+        "columnDefs": [{ "sortable": false, "targets": [5] }],
         "pageLength": 10,
         "searching": true,
         "ordering": true,
         "info": true,
         "autoWidth": false,
         "responsive": true,
-        "dom": 'rt<"d-flex justify-content-between mt-3"ip>', // Hide default search, show only table, length, pagination
-        "drawCallback": function(settings) {
-            // Re-initialize tooltips after table redraw
+        "dom": 'rt<"dt-footer d-flex justify-content-between align-items-center"ip>',
+        "drawCallback": function() {
             $('[data-toggle="tooltip"]').tooltip();
         }
     });
-    
-    // Hubungkan search input custom dengan DataTables search
+
+    /* ===== Custom Search ===== */
     $('#searchInput').on('keyup', function() {
         table.search(this.value).draw();
     });
-    
-    // Clear search when input is cleared
     $('#searchInput').on('search', function() {
-        if (this.value === '') {
-            table.search('').draw();
-        }
+        if (this.value === '') table.search('').draw();
     });
 
-    // Initialize tooltips
+    /* ===== Tooltips ===== */
     $('[data-toggle="tooltip"]').tooltip();
 });
 </script>

@@ -15,25 +15,29 @@ class SupplierModel extends Model
 
     // === FIELD YANG DIIZINKAN (SUDAH DITAMBAHKAN LATITUDE & LONGITUDE) ===
     protected $allowedFields    = [
-        'name', 
-        'email', 
-        'password', 
-        'contact_person', 
-        'phone', 
-        'address', 
-        'province', 
-        'city', 
-        'district', 
-        'logo_url', 
+        'name',
+        'email',
+        'password',
+        'contact_person',
+        'phone',
+        'address',
+        'province',
+        'city',
+        'district',
+        'logo_url',
         'latitude',  // Tambahan untuk Maps
         'longitude', // Tambahan untuk Maps
-        'is_active', 
-        'status', 
+        'is_active',
+        'is_verify',
+        'nik',
+        'rata_rata_rating',
+        'total_ulasan',
+        'status',
         'fcm_token'
     ];
 
     // === TIMESTAMPS (Sesuai Struktur Tabel) ===
-    protected $useTimestamps = true; 
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -42,6 +46,7 @@ class SupplierModel extends Model
     // Validation
     protected $validationRules      = [];
     protected $validationMessages   = [];
+
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

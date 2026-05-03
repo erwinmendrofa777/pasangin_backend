@@ -38,6 +38,7 @@ class ProductModel extends Model
     // Validation
     protected $validationRules      = [];
     protected $validationMessages   = [];
+
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

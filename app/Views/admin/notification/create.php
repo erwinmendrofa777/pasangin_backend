@@ -37,9 +37,15 @@
                     </div>
 
                     <div class="text-right">
+                        <?php if (can('notification_create')): ?>
                         <button type="submit" class="btn btn-primary btn-lg shadow-sm ladda-button" data-style="zoom-in">
                             <span class="ladda-label"><i class="fas fa-paper-plane"></i> Kirim Notifikasi Sekarang</span>
                         </button>
+                        <?php else: ?>
+                        <button type="button" class="btn btn-secondary btn-lg shadow-sm" disabled>
+                            <i class="fas fa-lock"></i> Akses Ditolak
+                        </button>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>

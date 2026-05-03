@@ -15,9 +15,11 @@ class TukangRatingModel extends Model{
 
     protected $allowedFields    = [
         'id_tukang', 
+        'target_id',
+        'project_type',
         'skill_score',
         'behavior_score',
-        'comment',
+        'comment'
     ];
 
     // Validation

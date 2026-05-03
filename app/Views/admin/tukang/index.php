@@ -1,64 +1,216 @@
-<?= $this->extend('layout/app'); ?>
+<?= $this->extend('layout/app') ?>
 
 <?= $this->section('title') ?>
- Manajemen Tukang 
+Kelola Mitra Tukang
 <?= $this->endSection() ?>
 
 <?= $this->section('page_title') ?>
- Daftar Mitra Tukang 
+Manajemen Tukang
 <?= $this->endSection() ?>
 
 <?= $this->section('style') ?>
 <style>
-    /* Custom styling for search input */
-    #searchInput {
-        border-radius: 5px 0 0 5px;
-        border-right: none;
+    /* ===== SEARCH INPUT ===== */
+    .search-wrapper {
+        position: relative;
     }
-    
-    #searchInput:focus {
-        box-shadow: none;
-        border-color: #6777ef;
+
+    .search-wrapper .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+        font-size: 0.95rem;
+        pointer-events: none;
+        z-index: 5;
     }
-    
-    .input-group-text {
-        border-radius: 0 5px 5px 0;
-        border-left: none;
-        background-color: #6777ef;
-        color: white;
-        border-color: #6777ef;
+
+    .search-wrapper input {
+        padding-left: 44px !important;
+        border-radius: 12px !important;
+        border: 1.5px solid #dee2e6;
+        transition: all 0.2s ease;
+        font-size: 0.88rem;
+        height: 42px;
     }
-    
-    /* Highlight search results */
-    mark {
-        background-color: #fffbdd;
-        color: #856404;
-        padding: 1px 2px;
-        border-radius: 2px;
+
+    .search-wrapper input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
     }
-    
-    /* DataTables custom styling */
-    .dataTables_length select {
-        background-color: #fff;
-        border: 1px solid #e4e6fc;
-        border-radius: 5px;
-        padding: 5px 10px;
+
+    /* ===== TABLE CARD ===== */
+    .table-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
     }
-    
-    .dataTables_info {
-        color: #6c757d;
-        font-size: 14px;
+
+    .table-card .card-body {
+        padding: 0;
     }
-    
-    /* Responsive adjustments */
+
+    /* ===== TABLE ===== */
+    #table-1 {
+        margin-bottom: 0 !important;
+    }
+
+    #table-1 thead tr {
+        background: #f0f6ff;
+    }
+
+    #table-1 thead th {
+        color: #0d6efd;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dce8ff;
+        padding: 14px 12px;
+    }
+
+    #table-1 tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        font-size: 0.88rem;
+    }
+
+    /* ===== AVATAR ===== */
+    .tukang-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== BADGES ===== */
+    .status-badge {
+        border-radius: 50px;
+        padding: 5px 14px;
+        font-weight: 700;
+        font-size: 0.7rem;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status-berkas {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .status-ditolak {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-test {
+        background: #e0f2fe;
+        color: #075985;
+    }
+
+    .status-aktivasi {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+
+    .status-siap {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    /* ===== ACTION BUTTONS ===== */
+    .btn-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        border: none;
+        transition: all 0.18s ease;
+        text-decoration: none;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-action-detail {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .btn-action-detail:hover {
+        background: #084298;
+        color: #fff;
+    }
+
+    .btn-action-delete {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    .btn-action-delete:hover {
+        background: #bb2d3b;
+        color: #fff;
+    }
+
+    .dt-footer {
+        padding: 14px 20px;
+        background: #fafcff;
+        border-top: 1px solid #f0f4fa;
+    }
+
     @media (max-width: 768px) {
-        .card-header-action {
+        .table-card-header {
             flex-direction: column;
-            gap: 10px;
+            align-items: stretch !important;
+            gap: 16px !important;
+            padding: 20px 16px !important;
+            background: linear-gradient(to bottom, #f9fbff 0%, #ffffff 100%) !important;
         }
-        
-        .card-header-action .input-group {
+
+        .table-card-header h6 {
+            font-size: 1rem !important;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #e2e8f0;
+            width: 100%;
+        }
+
+        .header-actions {
             width: 100% !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+
+        .header-actions .btn {
+            width: 100% !important;
+            padding: 10px 16px !important;
+        }
+
+        .search-wrapper {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .dt-footer {
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px !important;
+        }
+
+        #table-1 th,
+        #table-1 td {
+            white-space: nowrap;
         }
     }
 </style>
@@ -66,76 +218,124 @@
 
 <?= $this->section('content') ?>
 
-<div class="row">
-    <div class="col-12">
+<div class="card table-card">
+    <!-- Header with Search and Create Button -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 table-card-header" style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
+        <h6 class="mb-0 fw-bold text-primary d-flex align-items-center" style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
+            <i class="fas fa-tools me-2"></i>Daftar Mitra Tukang
+        </h6>
+        <div class="d-flex flex-column flex-sm-row gap-2 header-actions">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, email...">
+            </div>
+            <?php if (can('tukang_create')): ?>
+            <a href="<?= base_url('admin/tukang/create') ?>" class="btn btn-primary d-flex align-items-center justify-content-center text-nowrap" style="border-radius: 12px; font-size: 0.82rem; padding: 8px 14px;">
+                <i class="fas fa-plus me-1"></i> Tambah Mitra
+            </a>
+            <?php endif; ?>
+        </div>
+    </div>
 
-        <div class="card shadow">
-            <div class="card-header bg-white d-flex gap-2 justify-content-between">
-                <h4>Data Statistik & Status Mitra</h4>
-                <div class="input-group" style="width: 300px;">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, email, telepon, role...">
-                    <div class="input-group-append">
-                        <span class="input-group-text" style="height: 32px;">
-                            <i class="fas fa-search"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body pt-0">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover table-md" id="table-1">
-                        <thead class="text-center">
-                            <tr>
-                                <th class="text-center">No</th>
-                                <th class="text-center" style="width:30%">Nama & Spesialisasi</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">total rating</th>
-                                <th class="text-center">score Skill</th>
-                                <th class="text-center">score Behavior</th>
-                                <th class="text-center" style="width:10%">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($tukang as $key => $row) : ?>
-                                <tr class="text-center align-middle">
-                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                    <td class="text-center"><?= $key + 1 ?></td>
-                                    <td>
-                                        <div class="font-weight-bold text-dark"><?= esc($row['name']) ?></div>
-                                        <div class="text-small text-muted"><?= esc($row['specialization'] ?: 'Umum') ?></div>
-                                    </td>
-                                    <td>
-                                        <form action="<?= base_url('admin/tukang/update-stats') ?>" method="post">
-                                        <?= csrf_field() ?>
-                                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                            <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
-                                                <option value="Berkas Diproses" <?= $row['status'] == 'Berkas Diproses' ? 'selected' : '' ?>>Berkas Diproses</option>
-                                                <option value="Ditolak" <?= $row['status'] == 'Ditolak' ? 'selected' : '' ?>>Ditolak</option>
-                                                <option value="Proses Test" <?= $row['status'] == 'Proses Test' ? 'selected' : '' ?>>Proses Test</option>
-                                                <option value="Proses Aktivasi" <?= $row['status'] == 'Proses Aktivasi' ? 'selected' : '' ?>>Proses Aktivasi</option>
-                                                <option value="Siap Kerja" <?= $row['status'] == 'Siap Kerja' ? 'selected' : '' ?>>Siap Kerja</option>
-                                            </select>
-                                        </form>
-                                    </td>
-                                    <td class="text-center"><?= $row['rata_rata_rating'] ?></td>
-                                    <td class="text-center"><?= $row['skill_score'] ?></td>
-                                    <td class="text-center"><?= $row['behavior_score'] ?></td>
-                                    <td class="text-center">
-                                        <div class="btn-group">
-                                            <a href="<?= base_url('admin/tukang/detail/' . $row['id']) ?>" class="btn btn-info btn-sm" title="Detail Lengkap">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-footer bg-whitesmoke text-muted small">
-                <i class="fas fa-info-circle"></i> <strong>Tips:</strong> Tekan tombol biru (ikon save) untuk menyimpan perubahan skor pada masing-masing tukang kawan.
-            </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="table-1">
+                <thead>
+                    <tr class="text-center">
+                        <th>No</th>
+                        <th>Foto</th>
+                        <th class="text-start" style="width: 30%;">Nama & Spesialisasi</th>
+                        <th>Email & Telepon</th>
+                        <th>Status</th>
+                        <th>Rating</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($tukang as $key => $row): ?>
+                        <tr class="text-center">
+                            <td class="fw-bold text-muted"><?= $key + 1 ?></td>
+                            <td>
+                                <?php if (!empty($row['profile_photo'])): ?>
+                                    <img src="<?= base_url('uploads/tukang/' . $row['profile_photo']) ?>" class="tukang-avatar" alt="Foto Profile">
+                                <?php else: ?>
+                                    <img src="<?= base_url('uploads/tukang/default.jpg') ?>" class="tukang-avatar" alt="Default Foto">
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-start">
+                                <div class="fw-bold text-dark"><?= esc($row['name']) ?></div>
+                                <div class="text-muted small"><i class="fas fa-briefcase me-1"></i> <?= esc($row['specialization'] ?: 'Umum') ?></div>
+                            </td>
+                            <td class="text-start">
+                                <div class="small text-dark fw-semibold"><i class="fas fa-envelope me-1 opacity-50"></i> <?= esc($row['email'] ?: '-') ?></div>
+                                <div class="small text-muted"><i class="fas fa-phone me-1 opacity-50"></i> <?= esc($row['phone'] ?: '-') ?></div>
+                            </td>
+                            <td>
+                                <?php
+                                $status = $row['status'];
+                                $statusClass = 'status-berkas';
+                                $icon = 'fas fa-file-alt';
+
+                                switch ($status) {
+                                    case 'Berkas Diproses':
+                                        $statusClass = 'status-berkas';
+                                        $icon = 'fas fa-file-medical';
+                                        break;
+                                    case 'Ditolak':
+                                        $statusClass = 'status-ditolak';
+                                        $icon = 'fas fa-times-circle';
+                                        break;
+                                    case 'Proses Test':
+                                        $statusClass = 'status-test';
+                                        $icon = 'fas fa-vial';
+                                        break;
+                                    case 'Proses Aktivasi':
+                                        $statusClass = 'status-aktivasi';
+                                        $icon = 'fas fa-user-check';
+                                        break;
+                                    case 'Siap Kerja':
+                                        $statusClass = 'status-siap';
+                                        $icon = 'fas fa-check-double';
+                                        break;
+                                }
+                                ?>
+                                <span class="status-badge <?= $statusClass ?>">
+                                    <i class="<?= $icon ?> me-1"></i> <?= $status ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column align-items-center">
+                                    <div class="fw-bold text-primary mb-1">
+                                        <i class="fas fa-star text-warning me-1"></i><?= $row['rata_rata_rating'] ?>
+                                    </div>
+                                    <div style="font-size: 0.65rem;" class="text-muted text-nowrap">
+                                        S: <?= $row['skill_score'] ?> | B: <?= $row['behavior_score'] ?>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <?php if (can('tukang')): ?>
+                                    <a href="<?= base_url('admin/tukang/detail/' . $row['id']) ?>"
+                                        class="btn-action btn-action-detail"
+                                        data-toggle="tooltip" title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <?php endif; ?>
+                                    <?php if (can('tukang_delete')): ?>
+                                    <a href="<?= base_url('admin/tukang/delete/' . $row['id']) ?>"
+                                        class="btn-action btn-action-delete ladda-button"
+                                        data-style="zoom-in"
+                                        onclick="return confirm('Hapus data mitra tukang ini?')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -144,72 +344,46 @@
 
 <?= $this->section('script') ?>
 <script>
-    // Konfigurasi Trigger Otomatis dari Flashdata (Server Side)
-    <?php if (session()->getFlashdata('success')) : ?>
-        iziToast.success({
-            timeout: 20000,
-            title: 'Berhasil',
-            message: '<?= session()->getFlashdata('success') ?>',
-            position: 'topCenter'
-        });
-    <?php endif; ?>
-
-    <?php if (session()->getFlashdata('error')) : ?>
-        iziToast.error({
-            timeout: 20000,
-            title: 'Gagal',
-            message: '<?= session()->getFlashdata('error') ?>',
-            position: 'topCenter'
-        });
-    <?php endif; ?>
-    // end konfigurasi
-
-$(document).ready(function() {
-    // Konfigurasi DataTables dengan fitur search yang enhanced
-    var table = $('#table-1').DataTable({
-        "language": {
-            "search": "Cari:",
-            "lengthMenu": "Tampilkan _MENU_ data per halaman",
-            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-            "paginate": {
-                "first": "Pertama",
-                "last": "Terakhir",
-                "next": "Selanjutnya", 
-                "previous": "Sebelumnya"
+    $(document).ready(function() {
+        var table = $('#table-1').DataTable({
+            "language": {
+                "search": "Cari:",
+                "lengthMenu": "Tampilkan _MENU_ data",
+                "info": "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+                "paginate": {
+                    "next": "Selanjutnya",
+                    "previous": "Sebelumnya"
+                }
             },
-            "emptyTable": "Tidak ada data yang tersedia",
-            "zeroRecords": "Tidak ada data yang cocok ditemukan"
-        },
-        "columnDefs": [
-            { "sortable": false, "targets": [1,2,3,4,5,6] } // Foto dan Aksi tidak bisa di-sort
-        ],
-        "pageLength": 10,
-        "searching": true,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-        "dom": 'rt<"d-flex justify-content-between mt-3"ip>', // Hide default search, show only table, length, pagination
-        "drawCallback": function(settings) {
-            // Re-initialize tooltips after table redraw
-            $('[data-toggle="tooltip"]').tooltip();
-        }
-    });
-    
-    // Hubungkan search input custom dengan DataTables search
-    $('#searchInput').on('keyup', function() {
-        table.search(this.value).draw();
-    });
-    
-    // Clear search when input is cleared
-    $('#searchInput').on('search', function() {
-        if (this.value === '') {
-            table.search('').draw();
-        }
-    });
+            "columnDefs": [{
+                "sortable": false,
+                "targets": [1, 6]
+            }],
+            "dom": 'rt<"dt-footer d-flex justify-content-between align-items-center"ip>',
+        });
 
-    // Initialize tooltips
-    $('[data-toggle="tooltip"]').tooltip();
-});
+        $('#searchInput').on('keyup', function() {
+            table.search(this.value).draw();
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        <?php if (session()->getFlashdata('success')): ?>
+            iziToast.success({
+                timeout: 5000,
+                title: 'Berhasil',
+                message: '<?= session()->getFlashdata('success') ?>',
+                position: 'topCenter'
+            });
+        <?php endif; ?>
+        <?php if (session()->getFlashdata('error')): ?>
+            iziToast.error({
+                timeout: 5000,
+                title: 'Gagal',
+                message: '<?= session()->getFlashdata('error') ?>',
+                position: 'topCenter'
+            });
+        <?php endif; ?>
+    });
 </script>
 <?= $this->endSection() ?>

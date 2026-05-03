@@ -1,0 +1,320 @@
+<style>
+    /* ── Upload dropzone ── */
+    .desain-upload-card {
+        border: 2px dashed #c9d1db;
+        border-radius: 14px;
+        background: #fafbfc;
+        transition: border-color 0.25s ease, background 0.25s ease;
+        animation: desainFadeUp 0.4s ease both;
+    }
+
+    .desain-upload-card:hover {
+        border-color: #6777ef;
+        background: #f0f2ff;
+    }
+
+    /* ── Gallery card ── */
+    .desain-gallery-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e4e9f0;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        position: relative;
+        animation: desainFadeUp 0.35s ease both;
+    }
+
+    .desain-gallery-card:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    .desain-gallery-card:nth-child(2) {
+        animation-delay: 0.10s;
+    }
+
+    .desain-gallery-card:nth-child(3) {
+        animation-delay: 0.15s;
+    }
+
+    .desain-gallery-card:nth-child(4) {
+        animation-delay: 0.20s;
+    }
+
+    .desain-gallery-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(103, 119, 239, 0.18);
+    }
+
+    .desain-gallery-card .desain-thumb {
+        height: 150px;
+        object-fit: cover;
+        width: 100%;
+        display: block;
+    }
+
+    .desain-gallery-card .desain-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 150px;
+        background: rgba(30, 35, 60, 0.55);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .desain-gallery-card:hover .desain-overlay {
+        opacity: 1;
+    }
+
+    .desain-gallery-card .desain-meta {
+        padding: 12px 14px;
+    }
+
+    .desain-pdf-placeholder {
+        height: 150px;
+        background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .desain-overlay-btn {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        transition: transform 0.15s ease;
+    }
+
+    .desain-overlay-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .desain-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #6c757d;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .desain-input {
+        border-radius: 8px;
+        border: 1.5px solid #e0e4ff;
+        font-size: 0.85rem;
+        padding: 9px 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .desain-input:focus {
+        border-color: #6777ef;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.12);
+    }
+
+    @keyframes desainFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .desain-empty {
+        border: 2px dashed #dee2e6;
+        border-radius: 14px;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: desainFadeUp 0.4s ease both 0.1s;
+    }
+
+    /* ── MOBILE ── */
+    .desain-mobile-actions {
+        display: none;
+        padding: 8px 12px;
+        border-top: 1px solid #f0f2f5;
+        gap: 8px;
+    }
+
+    @media (max-width: 767px) {
+
+        /* Upload card: padding kompak */
+        .desain-upload-card {
+            padding: 16px !important;
+        }
+
+        /* Thumbnail lebih pendek */
+        .desain-gallery-card .desain-thumb,
+        .desain-gallery-card .desain-pdf-placeholder {
+            height: 110px;
+        }
+
+        /* Sembunyikan hover overlay di HP */
+        .desain-gallery-card .desain-overlay {
+            display: none !important;
+        }
+
+        /* Tampilkan tombol aksi di bawah card */
+        .desain-mobile-actions {
+            display: flex;
+        }
+
+        .desain-gallery-card .desain-meta {
+            padding: 8px 10px;
+        }
+    }
+</style>
+
+<div class="row mt-3 g-3">
+
+    <!-- ══════ PANEL UPLOAD ══════ -->
+    <div class="col-lg-4 align-self-start">
+        <div class="desain-upload-card p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center mr-2"
+                    style="width:38px; height:38px; background:rgba(103,119,239,0.12);">
+                    <i class="fas fa-cloud-upload-alt text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 font-weight-bold" style="font-size:0.9rem;">Upload Hasil Desain</h6>
+                    <small class="text-muted">Format: JPG, PNG, PDF — maks. 5 MB</small>
+                </div>
+            </div>
+            <hr class="mt-2 mb-3">
+
+            <form action="<?= base_url('admin/renovation/add-design/' . $renovation['id']) ?>" method="post"
+                enctype="multipart/form-data">
+                <?= csrf_field() ?>
+                <input type="hidden" name="id" value="<?= $renovation['id'] ?>">
+
+                <div class="mb-3">
+                    <label class="desain-label">Judul Desain</label>
+                    <input type="text" name="title" class="form-control desain-input"
+                        placeholder="Contoh: Denah Lantai 1" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="desain-label">File Gambar / PDF</label>
+                    <div class="position-relative">
+                        <input type="file" name="file_url" class="form-control desain-input"
+                            accept=".png,.jpg,.jpeg,.pdf" required style="padding-right:40px;">
+                        <i class="fas fa-paperclip text-muted position-absolute"
+                            style="right:14px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block font-weight-bold ladda-button"
+                    data-style="zoom-in" style="border-radius:10px; letter-spacing:0.3px; padding:10px;">
+                    <span class="ladda-label"><i class="fas fa-cloud-upload-alt mr-1"></i> Upload Sekarang</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════ GALERI DESAIN ══════ -->
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h6 class="font-weight-bold mb-0" style="font-size:0.9rem;">
+                    <i class="fas fa-images text-primary mr-1"></i> Galeri Desain
+                </h6>
+                <small class="text-muted"><?= count($design_list ?? []) ?> file tersimpan</small>
+            </div>
+        </div>
+
+        <?php if (empty($design_list)): ?>
+            <div class="desain-empty text-muted py-5">
+                <i class="fas fa-drafting-compass mb-3" style="font-size:2.5rem; opacity:0.2;"></i>
+                <p class="mb-0" style="font-size:0.85rem;">Belum ada file desain yang diupload.</p>
+            </div>
+        <?php else: ?>
+            <div class="row g-3">
+                <?php foreach ($design_list as $d):
+                    $ext = strtolower(pathinfo($d['file_url'] ?? '', PATHINFO_EXTENSION));
+                    $isPdf = ($ext === 'pdf');
+                    $fileUrl = base_url('uploads/designs/' . $d['file_url']);
+                    ?>
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="desain-gallery-card">
+
+                            <!-- Thumbnail / PDF -->
+                            <?php if ($isPdf): ?>
+                                <div class="desain-pdf-placeholder">
+                                    <i class="fas fa-file-pdf text-danger" style="font-size:2.8rem;"></i>
+                                </div>
+                            <?php else: ?>
+                                <img src="<?= $fileUrl ?>" class="desain-thumb" alt="<?= esc($d['title'] ?? '') ?>">
+                            <?php endif; ?>
+
+                            <!-- Hover overlay -->
+                            <div class="desain-overlay">
+                                <a href="<?= $fileUrl ?>" target="_blank" class="desain-overlay-btn" title="Lihat">
+                                    <i class="fas fa-eye text-primary"></i>
+                                </a>
+                                <a href="<?= base_url('admin/renovation/delete-design/' . $d['id'] . '/' . $renovation['id']) ?>"
+                                    class="desain-overlay-btn ladda-button" data-style="zoom-in" title="Hapus"
+                                    onclick="if(confirm('Hapus file desain ini?')) { Ladda.create(this).start(); return true; } return false;">
+                                    <span class="ladda-label"><i class="fas fa-trash text-danger"></i></span>
+                                </a>
+                            </div>
+
+                            <!-- Info -->
+                            <div class="desain-meta">
+                                <div class="font-weight-bold text-truncate" style="font-size:0.82rem; color:#34395e;"
+                                    title="<?= esc($d['title'] ?? '') ?>">
+                                    <?= esc($d['title'] ?? 'Tanpa Judul') ?>
+                                </div>
+
+                                <?php if (!empty($d['comment'])): ?>
+                                    <div class="mt-1 p-2 rounded d-flex align-items-start"
+                                        style="background:#f8f9fa; border:1px solid #e9ecef; font-size:0.75rem;"
+                                        title="<?= esc($d['comment']) ?>">
+                                        <i class="fas fa-comment-dots text-primary mr-1 mt-1 flex-shrink-0"></i>
+                                        <div style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis;"
+                                            class="text-muted font-italic">
+                                            "<?= esc($d['comment']) ?>"
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt mr-1"></i> <?= date('d M Y', strtotime($d['created_at'])) ?>
+                                </small>
+                            </div>
+
+                            <!-- Tombol aksi mobile (tampil di HP, hidden di desktop) -->
+                            <div class="desain-mobile-actions">
+                                <a href="<?= $fileUrl ?>" target="_blank" class="btn btn-sm btn-outline-info flex-grow-1"
+                                    style="border-radius:8px; font-size:0.78rem;">
+                                    <i class="fas fa-eye mr-1"></i>Lihat
+                                </a>
+                                <a href="<?= base_url('admin/renovation/delete-design/' . $d['id'] . '/' . $renovation['id']) ?>"
+                                    class="btn btn-sm btn-outline-danger ladda-button flex-grow-1" data-style="zoom-in"
+                                    style="border-radius:8px; font-size:0.78rem;"
+                                    onclick="if(confirm('Hapus file desain ini?')) { Ladda.create(this).start(); return true; } return false;">
+                                    <span class="ladda-label"><i class="fas fa-trash mr-1"></i>Hapus</span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+</div>

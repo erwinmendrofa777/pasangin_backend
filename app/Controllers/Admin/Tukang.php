@@ -3,56 +3,182 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Services\TukangService;
+use RuntimeException;
 
+/**
+ * Tukang Controller — Admin
+ *
+ * Berperan sebagai "polisi lalu lintas":
+ *   1. Terima request dari user
+ *   2. Cek permission
+ *   3. Validasi input (HTTP layer)
+ *   4. Delegasikan ke TukangService untuk logika bisnis
+ *   5. Kembalikan response (redirect / view)
+ *
+ * TIDAK ADA upload file, raw query, atau logika bisnis di sini.
+ * Semua itu ada di App\Services\TukangService.
+ */
 class Tukang extends BaseController
 {
-    protected $db;
+    protected TukangService $tukangService;
 
     public function __construct()
     {
-        $this->db = \Config\Database::connect();
+        $this->tukangService = new TukangService();
+        helper(['form', 'url']);
     }
 
+    // -------------------------------------------------------------------------
+    // 1. LIST TUKANG
+    // -------------------------------------------------------------------------
     public function index()
     {
-        $data = [
-            'title'     => 'Daftar Tukang / Mitra',
-            'tukang'    => $this->db->table('tukang')
-                            ->select('tukang.*, COALESCE(ROUND(AVG(tukang_rating.skill_score), 1), 0) as skill_score, COALESCE(ROUND(AVG(tukang_rating.behavior_score), 1), 0) as behavior_score, COALESCE(tukang.rata_rata_rating, 0) as rata_rata_rating')
-                            ->join('tukang_rating', 'tukang.id = tukang_rating.id_tukang', 'left')
-                            ->groupBy('tukang.id')
-                            ->get()->getResultArray(),
-        ];
+        if (!can('tukang')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data tukang/mitra.');
+        }
 
-        return view('admin/tukang/index', $data);
+        return view('admin/tukang/index', [
+            'title'  => 'Daftar Tukang / Mitra',
+            'tukang' => $this->tukangService->getAllTukangWithRating(),
+        ]);
     }
-    
-    // Tambahkan fungsi ini di dalam class Tukang
-    public function update_stats()
+
+    // -------------------------------------------------------------------------
+    // 2. DETAIL TUKANG
+    // -------------------------------------------------------------------------
+    public function detail($id)
     {
-        $id = $this->request->getPost('id');
-        
-        $data = [
-            'status'         => $this->request->getPost('status'),
-            'updated_at'     => date('Y-m-d H:i:s')
-        ];
+        if (!can('tukang')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data tukang/mitra.');
+        }
 
-        $this->db->table('tukang')->where('id', $id)->update($data);
+        try {
+            $tukang = $this->tukangService->findTukangWithRatings((int) $id);
+        } catch (RuntimeException $e) {
+            return redirect()->to(base_url('admin/tukang'))->with('error', $e->getMessage());
+        }
 
-        return redirect()->back()->with('success', 'Data statistik tukang berhasil diperbarui!');
+        return view('admin/tukang/detail', [
+            'title'   => 'Detail Mitra Tukang - ' . $tukang['name'],
+            'tukang'  => $tukang,
+            'ratings' => $tukang['ratings'],
+        ]);
     }
 
-    // Fungsi untuk update status (Approved/Rejected) kawan
+    // -------------------------------------------------------------------------
+    // 3. FORM TAMBAH TUKANG
+    // -------------------------------------------------------------------------
+    public function create()
+    {
+        if (!can('tukang_create')) {
+            return redirect()->to('/admin/tukang')->with('error', 'Anda tidak memiliki akses untuk menambah tukang/mitra.');
+        }
+
+        return view('admin/tukang/create', ['title' => 'Tambah Mitra Tukang Baru']);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. SIMPAN TUKANG BARU
+    // -------------------------------------------------------------------------
+    public function store()
+    {
+        if (!can('tukang_create')) {
+            return redirect()->to('/admin/tukang')->with('error', 'Anda tidak memiliki akses untuk menambah tukang/mitra.');
+        }
+
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['profile_photo'] = $this->request->getFile('profile_photo');
+        $dataToValidate['ktp_photo']     = $this->request->getFile('ktp_photo');
+        $dataToValidate['selfie_photo']  = $this->request->getFile('selfie_photo');
+
+        if (!$this->validateData($dataToValidate, 'tukangSave')) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        try {
+            $this->tukangService->createTukang(
+                $this->request->getPost(),
+                [
+                    'profile_photo' => $this->request->getFile('profile_photo'),
+                    'ktp_photo'     => $this->request->getFile('ktp_photo'),
+                    'selfie_photo'  => $this->request->getFile('selfie_photo'),
+                ]
+            );
+
+            return redirect()->to(base_url('admin/tukang'))->with('success', 'Mitra Tukang berhasil didaftarkan!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. UPDATE VERIFIKASI
+    // -------------------------------------------------------------------------
+    public function update_verify()
+    {
+        if (!can('tukang_verify')) {
+            return redirect()->to('/admin/tukang')->with('error', 'Anda tidak memiliki akses untuk mengubah status verifikasi tukang/mitra.');
+        }
+
+        if (!$this->validateData($this->request->getPost(), 'tukangUpdateVerify')) {
+            return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        try {
+            $this->tukangService->updateVerify(
+                (int) $this->request->getPost('id'),
+                (int) $this->request->getPost('is_verify')
+            );
+            return redirect()->back()->with('success', 'Status verifikasi berhasil diperbarui!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. UPDATE STATUS
+    // -------------------------------------------------------------------------
     public function update_status()
     {
-        $id = $this->request->getPost('id');
-        $status = $this->request->getPost('status');
+        if (!can('tukang_status')) {
+            return redirect()->to('/admin/tukang')->with('error', 'Anda tidak memiliki akses untuk mengubah status tukang/mitra.');
+        }
 
-        $this->db->table('tukang')->where('id', $id)->update([
-            'status'     => $status,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        if (!$this->validateData($this->request->getPost(), 'tukangUpdateStatus')) {
+            return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        }
 
-        return redirect()->back()->with('success', 'Status mitra tukang berhasil diperbarui!');
+        try {
+            $this->tukangService->updateStatus(
+                (int) $this->request->getPost('id'),
+                $this->request->getPost('status')
+            );
+            return redirect()->back()->with('success', 'Status mitra tukang berhasil diperbarui!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
+
+    // -------------------------------------------------------------------------
+    // 7. HAPUS TUKANG
+    // -------------------------------------------------------------------------
+    public function delete($id)
+    {
+        if (!can('tukang_delete')) {
+            return redirect()->to('/admin/tukang')->with('error', 'Anda tidak memiliki akses untuk menghapus tukang/mitra.');
+        }
+
+        try {
+            $this->tukangService->deleteTukang((int) $id);
+            return redirect()->to(base_url('admin/tukang'))->with('success', 'Data Mitra Tukang berhasil dihapus.');
+        } catch (RuntimeException $e) {
+            return redirect()->to(base_url('admin/tukang'))->with('error', $e->getMessage());
+        }
+    }
+
+    // =========================================================================
+    // PRIVATE HELPERS — aturan validasi tetap di Controller (HTTP layer)
+    // =========================================================================
+
 }

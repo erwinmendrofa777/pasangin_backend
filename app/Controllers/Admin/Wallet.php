@@ -3,93 +3,106 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Services\WalletService;
+use RuntimeException;
 
+/**
+ * Wallet Controller — Admin
+ *
+ * Berperan sebagai "polisi lalu lintas":
+ *   1. Terima request dari user
+ *   2. Cek permission
+ *   3. Validasi input dasar
+ *   4. Delegasikan ke WalletService untuk logika bisnis keuangan
+ *   5. Kembalikan response (redirect / view)
+ *
+ * TIDAK ADA kalkulasi saldo, raw query, atau DB transaction di sini.
+ * Semua itu ada di App\Services\WalletService.
+ */
 class Wallet extends BaseController
 {
-    protected $db;
+    protected WalletService $walletService;
 
     public function __construct()
     {
-        $this->db = \Config\Database::connect();
+        $this->walletService = new WalletService();
     }
 
-    // Tampilkan semua tukang beserta saldonya
+    // -------------------------------------------------------------------------
+    // 1. LIST TUKANG & SALDO
+    // -------------------------------------------------------------------------
     public function index()
     {
-        $data = [
-            'title'   => 'Manajemen Saldo Tukang',
-            'tukang'  => $this->db->table('tukang')->orderBy('name', 'ASC')->get()->getResultArray()
-        ];
-        return view('admin/wallet/index', $data);
+        if (!can('wallet')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data saldo.');
+        }
+
+        return view('admin/wallet/index', [
+            'title'  => 'Manajemen Saldo Tukang',
+            'tukang' => $this->walletService->getAllTukang(),
+        ]);
     }
 
-    // Proses Tambah/Kurang Saldo Manual oleh Admin
+    // -------------------------------------------------------------------------
+    // 2. PROSES TAMBAH / KURANG SALDO MANUAL
+    // -------------------------------------------------------------------------
     public function update_balance()
     {
-        $tukangId    = $this->request->getPost('tukang_id');
-        $amount      = $this->request->getPost('amount');
-        $type        = $this->request->getPost('type'); // income atau withdraw
-        $description = $this->request->getPost('description');
+        if (!can('wallet_manage')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengelola saldo.');
+        }
+
+        if (!$this->validateData($this->request->getPost(), 'walletUpdateBalance')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
 
         try {
-            $this->db->transStart();
-
-            // 1. Ambil data tukang
-            $tukang = $this->db->table('tukang')->where('id', $tukangId)->get()->getRowArray();
-            $currentBalance = $tukang['balance'];
-
-            // 2. Hitung saldo baru
-            if ($type == 'income') {
-                $newBalance = $currentBalance + $amount;
-            } else {
-                if ($currentBalance < $amount) {
-                    return redirect()->back()->with('error', 'Gagal! Saldo tukang tidak cukup.');
-                }
-                $newBalance = $currentBalance - $amount;
-            }
-
-            // 3. Update saldo di tabel tukang
-            $this->db->table('tukang')->where('id', $tukangId)->update(['balance' => $newBalance]);
-
-            // 4. Catat ke riwayat transaksi
-            $this->db->table('tukang_transactions')->insert([
-                'tukang_id'   => $tukangId,
-                'amount'      => $amount,
-                'type'        => $type,
-                'description' => $description,
-                'created_at'  => date('Y-m-d H:i:s')
-            ]);
-
-            $this->db->transComplete();
+            $this->walletService->updateBalance(
+                (int)   $this->request->getPost('tukang_id'),
+                (float) $this->request->getPost('amount'),
+                        $this->request->getPost('type'),
+                        $this->request->getPost('description') ?? ''
+            );
 
             return redirect()->to(base_url('admin/wallet'))->with('success', 'Saldo berhasil diperbarui kawan!');
-        } catch (\Exception $e) {
+        } catch (RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    // Tampilkan daftar permintaan tarik uang (Withdrawal)
+    // -------------------------------------------------------------------------
+    // 3. LIST PERMINTAAN PENARIKAN DANA
+    // -------------------------------------------------------------------------
     public function withdrawals()
     {
-        $data = [
+        if (!can('wallet_withdraw_request')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat permintaan penarikan dana.');
+        }
+
+        return view('admin/wallet/withdrawals', [
             'title'    => 'Permintaan Penarikan Dana',
-            'requests' => $this->db->table('withdrawal_requests')
-                                   ->select('withdrawal_requests.*, tukang.name as tukang_name, tukang.phone')
-                                   ->join('tukang', 'tukang.id = withdrawal_requests.tukang_id')
-                                   ->orderBy('withdrawal_requests.created_at', 'DESC')
-                                   ->get()->getResultArray()
-        ];
-        return view('admin/wallet/withdrawals', $data);
+            'requests' => $this->walletService->getAllWithdrawalRequests(),
+        ]);
     }
 
-    // Update Status Withdraw (Setujui/Tolak)
+    // -------------------------------------------------------------------------
+    // 4. UPDATE STATUS WITHDRAWAL (SETUJUI / TOLAK)
+    // -------------------------------------------------------------------------
     public function update_withdrawal_status($id, $status)
     {
-        $this->db->table('withdrawal_requests')->where('id', $id)->update([
-            'status'     => $status,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        if (!can('wallet_withdraw_request')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengubah status permintaan penarikan dana.');
+        }
 
-        return redirect()->back()->with('success', 'Status penarikan diperbarui kawan.');
+        if (!$this->validateData(['status' => $status], 'walletUpdateWithdrawStatus')) {
+            return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        try {
+            $this->walletService->updateWithdrawalStatus((int) $id, $status);
+            return redirect()->back()->with('success', 'Status penarikan diperbarui kawan.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }

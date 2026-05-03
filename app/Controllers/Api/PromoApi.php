@@ -44,6 +44,23 @@ class PromoApi extends ResourceController
         return $this->respond($data);
     }
 
+    public function show($supplier_id = null)
+    {
+        $model = new PromoModel();
+        $data = $model->where('supplier_id', $supplier_id)->findAll();
+        
+        if (!$data) return $this->failNotFound();
+
+        return $this->respond($data);
+    }
+
+    public function getAllPromo()
+    {
+        $model = new PromoModel();
+        $data = $model->findAll();
+        return $this->respond($data);
+    }
+
     /**
      * --- 2. TAMBAH PROMO ---
      */

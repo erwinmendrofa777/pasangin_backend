@@ -14,5 +14,5 @@ class AlamatUserModel extends Model
     protected $protectFields    = true;
     
     // Field yang boleh diisi
-    protected $allowedFields    = ['id_user', 'alamat', 'label', 'is_active'];
+    protected $allowedFields    = ['id_user', 'alamat', 'latitude', 'longitude', 'label', 'is_active'];
 }

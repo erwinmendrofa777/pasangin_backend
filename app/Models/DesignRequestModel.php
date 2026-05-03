@@ -32,6 +32,7 @@ class DesignRequestModel extends Model
         'discount_amount', 
         'total_payment', 
         'status', 
+        'start_date',
         'target_date',      
         'progress_percent', 
         'created_at', 

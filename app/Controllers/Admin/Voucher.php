@@ -3,75 +3,84 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\VoucherModel;
+use App\Services\VoucherService;
+use RuntimeException;
 
 class Voucher extends BaseController
 {
-    protected $voucherModel;
+    protected VoucherService $svc;
 
     public function __construct()
     {
-        $this->voucherModel = new VoucherModel();
+        $this->svc = new VoucherService();
         helper(['form', 'url']);
     }
 
-    // Tampilkan Tabel Voucher
     public function index()
     {
-        $data = [
-            'title'    => 'Kelola Voucher',
-            'vouchers' => $this->voucherModel->findAll()
-        ];
-        return view('admin/voucher/index', $data);
+        if (!can('vouchers')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
+        return view('admin/voucher/index', ['title' => 'Kelola Voucher', 'vouchers' => $this->svc->getAll()]);
     }
 
-    // Buka Form Tambah (Yang tadi Error 404)
+    public function show($id)
+    {
+        if (!can('vouchers')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
+        try {
+            $voucher = $this->svc->findOrFail((int)$id);
+            return view('admin/voucher/detail', ['title' => 'Detail Voucher - ' . $voucher['name'], 'voucher' => $voucher]);
+        } catch (RuntimeException $e) {
+            return redirect()->to(base_url('admin/vouchers'))->with('error', $e->getMessage());
+        }
+    }
+
     public function create()
     {
-        $data = ['title' => 'Tambah Voucher Baru'];
-        return view('admin/voucher/create', $data);
+        if (!can('vouchers_create')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
+        return view('admin/voucher/create', ['title' => 'Tambah Voucher Baru']);
     }
 
-    // Proses Simpan ke Database
     public function store()
     {
-        $rules = [
-            'code'             => 'required|is_unique[vouchers.code]',
-            'name'             => 'required',
-            'discount_nominal' => 'required|numeric',
-            'valid_until'      => 'required',
-            'image'            => 'uploaded[image]|max_size[image,2048]|is_image[image]'
-        ];
+        if (!can('vouchers_create')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
 
-        if (!$this->validate($rules)) {
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['image'] = $this->request->getFile('image');
+
+        if (!$this->validateData($dataToValidate, 'voucherSave')) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $fileImage = $this->request->getFile('image');
-        $imageName = $fileImage->getRandomName();
-        $fileImage->move('uploads/vouchers', $imageName);
+        try {
+            $this->svc->store($this->request->getPost(), $this->request->getFile('image'));
+            return redirect()->to(base_url('admin/vouchers'))->with('success', 'Voucher berhasil dibuat!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 
-        $this->voucherModel->save([
-            'code'             => strtoupper($this->request->getPost('code')),
-            'name'             => $this->request->getPost('name'),
-            'description'      => $this->request->getPost('description'),
-            'discount_nominal' => $this->request->getPost('discount_nominal'),
-            'valid_until'      => $this->request->getPost('valid_until'),
-            'is_active'        => 1,
-            'image'            => $imageName
-        ]);
-
-        return redirect()->to(base_url('admin/vouchers'))->with('success', 'Voucher berhasil dibuat!');
+    public function updateStatus($id, $status)
+    {
+        if (!can('vouchers_status')) {
+            return redirect()->to('/admin/vouchers')->with('error', 'Anda tidak memiliki akses untuk mengubah status voucher.');
+        }
+        $msg = $this->svc->updateStatus((int)$id, (int)$status);
+        return redirect()->back()->with('success', $msg);
     }
 
     public function delete($id)
     {
-        $voucher = $this->voucherModel->find($id);
-        if ($voucher && $voucher['image'] != '' && file_exists('uploads/vouchers/' . $voucher['image'])) {
-            unlink('uploads/vouchers/' . $voucher['image']);
+        if (!can('vouchers_delete')) {
+            return redirect()->to('/admin/vouchers')->with('error', 'Anda tidak memiliki akses untuk menghapus voucher.');
         }
-
-        $this->voucherModel->delete($id);
+        $this->svc->delete((int)$id);
         return redirect()->to(base_url('admin/vouchers'))->with('success', 'Voucher berhasil dihapus.');
     }
 }

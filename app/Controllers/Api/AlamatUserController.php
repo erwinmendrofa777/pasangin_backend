@@ -28,6 +28,8 @@ class AlamatUserController extends BaseController
         $rules = [
             'alamat'         => 'required|min_length[3]|max_length[255]',
             'label'          => 'max_length[255]',
+            'latitude'       => 'required|decimal',
+            'longitude'      => 'required|decimal'
         ];
 
         $messages = [
@@ -39,6 +41,14 @@ class AlamatUserController extends BaseController
             'label' => [
                 'max_length' => 'alamat maksimal 255 karakter.',
             ],
+            'latitude' => [
+                'required'              => 'Titik latitude wajib diisi.',
+                'decimal'               => 'Format latitude harus berupa angka (desimal).',
+            ],
+            'longitude' => [
+                'required'              => 'Titik longitude wajib diisi.',
+                'decimal'               => 'Format longitude harus berupa angka (desimal).',
+            ]
         ];
 
         if (!$this->validate($rules, $messages)) {
@@ -56,12 +66,15 @@ class AlamatUserController extends BaseController
                 'id_user'        => $userId,
                 'alamat'         => $data['alamat'],
                 'label'          => $data['label'],
+                'latitude'       => $data['latitude'],
+                'longitude'      => $data['longitude'],
                 'is_active'      => 0
             ]);
 
             return $this->respondCreated([
                 'status'  => 'success', 
-                'message' => 'Alamat berhasil ditambahkan.'
+                'message' => 'Alamat berhasil ditambahkan.',
+                'data'    => $data
             ]);
         } catch (\Exception $e) {
             return $this->failServerError('Gagal: ' . $e->getMessage());
@@ -149,6 +162,8 @@ class AlamatUserController extends BaseController
         $rules = [
             'alamat'    => 'required|min_length[3]|max_length[255]',
             'label'     => 'max_length[255]',
+            'latitude'  => 'required|numeric|greater_than_equal_to[-90]|less_than_equal_to[90]',
+            'longitude' => 'required|numeric|greater_than_equal_to[-180]|less_than_equal_to[180]'
         ];
 
         $messages = [
@@ -160,6 +175,18 @@ class AlamatUserController extends BaseController
             'label' => [
                 'max_length' => 'alamat maksimal 255 karakter.',
             ],
+            'latitude' => [
+                'required'              => 'Titik latitude wajib diisi.',
+                'numeric'               => 'Format latitude harus berupa angka (desimal).',
+                'greater_than_equal_to' => 'Nilai latitude tidak valid (minimal -90).',
+                'less_than_equal_to'    => 'Nilai latitude tidak valid (maksimal 90).'
+            ],
+            'longitude' => [
+                'required'              => 'Titik longitude wajib diisi.',
+                'numeric'               => 'Format longitude harus berupa angka (desimal).',
+                'greater_than_equal_to' => 'Nilai longitude tidak valid (minimal -180).',
+                'less_than_equal_to'    => 'Nilai longitude tidak valid (maksimal 180).'
+            ]
         ];
 
         if (!$this->validate($rules, $messages)) {
@@ -174,12 +201,14 @@ class AlamatUserController extends BaseController
             $model->update($id, [
                 'alamat'         => $data['alamat'],
                 'label'          => $data['label'] ?? $alamatLama['label'],
-                'is_active'      => $data['is_active'] ?? $alamatLama['is_active']
+                'is_active'      => $data['is_active'] ?? $alamatLama['is_active'],
+                'latitude'       => $data['latitude'] ?? $alamatLama['latitude'],
+                'longitude'      => $data['longitude'] ?? $alamatLama['longitude']
             ]);
 
             return $this->respondCreated([
                 'status'  => 'success', 
-                'message' => 'Alamat berhasil ditambahkan.'
+                'message' => 'Berhasil Mengubah Alamat.'
             ]);
         } catch (\Exception $e) {
             return $this->failServerError('Gagal: ' . $e->getMessage());

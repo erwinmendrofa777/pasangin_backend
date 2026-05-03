@@ -19,6 +19,8 @@ return array(
     'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
     'Config\\' => array($baseDir . '/app/Config'),
+    'CodeIgniter\\Shield\\' => array($vendorDir . '/codeigniter4/shield/src'),
+    'CodeIgniter\\Settings\\' => array($vendorDir . '/codeigniter4/settings/src'),
     'CodeIgniter\\' => array($vendorDir . '/codeigniter4/framework/system'),
     'App\\' => array($baseDir . '/app'),
 );

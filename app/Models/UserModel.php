@@ -54,4 +54,3 @@ class UserModel extends Model
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 }
-

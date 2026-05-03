@@ -13,8 +13,12 @@ class ChatController extends BaseController
 {
     public function index()
     {
+        if (!can('chat_view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat chat.');
+        }
+
         $conversationModel = new ConversationModel();
-        
+
         // Update query: Gunakan IFNULL / COALESCE untuk mengambil nama dari tabel users atau tukang
         $data['conversations'] = $conversationModel->select('
                 conversations.*, 
@@ -30,6 +34,10 @@ class ChatController extends BaseController
 
     public function getMessages($conversationId = null)
     {
+        if (!can('chat_view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat chat.');
+        }
+
         $this->response->setHeader('Content-Type', 'application/json');
         try {
             $messageModel = new MessageModel();
@@ -42,10 +50,14 @@ class ChatController extends BaseController
 
     public function sendMessage()
     {
+        if (!can('chat_view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengirim chat.');
+        }
+
         $this->response->setHeader('Content-Type', 'application/json');
         $conversationId = $this->request->getPost('conversation_id');
         $messageText    = $this->request->getPost('message');
-        
+
         $adminId = session()->get('user_id') ?? session()->get('id');
         if (empty($adminId)) {
             return $this->response->setJSON(['status' => false, 'message' => 'Sesi habis'])->setStatusCode(401);
@@ -60,16 +72,17 @@ class ChatController extends BaseController
             'body'            => $messageText,
             'sender_type'     => 'admin',
         ])) {
-            
+
             try {
                 $conversationModel->db->table('conversations')
                     ->where('id', $conversationId)
                     ->update(['updated_at' => date('Y-m-d H:i:s')]);
-            } catch (Exception $e) {}
-            
+            } catch (Exception $e) {
+            }
+
             // PANGGIL NOTIFIKASI YANG SUDAH SUPPORT TUKANG
             $this->_sendNativeNotificationWithSound($conversationId, $messageText);
-            
+
             return $this->response->setJSON(['status' => true]);
         }
         return $this->response->setJSON(['status' => false]);
@@ -77,6 +90,9 @@ class ChatController extends BaseController
 
     private function _sendNativeNotificationWithSound($conversationId, $messageText)
     {
+        if (!can('chat_view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengirim chat.');
+        }
         try {
             $conversation = (new ConversationModel())->find($conversationId);
             if (!$conversation) return;
@@ -151,7 +167,6 @@ class ChatController extends BaseController
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             $result = curl_exec($ch);
             curl_close($ch);
-
         } catch (Exception $e) {
             log_message('error', '[FCM SOUND ERROR] ' . $e->getMessage());
         }

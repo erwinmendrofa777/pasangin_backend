@@ -56,7 +56,7 @@
         <tr>
             <td width="15%">Nomor</td>
             <td width="2%">:</td>
-            <td width="83%">(template)</td>
+            <td width="83%"><?= $nomor_surat ?></td>
         </tr>
         <tr>
             <td>Proyek</td>
@@ -121,7 +121,7 @@
     <p class="text-justify mb-2">PIHAK PERTAMA memberi tugas kepada PIHAK KEDUA dan PIHAK KEDUA menerima untuk pekerjaan seperti tersebut di atas sesuai dengan RKS dan Gambar Bestek dan Hasil Negosiasi yang sudah disepakati oleh PIHAK PERTAMA DAN PIHAK KEDUA.</p>
 
     <div class="text-center bold mb-1">PASAL II <br> NILAI KONTRAK</div>
-    <p>1. NILAI KONTRAK (Target Waktu Pekerjaan (template))</p>
+    <p>1. NILAI KONTRAK (Target Waktu Pekerjaan <?= $template_kontrak['target_waktu'] ?>)</p>
 
     <table class="tabel-rab mb-1">
         <thead>

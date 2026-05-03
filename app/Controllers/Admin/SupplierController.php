@@ -3,150 +3,199 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\SupplierModel;
+use App\Services\SupplierService;
+use RuntimeException;
 
+/**
+ * SupplierController — Admin
+ *
+ * Berperan sebagai "polisi lalu lintas":
+ *   1. Terima request dari user
+ *   2. Cek permission
+ *   3. Validasi input dasar (HTTP layer)
+ *   4. Delegasikan ke SupplierService untuk logika bisnis
+ *   5. Kembalikan response (redirect / view)
+ *
+ * TIDAK ADA logika bisnis, file handling, atau hashing di sini.
+ * Semua itu ada di App\Services\SupplierService.
+ */
 class SupplierController extends BaseController
 {
-    protected $supplierModel;
+    protected SupplierService $supplierService;
 
     public function __construct()
     {
-        $this->supplierModel = new SupplierModel();
+        $this->supplierService = new SupplierService();
     }
 
-    // Fungsi untuk menampilkan list semua supplier (tidak perlu diubah)
+    // -------------------------------------------------------------------------
+    // 1. LIST SEMUA SUPPLIER
+    // -------------------------------------------------------------------------
     public function index()
     {
-        $data = [
+        if (!can('suppliers')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data supplier.');
+        }
+
+        return view('admin/supplier/index', [
             'title'     => 'Manajemen Supplier',
-            'suppliers' => $this->supplierModel->orderBy('name', 'ASC')->findAll(),
-        ];
-        // Di sini saya asumsikan nama file view-nya adalah 'admin/supplier/index'
-        // Jika kamu pakai 'layout/app', mungkin nama filenya berbeda, tapi logikanya sama.
-        return view('admin/supplier/index', $data); 
+            'suppliers' => $this->supplierService->getAllSuppliers(),
+        ]);
     }
 
-    // Fungsi untuk menampilkan form tambah supplier
+    // -------------------------------------------------------------------------
+    // 2. FORM TAMBAH SUPPLIER
+    // -------------------------------------------------------------------------
     public function create()
     {
-        // ==============================================
-        // TAMBAHKAN BARIS INI UNTUK MEMUAT FORM HELPER
-        // ==============================================
+        if (!can('suppliers_create')) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Anda tidak memiliki akses untuk menambah supplier.');
+        }
+
         helper('form');
 
-        $data = [
-            'title' => 'Tambah Supplier Baru',
-        ];
-        
-        return view('admin/supplier/create', $data);
-    }
-    
-        /**
-     * Memperbarui status supplier (approved, rejected, banned).
-     * Fungsi ini dipanggil dari tombol aksi di halaman daftar supplier.
-     *
-     * @param int    $id     ID dari supplier yang akan diubah.
-     * @param string $status Status baru ('approved', 'rejected', 'banned').
-     */
-    public function updateStatus($id, $status)
-    {
-        // Validasi status yang diizinkan untuk mencegah input sembarangan dari URL
-        $allowed_statuses = ['approved', 'rejected', 'banned', 'pending'];
-        if (!in_array($status, $allowed_statuses)) {
-            // Jika status tidak valid, kembalikan dengan pesan error
-            return redirect()->back()->with('error', 'Aksi tidak valid!');
-        }
-
-        // Siapkan data untuk disimpan
-        $data = [
-            'id' => $id,
-            'status' => $status
-        ];
-
-        // Jika statusnya 'approved', set juga 'is_active' menjadi 1
-        if ($status === 'approved') {
-            $data['is_active'] = 1;
-        } else {
-            // Untuk status lain (rejected, banned, pending), set 'is_active' menjadi 0
-            $data['is_active'] = 0;
-        }
-
-        // Simpan perubahan ke database menggunakan model
-        $this->supplierModel->save($data);
-
-        // Buat pesan sukses yang dinamis
-        $message = "Status supplier berhasil diubah menjadi " . ucfirst($status) . ".";
-
-        // Kembalikan ke halaman daftar supplier dengan pesan sukses
-        return redirect()->to('/admin/suppliers')->with('success', $message);
+        return view('admin/supplier/create', ['title' => 'Tambah Supplier Baru']);
     }
 
-
-    // Fungsi untuk menyimpan data supplier (tidak perlu diubah)
+    // -------------------------------------------------------------------------
+    // 3. SIMPAN SUPPLIER BARU
+    // -------------------------------------------------------------------------
     public function save()
     {
-        // ... kode simpan data ...
-        if (!$this->validate($this->supplierModel->getValidationRules())) {
-            // Saat redirect withInput(), pesan validasi otomatis dibawa
-            return redirect()->to('/admin/suppliers/create')->withInput();
+        if (!can('suppliers_create')) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Anda tidak memiliki akses untuk menambah supplier.');
         }
 
-        $this->supplierModel->save([
-            'name'           => $this->request->getPost('name'),
-            'contact_person' => $this->request->getPost('contact_person'),
-            'phone'          => $this->request->getPost('phone'),
-            'address'        => $this->request->getPost('address'),
-            'is_active'      => $this->request->getPost('is_active'),
-        ]);
+        // Validasi menggunakan grup 'supplierSave' di Config/Validation.php
+        if (!$this->validateData($this->request->getPost(), 'supplierSave')) {
+            $errors = implode('<br>', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
 
-        session()->setFlashdata('success', 'Data supplier berhasil ditambahkan.');
-        return redirect()->to('/admin/suppliers');
+        try {
+            $this->supplierService->createSupplier(
+                $this->request->getPost(),
+                $this->request->getFile('logo_url')
+            );
+
+            return redirect()->to('/admin/suppliers')->with('success', 'Data supplier berhasil ditambahkan.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
     }
 
-    // Fungsi untuk menampilkan form edit supplier
+    // -------------------------------------------------------------------------
+    // 4. DETAIL SUPPLIER
+    // -------------------------------------------------------------------------
+    public function detail($id)
+    {
+        if (!can('suppliers')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data supplier.');
+        }
+
+        try {
+            $supplier = $this->supplierService->findSupplierOrFail((int) $id);
+        } catch (RuntimeException $e) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException($e->getMessage());
+        }
+
+        return view('admin/supplier/detail', [
+            'title'    => 'Detail Supplier',
+            'supplier' => $supplier,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. FORM EDIT SUPPLIER
+    // -------------------------------------------------------------------------
     public function edit($id)
     {
-        // ==============================================
-        // TAMBAHKAN JUGA DI SINI
-        // ==============================================
+        if (!can('suppliers_edit')) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Anda tidak memiliki akses untuk mengedit supplier.');
+        }
+
         helper('form');
 
-        $data = [
-            'title'    => 'Edit Data Supplier',
-            'supplier' => $this->supplierModel->find($id),
-        ];
-
-        if (empty($data['supplier'])) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Supplier dengan ID ' . $id . ' tidak ditemukan.');
+        try {
+            $supplier = $this->supplierService->findSupplierOrFail((int) $id);
+        } catch (RuntimeException $e) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException($e->getMessage());
         }
 
-        return view('admin/supplier/edit', $data);
+        return view('admin/supplier/edit', [
+            'title'    => 'Edit Data Supplier',
+            'supplier' => $supplier,
+        ]);
     }
 
-    // ... sisa fungsi update() dan delete() tidak perlu diubah ...
+    // -------------------------------------------------------------------------
+    // 6. PROSES UPDATE SUPPLIER
+    // -------------------------------------------------------------------------
     public function update($id)
     {
-        // ...
-        if (!$this->validate($this->supplierModel->getValidationRules())) {
-            return redirect()->to('/admin/suppliers/edit/' . $id)->withInput();
+        if (!can('suppliers_edit')) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Anda tidak memiliki akses untuk mengedit supplier.');
         }
-        // ...
-        $this->supplierModel->update($id, [
-            'name'           => $this->request->getPost('name'),
-            'contact_person' => $this->request->getPost('contact_person'),
-            'phone'          => $this->request->getPost('phone'),
-            'address'        => $this->request->getPost('address'),
-            'is_active'      => $this->request->getPost('is_active'),
-        ]);
 
-        session()->setFlashdata('success', 'Data supplier berhasil diupdate.');
-        return redirect()->to('/admin/suppliers');
+        // Siapkan data untuk divalidasi (termasuk ID untuk placeholder rule is_unique)
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['id'] = $id;
+
+        // Validasi menggunakan grup 'supplierUpdate' di Config/Validation.php
+        if (!$this->validateData($dataToValidate, 'supplierUpdate')) {
+            $errors = implode('<br>', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $errors);
+        }
+
+        try {
+            $this->supplierService->updateSupplier(
+                (int) $id,
+                $this->request->getPost(),
+                $this->request->getFile('logo_url')
+            );
+
+            return redirect()->to('/admin/suppliers')->with('success', 'Data supplier berhasil diperbarui.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
+    }
+    // -------------------------------------------------------------------------
+    // 7. UPDATE STATUS SUPPLIER
+    // -------------------------------------------------------------------------
+    public function updateStatus($id, $status)
+    {
+        if (!can('suppliers_status')) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Anda tidak memiliki akses untuk mengubah status supplier.');
+        }
+
+        // Validasi status menggunakan grup 'supplierUpdateStatus'
+        if (!$this->validateData(['status' => $status], 'supplierUpdateStatus')) {
+            return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        try {
+            $this->supplierService->updateStatus((int) $id, $status);
+            return redirect()->to('/admin/suppliers')
+                ->with('success', 'Status supplier berhasil diubah menjadi ' . ucfirst($status) . '.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
+    // -------------------------------------------------------------------------
+    // 8. HAPUS SUPPLIER
+    // -------------------------------------------------------------------------
     public function delete($id)
     {
-        $this->supplierModel->delete($id);
-        session()->setFlashdata('success', 'Data supplier berhasil dihapus.');
-        return redirect()->to('/admin/suppliers');
+        if (!can('suppliers_delete')) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Anda tidak memiliki akses untuk menghapus supplier.');
+        }
+
+        try {
+            $this->supplierService->deleteSupplier((int) $id);
+            return redirect()->to('/admin/suppliers')->with('success', 'Data supplier berhasil dihapus.');
+        } catch (RuntimeException $e) {
+            return redirect()->to('/admin/suppliers')->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
     }
 }

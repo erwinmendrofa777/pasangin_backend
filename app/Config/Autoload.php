@@ -40,5 +40,5 @@ class Autoload extends AutoloadConfig
      * -------------------------------------------------------------------
      * Jika kamu punya helper custom yang sering dipakai, bisa masukkan di sini
      */
-    public $helpers = ['url', 'form', 'array']; 
+    public $helpers = ['url', 'form', 'array', 'setting', 'permission'];
 }

@@ -86,7 +86,7 @@ class RenovationApi extends BaseController
             }
 
             $inserted_id = $this->model->insert($data);
-            
+
             if ($inserted_id) {
                 return $this->respondCreated([
                     'status'  => true,
@@ -94,7 +94,7 @@ class RenovationApi extends BaseController
                     'data'    => $inserted_id
                 ]);
             } else {
-             return $this->failServerError('Gagal menyimpan permohonan renovasi.');
+                return $this->failServerError('Gagal menyimpan permohonan renovasi.');
             }
         }
     }
@@ -109,8 +109,8 @@ class RenovationApi extends BaseController
         }
 
         $data = $this->model->where('user_id', $userId)
-                            ->orderBy('created_at', 'DESC')
-                            ->findAll();
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
 
         foreach ($data as &$project) {
             $image_urls = [];
@@ -163,14 +163,14 @@ class RenovationApi extends BaseController
                 'data' => $data
             ]);
         } else {
-             return $this->respond([
+            return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada proyek renovasi untuk saat ini',
                 'data' => []
             ]);
         }
     }
-    
+
     // =========================================================================
     // 4. API UNTUK MENDAPATKAN DATA SURVEY RENOVASI
     // =========================================================================
@@ -179,28 +179,27 @@ class RenovationApi extends BaseController
         if ($projectId === null) {
             return $this->fail('ID Proyek tidak boleh kosong.', 400);
         }
-        
+
         $db = \Config\Database::connect();
         $data = $db->table('renovation_surveys')->where('request_id', $projectId)->get()->getResultArray();
 
-        foreach($data as &$item) {
+        foreach ($data as &$item) {
             $item['image_url'] = !empty($item['file_url']) ? base_url('uploads/survey/' . $item['file_url']) : null;
         }
 
-        if($data){
+        if ($data) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data survey ditemukan',
                 'data' => $data
             ]);
-        }else{
+        } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada survey untuk proyek ini',
                 'data' => $data
             ]);
         }
-        
     }
 
     // =========================================================================
@@ -215,24 +214,23 @@ class RenovationApi extends BaseController
         $db = \Config\Database::connect();
         $data = $db->table('renovation_designs')->where('request_id', $projectId)->get()->getResultArray();
 
-        foreach($data as &$item) {
+        foreach ($data as &$item) {
             $item['image_url'] = !empty($item['file_url']) ? base_url('uploads/designs/' . $item['file_url']) : null;
         }
 
-        if($data){
+        if ($data) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data desain ditemukan',
                 'data' => $data
             ]);
-        }else{
-             return $this->respond([
+        } else {
+            return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada desain untuk proyek ini',
                 'data' => $data
             ]);
         }
-        
     }
 
     // =========================================================================
@@ -244,24 +242,158 @@ class RenovationApi extends BaseController
             return $this->fail('ID Proyek tidak boleh kosong.', 400);
         }
 
-        $db = \Config\Database::connect();
-        $data = $db->table('renovation_progress')->where('request_id', $projectId)->get()->getResultArray();
+        $progressListRaw = $this->db->table('renovation_progress rp')
+            ->select('
+                rp.id as progress_id, rp.bobot as progress_bobot, rp.photo_url as progress_photo, rp.created_at as progress_date, rp.status as progress_status,
+                rt.id as target_id, rt.bobot as target_bobot,
+                rr.group_name as rab_group, rr.sub_group_name as rab_subgroup, rr.activity_name as rab_activity,
+                ja.tukang_name, ja.specialization, t.profile_photo, ja.tukang_id as id_tukang
+            ')
+            ->join('renovation_targets rt', 'rt.id = rp.id_renovation_targets', 'inner')
+            ->join('renovation_rabs rr', 'rr.id = rt.id_renovation_rabs', 'left')
+            ->join('job_applications ja', 'ja.id = rt.id_job_applications', 'left')
+            ->join('tukang t', 't.id = ja.tukang_id', 'left')
+            ->where('rp.renovation_id', $projectId)
+            ->orderBy('rp.created_at', 'DESC')
+            ->get()->getResultArray();
 
-        foreach($data as &$item) {
-            $item['image_url'] = !empty($item['photo_url']) ? base_url('uploads/progress/' . $item['photo_url']) : null;
+        $groupedByTarget = [];
+
+        foreach ($progressListRaw as $p) {
+            $tId = $p['target_id'];
+            if (!$tId) continue;
+
+            if (!isset($groupedByTarget[$tId])) {
+                // Formatting Pekerjaan
+                $sub = !empty($p['rab_subgroup']) ? ' - ' . $p['rab_subgroup'] : '';
+                $header_pekerjaan = ($p['rab_group'] ?? '') . $sub;
+                $pekerjaan = $p['rab_activity'] ?? '-';
+
+                $groupedByTarget[$tId] = [
+                    'id_tukang'        => $p['id_tukang'] ?? '-',
+                    'foto_tukang'      => !empty($p['profile_photo']) ? base_url('uploads/tukang/' . $p['profile_photo']) : null,
+                    'nama_tukang'      => $p['tukang_name'] ?? '-',
+                    'spesialis_tukang' => $p['specialization'] ?? '-',
+                    'header_pekerjaan' => trim(trim($header_pekerjaan, ' -')),
+                    'pekerjaan'        => $pekerjaan,
+                    'persentase'       => 0, // di-kalkulasi di akhir
+                    'laporan_terakhir' => null,
+                    'foto_progress'    => [],
+                    // Temp variable untuk kalkulasi
+                    '_target_bobot'         => (float)($p['target_bobot'] ?? 0),
+                    '_total_progress_bobot' => 0
+                ];
+            }
+
+            // Akumulasi bobot progress
+            if (strtoupper($p['progress_status']) === 'APPROVED') {
+                $groupedByTarget[$tId]['_total_progress_bobot'] += (float)$p['progress_bobot'];
+            }
+
+            // Kumpulkan foto progress
+            if (!empty($p['progress_photo'])) {
+                $groupedByTarget[$tId]['foto_progress'][] = base_url('uploads/renovation/progress/' . $p['progress_photo']);
+            }
+
+            // Perbarui laporan_terakhir (waktu paling baru)
+            $pDate = $p['progress_date'];
+            if (!$groupedByTarget[$tId]['laporan_terakhir'] || strtotime($pDate) > strtotime($groupedByTarget[$tId]['laporan_terakhir'])) {
+                $groupedByTarget[$tId]['laporan_terakhir'] = $pDate;
+            }
         }
 
-        if($data){
+        $progressList = [];
+        foreach ($groupedByTarget as $tId => $grp) {
+            $ttBobot = $grp['_target_bobot'];
+            $progBobot = $grp['_total_progress_bobot'];
+            // accumulated progress bobot / target bobot * 100
+            $persentase = $ttBobot > 0 ? ($progBobot / $ttBobot * 100) : 0;
+
+            $progressList[] = [
+                'id_tukang'        => $grp['id_tukang'] ?? '-',
+                'foto_tukang'      => $grp['foto_tukang'],
+                'nama_tukang'      => $grp['nama_tukang'],
+                'spesialis_tukang' => $grp['spesialis_tukang'],
+                'header_pekerjaan' => $grp['header_pekerjaan'],
+                'pekerjaan'        => $grp['pekerjaan'],
+                'persentase'       => number_format($persentase, 2, '.', ''), // output as string decimal suitable for app formatting
+                'laporan_terakhir' => date('Y-m-d H:i:s', strtotime($grp['laporan_terakhir'])),
+                'foto_progress'    => $grp['foto_progress'],
+            ];
+        }
+
+        // Urutkan List progress berdasarkan laporan_terakhir paling baru (DESC)
+        usort($progressList, function ($a, $b) {
+            return strtotime($b['laporan_terakhir']) < strtotime($a['laporan_terakhir']) ? 1 : -1;
+        });
+
+        if ($progressList) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data progress ditemukan',
-                'data' => $data
+                'data' => $progressList
             ]);
-        }else{
+        } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada progress untuk proyek ini',
-                'data' => $data
+                'data' => $progressList
+            ]);
+        }
+    }
+
+    public function progressByUser()
+    {
+
+        $user_id = $this->request->user->uid ?? null;
+
+        if ($user_id == null) {
+            return $this->failUnauthorized('Akses ditolak. Token tidak valid atau tidak ditemukan.');
+        }
+
+        $projects = $this->db->table('renovation_requests rr')
+            ->select('
+                rr.id as renovation_id,
+                u.full_name, 
+                rr.start_date, 
+                rr.address,
+                (SELECT count(id) FROM renovation_targets WHERE renovation_id = rr.id) as total_target,
+                (SELECT SUM(rp.bobot) FROM renovation_progress rp 
+                 JOIN renovation_targets rt ON rt.id = rp.id_renovation_targets 
+                 WHERE rt.renovation_id = rr.id AND LOWER(rp.status) = \'approved\') as total_realisasi
+            ')
+            ->join('users u', 'u.id = rr.user_id', 'left')
+            ->where('rr.user_id', $user_id)
+            ->orderBy('rr.created_at', 'DESC')
+            ->get()->getResultArray();
+
+        $today = new \DateTime();
+
+        foreach ($projects as &$item) {
+            $item['currentweek'] = 0;
+            if (!empty($item['start_date'])) {
+                $start = new \DateTime($item['start_date']);
+                if ($today >= $start) {
+                    $diffDays = $today->diff($start)->days;
+                    $item['currentweek'] = floor($diffDays / 7) + 1;
+                }
+            }
+
+            $item['total_target'] = (float)$item['total_target'];
+            $item['total_realisasi'] = (float)$item['total_realisasi'];
+        }
+
+        if (!empty($projects)) {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Daftar Proyek renovasi ditemukan',
+                'data' => $projects
+            ]);
+        } else {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Belum ada proyek renovasi untuk user ini',
+                'data' => []
             ]);
         }
     }
@@ -274,21 +406,21 @@ class RenovationApi extends BaseController
         if ($projectId === null) {
             return $this->fail('Project ID tidak boleh kosong.', 400);
         }
-        
+
         $db = \Config\Database::connect();
         // Menggunakan kolom 'renovation_id' sesuai screenshot database kawan
         $data = $db->table('renovation_invoices')
-                   ->where('renovation_id', $projectId)
-                   ->get()
-                   ->getResultArray();
+            ->where('renovation_id', $projectId)
+            ->get()
+            ->getResultArray();
 
-        if($data){
+        if ($data) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data invoice ditemukan',
                 'data' => $data
             ]);
-        }else{
+        } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada invoice untuk proyek ini',
@@ -302,7 +434,7 @@ class RenovationApi extends BaseController
     // =========================================================================
     public function rabs($projectId = null)
     {
-    
+
         if ($projectId == null) {
             return $this->fail('Project ID tidak boleh kosong.');
         }
@@ -315,17 +447,17 @@ class RenovationApi extends BaseController
         $materials = [];
         if (!empty($rabIds)) {
             $materials = $db->table('renovation_rab_materials rrm')
-                                  ->select('rrm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.photo as product_photo')
-                                  ->join('products p', 'p.id = rrm.product_id', 'left')
-                                  ->whereIn('rrm.rab_id', $rabIds)
-                                  ->get()->getResultArray();
+                ->select('rrm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.photo as product_photo')
+                ->join('products p', 'p.id = rrm.product_id', 'left')
+                ->whereIn('rrm.rab_id', $rabIds)
+                ->get()->getResultArray();
         }
 
         foreach ($rabData as &$rab) {
             // Asumsi kolom file bernama 'file'
             $rab['image_url'] = !empty($rab['file']) ? base_url('uploads/renovation/rab/' . $rab['file']) : null;
-            
-            $rabMaterials = array_values(array_filter($materials, function($material) use ($rab) {
+
+            $rabMaterials = array_values(array_filter($materials, function ($material) use ($rab) {
                 return $material['rab_id'] == $rab['id'];
             }));
             foreach ($rabMaterials as &$material) {
@@ -336,17 +468,16 @@ class RenovationApi extends BaseController
 
         if ($rabData) {
             return $this->respond([
-                'status' => true, 
-                'message' => 'Detail RAB Proyek renovasi ditemukan', 
-                'data' => $rabData
-            ]); 
-        }else{
-            return $this->respond([
-                'status' => true, 
-                'message' => 'Belum ada RAB untuk Proyek renovasi ini', 
+                'status' => true,
+                'message' => 'Detail RAB Proyek renovasi ditemukan',
                 'data' => $rabData
             ]);
-
+        } else {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Belum ada RAB untuk Proyek renovasi ini',
+                'data' => $rabData
+            ]);
         }
     }
 
@@ -395,7 +526,7 @@ class RenovationApi extends BaseController
             return $this->fail('Gagal memperbarui material di database.');
         }
     }
-    
+
     public function finalize_rab()
     {
         $json = $this->request->getJSON(true);
@@ -403,32 +534,48 @@ class RenovationApi extends BaseController
 
         if (!$projectId) return $this->fail('Project ID tidak ditemukan.');
 
-        try{
+        try {
             // 1. generate dan upload kontrak.pdf
             helper('terbilang');
             $tanggal_kontrak = date('Y-m-d');
-            
+
             $data = [
-            'template_kontrak' => $this->db->table('renovation_requests')
-                                            ->select('renovation_requests.address as address_renovation,
+                // construction_rabs - construction_requests - users
+                'template_kontrak' => $this->db->table('renovation_requests')
+                    ->select('renovation_requests.address as address_renovation,
                                                     renovation_requests.id as renovation_id,
+                                                    renovation_requests.start_date,
+                                                    renovation_requests.week,
                                                     users.full_name as nama_klien,
                                                     users.nik as nik_klien,
                                                     users.address as address_klien,
                                                     vouchers.discount_nominal')
-                                            ->join('users', 'users.id = renovation_requests.user_id','left')
-                                            ->join('vouchers', 'vouchers.code = renovation_requests.voucher_code','left')
-                                            ->where('renovation_requests.id', $projectId)
-                                            ->get()->getRowArray(),
-            'rab' => $this->db->table('renovation_rabs')
-                                ->select('group_name, SUM(total_price) as total_price')
-                                ->where('renovation_rabs.renovation_id', $projectId)
-                                ->groupBy('roman_number','group_name')
-                                ->orderBy('roman_number', 'ASC')
-                                ->get()->getResultArray(),
-            'kalimat_pembuka' => tanggal_surat_indo($tanggal_kontrak),
-            'tanggal_kontrak' => $tanggal_kontrak,
+                    ->join('users', 'users.id = renovation_requests.user_id', 'left')
+                    ->join('vouchers', 'vouchers.code = renovation_requests.voucher_code', 'left')
+                    ->where('renovation_requests.id', $projectId)
+                    ->get()->getRowArray(),
+                'rab' => $this->db->table('renovation_rabs')
+                    ->select('group_name, SUM(total_price) as total_price')
+                    ->where('renovation_rabs.renovation_id', $projectId)
+                    ->groupBy('roman_number', 'group_name')
+                    ->orderBy('roman_number', 'ASC')
+                    ->get()->getResultArray(),
+                'kalimat_pembuka' => tanggal_surat_indo($tanggal_kontrak),
+                'tanggal_kontrak' => $tanggal_kontrak,
             ];
+
+            $romawiBulan = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'];
+            $bulanRomawi = $romawiBulan[date('n', strtotime($tanggal_kontrak))];
+            $tahun = date('Y', strtotime($tanggal_kontrak));
+            $data['nomor_surat'] = "{$projectId}/PK/PTC/{$bulanRomawi}/{$tahun}";
+
+            if (isset($data['template_kontrak']['week'])) {
+                $hari = $data['template_kontrak']['week'] * 7;
+                $bulan = floor($hari / 30);
+                $data['template_kontrak']['target_waktu'] = $bulan . ' Bulan / ' . $hari . ' hari kalender';
+            } else {
+                $data['template_kontrak']['target_waktu'] = '- Bulan / - hari kalender';
+            }
 
             // Ambil output HTML dari View
             $html = view('admin/surat/kontrak_template_renovation', $data);
@@ -442,7 +589,7 @@ class RenovationApi extends BaseController
             $dompdf->loadHtml($html);
 
             // Atur ukuran kertas dan orientasinya
-            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->setPaper('f4', 'portrait');
 
             // Render (proses konversi) HTML menjadi PDF
             $dompdf->render();
@@ -454,8 +601,8 @@ class RenovationApi extends BaseController
             $clean_nama = preg_replace('/[^A-Za-z0-9\-]/', '_', $nama_klien);
 
             // Memastikan nama file unik menggunakan timestamp atau project ID
-            $fileName = 'Renovasi_kontrak_' . $clean_nama .'_'. $projectId . '.pdf';
-            
+            $fileName = 'Renovasi_kontrak_' . $clean_nama . '_' . $projectId . '.pdf';
+
             $uploadPath = FCPATH . 'uploads/surat_kontrak/';
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0777, true);
@@ -466,12 +613,12 @@ class RenovationApi extends BaseController
 
             // Update database: push kolom rab_file ke server
             $this->db->table('renovation_requests')
-                    ->where('id', $projectId)
-                    ->update([
-                        'rab_file' => $fileName,
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ]);
-        }catch(\Exception $e){
+                ->where('id', $projectId)
+                ->update([
+                    'rab_file' => $fileName,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+        } catch (\Exception $e) {
             return $this->fail($e->getMessage());
         }
 
@@ -494,13 +641,13 @@ class RenovationApi extends BaseController
         $db = \Config\Database::connect();
         $targets = $db->table('renovation_targets')->orderBy('created_at', 'ASC')->get()->getResultArray();
 
-        if($targets){
+        if ($targets) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Detail Target Proyek renovasi ditemukan',
                 'data' => $targets
             ]);
-        }else{
+        } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada target untuk Proyek renovasi ini',
@@ -521,19 +668,64 @@ class RenovationApi extends BaseController
             return $this->failUnauthorized('Akses ditolak. Token tidak valid atau tidak ditemukan.');
         }
 
-        $db = \Config\Database::connect();
-        $targets = $db->table('renovation_targets')
-            ->join('renovation_requests', 'renovation_requests.id = renovation_targets.renovation_id')
-            ->where('renovation_requests.user_id', $userId)
-            ->select('renovation_targets.*')
-            ->orderBy('renovation_targets.created_at', 'ASC')
-            ->get()->getResultArray();
+        $data = $this->db->table('renovation_targets rt')
+            ->select("rrab.group_name, 
+        rrab.sub_group_name, 
+        rrab.activity_name, 
+        NULL as construction_id, 
+        rreq.id as renovation_id, 
+        rt.start_week, 
+        rt.end_week, 
+        rt.bobot, 
+        rt.status as target_status, 
+        rreq.status as renovation_status, 
+        rreq.start_date, 
+        (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id) as report_count, 
+        (SELECT status FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id ORDER BY created_at DESC LIMIT 1) as last_report_status, 
+        (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'approved') as approved_count, 
+        (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'rejected') as rejected_count, 
+        (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'pending') as pending_count, 
+        (SELECT SUM(bobot) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'approved') as approved_weight, 
+        (SELECT SUM(bobot) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'pending') as pending_weight", false)
+            ->join('renovation_rabs rrab', 'rrab.id = rt.id_renovation_rabs')
+            ->join('renovation_requests rreq', 'rreq.id = rt.renovation_id')
+            ->join('users u', 'u.id = rreq.user_id')
+            ->where('u.id', $userId)
+            ->orderBy('rt.start_week', 'ASC')
+            ->get()
+            ->getResultArray();
 
-        if ($targets) {
+        $today = new \DateTime();
+        foreach ($data as &$row) {
+            // Kalkulasi current_project_week
+            $row['current_project_week'] = 0;
+            if (!empty($row['start_date'])) {
+                $start = new \DateTime($row['start_date']);
+                if ($today >= $start) {
+                    $diffDays = $today->diff($start)->days;
+                    $row['current_project_week'] = floor($diffDays / 7) + 1;
+                }
+            }
+
+            // Rapikan respon JSON
+            unset($row['start_date']);
+            $row['report_count']    = (int)$row['report_count'];
+            $row['approved_count']  = (int)$row['approved_count'];
+            $row['rejected_count']  = (int)$row['rejected_count'];
+            $row['pending_count']   = (int)$row['pending_count'];
+            $row['approved_weight'] = (float)$row['approved_weight'];
+            $row['pending_weight']  = (float)$row['pending_weight'];
+
+            if ($row['last_report_status']) {
+                $row['last_report_status'] = strtoupper($row['last_report_status']);
+            }
+        }
+
+        if ($data) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Target Proyek renovasi ditemukan untuk pengguna.',
-                'data' => $targets
+                'data' => $data
             ]);
         } else {
             return $this->respond([
@@ -544,7 +736,8 @@ class RenovationApi extends BaseController
         }
     }
 
-    public function sendCommentSurvey($id_survey){
+    public function sendCommentSurvey($id_survey)
+    {
         $json = $this->request->getJSON(true);
         $comment = $json['comment'] ?? $this->request->getVar('comment');
 
@@ -559,7 +752,8 @@ class RenovationApi extends BaseController
         return $this->respond(['status' => true, 'message' => 'Komentar berhasil ditambahkan.']);
     }
 
-    public function sendCommentDesign($id_design){
+    public function sendCommentDesign($id_design)
+    {
         $json = $this->request->getJSON(true);
         $comment = $json['comment'] ?? $this->request->getVar('comment');
 

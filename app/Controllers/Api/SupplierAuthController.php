@@ -25,7 +25,7 @@ class SupplierAuthController extends ResourceController
     public function login()
     {
         $rules = [
-            'phone'    => 'required',
+            'phone' => 'required',
             'password' => 'required',
         ];
 
@@ -35,7 +35,7 @@ class SupplierAuthController extends ResourceController
 
         $model = new SupplierModel();
         $phone = $this->request->getVar('phone');
-        
+
         $user = $model->where('phone', $phone)->first();
 
         if (!$user) {
@@ -49,31 +49,31 @@ class SupplierAuthController extends ResourceController
         // --- CEK STATUS AKUN ---
         if ($user['is_active'] == 0 || $user['status'] == 'banned') {
             return $this->respond([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Akun Anda dinonaktifkan atau diblokir oleh admin.',
-                'code'    => 'AUTH_BANNED'
+                'code' => 'AUTH_BANNED'
             ], 403);
         }
 
         if ($user['status'] == 'rejected') {
             return $this->respond([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Pendaftaran Anda ditolak oleh admin.',
-                'code'    => 'AUTH_REJECTED'
+                'code' => 'AUTH_REJECTED'
             ], 403);
         }
 
         // Payload JWT
         $payload = [
-            'iss'  => 'https://backend.pasangin.co.id',
-            'iat'  => time(),
-            'exp'  => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
-            'uid'  => $user['id'],
-            'role' => 'supplier' 
+            'iss' => 'https://backend.pasangin.co.id',
+            'iat' => time(),
+            'exp' => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
+            'uid' => $user['id'],
+            'role' => 'supplier'
         ];
 
         $jwt = $this->_generateJWT($payload);
-        
+
         unset($user['password']);
         $user['token'] = $jwt;
 
@@ -83,9 +83,9 @@ class SupplierAuthController extends ResourceController
         }
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Login Supplier berhasil.',
-            'data'    => $user
+            'data' => $user
         ]);
     }
 
@@ -97,15 +97,15 @@ class SupplierAuthController extends ResourceController
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
 
         $rules = [
-            'name'           => 'required|min_length[3]|max_length[100]',
-            'email'          => 'required|valid_email|is_unique[suppliers.email]',
-            'phone'          => 'required|numeric|min_length[10]|max_length[15]|is_unique[suppliers.phone]',
-            'password'       => 'required|min_length[8]|max_length[255]',
+            'name' => 'required|min_length[3]|max_length[100]',
+            'email' => 'required|valid_email|is_unique[suppliers.email]',
+            'phone' => 'required|numeric|min_length[10]|max_length[15]|is_unique[suppliers.phone]',
+            'password' => 'required|min_length[8]|max_length[255]',
             'contact_person' => 'required|min_length[3]|max_length[100]',
-            'address'        => 'required|min_length[3]|max_length[255]',
-            'province'       => 'required|min_length[3]|max_length[100]',
-            'city'           => 'required|min_length[3]|max_length[100]',
-            'district'       => 'required|min_length[3]|max_length[100]',
+            'address' => 'required|min_length[3]|max_length[255]',
+            'province' => 'required|min_length[3]|max_length[100]',
+            'city' => 'required|min_length[3]|max_length[100]',
+            'district' => 'required|min_length[3]|max_length[100]',
         ];
 
         $messages = [
@@ -160,7 +160,7 @@ class SupplierAuthController extends ResourceController
 
         if (!$this->validate($rules, $messages)) {
             return $this->respond([
-                'status'  => 'error', 
+                'status' => 'error',
                 'message' => $this->validator->getErrors()
             ], 400);
         }
@@ -168,21 +168,21 @@ class SupplierAuthController extends ResourceController
         $model = new SupplierModel();
         try {
             $model->save([
-                'name'           => $data['name'],
-                'email'          => $data['email'],
-                'phone'          => $data['phone'],
-                'password'       => password_hash($data['password'], PASSWORD_DEFAULT),
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'password' => password_hash($data['password'], PASSWORD_DEFAULT),
                 'contact_person' => $data['contact_person'],
-                'address'        => $data['address'] ?? null,
-                'province'       => $data['province'] ?? null,
-                'city'           => $data['city'] ?? null,
-                'district'       => $data['district'] ?? null,
-                'status'         => 'pending',
-                'is_active'      => 1
+                'address' => $data['address'] ?? null,
+                'province' => $data['province'] ?? null,
+                'city' => $data['city'] ?? null,
+                'district' => $data['district'] ?? null,
+                'status' => 'pending',
+                'is_active' => 1
             ]);
 
             return $this->respondCreated([
-                'status'  => 'success', 
+                'status' => 'success',
                 'message' => 'Pendaftaran Supplier berhasil. Silakan login.'
             ]);
         } catch (Exception $e) {
@@ -196,12 +196,15 @@ class SupplierAuthController extends ResourceController
     public function updateProfile()
     {
         try {
+
+            // TODO - jangan kasi validasi untuk is_verified
             $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader)) return $this->failUnauthorized('Token tidak ditemukan.');
+            if (empty($authHeader))
+                return $this->failUnauthorized('Token tidak ditemukan.');
 
             $token = str_replace('Bearer ', '', $authHeader);
             $decoded = $this->_decodeJWT($token);
-            
+
             if (!$decoded || $decoded['role'] !== 'supplier') {
                 return $this->failUnauthorized('Akses ditolak.');
             }
@@ -213,19 +216,21 @@ class SupplierAuthController extends ResourceController
             if (!$supplier) {
                 return $this->failNotFound('Supplier tidak ditemukan.');
             }
-            
+
             $dataUpdate = [
-                'name'           => $this->request->getPost('name'),
-                'contact_person' => $this->request->getPost('contact_person'),
-                'phone'          => $this->request->getPost('phone'),
-                'email'          => $this->request->getPost('email'),
-                'address'        => $this->request->getPost('address'),
-                'province'       => $this->request->getPost('province'),
-                'city'           => $this->request->getPost('city'),
-                'district'       => $this->request->getPost('district'),
-                'latitude'       => $this->request->getPost('latitude'),
-                'longitude'      => $this->request->getPost('longitude'),
-                'updated_at'     => date('Y-m-d H:i:s')
+                'name' => $this->request->getPost('name') ?? $supplier['name'],
+                'contact_person' => $this->request->getPost('contact_person') ?? $supplier['contact_person'],
+                'phone' => $this->request->getPost('phone') ?? $supplier['phone'],
+                'email' => $this->request->getPost('email') ?? $supplier['email'],
+                'address' => $this->request->getPost('address') ?? $supplier['address'],
+                'province' => $this->request->getPost('province') ?? $supplier['province'],
+                'city' => $this->request->getPost('city') ?? $supplier['city'],
+                'district' => $this->request->getPost('district') ?? $supplier['district'],
+                'latitude' => $this->request->getPost('latitude') ?? $supplier['latitude'],
+                'longitude' => $this->request->getPost('longitude') ?? $supplier['longitude'],
+                'is_verify' => $this->request->getPost('is_verify') ?? $supplier['is_verify'],
+                'nik' => $this->request->getPost('nik') ?? $supplier['nik'],
+                'updated_at' => date('Y-m-d H:i:s')
             ];
 
             // Update Password jika diisi
@@ -249,17 +254,16 @@ class SupplierAuthController extends ResourceController
 
             $updatedUser = $model->find($supplierId);
             unset($updatedUser['password']);
-            
+
             if (!empty($updatedUser['logo_url'])) {
                 $updatedUser['logo_url'] = base_url('uploads/supplier/' . $updatedUser['logo_url']);
             }
 
             return $this->respond([
-                'status'  => true, 
+                'status' => true,
                 'message' => 'Profil Toko berhasil diperbarui!',
-                'data'    => $updatedUser
+                'data' => $updatedUser
             ]);
-
         } catch (Exception $e) {
             return $this->failServerError($e->getMessage());
         }
@@ -274,8 +278,9 @@ class SupplierAuthController extends ResourceController
             $authHeader = $this->request->getHeaderLine('Authorization');
             $token = str_replace('Bearer ', '', $authHeader);
             $decoded = $this->_decodeJWT($token);
-            
-            if (!$decoded) return $this->failUnauthorized();
+
+            if (!$decoded)
+                return $this->failUnauthorized();
 
             $model = new SupplierModel();
             $supplier = $model->find($decoded['uid']);
@@ -287,7 +292,7 @@ class SupplierAuthController extends ResourceController
             if (!password_verify($oldPass, $supplier['password'])) {
                 return $this->respond([
                     'status' => false,
-                    'message' => 'Password lama kawan salah.'
+                    'message' => 'Password lama salah.'
                 ], 400);
             }
 
@@ -299,9 +304,8 @@ class SupplierAuthController extends ResourceController
 
             return $this->respond([
                 'status' => true,
-                'message' => 'Password berhasil diubah kawan!'
+                'message' => 'Password berhasil diubah!'
             ]);
-
         } catch (Exception $e) {
             return $this->failServerError($e->getMessage());
         }
@@ -310,12 +314,15 @@ class SupplierAuthController extends ResourceController
     /**
      * --- GET SUPPLIER BEDASARKAN ID ---
      */
-    public function getProfile($id = null) {
-        if(!$id) return $this->fail('ID Supplier tidak boleh kosong');
+    public function getProfile($id = null)
+    {
+        if (!$id)
+            return $this->fail('ID Supplier tidak boleh kosong');
 
         $supplier = $this->db->table('suppliers')->where('id', $id)->get()->getRow();
 
-        if (!$supplier) return $this->failNotFound('Supplier tidak ditemukan');
+        if (!$supplier)
+            return $this->failNotFound('Supplier tidak ditemukan');
 
         // 1. Ambil data dasar & format
         unset($supplier->password); // Keamanan
@@ -324,8 +331,8 @@ class SupplierAuthController extends ResourceController
 
         // 2. Hitung total produk
         $totalProducts = $this->db->table('products')
-                                  ->where('supplier_id', $id)
-                                  ->countAllResults();
+            ->where('supplier_id', $id)
+            ->countAllResults();
         $supplier->total_produk = $totalProducts;
 
         // 3. Hitung total pesanan yang diterima
@@ -343,9 +350,9 @@ class SupplierAuthController extends ResourceController
         $supplier->total_ulasan = (int) ($supplier->total_ulasan ?? 0);
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Profil publik supplier ditemukan',
-            'data'    => $supplier
+            'data' => $supplier
         ]);
     }
 
@@ -358,8 +365,9 @@ class SupplierAuthController extends ResourceController
             $authHeader = $this->request->getHeaderLine('Authorization');
             $token = str_replace('Bearer ', '', $authHeader);
             $decoded = $this->_decodeJWT($token);
-            
-            if (!$decoded) return $this->failUnauthorized();
+
+            if (!$decoded)
+                return $this->failUnauthorized();
 
             $json = $this->request->getJSON();
             $fcmToken = $json->fcm_token ?? null;
@@ -374,7 +382,8 @@ class SupplierAuthController extends ResourceController
     }
 
     // --- JWT HELPERS ---
-    private function _generateJWT($payload) {
+    private function _generateJWT($payload)
+    {
         $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
         $payload = json_encode($payload);
         $base64UrlHeader = $this->_base64UrlEncode($header);
@@ -383,16 +392,20 @@ class SupplierAuthController extends ResourceController
         return $base64UrlHeader . "." . $base64UrlPayload . "." . $this->_base64UrlEncode($signature);
     }
 
-    private function _decodeJWT($jwt) {
+    private function _decodeJWT($jwt)
+    {
         $tokenParts = explode('.', $jwt);
-        if (count($tokenParts) != 3) return false;
+        if (count($tokenParts) != 3)
+            return false;
         $payload = base64_decode($tokenParts[1]);
         $payloadData = json_decode($payload, true);
-        if (isset($payloadData['exp']) && ($payloadData['exp'] - time()) < 0) return false;
+        if (isset($payloadData['exp']) && ($payloadData['exp'] - time()) < 0)
+            return false;
         return $payloadData;
     }
 
-    private function _base64UrlEncode($data) {
+    private function _base64UrlEncode($data)
+    {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
 }

@@ -18,8 +18,9 @@ class CartApi extends BaseController {
         $userId = $this->request->user->uid;
         
         $items = $this->db->table('cart')
-            ->select('cart.*, products.name, products.price, products.photo')
+            ->select('cart.*, products.name, products.price, products.photo, suppliers.name as supplier_name, suppliers.id as supplier_id, suppliers.longitude as longitude, suppliers.latitude as latitude')
             ->join('products', 'products.id = cart.product_id')
+            ->join('suppliers', 'suppliers.id = products.supplier_id')
             ->where('user_id', $userId)
             ->get()->getResultArray();
 

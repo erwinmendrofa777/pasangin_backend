@@ -54,7 +54,8 @@ $(function() {
   let sidebar_nicescroll_opts = {
     cursoropacitymin: 0,
     cursoropacitymax: .8,
-    zindex: 892
+    zindex: 892,
+    nativeparentscrolling: false // Added for better Chrome compatibility
   }, now_layout_class = null;
 
   var sidebar_sticky = function() {
@@ -70,7 +71,7 @@ $(function() {
   var sidebar_nicescroll;
   var update_sidebar_nicescroll = function() {
     let a = setInterval(function() {
-      if(sidebar_nicescroll != null)
+      if(sidebar_nicescroll != null && typeof sidebar_nicescroll.resize === 'function')
         sidebar_nicescroll.resize();
     }, 10);
 
@@ -135,8 +136,10 @@ $(function() {
     }else{
       body.addClass('sidebar-mini');
       body.removeClass('sidebar-show');
-      sidebar_nicescroll.remove();
-      sidebar_nicescroll = null;
+      if(sidebar_nicescroll != null) {
+        sidebar_nicescroll.remove();
+        sidebar_nicescroll = null;
+      }
       $(".main-sidebar .sidebar-menu > li").each(function() {
         let me = $(this);
 
@@ -154,7 +157,8 @@ $(function() {
     }
   }
 
-  $("[data-toggle='sidebar']").click(function() {
+  $(document).on('click', "[data-toggle='sidebar'], [data-bs-toggle='sidebar']", function(e) {
+    e.preventDefault();
     var body = $("body"),
       w = $(window);
 
@@ -203,7 +207,7 @@ $(function() {
 
       $("body").addClass("sidebar-gone");
       $("body").removeClass("layout-2 layout-3 sidebar-mini sidebar-show");
-      $("body").off('click').on('click', function(e) {
+      $("body").off('click.stisla-sidebar').on('click.stisla-sidebar', function(e) {
         if($(e.target).hasClass('sidebar-show') || $(e.target).hasClass('search-show')) {
           $("body").removeClass("sidebar-show");
           $("body").addClass("sidebar-gone");
@@ -277,7 +281,7 @@ $(function() {
   toggleLayout();
   $(window).resize(toggleLayout);
 
-  $("[data-toggle='search']").click(function() {
+  $("[data-toggle='search'], [data-bs-toggle='search']").click(function() {
     var body = $("body");
 
     if(body.hasClass('search-gone')) {
@@ -290,10 +294,10 @@ $(function() {
   });
 
   // tooltip
-  $("[data-toggle='tooltip']").tooltip();
+  $("[data-toggle='tooltip'], [data-bs-toggle='tooltip']").tooltip();
 
   // popover
-  $('[data-toggle="popover"]').popover({
+  $('[data-toggle="popover"], [data-bs-toggle="popover"]').popover({
     container: 'body'
   });
 
@@ -391,9 +395,9 @@ $(function() {
   });
 
   // Dismiss function
-  $("[data-dismiss]").each(function() {
+  $("[data-dismiss], [data-bs-dismiss]").each(function() {
     var me = $(this),
-        target = me.data('dismiss');
+        target = me.data('dismiss') || me.data('bs-dismiss');
 
     me.click(function() {
       $(target).fadeOut(function() {
@@ -505,15 +509,15 @@ $(function() {
   });
 
   // Slide Toggle
-  $('[data-toggle-slide]').click(function() {
-    let target = $(this).data('toggle-slide');
+  $('[data-toggle-slide], [data-bs-toggle-slide]').click(function() {
+    let target = $(this).data('toggle-slide') || $(this).data('bs-toggle-slide');
 
     $(target).slideToggle();
     return false;
   });
 
   // Dismiss modal
-  $("[data-dismiss=modal]").click(function() {
+  $("[data-dismiss=modal], [data-bs-dismiss=modal]").click(function() {
     $(this).closest('.modal').modal('hide');
 
     return false;

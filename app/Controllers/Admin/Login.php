@@ -3,14 +3,20 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\UserModel;
+use App\Services\AdminLoginService;
+use RuntimeException;
 
 class Login extends BaseController
 {
+    protected AdminLoginService $svc;
+
+    public function __construct()
+    {
+        $this->svc = new AdminLoginService();
+    }
+
     /**
      * Menampilkan halaman login.
-     * Logika: Jika sudah ada session, langsung ke dashboard.
-     * Jika belum, tampilkan view login.
      */
     public function index()
     {
@@ -18,7 +24,6 @@ class Login extends BaseController
             return redirect()->to('/admin/dashboard');
         }
 
-        // Pastikan file view ada di: app/Views/admin/login.php
         return view('admin/login');
     }
 
@@ -27,33 +32,24 @@ class Login extends BaseController
      */
     public function loginProcess()
     {
-        $session = session();
-        $model = new UserModel();
-
-        $emailInput    = $this->request->getVar('email');
-        $passwordInput = $this->request->getVar('password');
-
-        // Cari user yang emailnya cocok dan memiliki role admin/superadmin
-        $user = $model->where('email', $emailInput)
-                      ->whereIn('role', ['admin', 'superadmin']) 
-                      ->first();
-
-        if ($user && password_verify($passwordInput, $user['password'])) {
-            $ses_data = [
-                'user_id'    => $user['id'],
-                'full_name'  => $user['full_name'] ?? $user['name'] ?? 'Admin',
-                'email'      => $user['email'],
-                'role'       => $user['role'],
-                'isLoggedIn' => TRUE
-            ];
-            $session->set($ses_data);
-
-            return redirect()->to('/admin/dashboard');
+        if (!$this->validateData($this->request->getPost(), 'adminLogin')) {
+            $errors = implode('<br>', $this->validator->getErrors());
+            session()->setFlashdata('error', $errors);
+            return redirect()->back()->withInput();
         }
 
-        // Jika gagal, kembalikan ke halaman login dengan pesan error
-        $session->setFlashdata('error', 'Email atau Password salah.');
-        return redirect()->to('/admin/login');
+        $email    = $this->request->getVar('email');
+        $password = $this->request->getVar('password');
+
+        try {
+            $sessionData = $this->svc->attemptLogin((string)$email, (string)$password);
+            session()->set($sessionData);
+
+            return redirect()->to('/admin/dashboard');
+        } catch (RuntimeException $e) {
+            session()->setFlashdata('error', $e->getMessage());
+            return redirect()->to('/admin/login');
+        }
     }
 
     /**

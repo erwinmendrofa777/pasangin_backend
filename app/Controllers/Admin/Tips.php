@@ -3,98 +3,78 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\TipsModel;
+use App\Services\TipsService;
+use RuntimeException;
 
 class Tips extends BaseController
 {
-    protected $tipsModel;
+    protected TipsService $svc;
 
     public function __construct()
     {
-        $this->tipsModel = new TipsModel();
+        $this->svc = new TipsService();
     }
 
-    // --------------------------------------------------------------------
-    // 1. LIST DATA (INDEX)
-    // --------------------------------------------------------------------
     public function index()
     {
-        $data = [
-            'title' => 'Kelola Tips & Tricks',
-            'tips'  => $this->tipsModel->orderBy('id', 'DESC')->findAll()
-        ];
-        return view('admin/tips/index', $data);
+        if (!can('tips')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
+        return view('admin/tips/index', ['title' => 'Kelola Tips & Tricks', 'tips' => $this->svc->getAll()]);
     }
 
-    // --------------------------------------------------------------------
-    // 2. FORM TAMBAH (CREATE) --> INI YANG HILANG TADI
-    // --------------------------------------------------------------------
+    public function show($id)
+    {
+        if (!can('tips')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
+        try {
+            $tips = $this->svc->findOrFail((int)$id);
+            return view('admin/tips/detail', ['title' => 'Detail Tips - ' . $tips['title'], 'tips' => $tips]);
+        } catch (RuntimeException $e) {
+            return redirect()->to('/admin/tips')->with('error', $e->getMessage());
+        }
+    }
+
     public function create()
     {
+        if (!can('tips_create')) {
+            return redirect()->to('/admin/tips')->with('error', 'Anda tidak memiliki akses untuk membuat tips.');
+        }
         return view('admin/tips/create', ['title' => 'Tambah Tips']);
     }
 
-    // --------------------------------------------------------------------
-    // 3. PROSES SIMPAN (STORE) --> INI VALIDASI YANG SUDAH DIPERBAIKI
-    // --------------------------------------------------------------------
     public function store()
     {
-        // Validasi
-        if (!$this->validate([
-            'image' => [
-                // Support JPG, JPEG, PNG, WEBP. Max 5MB.
-                'rules' => 'uploaded[image]|is_image[image]|mime_in[image,image/jpg,image/jpeg,image/png,image/webp]|max_size[image,5048]',
-                'errors' => [
-                    'uploaded' => 'Gambar wajib diupload',
-                    'is_image' => 'File bukan gambar valid',
-                    'mime_in'  => 'Format harus JPG, PNG, atau WEBP',
-                    'max_size' => 'Maksimal 5MB'
-                ]
-            ],
-            'title' => 'required',
-            'content' => 'required'
-        ])) {
+        if (!can('tips_create')) {
+            return redirect()->to('/admin/tips')->with('error', 'Anda tidak memiliki akses untuk membuat tips.');
+        }
+
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['image'] = $this->request->getFile('image');
+
+        if (!$this->validateData($dataToValidate, 'tipsSave')) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // Upload Gambar
-        $file = $this->request->getFile('image');
-        
-        if ($file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move('uploads/tips', $newName);
-
-            // Simpan DB
-            $this->tipsModel->insert([
-                'title'      => $this->request->getPost('title'),
-                'content'    => $this->request->getPost('content'),
-                'target_app' => $this->request->getPost('target_app'),
-                'image'      => $newName,
-                'is_active'  => 1
-            ]);
-
-            // Redirect pakai slash depan biar aman
+        try {
+            $this->svc->store($this->request->getPost(), $this->request->getFile('image'));
             return redirect()->to('/admin/tips')->with('success', 'Tips & Tricks berhasil ditambahkan!');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Gagal upload gambar.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
     }
 
-    // --------------------------------------------------------------------
-    // 4. PROSES HAPUS (DELETE)
-    // --------------------------------------------------------------------
     public function delete($id)
     {
-        $tips = $this->tipsModel->find($id);
-        if ($tips) {
-            // Hapus file fisik
-            $path = 'uploads/tips/' . $tips['image'];
-            if (file_exists($path)) {
-                unlink($path);
-            }
-            $this->tipsModel->delete($id);
-            return redirect()->to('/admin/tips')->with('success', 'Data berhasil dihapus!');
+        if (!can('tips_delete')) {
+            return redirect()->to('/admin/tips')->with('error', 'Anda tidak memiliki akses untuk menghapus tips.');
         }
-        return redirect()->to('/admin/tips')->with('error', 'Data tidak ditemukan');
+        try {
+            $this->svc->delete((int)$id);
+            return redirect()->to('/admin/tips')->with('success', 'Data berhasil dihapus!');
+        } catch (RuntimeException $e) {
+            return redirect()->to('/admin/tips')->with('error', $e->getMessage());
+        }
     }
 }

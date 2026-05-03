@@ -7,9 +7,31 @@ use CodeIgniter\Validation\StrictRules\CreditCardRules;
 use CodeIgniter\Validation\StrictRules\FileRules;
 use CodeIgniter\Validation\StrictRules\FormatRules;
 use CodeIgniter\Validation\StrictRules\Rules;
+use Config\Validations\UserRules;
+use Config\Validations\SupplierRules;
+use Config\Validations\ProductRules;
+use Config\Validations\AdminRules;
+use Config\Validations\AuthRules;
+use Config\Validations\BannerRules;
+use Config\Validations\ConstructionRules;
+use Config\Validations\DesignRules;
+use Config\Validations\NotificationRules;
+use Config\Validations\OrderRules;
+use Config\Validations\PriceEstimateRules;
+use Config\Validations\PromoRules;
+use Config\Validations\RenovationRules;
+use Config\Validations\RoleRules;
+use Config\Validations\SyaratKetentuanRules;
+use Config\Validations\TipsRules;
+use Config\Validations\TukangRules;
+use Config\Validations\VoucherRules;
+use Config\Validations\WalletRules;
 
 class Validation extends BaseConfig
 {
+    // Menggunakan trait untuk memisahkan aturan per modul agar file ini tidak menumpuk
+    use UserRules, SupplierRules, ProductRules, AdminRules, AuthRules, BannerRules, ConstructionRules, DesignRules, NotificationRules, OrderRules, PriceEstimateRules, PromoRules, RenovationRules, RoleRules, SyaratKetentuanRules, TipsRules, TukangRules, VoucherRules, WalletRules;
+
     // --------------------------------------------------------------------
     // Setup
     // --------------------------------------------------------------------
@@ -25,6 +47,7 @@ class Validation extends BaseConfig
         FormatRules::class,
         FileRules::class,
         CreditCardRules::class,
+        \App\Validation\UserRules::class, // Class kustom kita
     ];
 
     /**
@@ -41,4 +64,5 @@ class Validation extends BaseConfig
     // --------------------------------------------------------------------
     // Rules
     // --------------------------------------------------------------------
+    // Aturan validasi didefinisikan di dalam file Trait di folder Validations/
 }

@@ -17,7 +17,7 @@ class PaymentApi extends BaseController{
         require_once APPPATH . 'ThirdParty/Midtrans/Midtrans.php';
         
         // Konfigurasi Midtrans
-        \Midtrans\Config::$serverKey    = 'SB-Mid-server-UKNiwjL6WD2HSFzQ4vP8oKeg';
+        \Midtrans\Config::$serverKey    = 'Mid-server-faF45iiQSTC4Edaxkxo51vqn';
         \Midtrans\Config::$isProduction = false;
         \Midtrans\Config::$isSanitized  = true;
         \Midtrans\Config::$is3ds        = true;
@@ -136,9 +136,9 @@ class PaymentApi extends BaseController{
                     $tableName = 'renovation_invoices';
                 } 
                 // --- INI UNTUK PESANAN PRODUK PASANGIN ---
-                elseif (strpos($orderId, 'PASANGIN-') === 0) {
+                elseif (strpos($orderId, 'TRX-') === 0) {
                     $tableName = 'orders';
-                    $idColumn = 'order_id';
+                    $idColumn = 'transaction_id';
                 }
 
                 if (!empty($tableName)) {

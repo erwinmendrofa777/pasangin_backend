@@ -20,7 +20,6 @@ class Filters extends BaseConfig
         'secureheaders' => SecureHeaders::class,
         'login'         => \App\Filters\AdminAuthFilter::class, // Filter Admin (Session)
         'auth'          => \App\Filters\Auth::class,           // Filter API (JWT)
-        'noauth'        => \App\Filters\NoAuth::class,
     ];
 
     public array $globals = [

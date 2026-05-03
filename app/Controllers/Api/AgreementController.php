@@ -26,33 +26,37 @@ class AgreementController extends BaseController
         $this->db = \Config\Database::connect();
     }
 
-    public function getTermsOfAgreement(){
-        $data = $this->termsOfAgreementModel->get()->getResultArray();
+    public function getTermsOfAgreement($targetApp)
+    {
+        $data = $this->termsOfAgreementModel->where('target_app', $targetApp)->get()->getResultArray();
 
-        if($data == null){
+        if ($data == null) {
             return $this->respond([
-                'status'  => 'success', 
+                'status'  => 'success',
                 'message' => 'Data tidak ditemukan.',
                 'data'    => []
             ], 200);
         }
 
-        if($data){
+        if ($data) {
             return $this->respond([
-                'status'  => 'success', 
+                'status'  => 'success',
                 'message' => 'Data berhasil diambil.',
                 'data'    => $data
             ], 200);
         }
     }
- 
-    public function constructionAgreementsBatch(){
+
+    public function constructionAgreementsBatch()
+    {
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
         // Validasi struktur data yang dikirim
-        if (!isset($data['construction_id']) || !isset($data['agreement_id']) || !isset($data['is_checked']) ||
-            !is_array($data['agreement_id']) || !is_array($data['is_checked'])) {
+        if (
+            !isset($data['construction_id']) || !isset($data['agreement_id']) || !isset($data['is_checked']) ||
+            !is_array($data['agreement_id']) || !is_array($data['is_checked'])
+        ) {
             return $this->respond([
-                'status'  => 'error', 
+                'status'  => 'error',
                 'message' => 'Format data tidak valid. agreement_id dan is_checked harus array.'
             ], 400);
         }
@@ -61,7 +65,7 @@ class AgreementController extends BaseController
         $isCheckedList = $data['is_checked'];
         if (count($agreementIds) !== count($isCheckedList)) {
             return $this->respond([
-                'status'  => 'error', 
+                'status'  => 'error',
                 'message' => 'Jumlah isi data agreement_id dan is_checked tidak cocok.'
             ], 400);
         }
@@ -81,32 +85,35 @@ class AgreementController extends BaseController
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
                 return $this->respond([
-                    'status'  => 'error', 
+                    'status'  => 'error',
                     'message' => 'Gagal memproses ke database (transaksi rollback).',
                     'error_detail' => $this->db->error()
                 ], 500);
             }
             return $this->respond([
-                'status'  => 'success', 
+                'status'  => 'success',
                 'message' => 'Data berhasil ditambahkan.',
                 'data'    => $insertData
             ], 200);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return $this->respond([
-                'status'  => 'error', 
+                'status'  => 'error',
                 'message' => 'Terjadi kesalahan internal server.',
                 'error'   => $e->getMessage()
             ], 500);
         }
     }
 
-    public function renovationAgreementsBatch(){
+    public function renovationAgreementsBatch()
+    {
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
         // Validasi struktur data yang dikirim
-        if (!isset($data['renovation_id']) || !isset($data['agreement_id']) || !isset($data['is_checked']) ||
-            !is_array($data['agreement_id']) || !is_array($data['is_checked'])) {
+        if (
+            !isset($data['renovation_id']) || !isset($data['agreement_id']) || !isset($data['is_checked']) ||
+            !is_array($data['agreement_id']) || !is_array($data['is_checked'])
+        ) {
             return $this->respond([
-                'status'  => 'error', 
+                'status'  => 'error',
                 'message' => 'Format data tidak valid. agreement_id dan is_checked harus array.'
             ], 400);
         }
@@ -115,7 +122,7 @@ class AgreementController extends BaseController
         $isCheckedList = $data['is_checked'];
         if (count($agreementIds) !== count($isCheckedList)) {
             return $this->respond([
-                'status'  => 'error', 
+                'status'  => 'error',
                 'message' => 'Jumlah isi data agreement_id dan is_checked tidak cocok.'
             ], 400);
         }
@@ -135,19 +142,19 @@ class AgreementController extends BaseController
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
                 return $this->respond([
-                    'status'  => 'error', 
+                    'status'  => 'error',
                     'message' => 'Gagal memproses ke database (transaksi rollback).',
                     'error_detail' => $this->db->error()
                 ], 500);
             }
             return $this->respond([
-                'status'  => 'success', 
+                'status'  => 'success',
                 'message' => 'Data berhasil ditambahkan.',
                 'data'    => $insertData
             ], 200);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return $this->respond([
-                'status'  => 'error', 
+                'status'  => 'error',
                 'message' => 'Terjadi kesalahan internal server.',
                 'error'   => $e->getMessage()
             ], 500);

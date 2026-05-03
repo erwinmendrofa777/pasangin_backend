@@ -3,521 +3,440 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\ConstructionModel;
-use App\Models\RabModel;
+use App\Services\ConstructionService;
+use RuntimeException;
 
 class Construction extends BaseController
 {
-    protected $constructionModel;
-    protected $rabModel;
-    protected $db;
+    protected ConstructionService $svc;
 
     public function __construct()
     {
-        $this->constructionModel = new ConstructionModel();
-        $this->rabModel = new RabModel();
-        $this->db = \Config\Database::connect();
+        $this->svc = new ConstructionService();
     }
 
-    /**
-     * Tampilkan Daftar Proyek Konstruksi
-     */
     public function index()
     {
-        $data = [
-            'title' => 'Daftar Konstruksi',
-            'projects' => $this->db->table('construction_requests')->orderBy('created_at', 'DESC')->get()->getResultArray()
-        ];
-        return view('admin/construction/index', $data);
+        if (!can('construction')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengakses halaman ini.');
+        }
+        $result = $this->svc->getAllProjectsWithStats();
+        return view('admin/construction/index', array_merge($result, ['title' => 'Daftar Konstruksi']));
     }
 
-    /**
-     * Tampilkan Detail Proyek (Termasuk Tab RAB, Target, Pelamar, dll)
-     */
     public function detail($id)
     {
-        $construction = $this->constructionModel
-                            ->select('construction_requests.*, users.full_name, users.email, users.phone_number')
-                            ->join('users', 'users.id = construction_requests.user_id', 'left')
-                            ->find($id);
-
-        if (!$construction) {
-            return redirect()->to(base_url('admin/construction'))->with('error', 'Data tidak ditemukan.');
+        if (!can('construction_detail')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengakses halaman ini.');
         }
-
-        // --- 1. AMBIL DATA RELASI ---
-        $progressList = $this->db->table('construction_progress')->where('construction_id', $id)->orderBy('week_number', 'DESC')->get()->getResultArray();
-        $designList   = $this->db->table('construction_designs')->where('construction_id', $id)->orderBy('created_at', 'DESC')->get()->getResultArray();
-        $surveyList   = $this->db->table('construction_surveys')->where('construction_id', $id)->orderBy('created_at', 'DESC')->get()->getResultArray();
-        $invoiceList  = $this->db->table('construction_invoices')->where('construction_id', $id)->orderBy('created_at', 'ASC')->get()->getResultArray();
-        $jobInfo      = $this->db->table('construction_jobs')->where('construction_id', $id)->get()->getRowArray();
-        $applicants   = $this->db->table('job_applications')->where('project_id', $id)->where('project_type', 'construction')->orderBy('created_at', 'DESC')->get()->getResultArray();
-        $targetList   = $this->db->table('construction_targets')->where('construction_id', $id)->get()->getResultArray();
-        
-        // list tagihan
-        $list_tagihan = $this->db->table('construction_rabs')
-                                ->select('group_name, SUM(total_price) as total_price')
-                                ->where('construction_rabs.construction_id', $id)
-                                ->groupBy('roman_number','group_name')
-                                ->orderBy('roman_number', 'ASC')
-                                ->get()->getResultArray();
-
-        // --- 2. AMBIL DATA RAB  ---
-        $rabList = $this->db->table('construction_rabs')
-                            ->where('construction_id', $id)
-                            ->orderBy('roman_number', 'ASC')
-                            ->orderBy('id', 'ASC')
-                            ->get()->getResultArray();
-
-        // Ambil pilihan material untuk setiap baris RAB
-        foreach ($rabList as &$item) {
-            $item['materials'] = $this->db->table('rab_material_options')
-                                          ->select('rab_material_options.*, products.name as material_name, products.price')
-                                          ->join('products', 'products.id = rab_material_options.product_id')
-                                          ->where('rab_id', $item['id'])
-                                          ->get()->getResultArray();
+        try {
+            $data = $this->svc->findConstructionWithDetails((int)$id);
+        } catch (RuntimeException $e) {
+            return redirect()->to(base_url('admin/construction'))->with('error', $e->getMessage());
         }
-
-        // --- 3. AMBIL DATA PRODUK UNTUK MODAL SELECTION ---
-        $allProducts = $this->db->table('products')->where('status', 'aktif')->get()->getResultArray();
-
-        $data = [
-            'title'         => 'Detail Konstruksi',
-            'construction'  => $construction,
-            'progress_list' => $progressList,
-            'design_list'   => $designList,
-            'survey_list'   => $surveyList,
-            'invoice_list'  => $invoiceList,
-            'job_info'      => $jobInfo,
-            'applicants'    => $applicants,
-            'target_list'   => $targetList,
-            'rab_list'      => $rabList,
-            'all_products'  => $allProducts,
-            'list_tagihan'  => $list_tagihan,
-            // Untuk tab Target: list pekerjaan RAB (group, subgroup, activity)
-            'rab'           => array_map(fn($r) => [
-                'id'             => $r['id'],
-                'group_name'     => $r['group_name'],
-                'sub_group_name' => $r['sub_group_name'] ?? '',
-                'activity_name'  => $r['activity_name'],
-                'total_price'    => $r['total_price'],
-            ], $rabList),
-        ];
-
-        return view('admin/construction/detail', $data);
+        return view('admin/construction/detail', array_merge($data, ['title' => 'Detail Konstruksi']));
     }
 
-    // =========================================================================
-    // === FITUR RAB (SINKRON WEB & FLUTTER) ===================================
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // RAB
+    // -------------------------------------------------------------------------
+    public function save_rab_row()
+    {
+        if (!can('construction_rab')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
 
-    /**
-     * Simpan atau Update Baris Pekerjaan RAB
-     * Sinkron dengan input Roman, Group, dan Sub Group kawan
-     */
-    public function save_rab_row() {
-        $id = $this->request->getPost('id');
-        $vol = (float) $this->request->getPost('volume');
-        $price = (float) $this->request->getPost('price');
-        
-        $data = [
-            'construction_id'    => $this->request->getPost('construction_id'),
-            'roman_number'       => $this->request->getPost('roman_number') ?: 'I',
-            'group_name'         => $this->request->getPost('group_name') ?: 'PEKERJAAN',
-            'sub_group_name'     => $this->request->getPost('section_group'), 
-            'section_group'      => $this->request->getPost('section_group'),
-            'section_name'       => $this->request->getPost('section_group'),
-            'activity_name'      => $this->request->getPost('task_name'), 
-            'volume'             => $vol,
-            'unit'               => $this->request->getPost('unit'),
-            'current_unit_price' => $price,
-            'total_price'        => $vol * $price
-        ];
+        if (!$this->validateData($this->request->getPost(), 'constructionRabSave')) {
+            return $this->response->setJSON(['status' => false, 'message' => implode(' ', $this->validator->getErrors())]);
+        }
 
         try {
-            if (!$id || $id == "0") {
-                $this->db->table('construction_rabs')->insert($data);
-                $id = $this->db->insertID();
-            } else {
-                // Proteksi: Jangan update jika sudah dikunci kawan
-                $check = $this->db->table('construction_rabs')->where('id', $id)->get()->getRowArray();
-                if ($check && $check['is_locked'] == 1) {
-                    return $this->response->setJSON(['status' => false, 'message' => 'Baris sudah dikunci!']);
-                }
-                $this->db->table('construction_rabs')->where('id', $id)->update($data);
-            }
-
-            return $this->response->setJSON([
-                'status'  => true,
-                'id'      => $id,
-                'message' => 'Data RAB berhasil disimpan'
-            ]);
-        } catch (\Exception $e) {
+            $result = $this->svc->saveRabRow($this->request->getPost());
+            return $this->response->setJSON(['status' => true, 'id' => $result['id'], 'message' => 'Data RAB berhasil disimpan']);
+        } catch (RuntimeException $e) {
             return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    /**
-     * Mengunci Semua RAB pada Proyek ini
-     */
     public function lock_rab($constructionId)
     {
-        $this->db->table('construction_rabs')
-                 ->where('construction_id', $constructionId)
-                 ->update(['is_locked' => 1]);
-
-        // Update status proyek ke tahap Konstruksi
-        $this->constructionModel->update($constructionId, ['status' => 'Construction']);
-
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#rab'))
-                         ->with('success', 'RAB Berhasil Dikunci kawan!');
+        if (!can('construction_rab')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah RAB.');
+        }
+        $this->svc->lockRab((int)$constructionId);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#rab'))->with('success', 'RAB Berhasil Dikunci kawan!');
     }
 
-    /**
-     * Membuka Kunci RAB (Khusus Admin)
-     */
     public function unlock_rab($constructionId)
     {
-        $this->db->table('construction_rabs')
-                 ->where('construction_id', $constructionId)
-                 ->update(['is_locked' => 0]);
-
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#rab'))
-                         ->with('success', 'Kunci RAB dibuka kawan!');
+        if (!can('construction_rab')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah RAB.');
+        }
+        $this->svc->unlockRab((int)$constructionId);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#rab'))->with('success', 'Kunci RAB dibuka kawan!');
     }
 
-    /**
-     * Hapus Satu Baris Pekerjaan RAB & Opsinya
-     */
     public function delete_rab_row($id)
     {
-        // Cek dulu apakah dikunci kawan
-        $check = $this->db->table('construction_rabs')->where('id', $id)->get()->getRowArray();
-        if ($check && $check['is_locked'] == 1) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Data terkunci!']);
+        if (!can('construction_rab')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
         }
-
-        $this->db->table('construction_rabs')->where('id', $id)->delete();
-        $this->db->table('construction_rab_materials')->where('rab_id', $id)->delete();
-        return $this->response->setJSON(['status' => true]);
+        try {
+            $this->svc->deleteRabRow((int)$id);
+            return $this->response->setJSON(['status' => true]);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
-    /**
-     * Ambil Daftar Material untuk Modal di Web
-     */
     public function get_rab_materials($rabId)
     {
-        $data = $this->db->table('construction_rab_materials')
-                         ->select('construction_rab_materials.*, products.name as material_name, products.price')
-                         ->join('products', 'products.id = construction_rab_materials.product_id')
-                         ->where('rab_id', $rabId)->get()->getResultArray();
-        return $this->response->setJSON($data);
+        if (!can('construction_rab')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        return $this->response->setJSON($this->svc->getRabMaterials((int)$rabId));
     }
 
-    /**
-     * Tambah Produk ke Pilihan Material RAB
-     */
     public function add_rab_material()
     {
-        $rabId = $this->request->getPost('rab_id');
-        
-        // Cek kunci kawan
-        $check = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
-        if ($check && $check['is_locked'] == 1) {
-            return $this->response->setJSON(['status' => false, 'message' => 'RAB Terkunci!']);
+        if (!can('construction_rab')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
         }
-
-        $productId = $this->request->getPost('product_id');
-        $data = [
-            'rab_id'     => $rabId,
-            'product_id' => $productId
-        ];
-        
-        $this->db->table('construction_rab_materials')->insert($data);
-        return $this->response->setJSON(['status' => true, 'message' => 'Material ditambahkan.']);
+        try {
+            $this->svc->addRabMaterial((int)$this->request->getPost('rab_id'), (int)$this->request->getPost('product_id'));
+            return $this->response->setJSON(['status' => true, 'message' => 'Material ditambahkan.']);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
-    /**
-     * Hapus Satu Opsi Material
-     */
-    public function delete_rab_material($id){
-        $this->db->table('construction_rab_materials')->where('id', $id)->delete();
+    public function delete_rab_material($id)
+    {
+        if (!can('construction_rab')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        $this->svc->deleteRabMaterial((int)$id);
         return $this->response->setJSON(['status' => true]);
     }
 
-    /**
-     * API UNTUK FLUTTER (Get RAB Ter-Grouping)
-     * Dipanggil oleh ApiService.dart kawan
-     */
     public function get_construction_rab_api($construction_id)
     {
-        $raw = $this->db->table('construction_rabs')
-                        ->where('construction_id', $construction_id)
-                        ->orderBy('roman_number', 'ASC')
-                        ->orderBy('id', 'ASC')
-                        ->get()->getResultArray();
-
-        foreach ($raw as &$item) {
-            // Mapping key untuk RabDetailItem di Flutter kawan
-            $item['item_name']     = $item['activity_name'];
-            $item['current_price'] = $item['current_unit_price'];
-
-            // Tarik opsi material untuk MaterialOption di Flutter
-            $item['materials'] = $this->db->table('construction_rab_materials')
-                ->select('products.name as material_name, products.price, products.description')
-                ->join('products', 'products.id = construction_rab_materials.product_id')
-                ->where('rab_id', $item['id'])
-                ->get()->getResultArray();
-        }
-
-        return $this->response->setJSON($raw);
+        return $this->response->setJSON($this->svc->getRabApiData((int)$construction_id));
     }
 
-    // =========================================================================
-    // === FUNGSI-FUNGSI LAIN (TARGET, STATUS, INVOICE, DLL) ===================
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // ADDENDUM
+    // -------------------------------------------------------------------------
+    public function save_addendum_row()
+    {
+        if (!can('construction_addendum')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        try {
+            $result = $this->svc->saveAddendumRow($this->request->getPost());
+            return $this->response->setJSON(['status' => true, 'id' => $result['id'], 'message' => 'Data Addendum berhasil disimpan']);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
 
+    public function lock_addendum($constructionId)
+    {
+        if (!can('construction_addendum')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah addendum.');
+        }
+        $this->svc->lockAddendum((int)$constructionId);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#addendum'))->with('success', 'Addendum Berhasil Dikunci kawan!');
+    }
+
+    public function unlock_addendum($constructionId)
+    {
+        if (!can('construction_addendum')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah addendum.');
+        }
+        $this->svc->unlockAddendum((int)$constructionId);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#addendum'))->with('success', 'Kunci Addendum dibuka kawan!');
+    }
+
+    public function delete_addendum_row($id)
+    {
+        if (!can('construction_addendum')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        try {
+            $this->svc->deleteAddendumRow((int)$id);
+            return $this->response->setJSON(['status' => true]);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function get_addendum_materials($addendumId)
+    {
+        if (!can('construction_addendum')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        return $this->response->setJSON($this->svc->getAddendumMaterials((int)$addendumId));
+    }
+
+    public function add_addendum_material()
+    {
+        if (!can('construction_addendum')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        try {
+            $this->svc->addAddendumMaterial((int)$this->request->getPost('addendum_id'), (int)$this->request->getPost('product_id'));
+            return $this->response->setJSON(['status' => true, 'message' => 'Material ditambahkan.']);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function delete_addendum_material($id)
+    {
+        if (!can('construction_addendum')) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Akses ditolak.']);
+        }
+        $this->svc->deleteAddendumMaterial((int)$id);
+        return $this->response->setJSON(['status' => true]);
+    }
+
+    // -------------------------------------------------------------------------
+    // TARGET
+    // -------------------------------------------------------------------------
     public function add_target()
     {
-        $constructionId = $this->request->getPost('construction_id');
-        $this->db->table('construction_targets')->insert([
-            'construction_id'       => $constructionId,
-            'target_name'           => $this->request->getPost('target_name'),
-            'start_date'            => $this->request->getPost('start_date'),
-            'end_date'              => $this->request->getPost('end_date'),
-            'description'           => $this->request->getPost('description'),
-            'status'                => 'Pending'
-        ]);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#target'))->with('success', 'Target proyek berhasil ditambahkan!');
+        if (!can('construction_target')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah target.');
+        }
+
+        if (!$this->validateData($this->request->getPost(), 'constructionTargetSave')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $post = $this->request->getPost();
+        $this->svc->addTarget($post);
+        return redirect()->to(base_url('admin/construction/detail/' . $post['construction_id'] . '#target'))->with('success', 'Target proyek berhasil ditambahkan!');
     }
 
     public function update_target_status($id, $status)
     {
-        $this->db->table('construction_targets')->where('id', $id)
-                 ->update(['status' => $status]);
+        if (!can('construction_target')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah target.');
+        }
+        $this->svc->updateTargetStatus((int)$id, $status);
         return redirect()->back()->with('success', 'Status target berhasil diperbarui!');
     }
 
-
     public function delete_target($id, $constructionId)
     {
-        $this->db->table('construction_targets')->where('id', $id)->delete();
+        if (!can('construction_target')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah target.');
+        }
+        $this->svc->deleteTarget((int)$id);
         return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#target'))->with('success', 'Target proyek dihapus.');
     }
 
-    public function update_applicant_status()
+    public function view_target($id)
     {
-        $id = $this->request->getPost('id');
-        $status = $this->request->getPost('status');
-        $this->db->table('job_applications')->where('id', $id)->update(['status' => $status, 'updated_at' => date('Y-m-d H:i:s')]);
-        return redirect()->back()->with('success', 'Status pelamar berhasil diperbarui!');
-    }
-
-    public function update_job_info()
-    {
-        $construction_id = $this->request->getPost('id');    
-        $requestData = $this->db->table('construction_requests')->where('id', $construction_id)->get()->getRowArray();
-        $data = [
-            'construction_id'  => $construction_id,
-            'detail_pekerjaan' => $this->request->getPost('detail_pekerjaan'),
-            'detail_lokasi'    => $this->request->getPost('detail_lokasi'),
-            'tempat_tinggal'   => $this->request->getPost('tempat_tinggal'),
-            'tanggal_mulai'    => $this->request->getPost('tanggal_mulai'),
-            'tanggal_akhir'    => $this->request->getPost('tanggal_akhir'),
-            'upah_per_hari'    => $this->request->getPost('upah_per_hari'),
-            'latitude'         => $requestData['latitude'] ?? '0',
-            'longitude'        => $requestData['longitude'] ?? '0',
-            'updated_at'       => date('Y-m-d H:i:s')
-        ];
-        $builder = $this->db->table('construction_jobs');
-        $exist = $builder->where('construction_id', $construction_id)->get()->getRow();
-        if ($exist) { 
-            $builder->where('construction_id', $construction_id)->update($data); 
-        } else { 
-            $data['created_at'] = date('Y-m-d H:i:s'); 
-            $builder->insert($data); 
+        if (!can('construction_target')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk melihat target.');
         }
-        return redirect()->to(base_url('admin/construction/detail/' . $construction_id . '#info-pekerjaan'))->with('success', 'Info Pekerjaan & Lokasi disinkronkan!');
+        return view('admin/construction/target', $this->svc->getTargetView((int)$id));
     }
 
-    public function updateStatus()
+    public function createTarget($id_project)
     {
-        $id = $this->request->getPost('id');
-        $status = $this->request->getPost('status');
-        $this->constructionModel->update($id, ['status' => $status]);
-        return redirect()->to(base_url('admin/construction/detail/' . $id))->with('success', 'Status diperbarui');
-    }
-
-    public function create_invoice()
-    {
-        $constructionId = $this->request->getPost('construction_id');
-        $amount = (int) $this->request->getPost('amount');
-        $project = $this->db->table('construction_requests')->where('id', $constructionId)->get()->getRowArray();
-        if (!$project || !isset($project['user_id'])) return redirect()->back()->with('error', 'Proyek tidak ditemukan.');
-        $this->db->table('construction_invoices')->insert([
-            'construction_id' => $constructionId,
-            'user_id'         => $project['user_id'],
-            'description'     => $this->request->getPost('description'),
-            'amount'          => $amount,
-            'due_date'        => $this->request->getPost('due_date') ?: null,
-            'status'          => 'UNPAID',
-            'created_at'      => date('Y-m-d H:i:s'),
-        ]);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#payment'))->with('success', 'Tagihan dibuat!');
-    }
-
-    public function delete_invoice($id, $constructionId)
-    {
-        $this->db->table('construction_invoices')->where('id', $id)->delete();
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#payment'))->with('success', 'Tagihan dihapus.');
-    }
-
-    public function uploadSurvey()
-    {
-        $constructionId = $this->request->getPost('id');
-        $file = $this->request->getFile('survey_file');
-        $fileName = '';
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $fileName = $file->getRandomName();
-            $file->move('uploads/construction/survey', $fileName);
+        if (!can('construction_target')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk membuat target.');
         }
-        $this->db->table('construction_surveys')->insert([
-            'construction_id' => $constructionId,
-            'survey_title'    => $this->request->getPost('survey_title'),
-            'survey_notes'    => $this->request->getPost('survey_notes'),
-            'survey_file'     => $fileName,
-            'created_at'      => date('Y-m-d H:i:s')
-        ]);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#survey'))->with('success', 'Survey ditambahkan!');
-    }
-
-    public function deleteSurvey($id, $constructionId)
-    {
-        $this->db->table('construction_surveys')->where('id', $id)->delete();
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#survey'))->with('success', 'Survey dihapus.');
-    }
-
-    public function uploadDesign()
-    {
-        $constructionId = $this->request->getPost('id');
-        $file = $this->request->getFile('design_2d');
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move('uploads/construction/designs', $newName);
-            $this->db->table('construction_designs')->insert([
-                'construction_id' => $constructionId,
-                'title'           => $this->request->getPost('design_title'),
-                'file'            => $newName,
-                'created_at'      => date('Y-m-d H:i:s')
-            ]);
-            return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#desain'))->with('success', 'Desain ditambahkan!');
-        }
-        return redirect()->back()->with('error', 'Gagal upload.');
-    }
-
-    public function deleteDesign($id, $constructionId)
-    {
-        $this->db->table('construction_designs')->where('id', $id)->delete();
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#desain'))->with('success', 'Desain dihapus.');
-    }
-    
-    public function addProgress()
-    {
-        $constructionId = $this->request->getPost('construction_id');
-        $data = [
-            'construction_id' => $constructionId,
-            'week_number'      => $this->request->getPost('week_number'),
-            'percentage'      => $this->request->getPost('percentage'),
-            'description'     => $this->request->getPost('description'),
-            'created_at'      => date('Y-m-d H:i:s')
-        ];
-        $file = $this->request->getFile('photo');
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move('uploads/construction/progress', $newName);
-            $data['photo_url'] = $newName; 
-        }
-        $this->db->table('construction_progress')->insert($data);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#progress'))->with('success', 'Progress ditambahkan!');
-    }
-
-    public function deleteProgress($id, $constructionId)
-    {
-        $this->db->table('construction_progress')->where('id', $id)->delete();
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#progress'))->with('success', 'Progress dihapus.');
-    }
-
-    public function view_target($id){
-        $jangka_waktu = $this->db->table('construction_requests')
-                                 ->select('id, start_date, week')
-                                 ->where('id', $id)
-                                 ->get()->getRowArray();
-
-        $rab = $this->db->table('construction_rabs')
-                        ->select('id, group_name, sub_group_name, activity_name, total_price')
-                        ->where('construction_id', $id)
-                        ->get()->getResultArray();
-
-        $targetList = $this->db->table('construction_targets')
-                               ->where('construction_id', $id)
-                               ->get()->getResultArray();
-
-        return view('admin/construction/target', [
-            'target_list'   => $targetList,
-            'rab'           => $rab,
-            'construction'  => $jangka_waktu,
-        ]);
-    }
-
-    public function createTarget($id_project){
-        $rab_id    = $this->request->getPost('rab_id');
-        $startDate = $this->request->getPost('start_week');
-        $week      = $this->request->getPost('end_week');
-        $bobot     = $this->request->getPost('bobot');
-
-        $data = [
-            'id_job_applications'  => 13,
-            'start_week'           => $startDate,
-            'end_week'             => $week,
-            'bobot'                => $bobot,
-        ];
-
-        // Cek apakah target untuk RAB ini sudah ada
-        $existing = $this->db->table('construction_targets')
-                             ->where('construction_id', $id_project)
-                             ->where('id_construction_rabs', $rab_id)
-                             ->get()->getRowArray();
-
-        if ($existing) {
-            $this->db->table('construction_targets')
-                     ->where('id', $existing['id'])
-                     ->update($data);
-            $msg = 'Target diperbarui!';
-        } else {
-            $data['construction_id']      = $id_project;
-            $data['id_construction_rabs'] = $rab_id;
-            $this->db->table('construction_targets')->insert($data);
-            $msg = 'Target ditambahkan!';
-        }
-
+        $msg = $this->svc->createOrUpdateTarget((int)$id_project, $this->request->getPost());
         return redirect()->to(base_url('admin/construction/detail/' . $id_project . '#target'))->with('success', $msg);
     }
 
     public function update_schedule()
     {
-        $id         = $this->request->getPost('construction_id');
-        $startDate  = $this->request->getPost('start_date');
-        $week       = (int) $this->request->getPost('week');
+        if (!can('construction_target')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah jadwal.');
+        }
 
-        $this->db->table('construction_requests')
-                 ->where('id', $id)
-                 ->update([
-                     'start_date' => $startDate ?: null,
-                     'week'       => $week > 0 ? $week : null,
-                 ]);
+        if (!$this->validateData($this->request->getPost(), 'constructionScheduleUpdate')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
 
-        return redirect()
-            ->to(base_url('admin/construction/detail/' . $id.'#target'))
-            ->with('success', 'Jadwal proyek berhasil diperbarui!');
+        $post = $this->request->getPost();
+        $this->svc->updateSchedule((int)$post['construction_id'], $post);
+        return redirect()->to(base_url('admin/construction/detail/' . $post['construction_id'] . '#target'))->with('success', 'Jadwal proyek berhasil diperbarui!');
+    }
+
+    // -------------------------------------------------------------------------
+    // STATUS
+    // -------------------------------------------------------------------------
+    public function updateStatus()
+    {
+        if (!can('construction')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengubah status.');
+        }
+        $id = $this->request->getPost('id');
+        $this->svc->updateStatus((int)$id, $this->request->getPost('status'));
+        return redirect()->to(base_url('admin/construction/detail/' . $id))->with('success', 'Status diperbarui');
+    }
+
+    // -------------------------------------------------------------------------
+    // INVOICE
+    // -------------------------------------------------------------------------
+    public function create_invoice()
+    {
+        if (!can('construction_pembayaran')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk membuat invoice.');
+        }
+
+        if (!$this->validateData($this->request->getPost(), 'constructionInvoiceCreate')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        try {
+            $this->svc->createInvoice($this->request->getPost());
+            return redirect()->to(base_url('admin/construction/detail/' . $this->request->getPost('construction_id') . '#payment'))->with('success', 'Tagihan dibuat!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function delete_invoice($id, $constructionId)
+    {
+        if (!can('construction_pembayaran')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menghapus invoice.');
+        }
+        $this->svc->deleteInvoice((int)$id);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#payment'))->with('success', 'Tagihan dihapus.');
+    }
+
+    // -------------------------------------------------------------------------
+    // SURVEY
+    // -------------------------------------------------------------------------
+    public function uploadSurvey()
+    {
+        if (!can('construction_survey')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengunggah survey.');
+        }
+
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['survey_file'] = $this->request->getFile('survey_file');
+
+        if (!$this->validateData($dataToValidate, 'constructionSurveyUpload')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $constructionId = $this->request->getPost('id');
+        $this->svc->uploadSurvey((int)$constructionId, $this->request->getPost(), $this->request->getFile('survey_file'));
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#survey'))->with('success', 'Survey ditambahkan!');
+    }
+
+    public function deleteSurvey($id, $constructionId)
+    {
+        if (!can('construction_survey')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menghapus survey.');
+        }
+        $this->svc->deleteSurvey((int)$id);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#survey'))->with('success', 'Survey dihapus.');
+    }
+
+    // -------------------------------------------------------------------------
+    // DESIGN
+    // -------------------------------------------------------------------------
+    public function uploadDesign()
+    {
+        if (!can('construction_desain')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengunggah desain.');
+        }
+
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['design_2d'] = $this->request->getFile('design_2d');
+
+        if (!$this->validateData($dataToValidate, 'constructionDesignUpload')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $constructionId = $this->request->getPost('id');
+        try {
+            $this->svc->uploadDesign((int)$constructionId, $this->request->getPost('design_title'), $this->request->getFile('design_2d'));
+            return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#desain'))->with('success', 'Desain ditambahkan!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function deleteDesign($id, $constructionId)
+    {
+        if (!can('construction_desain')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menghapus desain.');
+        }
+        $this->svc->deleteDesign((int)$id);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#desain'))->with('success', 'Desain dihapus.');
+    }
+
+    // -------------------------------------------------------------------------
+    // PROGRESS
+    // -------------------------------------------------------------------------
+    public function addProgress()
+    {
+        if (!can('construction_progress')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menambahkan progres.');
+        }
+
+        $dataToValidate = $this->request->getPost();
+        $dataToValidate['photo'] = $this->request->getFile('photo');
+
+        if (!$this->validateData($dataToValidate, 'constructionProgressAdd')) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $constructionId = $this->request->getPost('construction_id');
+        $this->svc->addProgress($this->request->getPost(), $this->request->getFile('photo'));
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#progress'))->with('success', 'Progress ditambahkan!');
+    }
+
+    public function deleteProgress($id, $constructionId)
+    {
+        if (!can('construction_progress')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menghapus progres.');
+        }
+        $this->svc->deleteProgress((int)$id);
+        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#progress'))->with('success', 'Progress dihapus.');
+    }
+
+    public function update_progress_status($id, $status)
+    {
+        if (!can('construction_progress')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah status progres.');
+        }
+        try {
+            $constructionId = $this->svc->updateProgressStatus((int)$id, $status);
+            return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#progress'))->with('success', 'Status laporan progress berhasil diperbarui!');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // PELAMAR & JOB INFO
+    // -------------------------------------------------------------------------
+    public function update_applicant_status()
+    {
+        if (!can('construction_pelamar')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah pelamar.');
+        }
+        $this->svc->updateApplicantStatus((int)$this->request->getPost('id'), $this->request->getPost('status'));
+        return redirect()->back()->with('success', 'Status pelamar berhasil diperbarui!');
+    }
+
+    public function update_job_info()
+    {
+        if (!can('construction_lowongan')) {
+            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengubah lowongan.');
+        }
+        $this->svc->updateJobInfo($this->request->getPost());
+        return redirect()->to(base_url('admin/construction/detail/' . $this->request->getPost('id') . '#info-pekerjaan'))->with('success', 'Info Pekerjaan & Lokasi disinkronkan!');
     }
 }

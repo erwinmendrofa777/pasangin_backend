@@ -3,111 +3,123 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\TermsOfAgreementModel;
+use App\Services\SyaratKetentuanService;
+use RuntimeException;
 
-class SyaratKetentuanController extends BaseController{
-    protected $termsOfAgreementModel;
+class SyaratKetentuanController extends BaseController
+{
+    protected SyaratKetentuanService $svc;
 
-    public function __construct(){
-        $this->termsOfAgreementModel = new TermsOfAgreementModel();
+    public function __construct()
+    {
+        $this->svc = new SyaratKetentuanService();
     }
 
-    public function index(){
-        $data = [
-            'title' => 'Syarat & Ketentuan',
-            'data' => $this->termsOfAgreementModel->orderBy('id', 'DESC')->findAll()
-        ];
-        return view('admin/syarat_ketentuan/index', $data);
+    public function index()
+    {
+        if (!can('syarat_ketentuan')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data syarat & ketentuan.');
+        }
+
+        $data = $this->svc->getDashboardData();
+
+        return view('admin/syarat_ketentuan/index', array_merge($data, [
+            'title' => 'Syarat & Ketentuan'
+        ]));
     }
 
     public function create()
     {
-        $data = [
+        if (!can('syarat_ketentuan_create')) {
+            return redirect()->to('/admin/syarat_ketentuan')->with('error', 'Anda tidak memiliki akses untuk membuat syarat & ketentuan.');
+        }
+
+        return view('admin/syarat_ketentuan/create', [
             'title' => 'Tambah Syarat & Ketentuan'
-        ];
-        return view('admin/syarat_ketentuan/create', $data);
+        ]);
     }
 
     public function store()
     {
-        $rules = [
-            'title'       => 'required',
-            'description' => 'required'
-        ];
+        if (!can('syarat_ketentuan_create')) {
+            return redirect()->to('/admin/syarat_ketentuan')->with('error', 'Anda tidak memiliki akses untuk membuat syarat & ketentuan.');
+        }
 
-        if (!$this->validate($rules)) {
+        if (!$this->validateData($this->request->getPost(), 'syaratKetentuanSave')) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $this->termsOfAgreementModel->save([
-            'title'       => $this->request->getPost('title'),
-            'description' => $this->request->getPost('description')
-        ]);
-
-        return redirect()->to('admin/syarat_ketentuan')->with('success', 'Data berhasil ditambahkan.');
+        try {
+            $this->svc->store($this->request->getPost());
+            return redirect()->to('admin/syarat_ketentuan')->with('success', 'Data berhasil ditambahkan.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
     }
 
     public function edit($id)
     {
-        $item = $this->termsOfAgreementModel->find($id);
-        if (!$item) {
-            return redirect()->to('admin/syarat_ketentuan')->with('error', 'Data tidak ditemukan.');
+        if (!can('syarat_ketentuan_update')) {
+            return redirect()->to('/admin/syarat_ketentuan')->with('error', 'Anda tidak memiliki akses untuk mengedit syarat & ketentuan.');
         }
 
-        $data = [
-            'title' => 'Edit Syarat & Ketentuan',
-            'data'  => $item
-        ];
-        return view('admin/syarat_ketentuan/edit', $data);
+        try {
+            $item = $this->svc->findOrFail((int)$id);
+            return view('admin/syarat_ketentuan/edit', [
+                'title' => 'Edit Syarat & Ketentuan',
+                'data'  => $item
+            ]);
+        } catch (RuntimeException $e) {
+            return redirect()->to('admin/syarat_ketentuan')->with('error', $e->getMessage());
+        }
     }
 
     public function update($id)
     {
-        $item = $this->termsOfAgreementModel->find($id);
-        if (!$item) {
-            return redirect()->to('admin/syarat_ketentuan')->with('error', 'Data tidak ditemukan.');
+        if (!can('syarat_ketentuan_update')) {
+            return redirect()->to('/admin/syarat_ketentuan')->with('error', 'Anda tidak memiliki akses untuk mengedit syarat & ketentuan.');
         }
 
-        $rules = [
-            'title'       => 'required',
-            'description' => 'required'
-        ];
-
-        if (!$this->validate($rules)) {
+        if (!$this->validateData($this->request->getPost(), 'syaratKetentuanSave')) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $this->termsOfAgreementModel->update($id, [
-            'title'       => $this->request->getPost('title'),
-            'description' => $this->request->getPost('description')
-        ]);
-
-        return redirect()->to('admin/syarat_ketentuan')->with('success', 'Data berhasil diperbarui.');
+        try {
+            $this->svc->update((int)$id, $this->request->getPost());
+            return redirect()->to('admin/syarat_ketentuan')->with('success', 'Data berhasil diperbarui.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
     }
 
     public function detail($id)
     {
-        $item = $this->termsOfAgreementModel->find($id);
-        if (!$item) {
-            return redirect()->to('admin/syarat_ketentuan')->with('error', 'Data tidak ditemukan.');
+        if (!can('syarat_ketentuan')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat syarat & ketentuan.');
         }
 
-        $data = [
-            'title' => 'Detail Syarat & Ketentuan',
-            'data'  => $item
-        ];
-        return view('admin/syarat_ketentuan/detail', $data);
+        try {
+            $item = $this->svc->findOrFail((int)$id);
+            return view('admin/syarat_ketentuan/detail', [
+                'title' => 'Detail Syarat & Ketentuan',
+                'data'  => $item
+            ]);
+        } catch (RuntimeException $e) {
+            return redirect()->to('admin/syarat_ketentuan')->with('error', $e->getMessage());
+        }
     }
 
     public function delete($id)
     {
-        $item = $this->termsOfAgreementModel->find($id);
-        if (!$item) {
-            return redirect()->to('admin/syarat_ketentuan')->with('error', 'Data tidak ditemukan.');
+        if (!can('syarat_ketentuan_delete')) {
+            return redirect()->to('/admin/syarat_ketentuan')->with('error', 'Anda tidak memiliki akses untuk menghapus syarat & ketentuan.');
         }
 
-        $this->termsOfAgreementModel->delete($id);
-
-        return redirect()->to('admin/syarat_ketentuan')->with('success', 'Data berhasil dihapus.');
+        try {
+            $this->svc->delete((int)$id);
+            return redirect()->to('admin/syarat_ketentuan')->with('success', 'Data berhasil dihapus.');
+        } catch (RuntimeException $e) {
+            return redirect()->to('admin/syarat_ketentuan')->with('error', $e->getMessage());
+        }
     }
 }

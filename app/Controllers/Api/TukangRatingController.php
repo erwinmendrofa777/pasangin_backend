@@ -50,10 +50,11 @@ class TukangRatingController extends ResourceController
     // =========================================================================
     // 2. API UNTUK MENAMBAHKAN RATING UNTUK TUKANG
     // =========================================================================
-    public function create(){
+    public function createRatingTukangConstruction(){
         //validasi input
         $rules = [
             'id_tukang'      => 'required|numeric',
+            'target_id'      => 'required|numeric',
             'skill_score'    => 'required|in_list[1,2,3,4,5]',
             'behavior_score' => 'required|in_list[1,2,3,4,5]',
             'comment'        => 'required',
@@ -63,6 +64,10 @@ class TukangRatingController extends ResourceController
             'id_tukang' => [
                 'required' => 'ID Tukang wajib diisi.',
                 'numeric'  => 'ID Tukang harus berupa angka.'
+            ],
+            'target_id' => [
+                'required' => 'Target ID wajib diisi.',
+                'numeric'  => 'Target ID harus berupa angka.'
             ],
             'skill_score' => [
                 'required' => 'Skill Score wajib diisi',
@@ -81,9 +86,11 @@ class TukangRatingController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $input = $this->request->getPost() ?? $this->request->getJSON();
+        $input = $this->request->getPost() ?? $this->request->getJSON(true);
         $data = [
             'id_tukang'      => $input['id_tukang'],
+            'target_id'      => $input['target_id'],
+            'project_type'   => 'construction',
             'skill_score'    => $input['skill_score'],
             'behavior_score' => $input['behavior_score'],
             'comment'        => $input['comment'],

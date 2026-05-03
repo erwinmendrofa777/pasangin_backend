@@ -56,7 +56,7 @@ if (!function_exists('tanggal_surat_indo')) {
         $tahun_ejaan = ucwords(terbilang(date('Y', $waktu)));
 
         // Menggabungkan menjadi format kalimat lengkap
-        return "Pada hari ini, $hari tanggal $tgl_ejaan bulan $bulan tahun $tahun_ejaan kami yang bertanda tangan di bawah ini :";
+        return "Pada hari ini, <b>$hari</b> tanggal <b>$tgl_ejaan</b> bulan <b>$bulan</b> tahun <b>$tahun_ejaan</b> kami yang bertanda tangan di bawah ini :";
     }
 }
 
@@ -79,4 +79,4 @@ if (!function_exists('tanggal_indo')) {
         $pecahkan = explode('-', date('Y-m-d', strtotime($tanggal)));
         return (int)$pecahkan[2] . ' ' . $bulan[(int)$pecahkan[1]] . ' ' . $pecahkan[0];
     }
-}
+}
