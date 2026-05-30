@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <title><?= lang('Errors.badRequest') ?></title>
 
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="<?= base_url('favicon.ico?v=1') ?>" type="image/x-icon">
+
     <style>
         div.logo {
             height: 200px;

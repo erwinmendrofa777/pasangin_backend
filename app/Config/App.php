@@ -15,7 +15,7 @@ class App extends BaseConfig
      * SOLUSI ERROR LINE 246:
      * Hostname yang diizinkan untuk mengakses aplikasi.
      */
-    public array $allowedHostnames = ['backend.pasangin.co.id'];
+    public array $allowedHostnames = ['backend.pasangin.co.id', 'localhost', '127.0.0.1'];
 
     /**
      * Pengaturan lainnya (Pastikan tipe data string/bool/array sesuai)

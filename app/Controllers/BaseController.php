@@ -40,7 +40,7 @@ abstract class BaseController extends Controller
     // Dari $helpers = [] menjadi $helpers = ['form']
     // Saya juga tambahkan 'url' dan 'auth' yang biasanya berguna.
     // =========================================================
-    protected $helpers = ['form', 'url', 'auth'];
+    protected $helpers = ['form', 'url', 'auth', 'activity_log'];
 
     /**
      * Constructor.

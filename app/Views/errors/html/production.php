@@ -1,25 +1,54 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>500 Internal Server Error &mdash; Pasangin</title>
 
-    <title><?= lang('Errors.whoops') ?></title>
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="<?= base_url('favicon.ico?v=1') ?>" type="image/x-icon">
 
-    <style>
-        <?= preg_replace('#[\r\n\t ]+#', ' ', file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'debug.css')) ?>
-    </style>
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('assets/css/components.css') ?>">
 </head>
+
 <body>
+  <div id="app">
+    <section class="section">
+      <div class="container mt-5">
+        <div class="page-error">
+          <div class="page-inner">
+            <h1>500</h1>
+            <div class="page-description">
+                Oops! Terjadi kesalahan pada server kami. <br>
+                Tim teknis kami telah diberitahu dan sedang memperbaikinya.
+            </div>
+            <div class="page-search">
+              <div class="mt-3">
+                <a href="<?= base_url('admin/dashboard') ?>" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                    <i class="fas fa-home me-1"></i> Kembali ke Halaman Utama
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="simple-footer mt-5">
+          Copyright &copy; Pasangin <?= date('Y') ?>
+        </div>
+      </div>
+    </section>
+  </div>
 
-    <div class="container text-center">
-
-        <h1 class="headline"><?= lang('Errors.whoops') ?></h1>
-
-        <p class="lead"><?= lang('Errors.weHitASnag') ?></p>
-
-    </div>
-
+  <!-- General JS Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+  <script src="<?= base_url('assets/js/stisla.js') ?>"></script>
+  <script src="<?= base_url('assets/js/scripts.js') ?>"></script>
 </body>
-
 </html>

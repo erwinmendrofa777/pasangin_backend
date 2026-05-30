@@ -2,30 +2,22 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\PromoModel;
+use App\Modules\Supplier\Models\PromoModel;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
 
 class PromoApi extends ResourceController
 {
     protected $format = 'json';
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
-
     /**
      * HELPER: Mendapatkan ID Supplier dari Token JWT
      */
     private function getSupplierId()
     {
-        try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            $token = str_replace('Bearer ', '', $authHeader);
-            $tokenParts = explode('.', $token);
-            if (count($tokenParts) != 3) return null;
-            $payload = json_decode(base64_decode($tokenParts[1]), true);
-            return $payload['uid'] ?? null;
-        } catch (Exception $e) {
-            return null;
+        if (isset($this->request->user) && $this->request->user->role === 'supplier') {
+            return $this->request->user->uid;
         }
+        return null;
     }
 
     /**

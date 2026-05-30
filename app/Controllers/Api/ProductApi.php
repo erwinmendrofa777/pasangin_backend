@@ -2,9 +2,9 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\ProductModel;
-use App\Models\SupplierModel;
-use App\Models\ProductsRatingModel;
+use App\Modules\Products\Models\ProductModel;
+use App\Modules\Supplier\Models\SupplierModel;
+use App\Modules\Products\Models\ProductsRatingModel;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
 
@@ -12,37 +12,20 @@ class ProductApi extends ResourceController
 {
     protected $productsRatingModel;
     protected $format = 'json';
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
 
     public function __construct()
     {
         $this->productsRatingModel = new ProductsRatingModel();
     }
-
     /**
      * HELPER: Mendapatkan ID Supplier (Hanya untuk Tambah/Update/Hapus/List Saya)
      */
     private function getSupplierId()
     {
-        try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader)) return null;
-
-            $token = str_replace('Bearer ', '', $authHeader);
-            $tokenParts = explode('.', $token);
-
-            if (count($tokenParts) != 3) return null;
-
-            $payload = json_decode(base64_decode($tokenParts[1]), true);
-
-            if (!isset($payload['role']) || $payload['role'] !== 'supplier') {
-                return null;
-            }
-
-            return $payload['uid'] ?? null;
-        } catch (Exception $e) {
-            return null;
+        if (isset($this->request->user) && $this->request->user->role === 'supplier') {
+            return $this->request->user->uid;
         }
+        return null;
     }
 
     // controller untuk get rating berdasarkan id produk
@@ -70,19 +53,66 @@ class ProductApi extends ResourceController
 
             if (!empty($ratings)) {
                 return $this->respond([
-                    'status'  => 200,
+                    'status' => 200,
                     'message' => 'Data rating untuk product ' . $id . ' ditemukan.',
-                    'data'    => $ratings
+                    'data' => $ratings
                 ]);
             } else {
                 return $this->respond([
-                    'status'  => 200,
+                    'status' => 200,
                     'message' => 'Belum ada rating untuk product ini.',
-                    'data'    => []
+                    'data' => []
                 ], 200);
             }
         } catch (Exception $e) {
             return $this->failServerError('Gagal mengambil data rating product: ' . $e->getMessage());
+        }
+    }
+
+    // controller untuk get rating produk berdasarkan id supplier
+    public function showRatingBySupplier()
+    {
+        $id_supplier = $this->getSupplierId();
+        if (!$id_supplier) {
+            return $this->failUnauthorized('Akses ditolak. Supplier tidak terautentikasi.');
+        }
+
+        try {
+            $ratings = $this->productsRatingModel
+                ->select('products_rating.*, products.name as product_name, products.photo as product_photo')
+                ->join('products', 'products.id = products_rating.id_product')
+                ->where('products.supplier_id', $id_supplier)
+                ->orderBy('products_rating.id', 'DESC')
+                ->findAll();
+
+            if (!empty($ratings)) {
+                foreach ($ratings as &$rating) {
+                    for ($i = 1; $i <= 5; $i++) {
+                        if (!empty($rating['gambar' . $i])) {
+                            $rating['gambar' . $i] = base_url('uploads/products/rating/' . $rating['gambar' . $i]);
+                        } else {
+                            $rating['gambar' . $i] = null;
+                        }
+                    }
+                    $rating['product_image_url'] = base_url('uploads/products/' . ($rating['product_photo'] ?? 'default.png'));
+                }
+            }
+
+            if (!empty($ratings)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Data rating produk untuk supplier ' . $id_supplier . ' ditemukan.',
+                    'data' => $ratings
+                ]);
+            } else {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Belum ada rating produk untuk supplier ini.',
+                    'data' => []
+                ], 200);
+            }
+        } catch (Exception $e) {
+            return $this->failServerError('Gagal mengambil data rating produk: ' . $e->getMessage());
         }
     }
 
@@ -92,13 +122,13 @@ class ProductApi extends ResourceController
         //validasi input
         $rules = [
             'id_product' => 'required|numeric',
-            'rating'    => 'required|in_list[1,2,3,4,5]',
-            'comment'   => 'required',
+            'rating' => 'required|in_list[1,2,3,4,5]',
+            'comment' => 'required',
         ];
         $messages = [
             'id_product' => [
                 'required' => 'ID Produk wajib diisi.',
-                'numeric'  => 'ID Produk harus berupa angka.'
+                'numeric' => 'ID Produk harus berupa angka.'
             ],
             'rating' => [
                 'required' => 'Rating wajib diisi',
@@ -114,8 +144,8 @@ class ProductApi extends ResourceController
         $input = $this->request->getPost();
         $data = [
             'id_product' => $input['id_product'],
-            'rating'    => $input['rating'],
-            'comment'   => $input['comment'],
+            'rating' => $input['rating'],
+            'comment' => $input['comment'],
         ];
 
         // Gunakan getFileMultiple agar otomatis selalu menjadi array
@@ -167,7 +197,7 @@ class ProductApi extends ResourceController
             // Simpan hasil hitungan tersebut ke tabel products
             $db->table('products')->where('id', $input['id_product'])->update([
                 'rata_rata_rating' => $kalkulasi->rata_rata,
-                'total_ulasan'     => $kalkulasi->total_ulasan,
+                'total_ulasan' => $kalkulasi->total_ulasan,
             ]);
 
             return $this->respondCreated([
@@ -177,9 +207,9 @@ class ProductApi extends ResourceController
             ]);
         } catch (Exception $e) {
             return $this->respond([
-                'status'  => 500,
+                'status' => 500,
                 'message' => 'Gagal membuat rating products',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -253,15 +283,15 @@ class ProductApi extends ResourceController
         // 7. Kembalikan response
         if ($hasData) {
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'list kota supplier',
-                'data'    => $uniqueCities
+                'data' => $uniqueCities
             ]);
         } else {
             return $this->respond([
-                'status'  => false, // Lebih logis menggunakan false jika data kosong
+                'status' => false, // Lebih logis menggunakan false jika data kosong
                 'message' => 'supplier tidak ada di kota ini',
-                'data'    => $uniqueCities
+                'data' => $uniqueCities
             ]);
         }
     }
@@ -276,15 +306,15 @@ class ProductApi extends ResourceController
         $model = new ProductModel();
 
         $search = $this->request->getGet('search');
-        $limit  = $this->request->getGet('limit') ?? 10;
+        $limit = $this->request->getGet('limit') ?? 10;
         $region = $this->request->getGet('region');
-        $page   = $this->request->getGet('page') ?? 1;
+        $page = $this->request->getGet('page') ?? 1;
 
-        $limit  = intval($limit);
+        $limit = intval($limit);
         $offset = ($page - 1) * $limit;
 
         // 1. Siapkan kerangka Query-nya (Hanya merangkai, JANGAN dieksekusi dulu)
-        $builder = $model->select('products.*, suppliers.name as supplier_name, suppliers.city as region')
+        $builder = $model->select('products.*, suppliers.name as supplier_name, suppliers.city as region, COALESCE((SELECT SUM(quantity) FROM order_items WHERE order_items.product_id = products.id), 0) as sold_count')
             ->join('suppliers', 'suppliers.id = products.supplier_id');
 
         // 2. Masukkan semua filter kondisi
@@ -308,17 +338,18 @@ class ProductApi extends ResourceController
             ->get()
             ->getResultArray();
 
-        // 5. Rapikan URL Gambar
+        // 5. Rapikan URL Gambar & Format angka
         foreach ($products as &$p) {
             $p['image_url'] = base_url('uploads/products/' . ($p['photo'] ?? 'default.png'));
+            $p['sold_count'] = (int) ($p['sold_count'] ?? 0);
         }
 
         // 6. Kembalikan Response JSON
         return $this->respond([
             'status' => true,
-            'data'   => $products,
+            'data' => $products,
             'pagination' => [
-                'current_page'   => (int)$page,
+                'current_page' => (int) $page,
                 'has_more_pages' => ($offset + $limit) < $totalProducts,
                 'total_products' => $totalProducts
             ]
@@ -327,12 +358,13 @@ class ProductApi extends ResourceController
 
     /**
      * --- 2. LIST PRODUK SAYA (KHUSUS APP SUPPLIER) ---
-     * Inilah yang akan dipanggil oleh aplikasi supplier kawan
+     * Inilah yang akan dipanggil oleh aplikasi supplier  
      */
     public function myProducts()
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized('Akses ditolak.');
+        if (!$supplierId)
+            return $this->failUnauthorized('Akses ditolak.');
 
         $model = new ProductModel();
 
@@ -353,9 +385,10 @@ class ProductApi extends ResourceController
     public function create()
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized('Hanya supplier yang bisa menambah produk.');
+        if (!$supplierId)
+            return $this->failUnauthorized('Hanya supplier yang bisa menambah produk.');
 
-        // CEK STATUS AKUN KAWAN
+        // CEK STATUS AKUN  
         $supplierModel = new SupplierModel();
         $supplier = $supplierModel->find($supplierId);
         if (!$supplier || $supplier['status'] !== 'approved') {
@@ -365,11 +398,8 @@ class ProductApi extends ResourceController
         $input = $this->request->getPost();
         $file = $this->request->getFile('photo');
 
-        // Gunakan grup validasi 'productSave' dari Config/Validation.php
-        $dataToValidate = $input;
-        $dataToValidate['photo'] = $file;
-
-        if (!$this->validateData($dataToValidate, 'productSave')) {
+        // Gunakan grup validasi 'productSave'
+        if (!$this->validate('productSave')) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
@@ -384,14 +414,14 @@ class ProductApi extends ResourceController
             $model->insert([
                 'supplier_id' => $supplierId,
                 'category_id' => $input['category_id'],
-                'name'        => $input['name'],
+                'name' => $input['name'],
                 'description' => $input['description'] ?? null,
-                'price'       => $input['price'],
-                'unit'        => $input['unit'] ?? 'pcs',
-                'stock'       => $input['stock'],
-                'min_order'   => $input['min_order'] ?? 1,
-                'status'      => 'aktif',
-                'photo'       => $photoName,
+                'price' => $input['price'],
+                'unit' => $input['unit'] ?? 'pcs',
+                'stock' => $input['stock'],
+                'min_order' => $input['min_order'] ?? 1,
+                'status' => 'aktif',
+                'photo' => $photoName,
             ]);
 
             return $this->respondCreated(['status' => true, 'message' => 'Produk berhasil ditambahkan.']);
@@ -406,11 +436,13 @@ class ProductApi extends ResourceController
     public function update($id = null)
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         $model = new ProductModel();
         $product = $model->where(['id' => $id, 'supplier_id' => $supplierId])->first();
-        if (!$product) return $this->failNotFound('Produk tidak ditemukan.');
+        if (!$product)
+            return $this->failNotFound('Produk tidak ditemukan.');
 
         // Ambil data input
         $input = $this->request->getPost();
@@ -421,11 +453,7 @@ class ProductApi extends ResourceController
         $file = $this->request->getFile('photo');
 
         // Validasi menggunakan grup 'productUpdate'
-        $dataToValidate = $input;
-        $dataToValidate['id'] = $id;
-        $dataToValidate['photo'] = $file;
-
-        if (!$this->validateData($dataToValidate, 'productUpdate')) {
+        if (!$this->validate('productUpdate')) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
@@ -451,11 +479,13 @@ class ProductApi extends ResourceController
     public function delete($id = null)
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         $model = new ProductModel();
         $product = $model->where(['id' => $id, 'supplier_id' => $supplierId])->first();
-        if (!$product) return $this->failNotFound();
+        if (!$product)
+            return $this->failNotFound();
 
         if (!empty($product['photo']) && file_exists('uploads/products/' . $product['photo'])) {
             unlink('uploads/products/' . $product['photo']);
@@ -468,7 +498,8 @@ class ProductApi extends ResourceController
     // fungsi untuk mendapatkan produk yang dimiliki supplier tertentu
     public function getBySupplier($supplierId = null)
     {
-        if (!$supplierId) return $this->fail('ID Supplier tidak boleh kosong');
+        if (!$supplierId)
+            return $this->fail('ID Supplier tidak boleh kosong');
 
         $model = new ProductModel();
         $products = $model->where('supplier_id', $supplierId)->findAll();
@@ -478,26 +509,33 @@ class ProductApi extends ResourceController
         }
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Produk berhasil diambil.',
-            'data'    => $products
+            'data' => $products
         ]);
     }
 
     public function detailProduct($id = null)
     {
-        if (!$id) return $this->fail('ID Produk tidak boleh kosong');
+        if (!$id)
+            return $this->fail('ID Produk tidak boleh kosong');
 
         $model = new ProductModel();
-        $product = $model->where('id', $id)->first();
-        if (!$product) return $this->failNotFound('Produk tidak ditemukan.');
+
+        $product = $model->select('products.*, COALESCE((SELECT SUM(quantity) FROM order_items WHERE order_items.product_id = products.id), 0) as sold_count')
+            ->where('products.id', $id)
+            ->first();
+
+        if (!$product)
+            return $this->failNotFound('Produk tidak ditemukan.');
 
         $product['image_url'] = base_url('uploads/products/' . ($product['photo'] ?? 'default.png'));
+        $product['sold_count'] = (int) ($product['sold_count'] ?? 0);
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Produk berhasil diambil.',
-            'data'    => $product
+            'data' => $product
         ]);
     }
 }

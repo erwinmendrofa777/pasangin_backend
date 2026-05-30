@@ -11,9 +11,9 @@ namespace App\Controllers\Api;
 // =========================================================================
 require_once APPPATH . 'ThirdParty/vendor_manual/autoloader.php';
 
-use App\Models\ConversationModel;
-use App\Models\MessageModel;
-use App\Models\UserModel; // <-- Pastikan ini ada
+use App\Modules\Chat\Models\ConversationModel;
+use App\Modules\Chat\Models\MessageModel;
+use App\Modules\Users\Models\UserModel; // <-- Pastikan ini ada
 use CodeIgniter\RESTful\ResourceController;
 
 // Import Kelas-kelas dari Library Notifikasi yang sudah kita siapkan

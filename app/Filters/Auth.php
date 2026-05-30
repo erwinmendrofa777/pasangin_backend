@@ -23,7 +23,7 @@ class Auth implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        $key        = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma'; // Key rahasia JWT Anda
+        $key        = getenv('JWT_SECRET'); // Ambil dari .env
         $authHeader = $request->getHeaderLine('Authorization');
 
         if (empty($authHeader)) {

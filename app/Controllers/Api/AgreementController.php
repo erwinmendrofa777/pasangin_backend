@@ -6,9 +6,9 @@ use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
-use App\Models\TermsOfAgreementModel;
-use App\Models\ConstructionAgreementsModel;
-use App\Models\RenovationAgreementsModel;
+use App\Modules\SyaratKetentuan\Models\TermsOfAgreementModel;
+use App\Modules\Construction\Models\ConstructionAgreementsModel;
+use App\Modules\Renovation\Models\RenovationAgreementsModel;
 
 class AgreementController extends BaseController
 {

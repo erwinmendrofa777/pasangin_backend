@@ -4,7 +4,7 @@ namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
-use \App\Models\SupplierOngkirModel;
+use App\Modules\Supplier\Models\SupplierOngkirModel;
 use Exception;
 
 class SupplierOngkirApi extends BaseController
@@ -212,6 +212,22 @@ class SupplierOngkirApi extends BaseController
     public function getAllOngkir()
     {
         $ongkir = $this->supplierOngkir->findAll();
+        if (!$ongkir) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Ongkir supplier tidak ditemukan.',
+            ], 404);
+        }
+        return $this->respond([
+            'status' => true,
+            'message' => 'Ongkir supplier ditemukan.',
+            'data' => $ongkir
+        ]);
+    }
+
+    public function showOngkirByIdSupplier($id_supplier)
+    {
+        $ongkir = $this->supplierOngkir->where(['id_suppliers' => $id_supplier])->first();
         if (!$ongkir) {
             return $this->respond([
                 'status' => false,

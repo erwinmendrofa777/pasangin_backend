@@ -23,16 +23,16 @@ class WalletController extends ResourceController
         try {
             // 1. Ambil saldo dari tabel tukang
             $tukang = $this->db->table('tukang')->where('id', $tukangId)->get()->getRowArray();
-            
+
             // 2. Ambil riwayat transaksi
             $history = $this->db->table('tukang_transactions')
-                                ->where('tukang_id', $tukangId)
-                                ->orderBy('created_at', 'DESC')
-                                ->get()
-                                ->getResultArray();
+                ->where('tukang_id', $tukangId)
+                ->orderBy('created_at', 'DESC')
+                ->get()
+                ->getResultArray();
 
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'balance' => $tukang['balance'] ?? 0,
                 'history' => $history
             ], 200);
@@ -47,22 +47,22 @@ class WalletController extends ResourceController
      */
     public function requestWithdrawal()
     {
-        $json   = $this->request->getJSON();
-        $id     = $json->tukang_id;
+        $json = $this->request->getJSON();
+        $id = $json->tukang_id;
         $amount = $json->amount;
 
         try {
             // Cek apakah saldo cukup
             $tukang = $this->db->table('tukang')->where('id', $id)->get()->getRowArray();
             if ($tukang['balance'] < $amount) {
-                return $this->fail('Saldo tidak mencukupi kawan.', 400);
+                return $this->fail('Saldo tidak mencukupi  .', 400);
             }
 
             // Simpan permintaan withdraw
             $this->db->table('withdrawal_requests')->insert([
-                'tukang_id'  => $id,
-                'amount'     => $amount,
-                'status'     => 'pending',
+                'tukang_id' => $id,
+                'amount' => $amount,
+                'status' => 'pending',
                 'created_at' => date('Y-m-d H:i:s')
             ]);
 
@@ -72,16 +72,16 @@ class WalletController extends ResourceController
 
             // Catat di riwayat transaksi
             $this->db->table('tukang_transactions')->insert([
-                'tukang_id'   => $id,
-                'amount'      => $amount,
-                'type'        => 'withdraw',
+                'tukang_id' => $id,
+                'amount' => $amount,
+                'type' => 'withdraw',
                 'description' => 'Penarikan Saldo (Pending)',
-                'created_at'  => date('Y-m-d H:i:s')
+                'created_at' => date('Y-m-d H:i:s')
             ]);
 
             return $this->respondCreated([
-                'status'  => true,
-                'message' => 'Permintaan penarikan berhasil dikirim kawan!'
+                'status' => true,
+                'message' => 'Permintaan penarikan berhasil dikirim  !'
             ]);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());

@@ -4,19 +4,22 @@ namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
+use App\Modules\Notifications\Services\NotificationService;
 use Exception;
 
-class SupplierOrderApi extends BaseController {
+class SupplierOrderApi extends BaseController
+{
     use ResponseTrait;
     protected $db;
-    
-    /**
-     * Kunci JWT kawan
-     */
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
+    protected NotificationService $notifService;
 
-    public function __construct() {
+    /**
+     * Kunci JWT  
+     */
+    public function __construct()
+    {
         $this->db = \Config\Database::connect();
+        $this->notifService = new NotificationService();
     }
 
     /**
@@ -24,27 +27,20 @@ class SupplierOrderApi extends BaseController {
      */
     private function getSupplierId()
     {
-        try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader)) return null;
-
-            $token = str_replace('Bearer ', '', $authHeader);
-            $tokenParts = explode('.', $token);
-            if (count($tokenParts) != 3) return null;
-
-            $payload = json_decode(base64_decode($tokenParts[1]), true);
-            return $payload['uid'] ?? null;
-        } catch (Exception $e) {
-            return null;
+        if (isset($this->request->user) && $this->request->user->role === 'supplier') {
+            return $this->request->user->uid;
         }
+        return null;
     }
 
     /**
      * --- 1. LIST PESANAN SAYA ---
      */
-    public function index() {
+    public function index()
+    {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized('Sesi berakhir, silakan login ulang.');
+        if (!$supplierId)
+            return $this->failUnauthorized('Sesi berakhir, silakan login ulang.');
 
         // Mengambil semua data order (termasuk fee) yang berisi produk supplier ini
         $orders = $this->db->table('orders')
@@ -72,28 +68,32 @@ class SupplierOrderApi extends BaseController {
     /**
      * --- 2. STATISTIK DASHBOARD ---
      */
-    public function stats() {
+    public function stats()
+    {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         // A. Hitung Total Pendapatan Produk (Sudah Bayar/Proses/Kirim/Selesai)
-        $totalIncome = $this->db->table('order_items')
+        $incomeRow = $this->db->table('order_items')
             ->select('SUM(order_items.price * order_items.quantity) as total', false)
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $supplierId)
             ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
-            ->get()->getRow()->total ?? 0;
+            ->get()->getRow();
+        $totalIncome = $incomeRow ? ($incomeRow->total ?? 0) : 0;
 
         // B. Hitung Total Penarikan (Pending & Approved)
-        $totalWithdrawn = $this->db->table('supplier_withdrawals')
+        $withdrawRow = $this->db->table('supplier_withdrawals')
             ->where('supplier_id', $supplierId)
             ->whereIn('status', ['pending', 'approved'])
             ->selectSum('amount')
-            ->get()->getRow()->amount ?? 0;
+            ->get()->getRow();
+        $totalWithdrawn = $withdrawRow ? ($withdrawRow->amount ?? 0) : 0;
 
         // C. Saldo Bersih
-        $availableBalance = (float)$totalIncome - (float)$totalWithdrawn;
+        $availableBalance = (float) $totalIncome - (float) $totalWithdrawn;
 
         // D. Hitung Pesanan Hari Ini
         $todayOrdersQuery = $this->db->table('order_items')
@@ -124,10 +124,119 @@ class SupplierOrderApi extends BaseController {
         return $this->respond([
             'status' => true,
             'data' => [
-                'total_saldo'    => $availableBalance,
-                'today_orders'   => $todayOrders,
-                'total_orders'   => $totalOrders,
+                'total_saldo' => $availableBalance,
+                'today_orders' => $todayOrders,
+                'total_orders' => $totalOrders,
                 'total_products' => $totalProducts,
+            ]
+        ]);
+    }
+
+    /**
+     * --- 2b. ANALITIK PENJUALAN ---
+     */
+    public function salesAnalytics()
+    {
+        $supplierId = $this->getSupplierId();
+        if (!$supplierId)
+            return $this->failUnauthorized('Sesi berakhir, silakan login ulang.');
+
+        // 1. Total Pendapatan (Hanya pesanan yang sukses/dibayar)
+        $revenueRow = $this->db->table('order_items')
+            ->select('SUM(order_items.price * order_items.quantity) as total', false)
+            ->join('orders', 'orders.id = order_items.order_id')
+            ->join('products', 'products.id = order_items.product_id')
+            ->where('products.supplier_id', $supplierId)
+            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->get()->getRow();
+        $totalRevenue = $revenueRow ? ($revenueRow->total ?? 0) : 0;
+
+        // 2. Total Pesanan (Pesanan sukses/telah dibayar yang mengandung produk milik supplier ini)
+        $totalOrdersQuery = $this->db->table('order_items')
+            ->select('orders.id')
+            ->join('orders', 'orders.id = order_items.order_id')
+            ->join('products', 'products.id = order_items.product_id')
+            ->where('products.supplier_id', $supplierId)
+            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->groupBy('orders.id')
+            ->get();
+        $totalOrders = $totalOrdersQuery->getNumRows();
+
+        // 3. Total Produk Terjual
+        $soldRow = $this->db->table('order_items')
+            ->select('SUM(order_items.quantity) as total', false)
+            ->join('orders', 'orders.id = order_items.order_id')
+            ->join('products', 'products.id = order_items.product_id')
+            ->where('products.supplier_id', $supplierId)
+            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->get()->getRow();
+        $totalProductsSold = $soldRow ? ($soldRow->total ?? 0) : 0;
+
+        // 4. Jumlah Pembeli Unik (Distinct user_id dari orders sukses)
+        $totalBuyersQuery = $this->db->table('order_items')
+            ->select('orders.user_id')
+            ->join('orders', 'orders.id = order_items.order_id')
+            ->join('products', 'products.id = order_items.product_id')
+            ->where('products.supplier_id', $supplierId)
+            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->groupBy('orders.user_id')
+            ->get();
+        $totalBuyers = $totalBuyersQuery->getNumRows();
+
+        // 5. Data Grafik 7 Hari Terakhir
+        $startDate = date('Y-m-d', strtotime('-6 days'));
+        $endDate = date('Y-m-d');
+
+        $rawChart = $this->db->table('order_items')
+            ->select('DATE(orders.created_at) as order_date, SUM(order_items.price * order_items.quantity) as total', false)
+            ->join('orders', 'orders.id = order_items.order_id')
+            ->join('products', 'products.id = order_items.product_id')
+            ->where('products.supplier_id', $supplierId)
+            ->where('DATE(orders.created_at) >=', $startDate)
+            ->where('DATE(orders.created_at) <=', $endDate)
+            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->groupBy('DATE(orders.created_at)')
+            ->get()->getResultArray();
+
+        $revenueMap = [];
+        foreach ($rawChart as $row) {
+            $revenueMap[$row['order_date']] = (float) $row['total'];
+        }
+
+        $chartData = [];
+        $dayNamesIndo = [
+            'Sun' => 'Minggu',
+            'Mon' => 'Senin',
+            'Tue' => 'Selasa',
+            'Wed' => 'Rabu',
+            'Thu' => 'Kamis',
+            'Fri' => 'Jumat',
+            'Sat' => 'Sabtu'
+        ];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+            $dayEng = date('D', strtotime($date));
+            $dayIndo = $dayNamesIndo[$dayEng] ?? $dayEng;
+
+            $chartData[] = [
+                'date' => $date,
+                'day' => $dayIndo,
+                'day_en' => $dayEng,
+                'revenue' => $revenueMap[$date] ?? 0.0
+            ];
+        }
+
+        return $this->respond([
+            'status' => true,
+            'data' => [
+                'summary' => [
+                    'total_revenue' => (float) $totalRevenue,
+                    'total_orders' => (int) $totalOrders,
+                    'total_products_sold' => (int) $totalProductsSold,
+                    'total_buyers' => (int) $totalBuyers
+                ],
+                'sales_chart' => $chartData
             ]
         ]);
     }
@@ -135,20 +244,22 @@ class SupplierOrderApi extends BaseController {
     /**
      * --- 3. REQUEST TARIK DANA (WITHDRAW) ---
      */
-    public function withdraw() {
+    public function withdraw()
+    {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         $amount = $this->request->getVar('amount');
-        
+
         $this->db->table('supplier_withdrawals')->insert([
-            'supplier_id'    => $supplierId,
-            'amount'         => $amount,
-            'bank_name'      => $this->request->getVar('bank_name'),
+            'supplier_id' => $supplierId,
+            'amount' => $amount,
+            'bank_name' => $this->request->getVar('bank_name'),
             'account_number' => $this->request->getVar('account_number'),
-            'account_name'   => $this->request->getVar('account_name'),
-            'status'         => 'pending',
-            'created_at'     => date('Y-m-d H:i:s')
+            'account_name' => $this->request->getVar('account_name'),
+            'status' => 'pending',
+            'created_at' => date('Y-m-d H:i:s')
         ]);
 
         return $this->respondCreated(['status' => true, 'message' => 'Permintaan penarikan dana berhasil dikirim.']);
@@ -157,9 +268,11 @@ class SupplierOrderApi extends BaseController {
     /**
      * --- 4. RIWAYAT PENARIKAN ---
      */
-    public function withdrawalHistory() {
+    public function withdrawalHistory()
+    {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         $data = $this->db->table('supplier_withdrawals')
             ->where('supplier_id', $supplierId)
@@ -172,9 +285,28 @@ class SupplierOrderApi extends BaseController {
     /**
      * --- 5. UPDATE STATUS PESANAN ---
      */
-    public function updateStatus($id = null) {
+    public function updateStatus($id = null)
+    {
         $status = $this->request->getVar('status');
+
+        // Ambil data order untuk mendapatkan user_id dan order_id string
+        $order = $this->db->table('orders')->where('id', $id)->get()->getRow();
+        if (!$order) {
+            return $this->failNotFound('Pesanan tidak ditemukan');
+        }
+
         $this->db->table('orders')->where('id', $id)->update(['status' => $status]);
+
+        // Kirim notifikasi ke client
+        $this->notifService->sendPersonal(
+            'client',
+            (int) $order->user_id,
+            'Update Status Pesanan',
+            "Status pesanan {$order->order_id} Anda telah diperbarui menjadi: " . strtoupper($status)
+        );
+
         return $this->respond(['status' => true, 'message' => 'Status pesanan berhasil diperbarui']);
     }
+
+
 }

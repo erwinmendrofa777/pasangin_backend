@@ -13,13 +13,13 @@ use CodeIgniter\Filters\SecureHeaders;
 class Filters extends BaseConfig
 {
     public array $aliases = [
-        'csrf'          => CSRF::class,
-        'toolbar'       => DebugToolbar::class,
-        'honeypot'      => Honeypot::class,
-        'invalidchars'  => InvalidChars::class,
+        'csrf' => CSRF::class,
+        'toolbar' => DebugToolbar::class,
+        'honeypot' => Honeypot::class,
+        'invalidchars' => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'login'         => \App\Filters\AdminAuthFilter::class, // Filter Admin (Session)
-        'auth'          => \App\Filters\Auth::class,           // Filter API (JWT)
+        'login' => \App\Filters\AdminAuthFilter::class, // Filter Admin (Session)
+        'auth' => \App\Filters\Auth::class,           // Filter API (JWT)
     ];
 
     public array $globals = [
@@ -34,7 +34,7 @@ class Filters extends BaseConfig
     public array $methods = [];
 
     public array $filters = [
-        // Kita tidak perlu menuliskan filter 'auth' di sini kawan, 
+        // Kita tidak perlu menuliskan filter 'auth' di sini  , 
         // karena kita sudah memasangnya secara spesifik di file Routes.php 
         // agar lebih akurat dan tidak terjadi tabrakan.
     ];

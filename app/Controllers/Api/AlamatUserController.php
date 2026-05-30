@@ -4,14 +4,15 @@ namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
-use App\Models\AlamatUserModel;
+use App\Modules\Users\Models\AlamatUserModel;
 use Exception;
 
 class AlamatUserController extends BaseController
 {
     use ResponseTrait;
 
-    public function create(){
+    public function create()
+    {
         //ambil id user dari jwt
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
 
@@ -19,22 +20,22 @@ class AlamatUserController extends BaseController
         if (!$authHeader) {
             return $this->fail('Token tidak ditemukan.');
         }
-        
+
         $token = str_replace('Bearer ', '', $authHeader->getValue());
         $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key(getenv('JWT_SECRET'), 'HS256'));
         $userId = $decoded->uid;
 
         //validasi
         $rules = [
-            'alamat'         => 'required|min_length[3]|max_length[255]',
-            'label'          => 'max_length[255]',
-            'latitude'       => 'required|decimal',
-            'longitude'      => 'required|decimal'
+            'alamat' => 'required|min_length[3]|max_length[255]',
+            'label' => 'max_length[255]',
+            'latitude' => 'required|decimal',
+            'longitude' => 'required|decimal'
         ];
 
         $messages = [
             'alamat' => [
-                'required'   => 'alamat wajib diisi.',
+                'required' => 'alamat wajib diisi.',
                 'min_length' => 'alamat minimal 3 karakter.',
                 'max_length' => 'alamat maksimal 255 karakter.',
             ],
@@ -42,18 +43,18 @@ class AlamatUserController extends BaseController
                 'max_length' => 'alamat maksimal 255 karakter.',
             ],
             'latitude' => [
-                'required'              => 'Titik latitude wajib diisi.',
-                'decimal'               => 'Format latitude harus berupa angka (desimal).',
+                'required' => 'Titik latitude wajib diisi.',
+                'decimal' => 'Format latitude harus berupa angka (desimal).',
             ],
             'longitude' => [
-                'required'              => 'Titik longitude wajib diisi.',
-                'decimal'               => 'Format longitude harus berupa angka (desimal).',
+                'required' => 'Titik longitude wajib diisi.',
+                'decimal' => 'Format longitude harus berupa angka (desimal).',
             ]
         ];
 
         if (!$this->validate($rules, $messages)) {
             return $this->respond([
-                'status'  => 'error', 
+                'status' => 'error',
                 'message' => $this->validator->getErrors()
             ], 400);
         }
@@ -63,37 +64,38 @@ class AlamatUserController extends BaseController
         //simpan ke database
         try {
             $model->save([
-                'id_user'        => $userId,
-                'alamat'         => $data['alamat'],
-                'label'          => $data['label'],
-                'latitude'       => $data['latitude'],
-                'longitude'      => $data['longitude'],
-                'is_active'      => 0
+                'id_user' => $userId,
+                'alamat' => $data['alamat'],
+                'label' => $data['label'],
+                'latitude' => $data['latitude'],
+                'longitude' => $data['longitude'],
+                'is_active' => 0
             ]);
 
             return $this->respondCreated([
-                'status'  => 'success', 
+                'status' => 'success',
                 'message' => 'Alamat berhasil ditambahkan.',
-                'data'    => $data
+                'data' => $data
             ]);
         } catch (\Exception $e) {
             return $this->failServerError('Gagal: ' . $e->getMessage());
         }
     }
 
-    public function get(){
+    public function get()
+    {
         //ambil id user dari jwt
         $authHeader = $this->request->getHeader('Authorization');
         if (!$authHeader) {
             return $this->fail('Token tidak ditemukan.');
         }
-        
+
         $token = str_replace('Bearer ', '', $authHeader->getValue());
         $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key(getenv('JWT_SECRET'), 'HS256'));
         $userId = $decoded->uid;
 
         //validasi
-        if($userId == null){
+        if ($userId == null) {
             return $this->fail('Token tidak valid.');
         }
 
@@ -101,26 +103,27 @@ class AlamatUserController extends BaseController
 
         // ambil data
         $alamat = $model->where('id_user', $userId)->get()->getResultArray();
-        
+
         //response
-        if($alamat == null){
+        if ($alamat == null) {
             return $this->respond([
-                'status'  => 'success', 
+                'status' => 'success',
                 'message' => 'Alamat Belum Dibuat.',
-                'data'    => []
+                'data' => []
             ], 200);
         }
 
         return $this->respond([
-            'status'  => 'success', 
+            'status' => 'success',
             'message' => 'Alamat ditemukan.',
-            'data'    => $alamat
-        ],200);
+            'data' => $alamat
+        ], 200);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         //validasi
-        if($id == null){
+        if ($id == null) {
             return $this->fail('Id tidak boleh kosong.');
         }
 
@@ -128,12 +131,13 @@ class AlamatUserController extends BaseController
         $model->where('id', $id)->delete();
 
         return $this->respond([
-            'status'  => 'success', 
+            'status' => 'success',
             'message' => 'Alamat berhasil dihapus.'
         ], 200);
     }
 
-    public function put($id = null){
+    public function put($id = null)
+    {
         //ambil id user dari jwt
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
 
@@ -141,7 +145,7 @@ class AlamatUserController extends BaseController
         if (!$authHeader) {
             return $this->fail('Token tidak ditemukan.');
         }
-        
+
         try {
             $token = str_replace('Bearer ', '', $authHeader->getValue());
             $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key(getenv('JWT_SECRET'), 'HS256'));
@@ -160,15 +164,15 @@ class AlamatUserController extends BaseController
 
         //validasi
         $rules = [
-            'alamat'    => 'required|min_length[3]|max_length[255]',
-            'label'     => 'max_length[255]',
-            'latitude'  => 'required|numeric|greater_than_equal_to[-90]|less_than_equal_to[90]',
+            'alamat' => 'required|min_length[3]|max_length[255]',
+            'label' => 'max_length[255]',
+            'latitude' => 'required|numeric|greater_than_equal_to[-90]|less_than_equal_to[90]',
             'longitude' => 'required|numeric|greater_than_equal_to[-180]|less_than_equal_to[180]'
         ];
 
         $messages = [
             'alamat' => [
-                'required'   => 'alamat wajib diisi.',
+                'required' => 'alamat wajib diisi.',
                 'min_length' => 'alamat minimal 3 karakter.',
                 'max_length' => 'alamat maksimal 255 karakter.',
             ],
@@ -176,22 +180,22 @@ class AlamatUserController extends BaseController
                 'max_length' => 'alamat maksimal 255 karakter.',
             ],
             'latitude' => [
-                'required'              => 'Titik latitude wajib diisi.',
-                'numeric'               => 'Format latitude harus berupa angka (desimal).',
+                'required' => 'Titik latitude wajib diisi.',
+                'numeric' => 'Format latitude harus berupa angka (desimal).',
                 'greater_than_equal_to' => 'Nilai latitude tidak valid (minimal -90).',
-                'less_than_equal_to'    => 'Nilai latitude tidak valid (maksimal 90).'
+                'less_than_equal_to' => 'Nilai latitude tidak valid (maksimal 90).'
             ],
             'longitude' => [
-                'required'              => 'Titik longitude wajib diisi.',
-                'numeric'               => 'Format longitude harus berupa angka (desimal).',
+                'required' => 'Titik longitude wajib diisi.',
+                'numeric' => 'Format longitude harus berupa angka (desimal).',
                 'greater_than_equal_to' => 'Nilai longitude tidak valid (minimal -180).',
-                'less_than_equal_to'    => 'Nilai longitude tidak valid (maksimal 180).'
+                'less_than_equal_to' => 'Nilai longitude tidak valid (maksimal 180).'
             ]
         ];
 
         if (!$this->validate($rules, $messages)) {
             return $this->respond([
-                'status'  => 'error', 
+                'status' => 'error',
                 'message' => $this->validator->getErrors()
             ], 400);
         }
@@ -199,15 +203,15 @@ class AlamatUserController extends BaseController
         //simpan ke database
         try {
             $model->update($id, [
-                'alamat'         => $data['alamat'],
-                'label'          => $data['label'] ?? $alamatLama['label'],
-                'is_active'      => $data['is_active'] ?? $alamatLama['is_active'],
-                'latitude'       => $data['latitude'] ?? $alamatLama['latitude'],
-                'longitude'      => $data['longitude'] ?? $alamatLama['longitude']
+                'alamat' => $data['alamat'],
+                'label' => $data['label'] ?? $alamatLama['label'],
+                'is_active' => $data['is_active'] ?? $alamatLama['is_active'],
+                'latitude' => $data['latitude'] ?? $alamatLama['latitude'],
+                'longitude' => $data['longitude'] ?? $alamatLama['longitude']
             ]);
 
             return $this->respondCreated([
-                'status'  => 'success', 
+                'status' => 'success',
                 'message' => 'Berhasil Mengubah Alamat.'
             ]);
         } catch (\Exception $e) {
@@ -215,13 +219,14 @@ class AlamatUserController extends BaseController
         }
     }
 
-    public function patch($id = null){
+    public function patch($id = null)
+    {
         //ambil id user dari jwt
         $authHeader = $this->request->getHeader('Authorization');
         if (!$authHeader) {
             return $this->fail('Token tidak ditemukan.');
         }
-        
+
         try {
             $token = str_replace('Bearer ', '', $authHeader->getValue());
             $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key(getenv('JWT_SECRET'), 'HS256'));
@@ -238,10 +243,10 @@ class AlamatUserController extends BaseController
             return $this->failNotFound('Alamat tidak ditemukan.');
         }
 
-        try{
+        try {
             $db = \Config\Database::connect();
             $db->transStart();
-            
+
             // Langkah A: Set SEMUA alamat milik user ini menjadi is_active = 0
             $model->where('id_user', $userId)->set(['is_active' => 0])->update();
 
@@ -251,14 +256,14 @@ class AlamatUserController extends BaseController
             $db->transComplete();
 
             if ($db->transStatus() === false) {
-            return $this->failServerError('Gagal memperbarui status alamat.');
+                return $this->failServerError('Gagal memperbarui status alamat.');
             }
 
             return $this->respond([
-            'status'  => 'success', 
-            'message' => 'Alamat utama berhasil diubah.'
+                'status' => 'success',
+                'message' => 'Alamat utama berhasil diubah.'
             ]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->failServerError('Terjadi kesalahan: ' . $e->getMessage());
         }
     }

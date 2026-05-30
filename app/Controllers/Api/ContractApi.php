@@ -46,7 +46,7 @@ class ContractApi extends ResourceController
     $workItems = $this->db->table('construction_rabs')
         ->select('roman_number, group_name, SUM(total_price) as total_price')
         ->where('construction_id', $id)
-        ->groupBy('roman_number','group_name')
+        ->groupBy(['roman_number', 'group_name'])
         ->orderBy('roman_number', 'ASC')
         ->get()
         ->getResultArray();
@@ -117,7 +117,7 @@ class ContractApi extends ResourceController
     $workItems = $this->db->table('renovation_rabs')
         ->select('roman_number, group_name, SUM(total_price) as total_price')
         ->where('renovation_id', $id)
-        ->groupBy('roman_number','group_name')
+        ->groupBy(['roman_number', 'group_name'])
         ->orderBy('roman_number', 'ASC')
         ->get()
         ->getResultArray();

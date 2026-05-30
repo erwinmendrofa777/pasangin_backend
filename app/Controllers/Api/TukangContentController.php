@@ -3,8 +3,8 @@
 namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
-use App\Models\BannerModel;
-use App\Models\TipsModel;
+use App\Modules\Banners\Models\BannerModel;
+use App\Modules\Tips\Models\TipsModel;
 
 class TukangContentController extends ResourceController
 {
@@ -18,25 +18,25 @@ class TukangContentController extends ResourceController
     {
         try {
             $model = new BannerModel();
-            // PERBAIKAN: Filter hanya untuk aplikasi tukang kawan
+            // PERBAIKAN: Filter hanya untuk aplikasi tukang  
             $data = $model->where('is_active', 1)
-                          ->where('target_app', 'tukang')
-                          ->orderBy('id', 'DESC')
-                          ->findAll();
+                ->where('target_app', 'tukang')
+                ->orderBy('id', 'DESC')
+                ->findAll();
 
             $finalData = [];
             foreach ($data as $row) {
                 $finalData[] = [
-                    'id'        => $row['id'],
-                    'title'     => $row['title'],
+                    'id' => $row['id'],
+                    'title' => $row['title'],
                     'image_url' => !empty($row['image']) ? base_url('uploads/banners/' . $row['image']) : null,
                 ];
             }
 
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Banner tukang berhasil diambil.',
-                'data'    => $finalData
+                'data' => $finalData
             ]);
 
         } catch (\Exception $e) {
@@ -52,25 +52,25 @@ class TukangContentController extends ResourceController
     {
         try {
             $model = new TipsModel();
-            // Tips biasanya umum, tapi kita filter jika kawan ingin spesifik tukang
+            // Tips biasanya umum, tapi kita filter jika   ingin spesifik tukang
             $data = $model->where('is_active', 1)
-                          ->orderBy('id', 'DESC')
-                          ->findAll();
+                ->orderBy('id', 'DESC')
+                ->findAll();
 
             $finalData = [];
             foreach ($data as $row) {
                 $finalData[] = [
-                    'id'        => $row['id'],
-                    'title'     => $row['title'],
-                    'content'   => $row['content'],
+                    'id' => $row['id'],
+                    'title' => $row['title'],
+                    'content' => $row['content'],
                     'image_url' => !empty($row['image']) ? base_url('uploads/tips/' . $row['image']) : null,
                 ];
             }
 
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Tips tukang berhasil diambil.',
-                'data'    => $finalData
+                'data' => $finalData
             ]);
 
         } catch (\Exception $e) {

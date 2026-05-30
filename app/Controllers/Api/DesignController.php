@@ -3,18 +3,20 @@
 namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
-use App\Models\DesignRequestModel;
+use App\Modules\Design\Models\DesignRequestModel;
 use CodeIgniter\API\ResponseTrait;
 
 class DesignController extends ResourceController
 {
     protected $db;
-    protected $modelName = 'App\Models\DesignRequestModel';
-    protected $format    = 'json';
+    protected $notifService;
+    protected $modelName = 'App\Modules\Design\Models\DesignRequestModel';
+    protected $format = 'json';
 
     public function __construct()
     {
         $this->db = \Config\Database::connect();
+        $this->notifService = new \App\Modules\Notifications\Services\NotificationService();
     }
 
     use ResponseTrait;
@@ -30,26 +32,33 @@ class DesignController extends ResourceController
         $userId = $this->request->getPost('user_id');
 
         $data = [
-            'user_id'        => $userId,
-            'full_name'      => $this->request->getPost('full_name'),
-            'phone_number'   => $this->request->getPost('phone_number'),
-            'land_area'      => $this->request->getPost('land_area'),
-            'building_area'  => $this->request->getPost('building_area'),
+            'user_id' => $userId,
+            'full_name' => $this->request->getPost('full_name'),
+            'phone_number' => $this->request->getPost('phone_number'),
+            'land_area' => $this->request->getPost('land_area'),
+            'building_area' => $this->request->getPost('building_area'),
             'design_concept' => $this->request->getPost('design_concept'),
-            'survey_date'    => $this->request->getPost('survey_date'),
+            'survey_date' => $this->request->getPost('survey_date'),
             'location_address' => $this->request->getPost('location_address'),
-            'latitude'       => $this->request->getPost('latitude'),
-            'longitude'      => $this->request->getPost('longitude'),
-            'voucher_code'   => $this->request->getPost('voucher_code'),
-            'survey_fee'     => $this->request->getPost('survey_cost'),
+            'latitude' => $this->request->getPost('latitude'),
+            'longitude' => $this->request->getPost('longitude'),
+            'voucher_code' => $this->request->getPost('voucher_code'),
+            'survey_fee' => $this->request->getPost('survey_cost'),
             'discount_amount' => $this->request->getPost('discount_amount'),
-            'total_payment'  => $this->request->getPost('total_payment'),
-            'status'         => 'PENDING',
+            'total_payment' => $this->request->getPost('total_payment'),
+            'status' => 'PENDING',
         ];
 
-        $model = new \App\Models\DesignRequestModel(); // Sesuaikan nama model kawan
+        $model = new \App\Modules\Design\Models\DesignRequestModel(); // Sesuaikan nama model  
 
         if ($model->insert($data)) {
+            // Kirim notifikasi ke Admin  
+            $this->notifService->sendToPermission(
+                'design_detail',
+                'Pengajuan Desain Baru',
+                "Pelanggan atas nama {$data['full_name']} telah mengajukan desain baru. Silakan cek detail."
+            );
+
             return $this->respond([
                 'status' => true,
                 'message' => 'Pengajuan desain berhasil dikirim!'
@@ -200,6 +209,22 @@ class DesignController extends ResourceController
             'comment' => $comment
         ]);
 
+        // Ambil info survey  
+        $surveyInfo = $this->db->table('project_surveys ps')
+            ->select('dr.full_name, dr.id as design_id')
+            ->join('design_requests dr', 'dr.id = ps.design_request_id', 'left')
+            ->where('ps.id', $id)
+            ->get()->getRowArray();
+
+        $namaKlien = $surveyInfo['full_name'] ?? 'Seorang client';
+
+        // Kirim notifikasi ke Admin  
+        $this->notifService->sendToPermission(
+            'design_survey',
+            'Komentar Survey Baru',
+            "Client {$namaKlien} telah memberikan komentar pada hasil survey desain #" . ($surveyInfo['design_id'] ?? $id) . "."
+        );
+
         return $this->respond([
             'status' => true,
             'message' => 'Komentar berhasil ditambahkan.'
@@ -280,7 +305,7 @@ class DesignController extends ResourceController
 
             // Hitung tanggal mulai target (start_date proyek + (start_week - 1) hari)
             // Asumsi start_week menyimpan "Day X"
-            $dayOffset = (int)($target['start_week'] ?? 1) - 1;
+            $dayOffset = (int) ($target['start_week'] ?? 1) - 1;
 
             // Kalkulasi target_start_date
             if (!empty($startDate)) {
@@ -382,22 +407,39 @@ class DesignController extends ResourceController
     // =========================================================================
     public function invoices($designRequestId = null)
     {
+        // Query dengan join ke table vouchers untuk mendapatkan nominal diskon
         $invoices = $this->db->table('project_invoices')
+            ->select('project_invoices.*, vouchers.discount_nominal')
+            ->join('vouchers', 'vouchers.code = project_invoices.voucher_code', 'left')
             ->where('design_request_id', $designRequestId)
             ->orderBy('created_at', 'DESC')
             ->get()->getResultArray();
 
-        if ($invoices) {
+        // Olah data untuk menambahkan kalkulasi nominal
+        $formattedInvoices = array_map(function ($invoice) {
+            $originalAmount = (int) ($invoice['amount'] ?? 0);
+            $discountAmount = (int) ($invoice['discount_nominal'] ?? 0);
+            $grossAmount = max(0, $originalAmount - $discountAmount);
+
+            // Tambahkan field baru ke array
+            $invoice['original_amount'] = $originalAmount;
+            $invoice['discount_amount'] = $discountAmount;
+            $invoice['gross_amount'] = $grossAmount;
+
+            return $invoice;
+        }, $invoices);
+
+        if ($formattedInvoices) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Detail permohonan invoice ditemukan',
-                'data' => $invoices
+                'data' => $formattedInvoices
             ]);
         } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada invoice untuk permohonan ini',
-                'data' => $invoices
+                'data' => []
             ]);
         }
     }

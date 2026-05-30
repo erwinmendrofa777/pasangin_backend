@@ -2,37 +2,22 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\CategoryModel;
+use App\Modules\Supplier\Models\CategoryModel;
 use CodeIgniter\RESTful\ResourceController;
-use Exception;class CategoryApi extends ResourceController
+use Exception;
+class CategoryApi extends ResourceController
 {
     protected $format = 'json';
-    
-    // Gunakan Key JWT yang sama dengan Auth kawan
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
 
     /**
      * HELPER: Mendapatkan ID Supplier dari Token JWT di Header
      */
     private function getSupplierId()
     {
-        try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader)) return null;
-
-            $token = str_replace('Bearer ', '', $authHeader);
-            $tokenParts = explode('.', $token);
-            if (count($tokenParts) != 3) return null;
-
-            $payload = json_decode(base64_decode($tokenParts[1]), true);
-            
-            // Pastikan yang akses adalah supplier
-            if (!isset($payload['role']) || $payload['role'] !== 'supplier') return null;
-
-            return $payload['uid'] ?? null;
-        } catch (Exception $e) {
-            return null;
+        if (isset($this->request->user) && $this->request->user->role === 'supplier') {
+            return $this->request->user->uid;
         }
+        return null;
     }
 
     /**
@@ -42,13 +27,14 @@ use Exception;class CategoryApi extends ResourceController
     public function index()
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized('pengguna tidak valid.');
+        if (!$supplierId)
+            return $this->failUnauthorized('pengguna tidak valid.');
 
         $model = new CategoryModel();
 
         $data = $model->where('supplier_id', $supplierId)
-                     ->orderBy('name', 'ASC')
-                     ->findAll();
+            ->orderBy('name', 'ASC')
+            ->findAll();
 
         if ($data) {
             return $this->respond([
@@ -57,7 +43,7 @@ use Exception;class CategoryApi extends ResourceController
                 'data' => $data
             ]);
         } else {
-           return $this->respond([
+            return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada kategori untuk supplier ini',
                 'data' => $data
@@ -72,7 +58,8 @@ use Exception;class CategoryApi extends ResourceController
     public function create()
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized('pengguna tidak valid.');
+        if (!$supplierId)
+            return $this->failUnauthorized('pengguna tidak valid.');
 
         $rules = [
             'name' => 'required|min_length[3]|max_length[100]'
@@ -80,9 +67,9 @@ use Exception;class CategoryApi extends ResourceController
 
         $messages = [
             'name' => [
-                'required'    => 'Nama kategori wajib diisi.',
-                'min_length'  => 'Nama kategori minimal 3 karakter.',
-                'max_length'  => 'Nama kategori maksimal 100 karakter.'
+                'required' => 'Nama kategori wajib diisi.',
+                'min_length' => 'Nama kategori minimal 3 karakter.',
+                'max_length' => 'Nama kategori maksimal 100 karakter.'
             ]
         ];
 
@@ -96,7 +83,7 @@ use Exception;class CategoryApi extends ResourceController
         try {
             $model->insert([
                 'supplier_id' => $supplierId,
-                'name'        => $data['name']
+                'name' => $data['name']
             ]);
 
             return $this->respondCreated([
@@ -115,16 +102,18 @@ use Exception;class CategoryApi extends ResourceController
     public function update($id = null)
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         $model = new CategoryModel();
         // Pastikan kategori tersebut milik supplier yang login
         $category = $model->where(['id' => $id, 'supplier_id' => $supplierId])->first();
-        
-        if (!$category) return $this->failNotFound('supplier tidak memiliki kategori');
+
+        if (!$category)
+            return $this->failNotFound('supplier tidak memiliki kategori');
 
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
-        
+
         try {
             $model->update($id, ['name' => $data['name']]);
             return $this->respond([
@@ -143,12 +132,14 @@ use Exception;class CategoryApi extends ResourceController
     public function delete($id = null)
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId) return $this->failUnauthorized();
+        if (!$supplierId)
+            return $this->failUnauthorized();
 
         $model = new CategoryModel();
         $category = $model->where(['id' => $id, 'supplier_id' => $supplierId])->first();
-        
-        if (!$category) return $this->failNotFound('Akses ditolak.');
+
+        if (!$category)
+            return $this->failNotFound('Akses ditolak.');
 
         try {
             $model->delete($id);

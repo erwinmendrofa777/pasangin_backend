@@ -13,10 +13,11 @@ class Autoload extends AutoloadConfig
      */
     public $psr4 = [
         APP_NAMESPACE => APPPATH, // Maps to /home/stuh8812/backend_core/app
-        'Config'      => APPPATH . 'Config',
-        
+        'App\Modules' => APPPATH . 'Modules',
+        'Config' => APPPATH . 'Config',
+
         // TAMBAHKAN BARIS INI UNTUK LIBRARY JWT KAMU:
-       // 'Firebase\\JWT\\' => APPPATH . 'ThirdParty/php-jwt/',
+        // 'Firebase\\JWT\\' => APPPATH . 'ThirdParty/php-jwt/',
         'Firebase\\JWT' => APPPATH . 'ThirdParty/php-jwt/src',
     ];
 

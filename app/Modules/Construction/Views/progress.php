@@ -1,0 +1,584 @@
+<style>
+    .progress-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .progress-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #34395e;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .progress-count-badge {
+        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        color: #fff;
+        border-radius: 50px;
+        padding: 3px 12px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    /* ── Target Group Card ── */
+    .target-group-card {
+        border: 1px solid #e4e9f0;
+        border-radius: 14px;
+        margin-bottom: 16px;
+        animation: progFadeUp 0.4s ease both;
+    }
+
+    .target-group-card:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    .target-group-card:nth-child(2) {
+        animation-delay: 0.10s;
+    }
+
+    .target-group-card:nth-child(3) {
+        animation-delay: 0.15s;
+    }
+
+    .target-group-header {
+        background: linear-gradient(135deg, #f8f9ff, #eef1ff);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        border-bottom: 1px solid #e4e9f0;
+        border-top-left-radius: 13px;
+        border-top-right-radius: 13px;
+    }
+
+    .target-group-header:hover {
+        background: #eaedff;
+    }
+
+    .target-group-header .target-name {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #34395e;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .target-group-header .target-name .tg-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        flex-shrink: 0;
+    }
+
+    .target-group-header .tg-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .target-group-header .tg-chevron {
+        transition: transform 0.25s ease;
+        color: #6777ef;
+        font-size: 0.8rem;
+    }
+
+    .target-group-header.collapsed .tg-chevron {
+        transform: rotate(-90deg);
+    }
+
+    .tg-count-pill {
+        background: #e0e4ff;
+        color: #6777ef;
+        border-radius: 50px;
+        padding: 2px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .target-group-body {
+        padding: 0;
+    }
+
+    /* ── Progress Card inside group ── */
+    .progress-item-card {
+        padding: 14px 20px;
+        background: #fff;
+        transition: all 0.2s ease;
+        position: relative;
+        border-bottom: 1px solid #f0f2f5;
+    }
+
+    .progress-item-card:last-child {
+        border-bottom: none;
+        border-bottom-left-radius: 13px;
+        border-bottom-right-radius: 13px;
+    }
+
+    .progress-item-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #e9ecef;
+        transition: background 0.2s ease;
+    }
+
+    .progress-item-card:hover {
+        background: #fafbff;
+    }
+
+    .progress-item-card:hover::before {
+        background: #6777ef;
+    }
+
+    .progress-item-card.st-approved::before {
+        background: #47c363;
+    }
+
+    .progress-item-card.st-rejected::before {
+        background: #fc544b;
+    }
+
+    .progress-item-card.st-pending::before {
+        background: #ffa426;
+    }
+
+    /* ── Status pills ── */
+    .prog-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+
+    .prog-status-pill:hover {
+        filter: brightness(0.92);
+    }
+
+    .pill-approved {
+        background: #d1e7dd;
+        color: #0a5c36;
+    }
+
+    .pill-rejected {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .pill-pending {
+        background: #fff3cd;
+        color: #7d5a00;
+    }
+
+    .prog-status-pill .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.7;
+    }
+
+    /* ── Number badge ── */
+    .prog-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #f0f3ff, #e0e4ff);
+        color: #6777ef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    /* ── Photo thumb ── */
+    .prog-photo-thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid #e9ecef;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+        cursor: pointer;
+    }
+
+    .prog-photo-thumb:hover {
+        border-color: #6777ef;
+        transform: scale(1.08);
+    }
+
+    .prog-no-photo {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        font-size: 1rem;
+    }
+
+    /* ── Dropdown ── */
+    .prog-dropdown .dropdown-menu {
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+        padding: 6px;
+        min-width: 150px;
+    }
+
+    .prog-dropdown .dropdown-item {
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 6px 12px;
+    }
+
+    .prog-dropdown .dropdown-item:hover {
+        background: #f0f3ff;
+    }
+
+    /* ── Empty state ── */
+    .progress-empty {
+        text-align: center;
+        padding: 56px 24px;
+        animation: progFadeUp 0.5s ease both;
+    }
+
+    .progress-empty-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f0f3ff, #e0e4ff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 14px;
+        font-size: 1.6rem;
+        color: #6777ef;
+        opacity: 0.6;
+    }
+
+    @keyframes progFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ── MOBILE FRIENDLY ── */
+    @media (max-width: 767px) {
+        .progress-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .target-group-header {
+            padding: 12px 14px;
+        }
+
+        .target-group-header .target-name {
+            font-size: 0.82rem;
+        }
+
+        .target-group-header .target-name .tg-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .tg-count-pill {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+        }
+
+        /* Use Grid for progress item to keep alignment crisp */
+        .progress-item-card>.d-flex {
+            display: grid !important;
+            grid-template-columns: auto auto 1fr;
+            grid-template-areas:
+                "num photo content"
+                "dropdown dropdown dropdown";
+            gap: 12px;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(1) {
+            grid-area: num;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(2) {
+            grid-area: photo;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(3) {
+            grid-area: content;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(4) {
+            grid-area: dropdown;
+        }
+
+        .prog-dropdown {
+            width: 100%;
+            margin-top: 0;
+            padding-top: 12px;
+            border-top: 1px dashed #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .prog-dropdown .dropdown {
+            width: 100%;
+        }
+
+        .prog-dropdown .prog-status-pill {
+            width: 100%;
+            justify-content: center;
+            padding: 8px 12px;
+        }
+    /* ===== GLIGHTBOX VIDEO INLINE SLIDE PREMIUM SYSTEM ===== */
+    .glightbox-video-slide .gslide-inline {
+        background: #000000 !important;
+        border-radius: 16px;
+        padding: 0 !important;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8) !important;
+        max-width: 850px !important;
+    }
+    .glightbox-video-slide .gslide-inner-content {
+        background: transparent !important;
+    }
+    .glightbox-video-slide .gslide-description {
+        background: rgba(0, 0, 0, 0.85) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px 20px !important;
+    }
+    .glightbox-video-slide .gslide-media {
+        box-shadow: none !important;
+    }
+    }
+</style>
+
+<?php
+// Group progress items by target_key
+$groupedProgress = [];
+foreach ($progress_list ?? [] as $item) {
+    $key = $item['target_key'] ?? 'Tanpa Target';
+    $groupedProgress[$key][] = $item;
+}
+$totalProgress = count($progress_list ?? []);
+$totalTargets = count($groupedProgress);
+?>
+
+<div class="progress-header">
+    <p class="progress-title">
+        <i class="fas fa-chart-line text-primary"></i>
+        Laporan Progress Proyek
+    </p>
+    <div class="d-flex align-items-center gap-2">
+        <span class="progress-count-badge"><?= $totalTargets ?> Target</span>
+        <span class="progress-count-badge"
+            style="background: linear-gradient(135deg, #47c363, #5ad178);"><?= $totalProgress ?> Laporan</span>
+    </div>
+</div>
+
+<?php if (!empty($groupedProgress)): ?>
+    <?php $groupIdx = 0;
+    foreach ($groupedProgress as $targetName => $items):
+        $groupIdx++;
+        $approvedCount = count(array_filter($items, fn($i) => $i['status'] === 'APPROVED'));
+        $totalItems = count($items);
+        $collapseId = 'targetGroup' . $groupIdx;
+        ?>
+        <div class="target-group-card">
+            <!-- Target Header (collapsible) -->
+            <div class="target-group-header" data-toggle="collapse" data-target="#<?= $collapseId ?>" aria-expanded="true">
+                <div class="target-name">
+                    <div class="tg-icon"><i class="fas fa-hammer"></i></div>
+                    <div>
+                        <div><?= esc($targetName) ?></div>
+                        <div style="font-size:0.72rem; font-weight:400; color:#6c757d; margin-top:1px;">
+                            <i class="fas fa-check-circle text-success mr-1"></i><?= $approvedCount ?>/<?= $totalItems ?>
+                            disetujui
+                        </div>
+                    </div>
+                </div>
+                <div class="tg-meta">
+                    <span class="tg-count-pill"><?= $totalItems ?> laporan</span>
+                    <i class="fas fa-chevron-down tg-chevron"></i>
+                </div>
+            </div>
+
+            <!-- Target Body -->
+            <div class="collapse show" id="<?= $collapseId ?>">
+                <div class="target-group-body">
+                    <?php $localNo = 0;
+                    foreach ($items as $app):
+                        $localNo++;
+                        $st = strtoupper($app['status'] ?? 'PENDING');
+                        $stClass = 'st-pending';
+                        $pillClass = 'pill-pending';
+                        if ($st === 'APPROVED') {
+                            $stClass = 'st-approved';
+                            $pillClass = 'pill-approved';
+                        } elseif ($st === 'REJECTED') {
+                            $stClass = 'st-rejected';
+                            $pillClass = 'pill-rejected';
+                        }
+                        ?>
+                        <div class="progress-item-card <?= $stClass ?>">
+                            <div class="d-flex align-items-start gap-3">
+
+                                <!-- Number -->
+                                <div class="prog-num"><?= $localNo ?></div>
+
+                                <!-- Photo -->
+                                <?php if (!empty($app['photo'])): ?>
+                                    <?php 
+                                    $fileUrl = base_url('uploads/construction/progress/' . $app['photo']);
+                                    $ext = strtolower(pathinfo($app['photo'], PATHINFO_EXTENSION));
+                                    $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    $isVideo = in_array($ext, ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv']);
+                                    ?>
+                                    <?php if ($isVideo): ?>
+                                        <!-- Hidden video player container for native playbacks -->
+                                        <div style="display:none;" id="video-progress-<?= $app['id'] ?>">
+                                            <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
+                                                <video src="<?= $fileUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
+                                                <div class="text-white mt-2 text-start px-2">
+                                                    <h6 class="mb-1 fw-bold text-white">Video Progress #<?= $localNo ?></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a href="#video-progress-<?= $app['id'] ?>" class="glightbox d-flex align-items-center justify-content-center bg-light flex-shrink-0 position-relative prog-photo-thumb"
+                                            data-gallery="progress-gallery"
+                                            data-slide-class="glightbox-video-slide"
+                                            data-type="inline"
+                                            style="background:#fff9f0 !important; border: 2px solid #ffeeba;">
+                                            <i class="fas fa-file-video text-warning" style="font-size:18px;"></i>
+                                            <span class="position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%);">
+                                                <i class="fas fa-play-circle text-warning bg-white rounded-circle" style="font-size:8px;"></i>
+                                            </span>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= $fileUrl ?>" class="glightbox" data-gallery="progress-gallery" data-title="Foto Progress #<?= $localNo ?>">
+                                            <img src="<?= $fileUrl ?>" class="prog-photo-thumb" alt="Foto Progress">
+                                        </a>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div class="prog-no-photo"><i class="fas fa-image"></i></div>
+                                <?php endif; ?>
+
+                                <!-- Content -->
+                                <div class="flex-grow-1" style="min-width:0;">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                        <span class="badge badge-light shadow-sm" style="font-size:0.75rem;">
+                                            <i class="fas fa-weight-hanging mr-1 text-primary"></i><?= esc($app['bobot']) ?>
+                                        </span>
+                                        <span class="text-muted" style="font-size:0.78rem;">
+                                            <i class="fas fa-calendar-alt mr-1"></i><?= esc($app['created_at']) ?>
+                                        </span>
+                                    </div>
+                                    <?php if (!empty($app['keterangan']) && $app['keterangan'] !== '-'): ?>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:0.8rem; line-height:1.4;">
+                                            <i class="fas fa-comment-alt mr-1" style="opacity:0.5;"></i><?= esc($app['keterangan']) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- Status Dropdown -->
+                                <div class="flex-shrink-0 prog-dropdown">
+                                    <div class="dropdown">
+                                        <button type="button" class="prog-status-pill <?= $pillClass ?> dropdown-toggle"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="dot"></span>
+                                            <?= esc($st) ?>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item <?= $st === 'PENDING' ? 'active bg-warning text-white' : '' ?>"
+                                                    href="<?= base_url('admin/construction/update_progress_status/' . $app['id'] . '/PENDING') ?>"
+                                                    onclick="return confirm('Ubah status menjadi PENDING?')">
+                                                    <i class="fas fa-clock mr-2 text-warning"></i>PENDING
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item <?= $st === 'APPROVED' ? 'active bg-success text-white' : '' ?>"
+                                                    href="<?= base_url('admin/construction/update_progress_status/' . $app['id'] . '/APPROVED') ?>"
+                                                    onclick="return confirm('Ubah status menjadi APPROVED?')">
+                                                    <i class="fas fa-check-circle mr-2 text-success"></i>APPROVED
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item <?= $st === 'REJECTED' ? 'active bg-danger text-white' : '' ?>"
+                                                    href="<?= base_url('admin/construction/update_progress_status/' . $app['id'] . '/REJECTED') ?>"
+                                                    onclick="return confirm('Ubah status menjadi REJECTED?')">
+                                                    <i class="fas fa-times-circle mr-2 text-danger"></i>REJECTED
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+
+<?php else: ?>
+    <div class="progress-empty">
+        <div class="progress-empty-icon">
+            <i class="fas fa-hard-hat"></i>
+        </div>
+        <h6 class="font-weight-bold text-dark mb-1">Belum Ada Laporan</h6>
+        <p class="text-muted mb-0" style="font-size:0.83rem;">
+            Belum ada laporan progress dari tukang di proyek ini.<br>
+            Laporan akan muncul setelah tukang mengirim progress pekerjaan.
+        </p>
+    </div>
+<?php endif; ?>
+
+<script>
+    // Toggle chevron rotation on collapse
+    $(document).on('show.bs.collapse', '.target-group-card .collapse', function () {
+        $(this).prev('.target-group-header').removeClass('collapsed');
+    });
+    $(document).on('hide.bs.collapse', '.target-group-card .collapse', function () {
+        $(this).prev('.target-group-header').addClass('collapsed');
+    });
+</script>

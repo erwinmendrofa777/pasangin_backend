@@ -2,28 +2,26 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\UserModel;
+use App\Modules\Users\Models\UserModel;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
 
 class AuthController extends ResourceController
 {
     protected $format = 'json';
-    // Kunci rahasia untuk tanda tangan token
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
 
     // --- LOGIN ---
     public function login()
     {
         $rules = [
-            'phone'    => 'required|numeric',
+            'phone' => 'required|numeric',
             'password' => 'required',
         ];
 
         $messages = [
             'phone' => [
-                'required'   => 'Nomor telepon wajib diisi.',
-                'numeric'    => 'Nomor telepon hanya boleh berisi angka.'
+                'required' => 'Nomor telepon wajib diisi.',
+                'numeric' => 'Nomor telepon hanya boleh berisi angka.'
             ],
             'password' => [
                 'required' => 'Password wajib diisi.'
@@ -45,19 +43,35 @@ class AuthController extends ResourceController
             return $this->failUnauthorized('Password salah.');
         }
 
+        // Cek status akun — hanya akun 'approved' yang boleh login
+        if (($user['status'] ?? '') !== 'approved') {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Akun Anda tidak dapat login. Status akun: ' . ($user['status'] ?? 'tidak diketahui') . '.',
+                'status_akun' => $user['status'] ?? null,
+            ], 403);
+        }
+
         // Payload data user
         $payload = [
-            'iss'  => 'https://backend.pasangin.co.id',
-            'iat'  => time(),
-            'exp'  => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
-            'uid'  => $user['id']
+            'iss' => 'https://backend.pasangin.co.id',
+            'iat' => time(),
+            'exp' => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
+            'uid' => $user['id']
         ];
 
         // MENGGUNAKAN FUNGSI NATIVE (Tanpa Library)
         $jwt = $this->_generateJWT($payload);
-        
+
         unset($user['password']);
         $user['token'] = $jwt;
+
+        // --- SIMPAN FCM TOKEN JIKA DIKIRIM SAAT LOGIN ---
+        $fcmToken = $this->request->getVar('fcm_token');
+        if (!empty($fcmToken)) {
+            $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
+            $tokenRepo->upsertToken($user['id'], 'client', $fcmToken);
+        }
 
         if (!empty($user['nik'])) {
             try {
@@ -76,9 +90,9 @@ class AuthController extends ResourceController
         }
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Login berhasil.',
-            'data'    => $user
+            'data' => $user
         ]);
     }
 
@@ -86,20 +100,7 @@ class AuthController extends ResourceController
     public function updateFcmToken()
     {
         try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader)) {
-                return $this->failUnauthorized('Token tidak ditemukan.');
-            }
-
-            $token = str_replace('Bearer ', '', $authHeader);
-            
-            // Decode Manual Tanpa Library
-            $decoded = $this->_decodeJWT($token);
-            if (!$decoded) {
-                return $this->failUnauthorized('Token tidak valid atau kadaluwarsa.');
-            }
-
-            $userId = $decoded['uid'];
+            $userId = $this->request->user->uid;
             $json = $this->request->getJSON();
             $fcmToken = $json->fcm_token ?? null;
 
@@ -107,11 +108,12 @@ class AuthController extends ResourceController
                 return $this->fail('FCM Token kosong.', 400);
             }
 
-            $model = new UserModel();
-            $model->update($userId, ['fcm_token' => $fcmToken]);
+            // Simpan ke tabel baru (multi-perangkat)
+            $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
+            $tokenRepo->upsertToken($userId, 'client', $fcmToken);
 
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'FCM token berhasil diperbarui.'
             ], 200);
 
@@ -131,42 +133,13 @@ class AuthController extends ResourceController
         $base64UrlHeader = $this->_base64UrlEncode($header);
         $base64UrlPayload = $this->_base64UrlEncode($payload);
 
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, $this->jwtKey, true);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, getenv('JWT_SECRET'), true);
         $base64UrlSignature = $this->_base64UrlEncode($signature);
 
         return $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
     }
 
-    /**
-     * FUNGSI HELPER: DECODE JWT NATIVE
-     */
-    private function _decodeJWT($jwt)
-    {
-        $tokenParts = explode('.', $jwt);
-        if (count($tokenParts) != 3) return false;
 
-        $header = base64_decode($tokenParts[0]);
-        $payload = base64_decode($tokenParts[1]);
-        $signatureProvided = $tokenParts[2];
-
-        // Cek Kadaluwarsa
-        $payloadData = json_decode($payload, true);
-        if (isset($payloadData['exp']) && ($payloadData['exp'] - time()) < 0) {
-            return false; // Token Expired
-        }
-
-        // Verifikasi Tanda Tangan
-        $base64UrlHeader = $this->_base64UrlEncode($header);
-        $base64UrlPayload = $this->_base64UrlEncode($payload);
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, $this->jwtKey, true);
-        $base64UrlSignature = $this->_base64UrlEncode($signature);
-
-        if ($base64UrlSignature === $signatureProvided) {
-            return $payloadData;
-        }
-
-        return false;
-    }
 
     private function _base64UrlEncode($data)
     {
@@ -176,25 +149,24 @@ class AuthController extends ResourceController
     // --------------------------
     // MINTA OTP UNTUK REGISTRASI
     // --------------------------
-    public function requestOtp(){
-
-        
+    public function requestOtp()
+    {
         // validasi
         $rules = [
-            'nomor_telepon' => 'required|numeric|min_length[4]|max_length[16]', 
-            'role'   => 'required|in_list[users,tukang,suppliers]',
+            'nomor_telepon' => 'required|numeric|min_length[4]|max_length[16]',
+            'role' => 'required|in_list[users,tukang,suppliers]',
         ];
 
         $messages = [
             'nomor_telepon' => [
-                'required'   => 'Nomor HP wajib diisi.',
-                'numeric'    => 'Nomor HP hanya boleh berisi angka.',
+                'required' => 'Nomor HP wajib diisi.',
+                'numeric' => 'Nomor HP hanya boleh berisi angka.',
                 'min_length' => 'Nomor HP minimal 4 digit.',
                 'max_length' => 'Nomor HP maksimal 16 digit.'
             ],
             'role' => [
                 'required' => 'Role wajib diisi.',
-                'in_list'  => 'Role tidak valid. Gunakan: users, tukang, atau suppliers.'
+                'in_list' => 'Role tidak valid. Gunakan: users, tukang, atau suppliers.'
             ]
         ];
 
@@ -216,8 +188,8 @@ class AuthController extends ResourceController
         }
 
         // Buat variasi nomor untuk dicocokkan di database dan untuk dikirim ke API
-        $phoneWith0 = '0' . $phoneBase;   
-        $phoneWith62 = '62' . $phoneBase; 
+        $phoneWith0 = '0' . $phoneBase;
+        $phoneWith62 = '62' . $phoneBase;
 
         // Keamanan: Whitelist tabel dan cek apakah nomor HP tersebut terdaftar
         $db = \Config\Database::connect();
@@ -227,48 +199,48 @@ class AuthController extends ResourceController
 
         // Cari user di database dengan format 08... atau 628...
         $user = $db->table($role)
-                   ->groupStart()
-                   ->where($phoneColumn, $phoneWith0)
-                   ->orWhere($phoneColumn, $phoneWith62)
-                   ->groupEnd()
-                   ->get()->getRow();
-        
+            ->groupStart()
+            ->where($phoneColumn, $phoneWith0)
+            ->orWhere($phoneColumn, $phoneWith62)
+            ->groupEnd()
+            ->get()->getRow();
+
         // bedakan login dan registrasi
         if ($user && $challenge === 'registrasi') {
             return $this->fail("Nomor HP ini sudah terdaftar. Silakan login atau gunakan nomor lain.", 409);
-        }elseif(!$user && $challenge === 'login'){
+        } elseif (!$user && $challenge === 'login') {
             return $this->fail("Nomor HP tidak terdaftar. Silakan registrasi terlebih dahulu.", 404);
         }
-        
+
         // LANGSUNG MINTA VERIHUBS MENGIRIM OTP
         $client = \Config\Services::curlrequest();
-        
+
         $payload = [
-            'msisdn'       => $phoneWith62,
-            'template'     => 'Kode OTP Aplikasi Pasangin Anda adalah $OTP. Jangan berikan kode ini kepada siapapun.',
-            'time_limit'   => '300', // Berlaku 5 menit
-            'challenge'    => $challenge, 
+            'msisdn' => $phoneWith62,
+            'template' => 'Kode OTP Aplikasi Pasangin Anda adalah $OTP. Jangan berikan kode ini kepada siapapun.',
+            'time_limit' => '300', // Berlaku 5 menit
+            'challenge' => $challenge,
         ];
 
         try {
             $response = $client->post('https://api.verihubs.com/v2/otp/send', [
                 'headers' => [
                     'API-Key' => getenv('VERIHUBS_API_KEY'),
-                    'App-ID'  => getenv('VERIHUBS_APP_ID'),
-                    'Accept'  => 'application/json',
+                    'App-ID' => getenv('VERIHUBS_APP_ID'),
+                    'Accept' => 'application/json',
                 ],
-                'json'        => $payload,
-                'timeout'     => 30,
+                'json' => $payload,
+                'timeout' => 30,
                 'http_errors' => false
             ]);
 
             $statusCode = $response->getStatusCode();
-            $body       = json_decode($response->getBody());
+            $body = json_decode($response->getBody());
 
             // 4. Cek respons dari Verihubs
             if ($statusCode >= 200 && $statusCode < 300) {
                 return $this->respond([
-                    'status'  => true,
+                    'status' => true,
                     'message' => 'OTP berhasil dikirim ke nomor WhatsApp/SMS Anda.'
                 ], 200);
             }
@@ -289,26 +261,26 @@ class AuthController extends ResourceController
     {
         //validasi
         $rules = [
-            'nomor_telepon' => 'required|numeric|min_length[4]|max_length[16]', 
-            'role'          => 'required|in_list[users,tukang,suppliers]',
-            'otp'           => 'required|exact_length[6]|numeric',
+            'nomor_telepon' => 'required|numeric|min_length[4]|max_length[16]',
+            'role' => 'required|in_list[users,tukang,suppliers]',
+            'otp' => 'required|exact_length[6]|numeric',
         ];
 
         $messages = [
             'otp' => [
-                'required'     => 'Kode OTP wajib diisi.',
+                'required' => 'Kode OTP wajib diisi.',
                 'exact_length' => 'Kode OTP harus 6 digit.',
-                'numeric'      => 'Kode OTP hanya boleh berisi angka.'
+                'numeric' => 'Kode OTP hanya boleh berisi angka.'
             ],
             'nomor_telepon' => [
-                'required'   => 'Nomor HP wajib diisi.',
-                'numeric'    => 'Nomor HP hanya boleh berisi angka.',
+                'required' => 'Nomor HP wajib diisi.',
+                'numeric' => 'Nomor HP hanya boleh berisi angka.',
                 'min_length' => 'Nomor HP minimal 4 digit.',
                 'max_length' => 'Nomor HP maksimal 16 digit.'
             ],
             'role' => [
                 'required' => 'Role wajib diisi.',
-                'in_list'  => 'Role tidak valid. Gunakan: users, tukang, atau suppliers.'
+                'in_list' => 'Role tidak valid. Gunakan: users, tukang, atau suppliers.'
             ]
         ];
 
@@ -318,10 +290,10 @@ class AuthController extends ResourceController
 
         // ambil data dari request
         $phoneInput = $this->request->getVar('nomor_telepon');
-        $otp  = $this->request->getVar('otp');
+        $otp = $this->request->getVar('otp');
         $role = $this->request->getVar('role');
         $challenge = $this->request->getVar('challenge');
-    
+
         // Normalisasi nomor telepon ke format dasar
         $phoneBase = $phoneInput;
         if (substr($phoneBase, 0, 2) === '62') {
@@ -337,7 +309,7 @@ class AuthController extends ResourceController
 
         $payload = [
             'msisdn' => $phoneWith62,
-            'otp'    => (string) $otp,
+            'otp' => (string) $otp,
             'challenge' => $challenge
         ];
 
@@ -345,25 +317,25 @@ class AuthController extends ResourceController
             $response = $client->post('https://api.verihubs.com/v2/otp/verify', [
                 'headers' => [
                     'API-Key' => getenv('VERIHUBS_API_KEY'),
-                    'App-ID'  => getenv('VERIHUBS_APP_ID'),
-                    'Accept'  => 'application/json',
+                    'App-ID' => getenv('VERIHUBS_APP_ID'),
+                    'Accept' => 'application/json',
                 ],
-                'json'        => $payload,
-                'timeout'     => 30,
+                'json' => $payload,
+                'timeout' => 30,
                 'http_errors' => false // Penting agar aplikasi tidak crash jika OTP salah
             ]);
 
             $statusCode = $response->getStatusCode();
-            $body       = json_decode($response->getBody());
+            $body = json_decode($response->getBody());
 
             // Evaluasi Balasan Verihubs
             if ($statusCode === 200) {
                 return $this->respond([
-                    'status'  => 200,
+                    'status' => 200,
                     'message' => 'Kode OTP valid.',
-                    'data'    => [
+                    'data' => [
                         'nomor_telepon' => $phoneInput,
-                        'role'   => $role
+                        'role' => $role
                     ]
                 ], 200);
             }
@@ -378,20 +350,21 @@ class AuthController extends ResourceController
         }
     }
 
-    public function verifyEmail(){
+    public function verifyEmail()
+    {
         $rules = [
             'email' => 'required|valid_email|',
-            'role'  => 'required|in_list[users,tukang,suppliers]'
+            'role' => 'required|in_list[users,tukang,suppliers]'
         ];
 
         $messages = [
             'email' => [
-                'required'    => 'Email wajib diisi.',
+                'required' => 'Email wajib diisi.',
                 'valid_email' => 'Format email tidak valid.',
             ],
             'role' => [
                 'required' => 'Role wajib diisi.',
-                'in_list'  => 'Role tidak valid. Gunakan: users, tukang, atau suppliers.'
+                'in_list' => 'Role tidak valid. Gunakan: users, tukang, atau suppliers.'
             ]
         ];
 
@@ -404,23 +377,23 @@ class AuthController extends ResourceController
         $role = $this->request->getVar('role');
 
         // validasi
-        if($role == 'users'){
+        if ($role == 'users') {
             $model = new UserModel();
             $exists = $model->where('email', $email)->first();
-        } elseif($role == 'tukang') {
+        } elseif ($role == 'tukang') {
             $db = \Config\Database::connect();
             $exists = $db->table('tukang')->where('email', $email)->get()->getRow();
-        } elseif($role == 'suppliers') {
+        } elseif ($role == 'suppliers') {
             $db = \Config\Database::connect();
             $exists = $db->table('suppliers')->where('email', $email)->get()->getRow();
         }
 
-        if($exists){
+        if ($exists) {
             return $this->fail("Email ini sudah terdaftar sebagai {$role}. Silakan gunakan email lain.", 409);
         }
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Email tersedia untuk digunakan.'
         ], 200);
     }
@@ -431,32 +404,32 @@ class AuthController extends ResourceController
     public function register()
     {
         $rules = [
-            'name'         => 'required|min_length[3]|max_length[100]',
-            'email'        => 'required|valid_email|is_unique[users.email]',
+            'name' => 'required|min_length[3]|max_length[100]',
+            'email' => 'required|valid_email|is_unique[users.email]',
             'phone_number' => 'required|numeric|min_length[10]|max_length[15]|is_unique[users.phone_number]',
-            'password'     => 'required|min_length[8]|max_length[255]',
+            'password' => 'required|min_length[8]|max_length[255]',
         ];
 
         $messages = [
             'name' => [
-                'required'   => 'Nama lengkap wajib diisi.',
+                'required' => 'Nama lengkap wajib diisi.',
                 'min_length' => 'Nama lengkap terlalu pendek (minimal 3 karakter).',
                 'max_length' => 'Nama lengkap terlalu panjang (maksimal 100 karakter).',
             ],
             'email' => [
-                'required'    => 'Email wajib diisi.',
+                'required' => 'Email wajib diisi.',
                 'valid_email' => 'Format email tidak valid.',
-                'is_unique'   => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+                'is_unique' => 'Email ini sudah terdaftar, silakan gunakan email lain.',
             ],
             'phone_number' => [
-                'required'   => 'Nomor telepon wajib diisi.',
-                'numeric'    => 'Nomor telepon harus berupa angka.',
+                'required' => 'Nomor telepon wajib diisi.',
+                'numeric' => 'Nomor telepon harus berupa angka.',
                 'min_length' => 'Nomor telepon terlalu pendek (minimal 10 karakter).',
                 'max_length' => 'Nomor telepon terlalu panjang (maksimal 15 karakter).',
-                'is_unique'  => 'Nomor telepon ini sudah terdaftar, silakan gunakan nomor lain.',
+                'is_unique' => 'Nomor telepon ini sudah terdaftar, silakan gunakan nomor lain.',
             ],
             'password' => [
-                'required'   => 'Password wajib diisi.',
+                'required' => 'Password wajib diisi.',
                 'min_length' => 'Password terlalu pendek (minimal 8 karakter).',
                 'max_length' => 'Password terlalu panjang (maksimal 255 karakter).',
             ],
@@ -470,11 +443,11 @@ class AuthController extends ResourceController
         $userModel = new UserModel();
         try {
             $userModel->save([
-                'full_name'    => $data['name'],
-                'email'        => $data['email'],
+                'full_name' => $data['name'],
+                'email' => $data['email'],
                 'phone_number' => $data['phone_number'],
-                'password'     => password_hash($data['password'], PASSWORD_DEFAULT),
-                'role'         => 'client',
+                'password' => password_hash($data['password'], PASSWORD_DEFAULT),
+                'role' => 'client',
             ]);
             return $this->respondCreated(['status' => 'success', 'message' => 'Registrasi berhasil.']);
         } catch (Exception $e) {

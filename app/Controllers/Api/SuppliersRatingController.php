@@ -2,7 +2,7 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\SuppliersRatingModel;
+use App\Modules\Supplier\Models\SuppliersRatingModel;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
 

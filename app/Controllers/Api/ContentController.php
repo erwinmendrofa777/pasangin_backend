@@ -6,10 +6,10 @@ namespace App\Controllers\Api;
 // Gunakan ResourceController dari CodeIgniter untuk membuat API dengan mudah
 use CodeIgniter\RESTful\ResourceController;
 // Panggil model yang akan digunakan di bagian atas agar rapi
-use App\Models\BannerModel;
-use App\Models\TipsModel;
-use App\Models\PriceEstimateConceptsModel;
-use App\Models\PriceEstimateQualitiesModel;
+use App\Modules\Banners\Models\BannerModel;
+use App\Modules\Tips\Models\TipsModel;
+use App\Modules\PriceEstimate\Models\PriceEstimateConceptsModel;
+use App\Modules\PriceEstimate\Models\PriceEstimateQualitiesModel;
 
 // ======================================================================
 // <<<--- INI DIA PERBAIKAN UTAMANYA ---

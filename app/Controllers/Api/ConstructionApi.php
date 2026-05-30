@@ -4,6 +4,7 @@ namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
+use App\Modules\Construction\Models\ConstructionMaterialSubmissionModel;
 
 // Import class Dompdf
 use Dompdf\Dompdf;
@@ -13,10 +14,14 @@ class ConstructionApi extends BaseController
 {
     use ResponseTrait;
     protected $db;
+    protected $notifService;
+    protected $constructionMaterialSubmissionModel;
 
     public function __construct()
     {
         $this->db = \Config\Database::connect();
+        $this->notifService = new \App\Modules\Notifications\Services\NotificationService();
+        $this->constructionMaterialSubmissionModel = new ConstructionMaterialSubmissionModel();
     }
 
     // =========================================================================
@@ -26,14 +31,14 @@ class ConstructionApi extends BaseController
     {
         //validasi input
         $validationRules = [
-            'images'    => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
+            'images' => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
         ];
 
         $validationMessages = [
             'images' => [
                 'uploaded' => 'Setidaknya satu gambar harus diunggah.',
                 'max_size' => 'Ukuran salah satu gambar melebihi 5MB.',
-                'mime_in'  => 'Format salah satu gambar tidak valid. Gunakan JPG, PNG, atau WebP.'
+                'mime_in' => 'Format salah satu gambar tidak valid. Gunakan JPG, PNG, atau WebP.'
             ]
         ];
 
@@ -44,25 +49,29 @@ class ConstructionApi extends BaseController
 
         // 3. Ambil data yang sudah pasti tervalidasi aman
         $data = [
-            'user_id'         => $this->request->getPost('user_id'),
-            'full_name'       => $this->request->getPost('full_name'),
-            'phone'           => $this->request->getPost('phone_number'),
-            'land_area'       => $this->request->getPost('land_area'),
-            'building_area'   => $this->request->getPost('building_area'),
-            'survey_date'     => $this->request->getPost('survey_date'),
-            'address'         => $this->request->getPost('address'),
-            'latitude'        => $this->request->getPost('latitude'),
-            'longitude'       => $this->request->getPost('longitude'),
-            'voucher_code'    => $this->request->getPost('voucher_code'),
-            'survey_cost'     => $this->request->getPost('survey_cost'),
+            'user_id' => $this->request->getPost('user_id'),
+            'full_name' => $this->request->getPost('full_name'),
+            'phone' => $this->request->getPost('phone_number'),
+            'land_area' => $this->request->getPost('land_area'),
+            'building_area' => $this->request->getPost('building_area'),
+            'survey_date' => $this->request->getPost('survey_date'),
+            'address' => $this->request->getPost('address'),
+            'latitude' => $this->request->getPost('latitude'),
+            'longitude' => $this->request->getPost('longitude'),
+            'voucher_code' => $this->request->getPost('voucher_code'),
+            'survey_cost' => $this->request->getPost('survey_cost'),
             'discount_amount' => $this->request->getPost('discount_amount'),
-            'total_payment'   => $this->request->getPost('total_payment'),
-            'status'          => 'PENDING',
-            'created_at'      => date('Y-m-d H:i:s')
+            'total_payment' => $this->request->getPost('total_payment'),
+            'status' => 'PENDING',
+            'created_at' => date('Y-m-d H:i:s')
         ];
 
-        // Gunakan getFileMultiple agar otomatis selalu menjadi array
+        // Gunakan getFileMultiple agar otomatis selalu menjadi array, fallback ke getFile jika single file
         $images = $this->request->getFileMultiple('images');
+        if ($images === null) {
+            $singleImage = $this->request->getFile('images');
+            $images = ($singleImage && $singleImage->isValid()) ? [$singleImage] : [];
+        }
 
         // Cek batasan maksimal 5 gambar
         if (count($images) > 5) {
@@ -93,9 +102,51 @@ class ConstructionApi extends BaseController
             }
 
             if ($this->db->table('construction_requests')->insert($data)) {
+                $constructionId = $this->db->insertID();
+
+                // Hubungkan ke desain yang sudah dipilih jika ada
+                $designRequestsId = $this->request->getPost('design_requests_id');
+                if (!empty($designRequestsId)) {
+                    // Cari file desain disetujui (APPROVED) di project_designs berdasarkan design_request_id
+                    $designProject = $this->db->table('project_designs')
+                        ->where('design_request_id', $designRequestsId)
+                        ->where('status', 'APPROVED')
+                        ->orderBy('created_at', 'DESC')
+                        ->get()
+                        ->getRowArray();
+
+                    // Fallback: Cari yang non-APPROVED jika tidak ada yang APPROVED
+                    if (!$designProject) {
+                        $designProject = $this->db->table('project_designs')
+                            ->where('design_request_id', $designRequestsId)
+                            ->orderBy('created_at', 'DESC')
+                            ->get()
+                            ->getRowArray();
+                    }
+
+                    $constructionDesignData = [
+                        'construction_id' => $constructionId,
+                        'user_admin_id' => $designProject ? ($designProject['user_admin_id'] ?: null) : null,
+                        'design_requests_id' => $designRequestsId,
+                        'title' => $designProject ? ($designProject['design_name'] ?: 'Desain Terpilih') : 'Desain Terpilih',
+                        'file' => $designProject ? $designProject['file'] : '',
+                        'comment' => 'Desain dipilih oleh pelanggan saat pengajuan konstruksi.',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ];
+                    $this->db->table('construction_designs')->insert($constructionDesignData);
+                }
+
+                // Kirim notifikasi ke Admin  
+                $this->notifService->sendToPermission(
+                    'construction_detail',
+                    'Permohonan Konstruksi Baru',
+                    "Pelanggan atas nama {$data['full_name']} telah mengirim permohonan konstruksi baru. Silakan cek detail."
+                );
+
                 return $this->respondCreated([
-                    'status'  => true,
+                    'status' => true,
                     'message' => 'Permohonan berhasil dikirim',
+                    'construction_id' => $constructionId
                 ]);
             } else {
                 return $this->fail('Gagal memperbarui data di database. Pastikan kolom gambar1-5 ada di allowedFields model.');
@@ -214,10 +265,15 @@ class ConstructionApi extends BaseController
             return $this->fail('Project ID tidak boleh kosong.');
         }
 
-        $designs = $this->db->table('construction_designs')->where('construction_id', $projectId)->orderBy('created_at', 'DESC')->get()->getResultArray();
+        $designRepo = new \App\Modules\Construction\Repositories\ConstructionDesignRepository();
+        $designs = $designRepo->findByConstructionId((int) $projectId);
 
         foreach ($designs as &$item) {
-            $item['image_url'] = !empty($item['file']) ? base_url('uploads/construction/designs/' . $item['file']) : null;
+            $item['image_url'] = !empty($item['file']) 
+                ? (!empty($item['design_requests_id']) 
+                    ? base_url('uploads/design_results/' . $item['file']) 
+                    : base_url('uploads/construction/designs/' . $item['file']))
+                : null;
         }
 
         if ($designs) {
@@ -265,7 +321,8 @@ class ConstructionApi extends BaseController
 
         foreach ($progressListRaw as $p) {
             $tId = $p['target_id'];
-            if (!$tId) continue;
+            if (!$tId)
+                continue;
 
             if (!isset($groupedByTarget[$tId])) {
                 // Formatting Pekerjaan
@@ -274,29 +331,29 @@ class ConstructionApi extends BaseController
                 $pekerjaan = $p['rab_activity'] ?? '-';
 
                 $groupedByTarget[$tId] = [
-                    'id_tukang'        => $p['id_tukang'] ?? '-',
-                    'foto_tukang'      => !empty($p['profile_photo']) ? base_url('uploads/tukang/' . $p['profile_photo']) : null,
-                    'nama_tukang'      => $p['tukang_name'] ?? '-',
+                    'id_tukang' => $p['id_tukang'] ?? '-',
+                    'foto_tukang' => !empty($p['profile_photo']) ? base_url('uploads/tukang/' . $p['profile_photo']) : null,
+                    'nama_tukang' => $p['tukang_name'] ?? '-',
                     'spesialis_tukang' => $p['specialization'] ?? '-',
                     'header_pekerjaan' => trim(trim($header_pekerjaan, ' -')),
-                    'pekerjaan'        => $pekerjaan,
-                    'persentase'       => 0, // di-kalkulasi di akhir
+                    'pekerjaan' => $pekerjaan,
+                    'persentase' => 0, // di-kalkulasi di akhir
                     'laporan_terakhir' => null,
-                    'foto_progress'    => [],
-                    'rating'           => $p['rating_id'] ?? null,
-                    'comment'          => $p['rating_comment'] ?? null,
-                    'skill_score'      => $p['skill_score'] ?? null,
-                    'behavior_score'   => $p['behavior_score'] ?? null,
-                    'created_at_rating'       => $p['rating_created_at'],
+                    'foto_progress' => [],
+                    'rating' => $p['rating_id'] ?? null,
+                    'comment' => $p['rating_comment'] ?? null,
+                    'skill_score' => $p['skill_score'] ?? null,
+                    'behavior_score' => $p['behavior_score'] ?? null,
+                    'created_at_rating' => $p['rating_created_at'],
                     // Temp variable untuk kalkulasi
-                    '_target_bobot'         => (float)($p['target_bobot'] ?? 0),
+                    '_target_bobot' => (float) ($p['target_bobot'] ?? 0),
                     '_total_progress_bobot' => 0
                 ];
             }
 
             // Akumulasi bobot progress
             if (strtoupper($p['progress_status']) === 'APPROVED') {
-                $groupedByTarget[$tId]['_total_progress_bobot'] += (float)$p['progress_bobot'];
+                $groupedByTarget[$tId]['_total_progress_bobot'] += (float) $p['progress_bobot'];
             }
 
             // Kumpulkan foto progress
@@ -319,21 +376,21 @@ class ConstructionApi extends BaseController
             $persentase = $ttBobot > 0 ? ($progBobot / $ttBobot * 100) : 0;
 
             $progressList[] = [
-                'id_tukang'        => $grp['id_tukang'] ?? '-',
-                'foto_tukang'      => $grp['foto_tukang'],
-                'nama_tukang'      => $grp['nama_tukang'],
+                'id_tukang' => $grp['id_tukang'] ?? '-',
+                'foto_tukang' => $grp['foto_tukang'],
+                'nama_tukang' => $grp['nama_tukang'],
                 'spesialis_tukang' => $grp['spesialis_tukang'],
                 'header_pekerjaan' => $grp['header_pekerjaan'],
-                'pekerjaan'        => $grp['pekerjaan'],
-                'persentase'       => number_format($persentase, 2, '.', ''), // output as string decimal suitable for app formatting
+                'pekerjaan' => $grp['pekerjaan'],
+                'persentase' => number_format($persentase, 2, '.', ''), // output as string decimal suitable for app formatting
                 'laporan_terakhir' => date('Y-m-d H:i:s', strtotime($grp['laporan_terakhir'])),
-                'foto_progress'    => $grp['foto_progress'],
-                'target_id'        => $tId,
-                'rating'           => $grp['rating'],
-                'comment'          => $grp['comment'],
-                'skill_score'      => $grp['skill_score'],
-                'behavior_score'   => $grp['behavior_score'],
-                'created_at_rating'       => $grp['created_at_rating'],
+                'foto_progress' => $grp['foto_progress'],
+                'target_id' => $tId,
+                'rating' => $grp['rating'],
+                'comment' => $grp['comment'],
+                'skill_score' => $grp['skill_score'],
+                'behavior_score' => $grp['behavior_score'],
+                'created_at_rating' => $grp['created_at_rating'],
             ];
         }
 
@@ -366,19 +423,37 @@ class ConstructionApi extends BaseController
             return $this->fail('Project ID tidak boleh kosong.');
         }
 
-        $invoices = $this->db->table('construction_invoices')->where('construction_id', $projectId)->orderBy('created_at', 'ASC')->get()->getResultArray();
+        $invoices = $this->db->table('construction_invoices')
+            ->select('construction_invoices.*, vouchers.discount_nominal')
+            ->join('vouchers', 'vouchers.code = construction_invoices.voucher_code', 'left')
+            ->where('construction_id', $projectId)
+            ->orderBy('created_at', 'ASC')
+            ->get()
+            ->getResultArray();
 
-        if ($invoices) {
+        $formattedInvoices = array_map(function ($invoice) {
+            $originalAmount = (int) ($invoice['amount'] ?? 0);
+            $discountAmount = (int) ($invoice['discount_nominal'] ?? 0);
+            $grossAmount = max(0, $originalAmount - $discountAmount);
+
+            $invoice['original_amount'] = $originalAmount;
+            $invoice['discount_amount'] = $discountAmount;
+            $invoice['gross_amount'] = $grossAmount;
+
+            return $invoice;
+        }, $invoices);
+
+        if ($formattedInvoices) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Detail Invoice Proyek konstruksi ditemukan',
-                'data' => $invoices
+                'data' => $formattedInvoices
             ]);
         } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada invoice untuk Proyek konstruksi ini',
-                'data' => $invoices
+                'data' => []
             ]);
         }
     }
@@ -420,8 +495,8 @@ class ConstructionApi extends BaseController
                 }
             }
 
-            $item['total_target'] = (float)$item['total_target'];
-            $item['total_realisasi'] = (float)$item['total_realisasi'];
+            $item['total_target'] = (float) $item['total_target'];
+            $item['total_realisasi'] = (float) $item['total_realisasi'];
         }
 
         if (!empty($projects)) {
@@ -461,25 +536,27 @@ class ConstructionApi extends BaseController
 
         // 1. Ambil info harga produk terbaru dari tabel products
         $product = $this->db->table('products')->where('id', $productId)->get()->getRowArray();
-        if (!$product) return $this->fail('Produk tidak ditemukan.');
+        if (!$product)
+            return $this->fail('Produk tidak ditemukan.');
 
         // 2. Ambil volume dari item RAB ini
         $rabItem = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
-        if (!$rabItem) return $this->fail('Item RAB tidak ditemukan.');
+        if (!$rabItem)
+            return $this->fail('Item RAB tidak ditemukan.');
 
         // 3. Update tabel construction_rabs
         $updateData = [
             'selected_material_id' => $productId,
-            'current_unit_price'   => $product['price'],
-            'total_price'          => (float)$product['price'] * (float)$rabItem['volume'],
-            'updated_at'           => date('Y-m-d H:i:s')
+            'current_unit_price' => $product['price'],
+            'total_price' => (float) $product['price'] * (float) $rabItem['volume'],
+            'updated_at' => date('Y-m-d H:i:s')
         ];
 
         if ($this->db->table('construction_rabs')->where('id', $rabId)->update($updateData)) {
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Material berhasil diperbarui!',
-                'data'    => $updateData
+                'data' => $updateData
             ]);
         } else {
             return $this->fail('Gagal memperbarui material di database.');
@@ -542,7 +619,8 @@ class ConstructionApi extends BaseController
         $json = $this->request->getJSON(true);
         $projectId = $json['project_id'] ?? $this->request->getVar('project_id');
 
-        if (!$projectId) return $this->fail('Project ID tidak ditemukan.');
+        if (!$projectId)
+            return $this->fail('Project ID tidak ditemukan.');
 
         try {
             // 1. generate dan upload kontrak.pdf
@@ -567,7 +645,7 @@ class ConstructionApi extends BaseController
                 'rab' => $this->db->table('construction_rabs')
                     ->select('group_name, SUM(total_price) as total_price')
                     ->where('construction_rabs.construction_id', $projectId)
-                    ->groupBy('roman_number', 'group_name')
+                    ->groupBy(['roman_number', 'group_name'])
                     ->orderBy('roman_number', 'ASC')
                     ->get()->getResultArray(),
                 'kalimat_pembuka' => tanggal_surat_indo($tanggal_kontrak),
@@ -638,6 +716,14 @@ class ConstructionApi extends BaseController
                 'is_locked' => 1,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
+
+        // Kirim notifikasi ke Admin  
+        $namaKlien = $data['template_kontrak']['nama_klien'] ?? 'Seorang client';
+        $this->notifService->sendToPermission(
+            'construction_rab',
+            'RAB Konstruksi Disubmit',
+            "RAB untuk proyek #{$projectId} telah disubmit oleh client {$namaKlien}. Silakan cek dokumen kontrak yang telah digenerate."
+        );
 
         return $this->respond(['status' => true, 'message' => 'RAB berhasil dikunci!']);
     }
@@ -751,12 +837,12 @@ class ConstructionApi extends BaseController
 
             // Rapikan respon JSON
             unset($row['start_date']);
-            $row['report_count']    = (int)$row['report_count'];
-            $row['approved_count']  = (int)$row['approved_count'];
-            $row['rejected_count']  = (int)$row['rejected_count'];
-            $row['pending_count']   = (int)$row['pending_count'];
-            $row['approved_weight'] = (float)$row['approved_weight'];
-            $row['pending_weight']  = (float)$row['pending_weight'];
+            $row['report_count'] = (int) $row['report_count'];
+            $row['approved_count'] = (int) $row['approved_count'];
+            $row['rejected_count'] = (int) $row['rejected_count'];
+            $row['pending_count'] = (int) $row['pending_count'];
+            $row['approved_weight'] = (float) $row['approved_weight'];
+            $row['pending_weight'] = (float) $row['pending_weight'];
 
             if ($row['last_report_status']) {
                 $row['last_report_status'] = strtoupper($row['last_report_status']);
@@ -799,6 +885,22 @@ class ConstructionApi extends BaseController
             'comment' => $comment
         ]);
 
+        // Ambil info survey  
+        $surveyInfo = $this->db->table('construction_surveys cs')
+            ->select('cr.full_name, cr.id as construction_id')
+            ->join('construction_requests cr', 'cr.id = cs.construction_id', 'left')
+            ->where('cs.id', $id_survey)
+            ->get()->getRowArray();
+
+        $namaKlien = $surveyInfo['full_name'] ?? 'Seorang client';
+
+        // Kirim notifikasi ke Admin  
+        $this->notifService->sendToPermission(
+            'construction_survey',
+            'Komentar Survey Baru',
+            "Client {$namaKlien} telah memberikan komentar pada hasil survey konstruksi #" . ($surveyInfo['construction_id'] ?? $id_survey) . "."
+        );
+
         return $this->respond(['status' => true, 'message' => 'Komentar berhasil ditambahkan.']);
     }
 
@@ -815,6 +917,539 @@ class ConstructionApi extends BaseController
             'comment' => $comment
         ]);
 
+        // Ambil info desain  
+        $designInfo = $this->db->table('construction_designs cd')
+            ->select('cr.full_name, cr.id as construction_id')
+            ->join('construction_requests cr', 'cr.id = cd.construction_id', 'left')
+            ->where('cd.id', $id_design)
+            ->get()->getRowArray();
+
+        $namaKlien = $designInfo['full_name'] ?? 'Seorang client';
+
+        // Kirim notifikasi ke Admin  
+        $this->notifService->sendToPermission(
+            'construction_desain',
+            'Komentar Desain Baru',
+            "Client {$namaKlien} telah memberikan komentar pada hasil desain konstruksi #" . ($designInfo['construction_id'] ?? $id_design) . "."
+        );
+
         return $this->respond(['status' => true, 'message' => 'Komentar berhasil ditambahkan.']);
+    }
+
+    // =========================================================================
+    // 14. FUNGSI ABSEN MASUK (CHECK-IN) KONSTRUKSI
+    // =========================================================================
+    public function SendAttendance($id_construction)
+    {
+        if (!$id_construction) {
+            return $this->fail('ID konstruksi tidak boleh kosong.');
+        }
+
+        // Validasi input
+        $validationRules = [
+            'file' => 'uploaded[file]|max_size[file,30720]|mime_in[file,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm]',
+            'longitude' => 'required',
+            'latitude' => 'required',
+            'waktu' => 'required',
+            'jumlah_tukang' => 'required'
+        ];
+
+        $validationMessages = [
+            'file' => [
+                'uploaded' => 'Video absensi wajib diunggah.',
+                'max_size' => 'Ukuran video tidak boleh melebihi 30MB.',
+                'mime_in' => 'Format video tidak valid. Gunakan MP4, MOV, AVI, MKV, atau WebM.',
+            ],
+            'longitude' => ['required' => 'Longitude wajib diisi.'],
+            'latitude' => ['required' => 'Latitude wajib diisi.'],
+            'waktu' => ['required' => 'Waktu absen wajib diisi.'],
+            'jumlah_tukang' => ['required' => 'Jumlah tukang wajib diisi.']
+        ];
+
+        if (!$this->validate($validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Upload video absensi
+        $foto = $this->request->getFile('file');
+        $uploadPath = 'uploads/construction/absen_tukang/';
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $newName = $foto->getRandomName();
+        $foto->move($uploadPath, $newName);
+
+        // Simpan ke database
+        $attendanceModel = new \App\Modules\Construction\Models\ConstructionAttendanceModel();
+
+        $data = [
+            'id_construction' => $id_construction,
+            'type' => 'masuk',
+            'file' => $newName,
+            'jumlah_tukang' => $this->request->getPost('jumlah_tukang'),
+            'longitude' => $this->request->getPost('longitude'),
+            'latitude' => $this->request->getPost('latitude'),
+            'waktu' => $this->request->getPost('waktu'),
+            'deskripsi' => $this->request->getPost('deskripsi'),
+        ];
+
+        if ($attendanceModel->insert($data)) {
+            // Kirim notifikasi ke Admin
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendToPermission(
+                'construction_absensi',
+                'Absensi Konstruksi (Masuk)',
+                "Tukang telah mengirim absensi masuk untuk proyek #{$id_construction}. Jumlah tukang: {$data['jumlah_tukang']}."
+            );
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Absen masuk berhasil dikirim.',
+                'data' => [
+                    'id' => $attendanceModel->getInsertID(),
+                    'id_construction' => (int) $id_construction,
+                    'type' => 'masuk',
+                    'file' => $newName,
+                    'jumlah_tukang' => $data['jumlah_tukang'],
+                    'file_url' => base_url($uploadPath . $newName),
+                    'longitude' => $data['longitude'],
+                    'latitude' => $data['latitude'],
+                    'waktu' => $data['waktu'],
+                    'deskripsi' => $data['deskripsi'],
+                ],
+            ]);
+        }
+
+        return $this->fail('Gagal menyimpan data absensi masuk.');
+    }
+
+    // =========================================================================
+    // 15. FUNGSI ABSEN KELUAR (CHECK-OUT) KONSTRUKSI
+    // =========================================================================
+    public function SendCheckoutAttendance($id_construction)
+    {
+        if (!$id_construction) {
+            return $this->fail('ID konstruksi tidak boleh kosong.');
+        }
+
+        // Validasi input
+        $validationRules = [
+            'file' => 'uploaded[file]|max_size[file,30720]|mime_in[file,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm]',
+            'longitude' => 'required',
+            'latitude' => 'required',
+            'waktu' => 'required',
+            'jumlah_tukang' => 'required'
+        ];
+
+        $validationMessages = [
+            'file' => [
+                'uploaded' => 'Video absensi wajib diunggah.',
+                'max_size' => 'Ukuran video tidak boleh melebihi 30MB.',
+                'mime_in' => 'Format video tidak valid. Gunakan MP4, MOV, AVI, MKV, atau WebM.',
+            ],
+            'longitude' => ['required' => 'Longitude wajib diisi.'],
+            'latitude' => ['required' => 'Latitude wajib diisi.'],
+            'waktu' => ['required' => 'Waktu absen wajib diisi.'],
+            'jumlah_tukang' => ['required' => 'Jumlah tukang wajib diisi.']
+        ];
+
+        if (!$this->validate($validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Upload video absensi
+        $foto = $this->request->getFile('file');
+        $uploadPath = 'uploads/construction/absen_tukang/';
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $newName = $foto->getRandomName();
+        $foto->move($uploadPath, $newName);
+
+        // Simpan ke database
+        $attendanceModel = new \App\Modules\Construction\Models\ConstructionAttendanceModel();
+
+        $data = [
+            'id_construction' => $id_construction,
+            'type' => 'keluar',
+            'file' => $newName,
+            'jumlah_tukang' => $this->request->getPost('jumlah_tukang'),
+            'longitude' => $this->request->getPost('longitude'),
+            'latitude' => $this->request->getPost('latitude'),
+            'waktu' => $this->request->getPost('waktu'),
+            'deskripsi' => $this->request->getPost('deskripsi'),
+        ];
+
+        if ($attendanceModel->insert($data)) {
+            // Kirim notifikasi ke Admin
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendToPermission(
+                'construction_absensi',
+                'Absensi Konstruksi (Keluar)',
+                "Tukang telah mengirim absensi keluar untuk proyek #{$id_construction}. Jumlah tukang: {$data['jumlah_tukang']}."
+            );
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Absen keluar berhasil dikirim.',
+                'data' => [
+                    'id' => $attendanceModel->getInsertID(),
+                    'id_construction' => (int) $id_construction,
+                    'type' => 'keluar',
+                    'file' => $newName,
+                    'jumlah_tukang' => $data['jumlah_tukang'],
+                    'file_url' => base_url($uploadPath . $newName),
+                    'longitude' => $data['longitude'],
+                    'latitude' => $data['latitude'],
+                    'waktu' => $data['waktu'],
+                    'deskripsi' => $data['deskripsi'],
+                ],
+            ]);
+        }
+
+        return $this->fail('Gagal menyimpan data absensi keluar.');
+    }
+
+    // =========================================================================
+    // CRUD PENGAJUAN BAHAN DAN ALAT (CONSTRUCTION_MATERIAL_SUBMISSION)
+    // =========================================================================
+
+    /**
+     * Get list of material/tool submissions.
+     * Optional filters: construction_id, status, type
+     */
+    public function getMaterialSubmissions()
+    {
+        $constructionId = $this->request->getVar('construction_id') ?? $this->request->getGet('construction_id');
+        $status = $this->request->getVar('status') ?? $this->request->getGet('status');
+        $type = $this->request->getVar('type') ?? $this->request->getGet('type');
+
+        $query = $this->constructionMaterialSubmissionModel;
+
+        if ($constructionId) {
+            $query = $query->where('construction_id', $constructionId);
+        }
+        if ($status) {
+            $query = $query->where('status', $status);
+        }
+        if ($type) {
+            $query = $query->where('type', $type);
+        }
+
+        $submissions = $query->orderBy('created_at', 'DESC')->findAll();
+
+        foreach ($submissions as &$item) {
+            $item['photo_url'] = !empty($item['photo']) ? base_url('uploads/construction/material_submissions/' . $item['photo']) : null;
+        }
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Data pengajuan bahan/alat berhasil diambil.',
+            'data' => $submissions
+        ]);
+    }
+
+    /**
+     * Get detail of a specific material/tool submission.
+     */
+    public function getMaterialSubmission($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('ID pengajuan tidak boleh kosong.');
+        }
+
+        $submission = $this->constructionMaterialSubmissionModel->find($id);
+
+        if (!$submission) {
+            return $this->failNotFound('Data pengajuan tidak ditemukan.');
+        }
+
+        $submission['photo_url'] = !empty($submission['photo']) ? base_url('uploads/construction/material_submissions/' . $submission['photo']) : null;
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Detail pengajuan bahan/alat berhasil diambil.',
+            'data' => $submission
+        ]);
+    }
+
+    /**
+     * Create a new material/tool submission.
+     */
+    public function createMaterialSubmission()
+    {
+        // Mendukung request JSON maupun Form Data
+        $json = [];
+        try {
+            $body = $this->request->getBody();
+            if (!empty($body)) {
+                $json = $this->request->getJSON(true) ?: [];
+            }
+        } catch (\Throwable $e) {
+            $json = [];
+        }
+
+        $constructionId = $json['construction_id'] ?? $this->request->getPost('construction_id');
+        $jobApplicationsId = $json['job_applications_id'] ?? $this->request->getPost('job_applications_id');
+        $type = $json['type'] ?? $this->request->getPost('type');
+        $title = $json['title'] ?? $this->request->getPost('title');
+        $description = $json['description'] ?? $this->request->getPost('description');
+
+        // Validasi input
+        $validationRules = [
+            'construction_id' => 'required|numeric',
+            'job_applications_id' => 'permit_empty|numeric',
+            'type' => 'required|in_list[bahan,alat]',
+            'title' => 'permit_empty|max_length[255]',
+            'description' => 'required',
+        ];
+
+        $validationMessages = [
+            'construction_id' => [
+                'required' => 'Construction ID wajib diisi.',
+                'numeric' => 'Construction ID harus berupa angka.'
+            ],
+            'job_applications_id' => [
+                'numeric' => 'Job Applications ID harus berupa angka.'
+            ],
+            'type' => [
+                'required' => 'Tipe pengajuan wajib diisi.',
+                'in_list' => 'Tipe pengajuan harus berupa "bahan" atau "alat".'
+            ],
+            'title' => [
+                'max_length' => 'Judul pengajuan maksimal 255 karakter.'
+            ],
+            'description' => [
+                'required' => 'Deskripsi/List pengajuan wajib diisi.'
+            ]
+        ];
+
+        // Validasi file photo jika diunggah
+        $photoFile = $this->request->getFile('photo');
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $validationRules['photo'] = 'max_size[photo,5120]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]';
+            $validationMessages['photo'] = [
+                'max_size' => 'Ukuran foto tidak boleh melebihi 5MB.',
+                'is_image' => 'File yang diunggah harus berupa gambar.',
+                'mime_in' => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ];
+        }
+
+        // Jalankan validasi manual
+        $validationData = [
+            'construction_id' => $constructionId,
+            'job_applications_id' => $jobApplicationsId,
+            'type' => $type,
+            'title' => $title,
+            'description' => $description
+        ];
+
+        if (!$this->validateData($validationData, $validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Cek apakah proyek konstruksi ada
+        $construction = $this->db->table('construction_requests')->where('id', $constructionId)->get()->getRowArray();
+        if (!$construction) {
+            return $this->failNotFound('Proyek konstruksi tidak ditemukan.');
+        }
+
+        // Cek jika job_applications_id diisi, apakah datanya ada
+        if (!empty($jobApplicationsId)) {
+            $jobApp = $this->db->table('job_applications')->where('id', $jobApplicationsId)->get()->getRowArray();
+            if (!$jobApp) {
+                return $this->failNotFound('Job application/Tukang tidak ditemukan.');
+            }
+        }
+
+        $photoName = null;
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $uploadPath = 'uploads/construction/material_submissions/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            $photoName = $photoFile->getRandomName();
+            $photoFile->move($uploadPath, $photoName);
+        }
+
+        $data = [
+            'construction_id' => (int) $constructionId,
+            'job_applications_id' => !empty($jobApplicationsId) ? (int) $jobApplicationsId : null,
+            'type' => $type,
+            'title' => !empty($title) ? $title : null,
+            'description' => $description,
+            'photo' => $photoName,
+            'status' => 'pending',
+        ];
+
+        if ($this->constructionMaterialSubmissionModel->insert($data)) {
+            $insertedId = $this->constructionMaterialSubmissionModel->getInsertID();
+            $insertedData = $this->constructionMaterialSubmissionModel->find($insertedId);
+            $insertedData['photo_url'] = !empty($insertedData['photo']) ? base_url('uploads/construction/material_submissions/' . $insertedData['photo']) : null;
+
+            // Kirim notifikasi ke Admin
+            $this->notifService->sendToPermission(
+                'construction_detail',
+                'Pengajuan Bahan/Alat Baru',
+                "Tukang mengirim pengajuan {$type} baru untuk proyek #{$constructionId}."
+            );
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Pengajuan bahan/alat berhasil dikirim.',
+                'data' => $insertedData
+            ]);
+        }
+
+        return $this->fail('Gagal menyimpan pengajuan bahan/alat.');
+    }
+
+    /**
+     * Update a specific material/tool submission (Used by Tukang).
+     * Tukang can only update type, title, description, and photo, and only when the status is still 'pending'.
+     */
+    public function updateMaterialSubmission($id = null)
+    {
+        // Mendukung request JSON maupun Form Data
+        $json = [];
+        try {
+            $body = $this->request->getBody();
+            if (!empty($body)) {
+                $json = $this->request->getJSON(true) ?: [];
+            }
+        } catch (\Throwable $e) {
+            $json = [];
+        }
+
+        if ($id === null) {
+            return $this->fail('ID pengajuan tidak boleh kosong.');
+        }
+
+        $submission = $this->constructionMaterialSubmissionModel->find($id);
+        if (!$submission) {
+            return $this->failNotFound('Data pengajuan tidak ditemukan.');
+        }
+
+        // Tukang hanya boleh mengedit jika statusnya masih pending  
+        if ($submission['status'] !== 'pending') {
+            return $this->fail('Pengajuan tidak dapat diubah karena sudah diproses oleh admin.');
+        }
+
+        // Ambil data perubahan (bisa JSON, PUT, atau POST)
+        // Note: $json sudah didefinisikan secara aman di bagian atas method dengan try-catch
+        $input = !empty($json) ? $json : array_merge(
+            $this->request->getRawInput() ?: [],
+            $this->request->getVar() ?: []
+        );
+
+        $validationRules = [];
+        $validationMessages = [];
+
+        if (isset($input['type'])) {
+            $validationRules['type'] = 'in_list[bahan,alat]';
+            $validationMessages['type'] = ['in_list' => 'Tipe pengajuan harus berupa "bahan" atau "alat".'];
+        }
+
+        if (isset($input['title'])) {
+            $validationRules['title'] = 'max_length[255]';
+            $validationMessages['title'] = ['max_length' => 'Judul pengajuan maksimal 255 karakter.'];
+        }
+
+        // Validasi file photo baru jika diunggah
+        $photoFile = $this->request->getFile('photo');
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $validationRules['photo'] = 'max_size[photo,5120]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]';
+            $validationMessages['photo'] = [
+                'max_size' => 'Ukuran foto tidak boleh melebihi 5MB.',
+                'is_image' => 'File yang diunggah harus berupa gambar.',
+                'mime_in' => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ];
+        }
+
+        if (!empty($validationRules)) {
+            if (!$this->validateData($input, $validationRules, $validationMessages)) {
+                return $this->failValidationErrors($this->validator->getErrors());
+            }
+        }
+
+        $dataUpdate = [];
+        if (isset($input['type'])) {
+            $dataUpdate['type'] = $input['type'];
+        }
+        if (isset($input['title'])) {
+            $dataUpdate['title'] = $input['title'];
+        }
+        if (isset($input['description'])) {
+            $dataUpdate['description'] = $input['description'];
+        }
+
+        // Upload photo baru dan hapus photo lama jika ada
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $uploadPath = 'uploads/construction/material_submissions/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+
+            if (!empty($submission['photo']) && file_exists($uploadPath . $submission['photo'])) {
+                unlink($uploadPath . $submission['photo']);
+            }
+
+            $photoName = $photoFile->getRandomName();
+            $photoFile->move($uploadPath, $photoName);
+            $dataUpdate['photo'] = $photoName;
+        }
+
+        if (empty($dataUpdate)) {
+            return $this->fail('Tidak ada data yang diubah.');
+        }
+
+        if ($this->constructionMaterialSubmissionModel->update($id, $dataUpdate)) {
+            $updatedData = $this->constructionMaterialSubmissionModel->find($id);
+            $updatedData['photo_url'] = !empty($updatedData['photo']) ? base_url('uploads/construction/material_submissions/' . $updatedData['photo']) : null;
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Data pengajuan berhasil diperbarui.',
+                'data' => $updatedData
+            ]);
+        }
+
+        return $this->fail('Gagal memperbarui data pengajuan.');
+    }
+
+    /**
+     * Delete a specific material/tool submission.
+     */
+    public function deleteMaterialSubmission($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('ID pengajuan tidak boleh kosong.');
+        }
+
+        $submission = $this->constructionMaterialSubmissionModel->find($id);
+        if (!$submission) {
+            return $this->failNotFound('Data pengajuan tidak ditemukan.');
+        }
+
+        // Hapus file photo dari disk jika ada
+        if (!empty($submission['photo'])) {
+            $uploadPath = 'uploads/construction/material_submissions/';
+            if (file_exists($uploadPath . $submission['photo'])) {
+                unlink($uploadPath . $submission['photo']);
+            }
+        }
+
+        if ($this->constructionMaterialSubmissionModel->delete($id)) {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Data pengajuan berhasil dihapus.'
+            ]);
+        }
+
+        return $this->fail('Gagal menghapus data pengajuan.');
     }
 }

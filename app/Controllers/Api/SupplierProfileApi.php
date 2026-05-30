@@ -2,7 +2,7 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\SupplierModel;
+use App\Modules\Supplier\Models\SupplierModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class SupplierProfileApi extends ResourceController

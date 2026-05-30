@@ -2,15 +2,14 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\TukangModel;
+use App\Modules\Tukang\Models\TukangModel;
+use App\Modules\Notifications\Models\FcmTokenModel;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
 
 class TukangAuthController extends ResourceController
 {
     protected $format = 'json';
-    // Kunci JWT yang sama agar sinkron antar modul
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
 
     /**
      * 1. LOGIN TUKANG
@@ -19,7 +18,7 @@ class TukangAuthController extends ResourceController
     public function login()
     {
         $rules = [
-            'phone'    => 'required',
+            'phone' => 'required',
             'password' => 'required',
         ];
 
@@ -28,40 +27,50 @@ class TukangAuthController extends ResourceController
         }
 
         $model = new TukangModel();
+        $fcmModel = new FcmTokenModel();
         $phone = $this->request->getVar('phone');
-        
+
         $user = $model->where('phone', $phone)->first();
+        $fcm = $fcmModel->where('user_id', $user['id'])->where('user_type', 'tukang')->first();
 
         if (!$user) {
-            return $this->failNotFound('Nomor telepon Tukang tidak terdaftar kawan.');
+            return $this->failNotFound('Nomor telepon Tukang tidak terdaftar  .');
         }
 
         if (!password_verify($this->request->getVar('password'), $user['password'])) {
-            return $this->failUnauthorized('Password yang kawan masukkan salah.');
+            return $this->failUnauthorized('Password yang   masukkan salah.');
         }
 
-        // Payload JWT kawan
+        // Payload JWT  
         $payload = [
-            'iss'  => 'https://backend.pasangin.co.id',
-            'iat'  => time(),
-            'exp'  => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
-            'uid'  => $user['id'],
-            'role' => 'tukang' 
+            'iss' => 'https://backend.pasangin.co.id',
+            'iat' => time(),
+            'exp' => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
+            'uid' => $user['id'],
+            'role' => 'tukang'
         ];
 
         $jwt = $this->_generateJWT($payload);
-        
+
         unset($user['password']);
         $user['token'] = $jwt;
+
+        // --- SIMPAN FCM TOKEN JIKA DIKIRIM SAAT LOGIN ---
+        $fcmToken = $this->request->getVar('fcm_token');
+        if (!empty($fcmToken)) {
+            $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
+            $tokenRepo->upsertToken($user['id'], 'tukang', $fcmToken);
+        }
 
         if (!empty($user['profile_photo'])) {
             $user['profile_photo'] = base_url('uploads/tukang/' . $user['profile_photo']);
         }
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => 'Login Tukang berhasil.',
-            'data'    => $user
+            'data' => $user,
+            'is_notification_enabled' => $fcm['is_notification_enabled']
         ]);
     }
 
@@ -74,32 +83,32 @@ class TukangAuthController extends ResourceController
         $data = $this->request->getJSON(true) ?? $this->request->getPost();
 
         $rules = [
-            'name'     => 'required|min_length[3]|max_length[100]',
-            'email'    => 'required|valid_email|is_unique[tukang.email]',
-            'phone'    => 'required|numeric|min_length[10]|max_length[15]|is_unique[tukang.phone]',
+            'name' => 'required|min_length[3]|max_length[100]',
+            'email' => 'required|valid_email|is_unique[tukang.email]',
+            'phone' => 'required|numeric|min_length[10]|max_length[15]|is_unique[tukang.phone]',
             'password' => 'required|min_length[8]|max_length[255]',
         ];
 
         $messages = [
             'name' => [
-                'required'   => 'Nama lengkap wajib diisi.',
+                'required' => 'Nama lengkap wajib diisi.',
                 'min_length' => 'Nama lengkap terlalu pendek (minimal 3 karakter).',
                 'max_length' => 'Nama lengkap terlalu panjang (maksimal 100 karakter).',
             ],
             'email' => [
-                'required'    => 'Email wajib diisi.',
+                'required' => 'Email wajib diisi.',
                 'valid_email' => 'Format email tidak valid.',
-                'is_unique'   => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+                'is_unique' => 'Email ini sudah terdaftar, silakan gunakan email lain.',
             ],
             'phone' => [
-                'required'   => 'Nomor telepon wajib diisi.',
-                'numeric'    => 'Nomor telepon harus berupa angka.',
+                'required' => 'Nomor telepon wajib diisi.',
+                'numeric' => 'Nomor telepon harus berupa angka.',
                 'min_length' => 'Nomor telepon terlalu pendek (minimal 10 karakter).',
                 'max_length' => 'Nomor telepon terlalu panjang (maksimal 15 karakter).',
-                'is_unique'  => 'Nomor telepon ini sudah terdaftar, silakan gunakan nomor lain.',
+                'is_unique' => 'Nomor telepon ini sudah terdaftar, silakan gunakan nomor lain.',
             ],
             'password' => [
-                'required'   => 'Password wajib diisi.',
+                'required' => 'Password wajib diisi.',
                 'min_length' => 'Password terlalu pendek (minimal 8 karakter).',
                 'max_length' => 'Password terlalu panjang (maksimal 255 karakter).',
             ],
@@ -112,27 +121,35 @@ class TukangAuthController extends ResourceController
         $model = new TukangModel();
         try {
             $model->save([
-                'agent_code'       => $data['agent_code'] ?? null,
-                'name'             => $data['name'],
-                'email'            => $data['email'],
-                'phone'            => $data['phone'] ?? $data['phone_number'],
-                'password'         => password_hash($data['password'], PASSWORD_DEFAULT),
-                'gender'           => $data['gender'] ?? null,
-                'dob'              => $data['dob'] ?? null,
-                'ktp_address'      => $data['ktp_address'] ?? null,
+                'agent_code' => $data['agent_code'] ?? null,
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? $data['phone_number'],
+                'password' => password_hash($data['password'], PASSWORD_DEFAULT),
+                'gender' => $data['gender'] ?? null,
+                'dob' => $data['dob'] ?? null,
+                'ktp_address' => $data['ktp_address'] ?? null,
                 'domicile_address' => $data['domicile_address'] ?? null,
-                'specialization'   => $data['specialization'] ?? null,
-                'status'           => 'Berkas Diproses', 
-                'created_at'       => date('Y-m-d H:i:s'),
-                'rating_avg'       => '0.0',
-                'skill_score'      => '0.0',
-                'behavior_score'   => '0.0',
-                'registration_step'=> 1
+                'specialization' => $data['specialization'] ?? null,
+                'status' => 'Berkas Diproses',
+                'created_at' => date('Y-m-d H:i:s'),
+                'rating_avg' => '0.0',
+                'skill_score' => '0.0',
+                'behavior_score' => '0.0',
+                'registration_step' => 1
             ]);
 
+            // Kirim notifikasi ke Admin (Permission: tukang_verify)
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendToPermission(
+                'tukang_create',
+                'Pendaftaran Tukang Baru',
+                "Tukang baru bernama " . $data['name'] . " telah mendaftar. Silakan cek dan verifikasi berkasnya."
+            );
+
             return $this->respondCreated([
-                'status' => 'success', 
-                'message' => 'Pendaftaran berhasil kawan. Silakan login.'
+                'status' => 'success',
+                'message' => 'Pendaftaran berhasil  . Silakan login.'
             ]);
         } catch (Exception $e) {
             return $this->failServerError($e->getMessage());
@@ -146,27 +163,24 @@ class TukangAuthController extends ResourceController
     public function updateFcmToken()
     {
         try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader)) return $this->failUnauthorized('Token tidak ditemukan.');
+            $tukangId = $this->request->user->uid;
 
-            $token = str_replace('Bearer ', '', $authHeader);
-            $decoded = $this->_decodeJWT($token);
-            
-            if (!$decoded || $decoded['role'] !== 'tukang') {
+            if ($this->request->user->role !== 'tukang') {
                 return $this->failUnauthorized('Akses ditolak.');
             }
 
             $json = $this->request->getJSON();
             $fcmToken = $json->fcm_token ?? null;
 
-            if (empty($fcmToken)) return $this->fail('FCM Token kosong.', 400);
+            if (empty($fcmToken))
+                return $this->fail('FCM Token kosong.', 400);
 
-            $model = new TukangModel();
-            // Ambil UID dari token JWT agar tidak bisa dimanipulasi kawan
-            $model->update($decoded['uid'], ['fcm_token' => $fcmToken]);
+            // Simpan ke tabel baru (multi-perangkat)
+            $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
+            $tokenRepo->upsertToken($tukangId, 'tukang', $fcmToken);
 
             return $this->respond([
-                'status' => true, 
+                'status' => true,
                 'message' => 'Token FCM Tukang berhasil diperbarui.'
             ]);
         } catch (Exception $e) {
@@ -181,20 +195,14 @@ class TukangAuthController extends ResourceController
     public function updateProfile()
     {
         try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            $token = str_replace('Bearer ', '', $authHeader);
-            $decoded = $this->_decodeJWT($token);
-            
-            if (!$decoded) return $this->failUnauthorized('Akses ditolak kawan.');
+            $tukangId = $this->request->user->uid;
 
-            $tukangId = $decoded['uid'];
-            
             $dataUpdate = [
-                'name'           => $this->request->getPost('name'),
-                'phone'          => $this->request->getPost('phone'),
-                'email'          => $this->request->getPost('email'),
+                'name' => $this->request->getPost('name'),
+                'phone' => $this->request->getPost('phone'),
+                'email' => $this->request->getPost('email'),
                 'specialization' => $this->request->getPost('specialization'),
-                'updated_at'     => date('Y-m-d H:i:s')
+                'updated_at' => date('Y-m-d H:i:s')
             ];
 
             if (!empty($this->request->getPost('password'))) {
@@ -212,8 +220,8 @@ class TukangAuthController extends ResourceController
             $model->update($tukangId, $dataUpdate);
 
             return $this->respond([
-                'status' => true, 
-                'message' => 'Profil berhasil diperbarui kawan!'
+                'status' => true,
+                'message' => 'Profil berhasil diperbarui  !'
             ]);
 
         } catch (Exception $e) {
@@ -223,14 +231,8 @@ class TukangAuthController extends ResourceController
 
     public function updateProfileByKtp()
     {
-        try{
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            $token = str_replace('Bearer ', '', $authHeader);
-            $decoded = $this->_decodeJWT($token);
-            
-            if (!$decoded) return $this->failUnauthorized('Akses ditolak kawan.');
-
-            $tukangId = $decoded['uid'];
+        try {
+            $tukangId = $this->request->user->uid;
 
             $jalan = $this->request->getPost('jalan');
             $rt_rw = $this->request->getPost('rt_rw');
@@ -241,11 +243,11 @@ class TukangAuthController extends ResourceController
             $alamat_lengkap = $jalan . ', ' . $rt_rw . ', ' . $kelurahan . ', ' . $kecamatan . ', ' . $kabupaten . ', ' . $provinsi;
 
             $dataUpdate = [
-                'nik'           => $this->request->getPost('nik'),
-                'name'          => $this->request->getPost('nama'),
-                'dob'           => $this->request->getPost('tanggal_lahir'),
-                'ktp_address'   => $alamat_lengkap,
-                'is_verify'     => 1
+                'nik' => $this->request->getPost('nik'),
+                'name' => $this->request->getPost('nama'),
+                'dob' => $this->request->getPost('tanggal_lahir'),
+                'ktp_address' => $alamat_lengkap,
+                'is_verify' => 1
             ];
 
             $file = $this->request->getFile('selfie_photo');
@@ -259,11 +261,11 @@ class TukangAuthController extends ResourceController
             $model->update($tukangId, $dataUpdate);
 
             return $this->respond([
-                'status' => true, 
+                'status' => true,
                 'message' => 'Profil berhasil diperbarui'
             ]);
-            
-        }catch(Exception $e){
+
+        } catch (Exception $e) {
             return $this->failServerError($e->getMessage());
         }
     }
@@ -276,7 +278,8 @@ class TukangAuthController extends ResourceController
     {
         $model = new TukangModel();
         $user = $model->find($id);
-        if (!$user) return $this->failNotFound('Tukang tidak ditemukan kawan.');
+        if (!$user)
+            return $this->failNotFound('Tukang tidak ditemukan  .');
 
         unset($user['password']);
         if (!empty($user['profile_photo'])) {
@@ -289,7 +292,7 @@ class TukangAuthController extends ResourceController
     public function extractSync()
     {
         // 1. Ambil file KTP dan Selfie dari request frontend
-        $fileKtp  = $this->request->getFile('ktp_image');
+        $fileKtp = $this->request->getFile('ktp_image');
         $fileFace = $this->request->getFile('face_image');
 
         if (!$fileKtp || !$fileKtp->isValid() || !$fileFace || !$fileFace->isValid()) {
@@ -297,17 +300,17 @@ class TukangAuthController extends ResourceController
         }
 
         // 2. Konversi kedua gambar menjadi Base64
-        $base64Ktp  = base64_encode(file_get_contents($fileKtp->getTempName()));
+        $base64Ktp = base64_encode(file_get_contents($fileKtp->getTempName()));
         $base64Face = base64_encode(file_get_contents($fileFace->getTempName()));
 
         $client = \Config\Services::curlrequest([
             'timeout' => 60
         ]);
         $apiHeaders = [
-            'App-ID'       => getenv('VERIHUBS_APP_ID'),
-            'API-Key'      => getenv('VERIHUBS_API_KEY'),
+            'App-ID' => getenv('VERIHUBS_APP_ID'),
+            'API-Key' => getenv('VERIHUBS_API_KEY'),
             'Content-Type' => 'application/json',
-            'Accept'       => 'application/json',
+            'Accept' => 'application/json',
         ];
 
         try {
@@ -316,16 +319,16 @@ class TukangAuthController extends ResourceController
             // ==============================================================
             $resCompare = $client->post('https://api.verihubs.com/v1/face/compare', [
                 'headers' => $apiHeaders,
-                'json'    => [
-                    'image_1'            => $base64Ktp,
-                    'image_2'            => $base64Face,
-                    'is_quality'         => true,
-                    'is_attribute'       => true,
-                    'is_liveness'        => false, 
-                    'validate_quality'   => false,
+                'json' => [
+                    'image_1' => $base64Ktp,
+                    'image_2' => $base64Face,
+                    'is_quality' => true,
+                    'is_attribute' => true,
+                    'is_liveness' => false,
+                    'validate_quality' => false,
                     'validate_attribute' => false,
-                    'validate_liveness'  => false,
-                    'validate_nface'     => true 
+                    'validate_liveness' => false,
+                    'validate_nface' => true
                 ],
                 'http_errors' => false
             ]);
@@ -340,7 +343,7 @@ class TukangAuthController extends ResourceController
 
             // PERBAIKAN: Ambil langsung dari root JSON sesuai contoh Anda
             $isMatch = $resultCompare['similarity_status'] ?? false;
-            
+
             if (!$isMatch) {
                 return $this->fail('Verifikasi Gagal: Wajah tidak cocok dengan foto di KTP.', 400);
             }
@@ -350,8 +353,8 @@ class TukangAuthController extends ResourceController
             // ==============================================================
             // (Verihubs Extract KTP biasanya pake v2, pastikan sesuai dokumentasi ya)
             $resKtp = $client->post('https://api.verihubs.com/v2/ktp/extract', [
-                'headers'     => $apiHeaders,
-                'json'        => ['image' => $base64Ktp],
+                'headers' => $apiHeaders,
+                'json' => ['image' => $base64Ktp],
                 'http_errors' => false
             ]);
 
@@ -365,16 +368,27 @@ class TukangAuthController extends ResourceController
 
 
             // ==============================================================
-            // TAHAP 3: SEMUA BERHASIL, KEMBALIKAN DATA KE FRONTEND
+            // TAHAP 3: SEMUA BERHASIL, KIRIM NOTIFIKASI KE ADMIN & KEMBALIKAN DATA
             // ==============================================================
+
+            // Ambil nama dari hasil ekstrak KTP (jika ada)
+            $namaUser = $resultKtp['data']['nama'] ?? 'Seorang Tukang/supplier';
+
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendToPermission(
+                'tukang_verify',
+                'Verifikasi Biometrik Berhasil',
+                "Tukang atau Supplier atas nama {$namaUser} telah berhasil melewati verifikasi wajah dan KTP."
+            );
+
             return $this->respond([
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'Wajah cocok dan KTP berhasil diekstrak.',
-                'data'    => [
+                'data' => [
                     // Kita sertakan status_code dan similarity_status dari respons asli
-                    'compare_status' => $resultCompare['status_code'] ?? 'N/A', 
-                    'is_match'       => $isMatch,
-                    'ktp_data'       => $resultKtp['data'] 
+                    'compare_status' => $resultCompare['status_code'] ?? 'N/A',
+                    'is_match' => $isMatch,
+                    'ktp_data' => $resultKtp['data']
                 ]
             ], 200);
 
@@ -385,26 +399,21 @@ class TukangAuthController extends ResourceController
 
     // --- INTERNAL JWT HELPERS ---
 
-    private function _generateJWT($payload) {
+    private function _generateJWT($payload)
+    {
         $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
         $payload = json_encode($payload);
         $base64UrlHeader = $this->_base64UrlEncode($header);
         $base64UrlPayload = $this->_base64UrlEncode($payload);
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, $this->jwtKey, true);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, getenv('JWT_SECRET'), true);
         $base64UrlSignature = $this->_base64UrlEncode($signature);
         return $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
     }
 
-    private function _decodeJWT($jwt) {
-        $tokenParts = explode('.', $jwt);
-        if (count($tokenParts) != 3) return false;
-        $payload = base64_decode($tokenParts[1]);
-        $payloadData = json_decode($payload, true);
-        if (isset($payloadData['exp']) && ($payloadData['exp'] - time()) < 0) return false;
-        return $payloadData;
-    }
 
-    private function _base64UrlEncode($data) {
+
+    private function _base64UrlEncode($data)
+    {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
 }

@@ -5,7 +5,8 @@ namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
-use App\Models\RenovationModel;
+use App\Modules\Renovation\Models\RenovationModel;
+use App\Modules\Renovation\Models\RenovationMaterialSubmissionModel;
 
 // Import class Dompdf
 use Dompdf\Dompdf;
@@ -16,11 +17,15 @@ class RenovationApi extends BaseController
     use ResponseTrait;
     protected $model;
     protected $db;
+    protected $notifService;
+    protected $renovationMaterialSubmissionModel;
 
     public function __construct()
     {
         $this->model = new RenovationModel();
         $this->db = \Config\Database::connect();
+        $this->notifService = new \App\Modules\Notifications\Services\NotificationService();
+        $this->renovationMaterialSubmissionModel = new RenovationMaterialSubmissionModel();
     }
 
     // =========================================================================
@@ -30,7 +35,7 @@ class RenovationApi extends BaseController
     {
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'images'    => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
+            'images' => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
@@ -38,25 +43,29 @@ class RenovationApi extends BaseController
         }
 
         $data = [
-            'user_id'         => $this->request->getPost('user_id'),
-            'full_name'       => $this->request->getPost('full_name'),
-            'phone'           => $this->request->getPost('phone_number'),
+            'user_id' => $this->request->getPost('user_id'),
+            'full_name' => $this->request->getPost('full_name'),
+            'phone' => $this->request->getPost('phone_number'),
             'renovation_type' => $this->request->getPost('renovation_type'),
-            'description'     => $this->request->getPost('description'),
-            'survey_date'     => $this->request->getPost('survey_date'),
-            'address'         => $this->request->getPost('address'),
-            'latitude'        => $this->request->getPost('latitude'),
-            'longitude'       => $this->request->getPost('longitude'),
-            'voucher_code'    => $this->request->getPost('voucher_code'),
-            'survey_cost'     => $this->request->getPost('survey_cost'),
+            'description' => $this->request->getPost('description'),
+            'survey_date' => $this->request->getPost('survey_date'),
+            'address' => $this->request->getPost('address'),
+            'latitude' => $this->request->getPost('latitude'),
+            'longitude' => $this->request->getPost('longitude'),
+            'voucher_code' => $this->request->getPost('voucher_code'),
+            'survey_cost' => $this->request->getPost('survey_cost'),
             'discount_amount' => $this->request->getPost('discount_amount'),
-            'total_payment'   => $this->request->getPost('total_payment'),
-            'status'          => 'PENDING',
-            'created_at'      => date('Y-m-d H:i:s')
+            'total_payment' => $this->request->getPost('total_payment'),
+            'status' => 'PENDING',
+            'created_at' => date('Y-m-d H:i:s')
         ];
 
-        // Gunakan getFileMultiple agar otomatis selalu menjadi array
+        // Gunakan getFileMultiple agar otomatis selalu menjadi array, fallback ke getFile jika single file
         $images = $this->request->getFileMultiple('images');
+        if ($images === null) {
+            $singleImage = $this->request->getFile('images');
+            $images = ($singleImage && $singleImage->isValid()) ? [$singleImage] : [];
+        }
 
         // Cek batasan maksimal 5 gambar
         if (count($images) > 5) {
@@ -88,10 +97,49 @@ class RenovationApi extends BaseController
             $inserted_id = $this->model->insert($data);
 
             if ($inserted_id) {
+                // Hubungkan ke desain yang sudah dipilih jika ada
+                $designRequestsId = $this->request->getPost('design_requests_id');
+                if (!empty($designRequestsId)) {
+                    // Cari file desain disetujui (APPROVED) di project_designs berdasarkan design_request_id
+                    $designProject = $this->db->table('project_designs')
+                        ->where('design_request_id', $designRequestsId)
+                        ->where('status', 'APPROVED')
+                        ->orderBy('created_at', 'DESC')
+                        ->get()
+                        ->getRowArray();
+
+                    // Fallback: Cari yang non-APPROVED jika tidak ada yang APPROVED
+                    if (!$designProject) {
+                        $designProject = $this->db->table('project_designs')
+                            ->where('design_request_id', $designRequestsId)
+                            ->orderBy('created_at', 'DESC')
+                            ->get()
+                            ->getRowArray();
+                    }
+
+                    $renovationDesignData = [
+                        'request_id' => $inserted_id,
+                        'user_admin_id' => $designProject ? ($designProject['user_admin_id'] ?: null) : null,
+                        'design_requests_id' => $designRequestsId,
+                        'title' => $designProject ? ($designProject['design_name'] ?: 'Desain Terpilih') : 'Desain Terpilih',
+                        'file_url' => $designProject ? $designProject['file'] : '',
+                        'comment' => 'Desain dipilih oleh pelanggan saat pengajuan renovasi.',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ];
+                    $this->db->table('renovation_designs')->insert($renovationDesignData);
+                }
+
+                // Kirim notifikasi ke Admin  
+                $this->notifService->sendToPermission(
+                    'renovation_detail',
+                    'Permohonan Renovasi Baru',
+                    "Pelanggan atas nama {$data['full_name']} telah mengirim permohonan renovasi baru. Silakan cek detail  ."
+                );
+
                 return $this->respondCreated([
-                    'status'  => true,
+                    'status' => true,
                     'message' => 'Permohonan renovasi berhasil dikirim',
-                    'data'    => $inserted_id
+                    'data' => $inserted_id
                 ]);
             } else {
                 return $this->failServerError('Gagal menyimpan permohonan renovasi.');
@@ -211,24 +259,28 @@ class RenovationApi extends BaseController
             return $this->fail('ID Proyek tidak boleh kosong.', 400);
         }
 
-        $db = \Config\Database::connect();
-        $data = $db->table('renovation_designs')->where('request_id', $projectId)->get()->getResultArray();
+        $designRepo = new \App\Modules\Renovation\Repositories\RenovationDesignRepository();
+        $designs = $designRepo->findByRequestId((int) $projectId);
 
-        foreach ($data as &$item) {
-            $item['image_url'] = !empty($item['file_url']) ? base_url('uploads/designs/' . $item['file_url']) : null;
+        foreach ($designs as &$item) {
+            $item['image_url'] = !empty($item['file_url']) 
+                ? (!empty($item['design_requests_id']) 
+                    ? base_url('uploads/design_results/' . $item['file_url']) 
+                    : base_url('uploads/designs/' . $item['file_url']))
+                : null;
         }
 
-        if ($data) {
+        if ($designs) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data desain ditemukan',
-                'data' => $data
+                'data' => $designs
             ]);
         } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada desain untuk proyek ini',
-                'data' => $data
+                'data' => $designs
             ]);
         }
     }
@@ -261,7 +313,8 @@ class RenovationApi extends BaseController
 
         foreach ($progressListRaw as $p) {
             $tId = $p['target_id'];
-            if (!$tId) continue;
+            if (!$tId)
+                continue;
 
             if (!isset($groupedByTarget[$tId])) {
                 // Formatting Pekerjaan
@@ -270,24 +323,24 @@ class RenovationApi extends BaseController
                 $pekerjaan = $p['rab_activity'] ?? '-';
 
                 $groupedByTarget[$tId] = [
-                    'id_tukang'        => $p['id_tukang'] ?? '-',
-                    'foto_tukang'      => !empty($p['profile_photo']) ? base_url('uploads/tukang/' . $p['profile_photo']) : null,
-                    'nama_tukang'      => $p['tukang_name'] ?? '-',
+                    'id_tukang' => $p['id_tukang'] ?? '-',
+                    'foto_tukang' => !empty($p['profile_photo']) ? base_url('uploads/tukang/' . $p['profile_photo']) : null,
+                    'nama_tukang' => $p['tukang_name'] ?? '-',
                     'spesialis_tukang' => $p['specialization'] ?? '-',
                     'header_pekerjaan' => trim(trim($header_pekerjaan, ' -')),
-                    'pekerjaan'        => $pekerjaan,
-                    'persentase'       => 0, // di-kalkulasi di akhir
+                    'pekerjaan' => $pekerjaan,
+                    'persentase' => 0, // di-kalkulasi di akhir
                     'laporan_terakhir' => null,
-                    'foto_progress'    => [],
+                    'foto_progress' => [],
                     // Temp variable untuk kalkulasi
-                    '_target_bobot'         => (float)($p['target_bobot'] ?? 0),
+                    '_target_bobot' => (float) ($p['target_bobot'] ?? 0),
                     '_total_progress_bobot' => 0
                 ];
             }
 
             // Akumulasi bobot progress
             if (strtoupper($p['progress_status']) === 'APPROVED') {
-                $groupedByTarget[$tId]['_total_progress_bobot'] += (float)$p['progress_bobot'];
+                $groupedByTarget[$tId]['_total_progress_bobot'] += (float) $p['progress_bobot'];
             }
 
             // Kumpulkan foto progress
@@ -310,15 +363,15 @@ class RenovationApi extends BaseController
             $persentase = $ttBobot > 0 ? ($progBobot / $ttBobot * 100) : 0;
 
             $progressList[] = [
-                'id_tukang'        => $grp['id_tukang'] ?? '-',
-                'foto_tukang'      => $grp['foto_tukang'],
-                'nama_tukang'      => $grp['nama_tukang'],
+                'id_tukang' => $grp['id_tukang'] ?? '-',
+                'foto_tukang' => $grp['foto_tukang'],
+                'nama_tukang' => $grp['nama_tukang'],
                 'spesialis_tukang' => $grp['spesialis_tukang'],
                 'header_pekerjaan' => $grp['header_pekerjaan'],
-                'pekerjaan'        => $grp['pekerjaan'],
-                'persentase'       => number_format($persentase, 2, '.', ''), // output as string decimal suitable for app formatting
+                'pekerjaan' => $grp['pekerjaan'],
+                'persentase' => number_format($persentase, 2, '.', ''), // output as string decimal suitable for app formatting
                 'laporan_terakhir' => date('Y-m-d H:i:s', strtotime($grp['laporan_terakhir'])),
-                'foto_progress'    => $grp['foto_progress'],
+                'foto_progress' => $grp['foto_progress'],
             ];
         }
 
@@ -379,8 +432,8 @@ class RenovationApi extends BaseController
                 }
             }
 
-            $item['total_target'] = (float)$item['total_target'];
-            $item['total_realisasi'] = (float)$item['total_realisasi'];
+            $item['total_target'] = (float) $item['total_target'];
+            $item['total_realisasi'] = (float) $item['total_realisasi'];
         }
 
         if (!empty($projects)) {
@@ -408,23 +461,40 @@ class RenovationApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        // Menggunakan kolom 'renovation_id' sesuai screenshot database kawan
+
+        // Query dengan join ke table vouchers untuk mendapatkan nominal diskon
         $data = $db->table('renovation_invoices')
+            ->select('renovation_invoices.*, vouchers.discount_nominal')
+            ->join('vouchers', 'vouchers.code = renovation_invoices.voucher_code', 'left')
             ->where('renovation_id', $projectId)
             ->get()
             ->getResultArray();
 
-        if ($data) {
+        // Olah data untuk menambahkan kalkulasi nominal
+        $formattedInvoices = array_map(function ($invoice) {
+            $originalAmount = (int) ($invoice['amount'] ?? 0);
+            $discountAmount = (int) ($invoice['discount_nominal'] ?? 0);
+            $grossAmount = max(0, $originalAmount - $discountAmount);
+
+            // Tambahkan field baru ke array
+            $invoice['original_amount'] = $originalAmount;
+            $invoice['discount_amount'] = $discountAmount;
+            $invoice['gross_amount'] = $grossAmount;
+
+            return $invoice;
+        }, $data);
+
+        if ($formattedInvoices) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data invoice ditemukan',
-                'data' => $data
+                'data' => $formattedInvoices
             ]);
         } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada invoice untuk proyek ini',
-                'data' => $data
+                'data' => []
             ]);
         }
     }
@@ -502,25 +572,27 @@ class RenovationApi extends BaseController
 
         // 1. Ambil info harga produk terbaru dari tabel products
         $product = $db->table('products')->where('id', $productId)->get()->getRowArray();
-        if (!$product) return $this->fail('Produk tidak ditemukan.');
+        if (!$product)
+            return $this->fail('Produk tidak ditemukan.');
 
         // 2. Ambil volume dari item RAB ini
         $rabItem = $db->table('renovation_rabs')->where('id', $rabId)->get()->getRowArray();
-        if (!$rabItem) return $this->fail('Item RAB tidak ditemukan.');
+        if (!$rabItem)
+            return $this->fail('Item RAB tidak ditemukan.');
 
         // 3. Update tabel construction_rabs
         $updateData = [
             'selected_material_id' => $productId,
-            'current_unit_price'   => $product['price'],
-            'total_price'          => (float)$product['price'] * (float)$rabItem['volume'],
-            'updated_at'           => date('Y-m-d H:i:s')
+            'current_unit_price' => $product['price'],
+            'total_price' => (float) $product['price'] * (float) $rabItem['volume'],
+            'updated_at' => date('Y-m-d H:i:s')
         ];
 
         if ($db->table('renovation_rabs')->where('id', $rabId)->update($updateData)) {
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Material berhasil diperbarui!',
-                'data'    => $updateData
+                'data' => $updateData
             ]);
         } else {
             return $this->fail('Gagal memperbarui material di database.');
@@ -532,7 +604,8 @@ class RenovationApi extends BaseController
         $json = $this->request->getJSON(true);
         $projectId = $json['project_id'] ?? $this->request->getVar('project_id');
 
-        if (!$projectId) return $this->fail('Project ID tidak ditemukan.');
+        if (!$projectId)
+            return $this->fail('Project ID tidak ditemukan.');
 
         try {
             // 1. generate dan upload kontrak.pdf
@@ -557,7 +630,7 @@ class RenovationApi extends BaseController
                 'rab' => $this->db->table('renovation_rabs')
                     ->select('group_name, SUM(total_price) as total_price')
                     ->where('renovation_rabs.renovation_id', $projectId)
-                    ->groupBy('roman_number', 'group_name')
+                    ->groupBy(['roman_number', 'group_name'])
                     ->orderBy('roman_number', 'ASC')
                     ->get()->getResultArray(),
                 'kalimat_pembuka' => tanggal_surat_indo($tanggal_kontrak),
@@ -629,6 +702,14 @@ class RenovationApi extends BaseController
                 'is_locked' => 1,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
+
+        // Kirim notifikasi ke Admin  
+        $namaKlien = $data['template_kontrak']['nama_klien'] ?? 'Seorang client';
+        $this->notifService->sendToPermission(
+            'renovation_rab',
+            'RAB Renovasi Disubmit',
+            "RAB untuk proyek Renovasi #{$projectId} telah disubmit oleh client {$namaKlien}. Silakan cek dokumen kontrak yang telah digenerate."
+        );
 
         return $this->respond(['status' => true, 'message' => 'RAB berhasil dikunci!']);
     }
@@ -709,12 +790,12 @@ class RenovationApi extends BaseController
 
             // Rapikan respon JSON
             unset($row['start_date']);
-            $row['report_count']    = (int)$row['report_count'];
-            $row['approved_count']  = (int)$row['approved_count'];
-            $row['rejected_count']  = (int)$row['rejected_count'];
-            $row['pending_count']   = (int)$row['pending_count'];
-            $row['approved_weight'] = (float)$row['approved_weight'];
-            $row['pending_weight']  = (float)$row['pending_weight'];
+            $row['report_count'] = (int) $row['report_count'];
+            $row['approved_count'] = (int) $row['approved_count'];
+            $row['rejected_count'] = (int) $row['rejected_count'];
+            $row['pending_count'] = (int) $row['pending_count'];
+            $row['approved_weight'] = (float) $row['approved_weight'];
+            $row['pending_weight'] = (float) $row['pending_weight'];
 
             if ($row['last_report_status']) {
                 $row['last_report_status'] = strtoupper($row['last_report_status']);
@@ -749,6 +830,22 @@ class RenovationApi extends BaseController
             'comment' => $comment
         ]);
 
+        // Ambil info survey  
+        $surveyInfo = $this->db->table('renovation_surveys rs')
+            ->select('rr.full_name, rr.id as renovation_id')
+            ->join('renovation_requests rr', 'rr.id = rs.renovation_id', 'left')
+            ->where('rs.id', $id_survey)
+            ->get()->getRowArray();
+
+        $namaKlien = $surveyInfo['full_name'] ?? 'Seorang client';
+
+        // Kirim notifikasi ke Admin  
+        $this->notifService->sendToPermission(
+            'renovation_survey',
+            'Komentar Survey Baru',
+            "Client {$namaKlien} telah memberikan komentar pada hasil survey renovasi #" . ($surveyInfo['renovation_id'] ?? $id_survey) . "."
+        );
+
         return $this->respond(['status' => true, 'message' => 'Komentar berhasil ditambahkan.']);
     }
 
@@ -765,6 +862,539 @@ class RenovationApi extends BaseController
             'comment' => $comment
         ]);
 
+        // Ambil info desain  
+        $designInfo = $this->db->table('renovation_designs rd')
+            ->select('rr.full_name, rr.id as renovation_id')
+            ->join('renovation_requests rr', 'rr.id = rd.renovation_id', 'left')
+            ->where('rd.id', $id_design)
+            ->get()->getRowArray();
+
+        $namaKlien = $designInfo['full_name'] ?? 'Seorang client';
+
+        // Kirim notifikasi ke Admin  
+        $this->notifService->sendToPermission(
+            'renovation_desain',
+            'Komentar Desain Baru',
+            "Client {$namaKlien} telah memberikan komentar pada hasil desain renovasi #" . ($designInfo['renovation_id'] ?? $id_design) . "."
+        );
+
         return $this->respond(['status' => true, 'message' => 'Komentar berhasil ditambahkan.']);
+    }
+
+    // =========================================================================
+    // FUNGSI ABSEN MASUK (CHECK-IN) RENOVASI
+    // =========================================================================
+    public function SendAttendance($id_renovation)
+    {
+        if (!$id_renovation) {
+            return $this->fail('ID renovasi tidak boleh kosong.');
+        }
+
+        // Validasi input
+        $validationRules = [
+            'file' => 'uploaded[file]|max_size[file,30720]|mime_in[file,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm]',
+            'longitude' => 'required',
+            'latitude' => 'required',
+            'waktu' => 'required',
+            'jumlah_tukang' => 'required'
+        ];
+
+        $validationMessages = [
+            'file' => [
+                'uploaded' => 'Video absensi wajib diunggah.',
+                'max_size' => 'Ukuran video tidak boleh melebihi 30MB.',
+                'mime_in' => 'Format video tidak valid. Gunakan MP4, MOV, AVI, MKV, atau WebM.',
+            ],
+            'longitude' => ['required' => 'Longitude wajib diisi.'],
+            'latitude' => ['required' => 'Latitude wajib diisi.'],
+            'waktu' => ['required' => 'Waktu absen wajib diisi.'],
+            'jumlah_tukang' => ['required' => 'Jumlah Tukang wajib diisi.']
+        ];
+
+        if (!$this->validate($validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Upload video absensi
+        $foto = $this->request->getFile('file');
+        $uploadPath = 'uploads/renovation/absen_tukang/';
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $newName = $foto->getRandomName();
+        $foto->move($uploadPath, $newName);
+
+        // Simpan ke database
+        $attendanceModel = new \App\Modules\Renovation\Models\RenovationAttendanceModel();
+
+        $data = [
+            'id_renovation' => $id_renovation,
+            'type' => 'masuk',
+            'file' => $newName,
+            'jumlah_tukang' => $this->request->getPost('jumlah_tukang'),
+            'longitude' => $this->request->getPost('longitude'),
+            'latitude' => $this->request->getPost('latitude'),
+            'waktu' => $this->request->getPost('waktu'),
+            'deskripsi' => $this->request->getPost('deskripsi'),
+        ];
+
+        if ($attendanceModel->insert($data)) {
+            // Kirim notifikasi ke Admin
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendToPermission(
+                'renovation_absensi',
+                'Absensi Renovasi (Masuk)',
+                "Tukang telah mengirim absensi masuk untuk proyek Renovasi #{$id_renovation}. Jumlah tukang: {$data['jumlah_tukang']}."
+            );
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Absen masuk berhasil dikirim.',
+                'data' => [
+                    'id' => $attendanceModel->getInsertID(),
+                    'id_renovation' => (int) $id_renovation,
+                    'type' => 'masuk',
+                    'file' => $newName,
+                    'jumlah_tukang' => $data['jumlah_tukang'],
+                    'file_url' => base_url($uploadPath . $newName),
+                    'longitude' => $data['longitude'],
+                    'latitude' => $data['latitude'],
+                    'waktu' => $data['waktu'],
+                    'deskripsi' => $data['deskripsi'],
+                ],
+            ]);
+        }
+
+        return $this->fail('Gagal menyimpan data absensi masuk.');
+    }
+
+    // =========================================================================
+    // FUNGSI ABSEN KELUAR (CHECK-OUT) RENOVASI
+    // =========================================================================
+    public function SendCheckoutAttendance($id_renovation)
+    {
+        if (!$id_renovation) {
+            return $this->fail('ID renovasi tidak boleh kosong.');
+        }
+
+        // Validasi input
+        $validationRules = [
+            'file' => 'uploaded[file]|max_size[file,30720]|mime_in[file,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm]',
+            'longitude' => 'required',
+            'jumlah_tukang' => 'required',
+            'latitude' => 'required',
+            'waktu' => 'required',
+        ];
+
+        $validationMessages = [
+            'file' => [
+                'uploaded' => 'Video absensi wajib diunggah.',
+                'max_size' => 'Ukuran video tidak boleh melebihi 30MB.',
+                'mime_in' => 'Format video tidak valid. Gunakan MP4, MOV, AVI, MKV, atau WebM.',
+            ],
+            'jumlah_tukang' => ['required' => 'Jumlah Tukang wajib diisi.'],
+            'longitude' => ['required' => 'Longitude wajib diisi.'],
+            'latitude' => ['required' => 'Latitude wajib diisi.'],
+            'waktu' => ['required' => 'Waktu absen wajib diisi.'],
+        ];
+
+        if (!$this->validate($validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Upload video absensi
+        $foto = $this->request->getFile('file');
+        $uploadPath = 'uploads/renovation/absen_tukang/';
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $newName = $foto->getRandomName();
+        $foto->move($uploadPath, $newName);
+
+        // Simpan ke database
+        $attendanceModel = new \App\Modules\Renovation\Models\RenovationAttendanceModel();
+
+        $data = [
+            'id_renovation' => $id_renovation,
+            'type' => 'keluar',
+            'file' => $newName,
+            'jumlah_tukang' => $this->request->getPost('jumlah_tukang'),
+            'longitude' => $this->request->getPost('longitude'),
+            'latitude' => $this->request->getPost('latitude'),
+            'waktu' => $this->request->getPost('waktu'),
+            'deskripsi' => $this->request->getPost('deskripsi'),
+        ];
+
+        if ($attendanceModel->insert($data)) {
+            // Kirim notifikasi ke Admin
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendToPermission(
+                'renovation_absensi',
+                'Absensi Renovasi (Keluar)',
+                "Tukang telah mengirim absensi keluar untuk proyek Renovasi #{$id_renovation}. Jumlah tukang: {$data['jumlah_tukang']}."
+            );
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Absen keluar berhasil dikirim.',
+                'data' => [
+                    'id' => $attendanceModel->getInsertID(),
+                    'id_renovation' => (int) $id_renovation,
+                    'type' => 'keluar',
+                    'file' => $newName,
+                    'jumlah_tukang' => $data['jumlah_tukang'],
+                    'file_url' => base_url($uploadPath . $newName),
+                    'longitude' => $data['longitude'],
+                    'latitude' => $data['latitude'],
+                    'waktu' => $data['waktu'],
+                    'deskripsi' => $data['deskripsi'],
+                ],
+            ]);
+        }
+
+        return $this->fail('Gagal menyimpan data absensi keluar.');
+    }
+
+    // =========================================================================
+    // CRUD PENGAJUAN BAHAN DAN ALAT (RENOVATION_MATERIAL_SUBMISSION)
+    // =========================================================================
+
+    /**
+     * Get list of material/tool submissions.
+     * Optional filters: renovation_id, status, type
+     */
+    public function getMaterialSubmissions()
+    {
+        $renovationId = $this->request->getVar('renovation_id') ?? $this->request->getGet('renovation_id');
+        $status = $this->request->getVar('status') ?? $this->request->getGet('status');
+        $type = $this->request->getVar('type') ?? $this->request->getGet('type');
+
+        $query = $this->renovationMaterialSubmissionModel;
+
+        if ($renovationId) {
+            $query = $query->where('renovation_id', $renovationId);
+        }
+        if ($status) {
+            $query = $query->where('status', $status);
+        }
+        if ($type) {
+            $query = $query->where('type', $type);
+        }
+
+        $submissions = $query->orderBy('created_at', 'DESC')->findAll();
+
+        foreach ($submissions as &$sub) {
+            $sub['photo_url'] = !empty($sub['photo']) ? base_url('uploads/renovation/material_submissions/' . $sub['photo']) : null;
+        }
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Data pengajuan bahan/alat berhasil diambil.',
+            'data' => $submissions
+        ]);
+    }
+
+    /**
+     * Get detail of a specific material/tool submission.
+     */
+    public function getMaterialSubmission($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('ID pengajuan tidak boleh kosong.');
+        }
+
+        $submission = $this->renovationMaterialSubmissionModel->find($id);
+
+        if (!$submission) {
+            return $this->failNotFound('Data pengajuan tidak ditemukan.');
+        }
+
+        $submission['photo_url'] = !empty($submission['photo']) ? base_url('uploads/renovation/material_submissions/' . $submission['photo']) : null;
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Detail pengajuan bahan/alat berhasil diambil.',
+            'data' => $submission
+        ]);
+    }
+
+    /**
+     * Create a new material/tool submission.
+     */
+    public function createMaterialSubmission()
+    {
+        // Mendukung request JSON maupun Form Data
+        $json = [];
+        try {
+            $body = $this->request->getBody();
+            if (!empty($body)) {
+                $json = $this->request->getJSON(true) ?: [];
+            }
+        } catch (\Throwable $e) {
+            $json = [];
+        }
+
+        $renovationId = $json['renovation_id'] ?? $this->request->getPost('renovation_id');
+        $jobApplicationsId = $json['job_applications_id'] ?? $this->request->getPost('job_applications_id');
+        $type = $json['type'] ?? $this->request->getPost('type');
+        $title = $json['title'] ?? $this->request->getPost('title');
+        $description = $json['description'] ?? $this->request->getPost('description');
+
+        // Validasi input
+        $validationRules = [
+            'renovation_id' => 'required|numeric',
+            'job_applications_id' => 'permit_empty|numeric',
+            'type' => 'required|in_list[bahan,alat]',
+            'title' => 'permit_empty|max_length[255]',
+            'description' => 'required',
+        ];
+
+        $validationMessages = [
+            'renovation_id' => [
+                'required' => 'Renovation ID wajib diisi.',
+                'numeric' => 'Renovation ID harus berupa angka.'
+            ],
+            'job_applications_id' => [
+                'numeric' => 'Job Applications ID harus berupa angka.'
+            ],
+            'type' => [
+                'required' => 'Tipe pengajuan wajib diisi.',
+                'in_list' => 'Tipe pengajuan harus berupa "bahan" atau "alat".'
+            ],
+            'title' => [
+                'max_length' => 'Judul pengajuan maksimal 255 karakter.'
+            ],
+            'description' => [
+                'required' => 'Deskripsi/List pengajuan wajib diisi.'
+            ]
+        ];
+
+        // Validasi file photo jika diunggah
+        $photoFile = $this->request->getFile('photo');
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $validationRules['photo'] = 'max_size[photo,5120]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]';
+            $validationMessages['photo'] = [
+                'max_size' => 'Ukuran foto tidak boleh melebihi 5MB.',
+                'is_image' => 'File yang diunggah harus berupa gambar.',
+                'mime_in'  => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ];
+        }
+
+        // Jalankan validasi manual
+        $validationData = [
+            'renovation_id' => $renovationId,
+            'job_applications_id' => $jobApplicationsId,
+            'type' => $type,
+            'title' => $title,
+            'description' => $description
+        ];
+
+        if (!$this->validateData($validationData, $validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Cek apakah proyek renovasi ada
+        $renovation = $this->db->table('renovation_requests')->where('id', $renovationId)->get()->getRowArray();
+        if (!$renovation) {
+            return $this->failNotFound('Proyek renovasi tidak ditemukan.');
+        }
+
+        // Cek jika job_applications_id diisi, apakah datanya ada
+        if (!empty($jobApplicationsId)) {
+            $jobApp = $this->db->table('job_applications')->where('id', $jobApplicationsId)->get()->getRowArray();
+            if (!$jobApp) {
+                return $this->failNotFound('Job application/Tukang tidak ditemukan.');
+            }
+        }
+
+        $photoName = null;
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $uploadPath = 'uploads/renovation/material_submissions/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            $photoName = $photoFile->getRandomName();
+            $photoFile->move($uploadPath, $photoName);
+        }
+
+        $data = [
+            'renovation_id' => (int) $renovationId,
+            'job_applications_id' => !empty($jobApplicationsId) ? (int) $jobApplicationsId : null,
+            'type' => $type,
+            'title' => !empty($title) ? $title : null,
+            'description' => $description,
+            'photo' => $photoName,
+            'status' => 'pending',
+        ];
+
+        if ($this->renovationMaterialSubmissionModel->insert($data)) {
+            $insertedId = $this->renovationMaterialSubmissionModel->getInsertID();
+            $insertedData = $this->renovationMaterialSubmissionModel->find($insertedId);
+            $insertedData['photo_url'] = !empty($insertedData['photo']) ? base_url('uploads/renovation/material_submissions/' . $insertedData['photo']) : null;
+
+            // Kirim notifikasi ke Admin
+            $this->notifService->sendToPermission(
+                'renovation_detail',
+                'Pengajuan Bahan/Alat Baru',
+                "Tukang mengirim pengajuan {$type} baru untuk proyek Renovasi #{$renovationId}."
+            );
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Pengajuan bahan/alat berhasil dikirim.',
+                'data' => $insertedData
+            ]);
+        }
+
+        return $this->fail('Gagal menyimpan pengajuan bahan/alat.');
+    }
+
+    /**
+     * Update a specific material/tool submission (Used by Tukang).
+     * Tukang can only update type, title, description, and photo, and only when the status is still 'pending'.
+     */
+    public function updateMaterialSubmission($id = null)
+    {
+        // Mendukung request JSON maupun Form Data
+        $json = [];
+        try {
+            $body = $this->request->getBody();
+            if (!empty($body)) {
+                $json = $this->request->getJSON(true) ?: [];
+            }
+        } catch (\Throwable $e) {
+            $json = [];
+        }
+
+        if ($id === null) {
+            return $this->fail('ID pengajuan tidak boleh kosong.');
+        }
+
+        $submission = $this->renovationMaterialSubmissionModel->find($id);
+        if (!$submission) {
+            return $this->failNotFound('Data pengajuan tidak ditemukan.');
+        }
+
+        // Tukang hanya boleh mengedit jika statusnya masih pending  
+        if ($submission['status'] !== 'pending') {
+            return $this->fail('Pengajuan tidak dapat diubah karena sudah diproses oleh admin.');
+        }
+
+        // Ambil data perubahan (bisa JSON, PUT, atau POST)
+        // Note: $json sudah didefinisikan secara aman di bagian atas method dengan try-catch
+        $input = !empty($json) ? $json : array_merge(
+            $this->request->getRawInput() ?: [],
+            $this->request->getVar() ?: []
+        );
+
+        $validationRules = [];
+        $validationMessages = [];
+
+        if (isset($input['type'])) {
+            $validationRules['type'] = 'in_list[bahan,alat]';
+            $validationMessages['type'] = ['in_list' => 'Tipe pengajuan harus berupa "bahan" atau "alat".'];
+        }
+
+        if (isset($input['title'])) {
+            $validationRules['title'] = 'max_length[255]';
+            $validationMessages['title'] = ['max_length' => 'Judul pengajuan maksimal 255 karakter.'];
+        }
+
+        // Validasi file photo baru jika diunggah
+        $photoFile = $this->request->getFile('photo');
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $validationRules['photo'] = 'max_size[photo,5120]|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]';
+            $validationMessages['photo'] = [
+                'max_size' => 'Ukuran foto tidak boleh melebihi 5MB.',
+                'is_image' => 'File yang diunggah harus berupa gambar.',
+                'mime_in'  => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ];
+        }
+
+        if (!empty($validationRules)) {
+            if (!$this->validateData($input, $validationRules, $validationMessages)) {
+                return $this->failValidationErrors($this->validator->getErrors());
+            }
+        }
+
+        $dataUpdate = [];
+        if (isset($input['type'])) {
+            $dataUpdate['type'] = $input['type'];
+        }
+        if (isset($input['title'])) {
+            $dataUpdate['title'] = $input['title'];
+        }
+        if (isset($input['description'])) {
+            $dataUpdate['description'] = $input['description'];
+        }
+
+        // Upload photo baru dan hapus photo lama jika ada
+        if ($photoFile && $photoFile->isValid() && !$photoFile->hasMoved()) {
+            $uploadPath = 'uploads/renovation/material_submissions/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+
+            if (!empty($submission['photo']) && file_exists($uploadPath . $submission['photo'])) {
+                unlink($uploadPath . $submission['photo']);
+            }
+
+            $photoName = $photoFile->getRandomName();
+            $photoFile->move($uploadPath, $photoName);
+            $dataUpdate['photo'] = $photoName;
+        }
+
+        if (empty($dataUpdate)) {
+            return $this->fail('Tidak ada data yang diubah.');
+        }
+
+        if ($this->renovationMaterialSubmissionModel->update($id, $dataUpdate)) {
+            $updatedData = $this->renovationMaterialSubmissionModel->find($id);
+            $updatedData['photo_url'] = !empty($updatedData['photo']) ? base_url('uploads/renovation/material_submissions/' . $updatedData['photo']) : null;
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Data pengajuan berhasil diperbarui.',
+                'data' => $updatedData
+            ]);
+        }
+
+        return $this->fail('Gagal memperbarui data pengajuan.');
+    }
+
+    /**
+     * Delete a specific material/tool submission.
+     */
+    public function deleteMaterialSubmission($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('ID pengajuan tidak boleh kosong.');
+        }
+
+        $submission = $this->renovationMaterialSubmissionModel->find($id);
+        if (!$submission) {
+            return $this->failNotFound('Data pengajuan tidak ditemukan.');
+        }
+
+        // Hapus file photo dari disk jika ada
+        if (!empty($submission['photo'])) {
+            $uploadPath = 'uploads/renovation/material_submissions/';
+            if (file_exists($uploadPath . $submission['photo'])) {
+                unlink($uploadPath . $submission['photo']);
+            }
+        }
+
+        if ($this->renovationMaterialSubmissionModel->delete($id)) {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Data pengajuan berhasil dihapus.'
+            ]);
+        }
+
+        return $this->fail('Gagal menghapus data pengajuan.');
     }
 }

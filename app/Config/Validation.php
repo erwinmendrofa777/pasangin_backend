@@ -4,28 +4,28 @@ namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Validation\StrictRules\CreditCardRules;
-use CodeIgniter\Validation\StrictRules\FileRules;
+use CodeIgniter\Validation\FileRules; // FIX: Gunakan non-strict FileRules untuk file upload
 use CodeIgniter\Validation\StrictRules\FormatRules;
 use CodeIgniter\Validation\StrictRules\Rules;
-use Config\Validations\UserRules;
-use Config\Validations\SupplierRules;
-use Config\Validations\ProductRules;
-use Config\Validations\AdminRules;
-use Config\Validations\AuthRules;
-use Config\Validations\BannerRules;
-use Config\Validations\ConstructionRules;
-use Config\Validations\DesignRules;
-use Config\Validations\NotificationRules;
-use Config\Validations\OrderRules;
-use Config\Validations\PriceEstimateRules;
-use Config\Validations\PromoRules;
-use Config\Validations\RenovationRules;
-use Config\Validations\RoleRules;
-use Config\Validations\SyaratKetentuanRules;
-use Config\Validations\TipsRules;
-use Config\Validations\TukangRules;
-use Config\Validations\VoucherRules;
-use Config\Validations\WalletRules;
+use App\Modules\Users\Config\Validations\UserRules;
+use App\Modules\Supplier\Config\Validations\SupplierRules;
+use App\Modules\Products\Config\Validations\ProductRules;
+use App\Modules\Admin\Config\Validations\AdminRules;
+use App\Modules\Autentications\Config\Validations\AuthRules;
+use App\Modules\Banners\Config\Validations\BannerRules;
+use App\Modules\Construction\Config\Validations\ConstructionRules;
+use App\Modules\Design\Config\Validations\DesignRules;
+use App\Modules\Notifications\Config\Validations\NotificationRules;
+use App\Modules\Orders\Config\Validations\OrderRules;
+use App\Modules\PriceEstimate\Config\Validations\PriceEstimateRules;
+use App\Modules\Supplier\Config\Validations\PromoRules;
+use App\Modules\Renovation\Config\Validations\RenovationRules;
+use App\Modules\Admin\Config\Validations\RoleRules;
+use App\Modules\SyaratKetentuan\Config\Validations\SyaratKetentuanRules;
+use App\Modules\Tips\Config\Validations\TipsRules;
+use App\Modules\Tukang\Config\Validations\TukangRules;
+use App\Modules\Vouchers\Config\Validations\VoucherRules;
+use App\Modules\Wallets\Config\Validations\WalletRules;
 
 class Validation extends BaseConfig
 {
@@ -57,7 +57,7 @@ class Validation extends BaseConfig
      * @var array<string, string>
      */
     public array $templates = [
-        'list'   => 'CodeIgniter\Validation\Views\list',
+        'list' => 'CodeIgniter\Validation\Views\list',
         'single' => 'CodeIgniter\Validation\Views\single',
     ];
 

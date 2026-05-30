@@ -23,8 +23,13 @@ class AdminAuthFilter implements FilterInterface
         if ($uri->getTotalSegments() >= 2 && $uri->getSegment(1) === 'admin') {
             $module = $uri->getSegment(2);
             
+            // Jika segment 2 adalah 'api', gunakan segment 3 sebagai nama modul
+            if ($module === 'api' && $uri->getTotalSegments() >= 3) {
+                $module = $uri->getSegment(3);
+            }
+            
             // Bypass modul umum yang bisa diakses semua admin yang login
-            $bypassModules = ['dashboard', 'logout', 'profile'];
+            $bypassModules = ['dashboard', 'logout', 'profile', 'notification'];
             if (in_array($module, $bypassModules)) {
                 return;
             }

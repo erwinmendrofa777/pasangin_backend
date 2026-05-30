@@ -3,7 +3,7 @@
 namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
-use App\Models\VoucherModel;
+use App\Modules\Vouchers\Models\VoucherModel;
 
 class VoucherController extends ResourceController
 {

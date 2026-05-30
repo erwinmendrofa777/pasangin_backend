@@ -20,8 +20,8 @@ class Notification extends ResourceController
             require_once $midtransPath;
             
             // Konfigurasi HARUS SAMA dengan controller DesignRequests
-            \Midtrans\Config::$serverKey = 'SB-Mid-server-UKNiwjL6WD2HSFzQ4vP8oKeg'; 
-            \Midtrans\Config::$isProduction = false;
+            \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY'); 
+            \Midtrans\Config::$isProduction = filter_var(getenv('MIDTRANS_IS_PRODUCTION'), FILTER_VALIDATE_BOOLEAN);
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
         } else {

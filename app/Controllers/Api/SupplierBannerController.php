@@ -3,18 +3,21 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
+use App\Modules\Notifications\Services\NotificationService;
 use CodeIgniter\API\ResponseTrait;
-use App\Models\SupplierBannerModel;
+use App\Modules\Supplier\Models\SupplierBannerModel;
 use Exception;
 
 class SupplierBannerController extends BaseController
 {
     use ResponseTrait;
     protected $supplierBanner;
+    protected $notifService;
 
     public function __construct()
     {
         $this->supplierBanner = new SupplierBannerModel();
+        $this->notifService = new NotificationService();
     }
 
     /**
@@ -115,6 +118,13 @@ class SupplierBannerController extends BaseController
             $save = $this->supplierBanner->insert($data);
 
             $data['id'] = $save;
+
+            // Kirim Notifikasi ke Admin yang memiliki permission untuk mengelola banner supplier
+            $this->notifService->sendToPermission(
+                'banner_supplier',
+                'Pengajuan Banner Baru',
+                "Supplier telah mengajukan banner baru: " . $data['title']
+            );
 
             return $this->respondCreated([
                 'status' => true,

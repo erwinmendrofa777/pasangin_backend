@@ -2,7 +2,7 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\SupplierModel;
+use App\Modules\Supplier\Models\SupplierModel;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
 
@@ -11,7 +11,6 @@ class SupplierAuthController extends ResourceController
     protected $format = 'json';
     protected $db;
 
-    private $jwtKey = 'ijskksjncc8sjskalxmmdkdlelmxnk344msm,smmfnfk00mma';
 
     public function __construct()
     {
@@ -76,6 +75,13 @@ class SupplierAuthController extends ResourceController
 
         unset($user['password']);
         $user['token'] = $jwt;
+
+        // --- SIMPAN FCM TOKEN JIKA DIKIRIM SAAT LOGIN ---
+        $fcmToken = $this->request->getVar('fcm_token');
+        if (!empty($fcmToken)) {
+            $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
+            $tokenRepo->upsertToken($user['id'], 'supplier', $fcmToken);
+        }
 
         // Tambahkan base_url untuk logo
         if (!empty($user['logo_url'])) {
@@ -198,18 +204,11 @@ class SupplierAuthController extends ResourceController
         try {
 
             // TODO - jangan kasi validasi untuk is_verified
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (empty($authHeader))
-                return $this->failUnauthorized('Token tidak ditemukan.');
+            $supplierId = $this->request->user->uid;
 
-            $token = str_replace('Bearer ', '', $authHeader);
-            $decoded = $this->_decodeJWT($token);
-
-            if (!$decoded || $decoded['role'] !== 'supplier') {
+            if ($this->request->user->role !== 'supplier') {
                 return $this->failUnauthorized('Akses ditolak.');
             }
-
-            $supplierId = $decoded['uid'];
             $model = new SupplierModel();
             $supplier = $model->find($supplierId);
 
@@ -275,15 +274,10 @@ class SupplierAuthController extends ResourceController
     public function changePassword()
     {
         try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            $token = str_replace('Bearer ', '', $authHeader);
-            $decoded = $this->_decodeJWT($token);
-
-            if (!$decoded)
-                return $this->failUnauthorized();
+            $supplierId = $this->request->user->uid;
 
             $model = new SupplierModel();
-            $supplier = $model->find($decoded['uid']);
+            $supplier = $model->find($supplierId);
 
             $oldPass = $this->request->getVar('old_password');
             $newPass = $this->request->getVar('new_password');
@@ -297,7 +291,7 @@ class SupplierAuthController extends ResourceController
             }
 
             // 2. Update ke Password Baru
-            $model->update($decoded['uid'], [
+            $model->update($supplierId, [
                 'password' => password_hash($newPass, PASSWORD_DEFAULT),
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
@@ -362,18 +356,16 @@ class SupplierAuthController extends ResourceController
     public function updateFcmToken()
     {
         try {
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            $token = str_replace('Bearer ', '', $authHeader);
-            $decoded = $this->_decodeJWT($token);
-
-            if (!$decoded)
-                return $this->failUnauthorized();
+            $supplierId = $this->request->user->uid;
 
             $json = $this->request->getJSON();
             $fcmToken = $json->fcm_token ?? null;
 
-            $model = new SupplierModel();
-            $model->update($decoded['uid'], ['fcm_token' => $fcmToken]);
+            if (empty($fcmToken)) return $this->fail('FCM Token kosong.', 400);
+
+            // Simpan ke tabel baru (multi-perangkat)
+            $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
+            $tokenRepo->upsertToken($supplierId, 'supplier', $fcmToken);
 
             return $this->respond(['status' => true, 'message' => 'Token FCM diperbarui.']);
         } catch (Exception $e) {
@@ -388,21 +380,11 @@ class SupplierAuthController extends ResourceController
         $payload = json_encode($payload);
         $base64UrlHeader = $this->_base64UrlEncode($header);
         $base64UrlPayload = $this->_base64UrlEncode($payload);
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, $this->jwtKey, true);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, getenv('JWT_SECRET'), true);
         return $base64UrlHeader . "." . $base64UrlPayload . "." . $this->_base64UrlEncode($signature);
     }
 
-    private function _decodeJWT($jwt)
-    {
-        $tokenParts = explode('.', $jwt);
-        if (count($tokenParts) != 3)
-            return false;
-        $payload = base64_decode($tokenParts[1]);
-        $payloadData = json_decode($payload, true);
-        if (isset($payloadData['exp']) && ($payloadData['exp'] - time()) < 0)
-            return false;
-        return $payloadData;
-    }
+
 
     private function _base64UrlEncode($data)
     {
