@@ -1,0 +1,49 @@
+# CodeIgniter 4 Git Ignore File
+/vendor/
+.env
+.env.production
+.phpunit.result.cache
+*.log
+
+# Writable directory contents should be ignored, but keep directories
+/writable/cache/*
+!/writable/cache/index.html
+!/writable/cache/.gitkeep
+/writable/debugbar/*
+!/writable/debugbar/index.html
+!/writable/debugbar/.gitkeep
+/writable/logs/*
+!/writable/logs/index.html
+!/writable/logs/.gitkeep
+/writable/session/*
+!/writable/session/index.html
+!/writable/session/.gitkeep
+/writable/uploads/*
+!/writable/uploads/index.html
+!/writable/uploads/.gitkeep
+
+# Public uploads and temporary files
+/public/uploads/*
+!/public/uploads/index.html
+!/public/uploads/.gitkeep
+/public/__MACOSX/
+/public/__MACOSX.zip
+/public/error_log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and text editors
+/.idea/
+/.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

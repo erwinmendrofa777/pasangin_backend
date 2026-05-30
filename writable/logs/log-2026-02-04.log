@@ -1,8 +1,0 @@
-DEBUG - 2026-02-04 08:00:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-04 10:34:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-04 10:35:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-04 10:35:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-04 10:36:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2026-02-04 15:53:25 --> [AuthFilter] Exception: Expired token
-ERROR - 2026-02-04 15:53:27 --> [AuthFilter] Exception: Expired token
-ERROR - 2026-02-04 15:53:27 --> [AuthFilter] Exception: Expired token
