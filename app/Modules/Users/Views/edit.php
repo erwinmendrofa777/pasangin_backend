@@ -179,21 +179,6 @@ Edit User
 
 <?= $this->section('content') ?>
 
-<?php
-/* ===== AVATAR ===== */
-if (!empty($user['avatar'])) {
-    $avatarSrc = strpos($user['avatar'], 'http') === 0
-        ? $user['avatar']
-        : base_url('uploads/profile/' . $user['avatar']);
-} else {
-    $avatarSrc = null;
-}
-
-/* ===== INITIALS ===== */
-$nameParts = explode(' ', trim($user['full_name'] ?? 'U'));
-$initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? substr(end($nameParts), 0, 1) : ''));
-?>
-
 <!-- BACK BUTTON -->
 <div class="mb-3">
     <a href="<?= base_url('admin/users') ?>" class="btn btn-secondary btn-sm px-3">
@@ -228,24 +213,7 @@ $initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? 
                 <div class="edit-body pb-0">
 
                     <!-- Avatar -->
-                    <div class="d-flex align-items-end justify-content-between mb-2">
-                        <div class="avatar-wrapper position-relative">
-                            <?php if ($avatarSrc): ?>
-                                <img src="<?= $avatarSrc ?>" alt="<?= esc($user['full_name']) ?>"
-                                     class="avatar-img" id="img-preview">
-                            <?php else: ?>
-                                <div class="avatar-initials d-flex" id="img-preview-initials"><?= $initials ?></div>
-                                <img src="" alt="Preview" class="avatar-img d-none" id="img-preview">
-                            <?php endif; ?>
-
-                            <!-- Upload Button Overlay -->
-                            <label for="avatar" class="btn btn-sm btn-primary position-absolute rounded-circle shadow" 
-                                   style="bottom: 0; right: -5px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #fff;">
-                                <i class="fas fa-camera"></i>
-                            </label>
-                            <input type="file" id="avatar" name="avatar" class="d-none" accept="image/*" onchange="previewImage()">
-                        </div>
-                    </div>
+                    <?= $this->include('App\Modules\Users\Views\components\_form_avatar') ?>
 
                     <!-- ===== Identitas Pribadi ===== -->
                     <div class="card section-card mb-0">
@@ -255,50 +223,7 @@ $initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? 
                         <div class="card-body pt-1">
                             <div class="row g-3">
 
-                                <!-- Nama Lengkap -->
-                                <div class="col-12">
-                                    <label for="full_name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        <input type="text" class="form-control" id="full_name" name="full_name"
-                                               value="<?= esc($user['full_name'] ?? '') ?>"
-                                               placeholder="Masukkan nama lengkap" required>
-                                    </div>
-                                </div>
-
-                                <!-- NIK -->
-                                <div class="col-12 col-sm-6">
-                                    <label for="nik" class="form-label">NIK</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
-                                        <input type="text" class="form-control" id="nik" name="nik"
-                                               value="<?= esc($user['nik'] ?? '') ?>"
-                                               placeholder="16 digit NIK" maxlength="16">
-                                    </div>
-                                </div>
-
-                                <!-- Jenis Kelamin -->
-                                <div class="col-12 col-sm-6">
-                                    <label for="gender" class="form-label">Jenis Kelamin</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
-                                        <select class="form-select" id="gender" name="gender">
-                                            <option value="">-- Pilih --</option>
-                                            <option value="Laki - laki" <?= ($user['gender'] ?? '') === 'Laki - laki' ? 'selected' : '' ?>>Laki - laki</option>
-                                            <option value="Perempuan" <?= ($user['gender'] ?? '') === 'Perempuan' ? 'selected' : '' ?>>Perempuan</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Tanggal Lahir -->
-                                <div class="col-12 col-sm-6">
-                                    <label for="birth_date" class="form-label">Tanggal Lahir</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
-                                        <input type="date" class="form-control" id="birth_date" name="birth_date"
-                                               value="<?= esc($user['birth_date'] ?? '') ?>">
-                                    </div>
-                                </div>
+                                <?= $this->include('App\Modules\Users\Views\components\_form_identitas') ?>
 
                             </div>
 
@@ -308,36 +233,7 @@ $initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? 
                         </div>
                             <div class="row g-3">
 
-                                <!-- Email -->
-                                <div class="col-12">
-                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                        <input type="email" class="form-control" id="email" name="email"
-                                               value="<?= esc($user['email'] ?? '') ?>"
-                                               placeholder="contoh@email.com" required>
-                                    </div>
-                                </div>
-
-                                <!-- Nomor WhatsApp -->
-                                <div class="col-12">
-                                    <label for="phone_number" class="form-label">Nomor WhatsApp</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
-                                        <input type="tel" class="form-control" id="phone_number" name="phone_number"
-                                               value="<?= esc($user['phone_number'] ?? '') ?>"
-                                               placeholder="08xxxxxxxxxx">
-                                    </div>
-                                </div>
-
-                                <!-- Alamat -->
-                                <div class="col-12">
-                                    <label for="address" class="form-label">Alamat</label>
-                                    <div class="input-group align-items-start">
-                                        <span class="input-group-text" style="padding-top:31.5px;padding-bottom:31.5px;"><i class="fas fa-map-marker-alt"></i></span>
-                                        <textarea class="form-control" id="address" name="address" rows="3" placeholder="Masukkan alamat lengkap"><?= esc($user['address'] ?? '') ?></textarea>
-                                    </div>
-                                </div>
+                                <?= $this->include('App\Modules\Users\Views\components\_form_kontak') ?>
 
                             </div>
                         </div>
@@ -364,51 +260,5 @@ $initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? 
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-<script>
-/* ===== Flash Messages ===== */
-<?php if (session()->getFlashdata('success')): ?>
-iziToast.success({ timeout: 5000, title: 'Berhasil!', message: '<?= session()->getFlashdata('success') ?>', position: 'topCenter' });
-<?php endif; ?>
-<?php if (session()->getFlashdata('error')): ?>
-iziToast.error({ timeout: 6000, title: 'Gagal', message: '<?= session()->getFlashdata('error') ?>', position: 'topCenter' });
-<?php endif; ?>
-
-/* ===== Loading on Submit (Ladda) ===== */
-document.addEventListener('DOMContentLoaded', function () {
-    const editForm = document.getElementById('edit-user-form');
-    
-    if (editForm) {
-        editForm.addEventListener('submit', function (e) {
-            const submitBtn = this.querySelector('.ladda-button');
-            if (submitBtn) {
-                const l = Ladda.create(submitBtn);
-                l.start();
-            }
-        });
-    }
-});
-
-/* ===== Image Preview ===== */
-function previewImage() {
-    const avatar = document.querySelector('#avatar');
-    const imgPreview = document.querySelector('#img-preview');
-    const imgPreviewInitials = document.querySelector('#img-preview-initials');
-
-    if (avatar.files && avatar.files[0]) {
-        const fileReader = new FileReader();
-        fileReader.readAsDataURL(avatar.files[0]);
-
-        fileReader.onload = function(e) {
-            imgPreview.src = e.target.result;
-            imgPreview.classList.remove('d-none');
-            
-            // Hide initials if they exist
-            if (imgPreviewInitials) {
-                imgPreviewInitials.classList.remove('d-flex');
-                imgPreviewInitials.classList.add('d-none');
-            }
-        }
-    }
-}
-</script>
+<?= $this->include('App\Modules\Users\Views\components\_edt_scripts') ?>
 <?= $this->endSection() ?>

@@ -129,6 +129,26 @@
       scrollbar-width: none !important;
       /* Firefox */
     }
+
+    /* Enable scroll on mini sidebar */
+    body.sidebar-mini .main-sidebar {
+      position: fixed !important;
+      height: 100vh !important;
+      overflow-y: auto !important;
+      scrollbar-width: thin !important;
+      -ms-overflow-style: auto !important;
+    }
+
+    body.sidebar-mini .main-sidebar::-webkit-scrollbar {
+      display: block !important;
+      width: 4px !important;
+      height: 0 !important;
+    }
+
+    body.sidebar-mini .main-sidebar::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15) !important;
+      border-radius: 4px !important;
+    }
   </style>
 
 </head>
@@ -325,7 +345,7 @@
             <?php endif; ?>
 
             <!-- ============ KONTEN ============ -->
-            <?php if (canAny(['banner', 'vouchers', 'tips', 'promo', 'notification', 'price-estimate', 'syarat_ketentuan']) || $isAccounting): ?>
+            <?php if (canAny(['banner', 'banner_supplier', 'vouchers', 'tips', 'promo', 'notification', 'price-estimate', 'syarat_ketentuan', 'about_application']) || $isAccounting): ?>
               <li class="menu-header">KONTEN</li>
 
               <?php if (can('banner')): ?>
@@ -436,6 +456,10 @@
     </div>
   </div>
 
+  <!-- Global Modals -->
+  <?= $this->include('components/_global_delete_modal') ?>
+  <?= $this->include('components/_global_status_modal') ?>
+
   <!-- General JS Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -498,6 +522,11 @@
     const btnAllow = document.getElementById('btn-allow-notif');
 
     function checkNotifPermission() {
+      if (!('Notification' in window)) {
+        console.warn('Browser ini tidak mendukung notifikasi.');
+        overlay.style.display = 'none';
+        return;
+      }
       if (Notification.permission === 'granted') {
         overlay.style.display = 'none';
 
@@ -588,9 +617,9 @@
             let icon = 'fa-bell';
             let bg = 'bg-primary';
 
-            if (n.target_type.includes('client')) { icon = 'fa-user'; bg = 'bg-info'; }
-            else if (n.target_type.includes('tukang')) { icon = 'fa-tools'; bg = 'bg-warning'; }
-            else if (n.target_type.includes('supplier')) { icon = 'fa-store'; bg = 'bg-success'; }
+            if (n.target_type && n.target_type.includes('client')) { icon = 'fa-user'; bg = 'bg-info'; }
+            else if (n.target_type && n.target_type.includes('tukang')) { icon = 'fa-tools'; bg = 'bg-warning'; }
+            else if (n.target_type && n.target_type.includes('supplier')) { icon = 'fa-store'; bg = 'bg-success'; }
 
             // Gunakan moment ID untuk waktu yang lebih manusiawi
             moment.locale('id');

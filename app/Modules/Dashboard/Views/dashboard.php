@@ -236,321 +236,32 @@ Dashboard
 
 <?= $this->section('content') ?>
 
-<!-- ===== BARIS 1: STATISTIK ===== -->
-<div class="row g-4 mb-4">
-  <div class="col-6 col-md-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background: linear-gradient(135deg,#4e73df,#224abe);">
-        <i class="far fa-user"></i>
-      </div>
-      <div>
-        <div class="stat-label">Client</div>
-        <div class="stat-value"><?= $jumlahClient ?></div>
-      </div>
-      <i class="far fa-user stat-bg"></i>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background: linear-gradient(135deg,#e74a3b,#be2617);">
-        <i class="fas fa-hard-hat"></i>
-      </div>
-      <div>
-        <div class="stat-label">Tukang</div>
-        <div class="stat-value"><?= $jumlahTukang ?></div>
-      </div>
-      <i class="fas fa-hard-hat stat-bg"></i>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background: linear-gradient(135deg,#f6c23e,#dda20a);">
-        <i class="fas fa-store"></i>
-      </div>
-      <div>
-        <div class="stat-label">Suppliers</div>
-        <div class="stat-value"><?= $jumlahSupplier ?></div>
-      </div>
-      <i class="fas fa-store stat-bg"></i>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-card">
-      <div class="stat-icon" style="background: linear-gradient(135deg,#1cc88a,#13855c);">
-        <i class="fas fa-box"></i>
-      </div>
-      <div>
-        <div class="stat-label">Produk</div>
-        <div class="stat-value"><?= $jumlahProduk ?></div>
-      </div>
-      <i class="fas fa-box stat-bg"></i>
-    </div>
-  </div>
-</div>
+<?= $this->include('App\Modules\Dashboard\Views\components\_stats_cards') ?>
 
 <!-- ===== BARIS 2: GRAFIK PENDAPATAN & TOP PRODUK ===== -->
 <div class="row g-4 mb-4">
   <div class="col-12 col-lg-8">
-    <div class="card dash-card">
-      <div class="card-header d-flex align-items-center gap-2">
-        <i class="fas fa-chart-bar text-primary"></i> Total Pendapatan
-      </div>
-      <div class="card-body">
-        <div class="chart-wrapper">
-          <canvas id="revenueChart"></canvas>
-        </div>
-      </div>
-    </div>
+    <?= $this->include('App\Modules\Dashboard\Views\components\_revenue_chart') ?>
   </div>
 
   <div class="col-12 col-lg-4">
-    <div class="card dash-card">
-      <div class="card-header d-flex align-items-center gap-2">
-        <i class="fas fa-trophy text-warning"></i> Top 5 Products
-      </div>
-      <div class="card-body p-0">
-        <div class="list-scroll p-4">
-          <?php if (!empty($topProducts)): ?>
-            <?php foreach ($topProducts as $product): ?>
-              <div class="product-item">
-                <?php if (!empty($product['product_photo'])): ?>
-                  <?php $src = strpos($product['product_photo'], 'http') === 0 ? $product['product_photo'] : base_url('uploads/products/' . $product['product_photo']); ?>
-                  <img src="<?= $src ?>" class="product-thumb" alt="<?= esc($product['product_name']) ?>">
-                <?php else: ?>
-                  <div class="product-thumb-placeholder"><i class="fas fa-image"></i></div>
-                <?php endif; ?>
-                <div class="flex-grow-1 text-start" style="min-width:0;">
-                  <div class="product-name"><?= esc($product['product_name'] ?? 'N/A') ?></div>
-                  <div class="product-meta"><?= esc($product['supplier_name'] ?? 'N/A') ?></div>
-                </div>
-                <div class="text-end">
-                  <div class="product-price">Rp <?= number_format($product['product_price'], 0, ',', '.') ?></div>
-                  <div class="product-sales"><?= number_format($product['total_sales']) ?> terjual</div>
-                </div>
-              </div>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <div class="text-center text-muted py-4 small">
-              <i class="fas fa-box-open fa-2x mb-2 d-block opacity-50"></i>
-              Belum ada data penjualan produk
-            </div>
-          <?php endif; ?>
-        </div>
-      </div>
-    </div>
+    <?= $this->include('App\Modules\Dashboard\Views\components\_top_products') ?>
   </div>
 </div>
 
 <!-- ===== BARIS 3: TARIK DANA & GRAFIK PENJUALAN ===== -->
 <div class="row g-4 mb-4">
   <div class="col-12 col-lg-4">
-    <div class="card dash-card">
-      <div class="card-header d-flex align-items-center gap-2">
-        <i class="fas fa-money-bill-wave text-danger"></i> Permintaan Tarik Dana
-      </div>
-      <div class="card-body p-0">
-        <div class="list-scroll p-4">
-          <?php if (!empty($tarikDana)): ?>
-            <?php foreach ($tarikDana as $transaction): ?>
-              <?php
-              $status = $transaction['status'];
-              $badgeClass = $status === 'approved' ? 'success' : ($status === 'pending' ? 'warning' : 'danger');
-              $icon = $status === 'approved' ? 'fa-check-circle' : ($status === 'pending' ? 'fa-clock' : 'fa-times-circle');
-              $label = ucfirst($status);
-              ?>
-              <div class="tarik-item">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div class="flex-grow-1">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <span class="badge bg-<?= $badgeClass ?> rounded-pill">
-                        <i class="fas <?= $icon ?> me-1"></i><?= $label ?>
-                      </span>
-                      <span class="fw-bold text-<?= $badgeClass ?>" style="font-size:0.85rem;">
-                        Rp <?= number_format($transaction['amount'], 0, ',', '.') ?>
-                      </span>
-                    </div>
-                    <div class="text-muted" style="font-size:0.76rem;">
-                      <i class="fas fa-user-circle me-1"></i><?= esc($transaction['tukang_name']) ?>
-                    </div>
-                  </div>
-                  <div class="text-end text-muted" style="font-size:0.72rem; white-space:nowrap;">
-                    <?= date('d/m/Y', strtotime($transaction['created_at'])) ?><br>
-                    <?= date('H:i', strtotime($transaction['created_at'])) ?>
-                  </div>
-                </div>
-              </div>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <div class="text-center text-muted py-4 small">
-              <i class="fas fa-receipt fa-2x mb-2 d-block opacity-50"></i>
-              Belum ada riwayat transaksi
-            </div>
-          <?php endif; ?>
-        </div>
-      </div>
-    </div>
+    <?= $this->include('App\Modules\Dashboard\Views\components\_tarik_dana') ?>
   </div>
 
   <div class="col-12 col-lg-8">
-    <div class="card dash-card">
-      <div class="card-header d-flex align-items-center gap-2">
-        <i class="fas fa-chart-line text-primary"></i> Jumlah Penjualan
-      </div>
-      <div class="card-body">
-        <div class="chart-wrapper">
-          <canvas id="salesCountChart"></canvas>
-        </div>
-      </div>
-    </div>
+    <?= $this->include('App\Modules\Dashboard\Views\components\_sales_chart') ?>
   </div>
 </div>
 
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-<script>
-  <?php if (session()->getFlashdata('success')): ?>
-    iziToast.success({
-      timeout: 5000,
-      title: 'Berhasil',
-      message: '<?= session()->getFlashdata('success') ?>',
-      position: 'topCenter'
-    });
-  <?php endif; ?>
-  <?php if (session()->getFlashdata('error')): ?>
-    iziToast.error({
-      timeout: 5000,
-      title: 'Gagal',
-      message: '<?= strip_tags(session()->getFlashdata('error')) ?>',
-      position: 'topCenter'
-    });
-  <?php endif; ?>
-
-  const salesLabels = <?= isset($salesLabels) ? json_encode($salesLabels) : '[]' ?>;
-  const salesCountData = <?= isset($salesCountData) ? json_encode($salesCountData) : '[]' ?>;
-  const salesRevenueData = <?= isset($salesRevenueData) ? json_encode($salesRevenueData) : '[]' ?>;
-
-  const tickColor = '#6c757d';
-  const gridColor = '#e9ecef';
-
-  // ─── Revenue Bar Chart ───────────────────────────────────────────
-  new Chart(document.getElementById('revenueChart'), {
-    type: 'bar',
-    data: {
-      labels: salesLabels,
-      datasets: [{
-        label: 'Total Pendapatan (Rp)',
-        data: salesRevenueData,
-        backgroundColor: 'rgba(78,115,223,0.15)',
-        borderColor: 'rgba(78,115,223,1)',
-        borderWidth: 2,
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: tickColor,
-            fontFamily: "'Nunito','Segoe UI','Arial'",
-            beginAtZero: true,
-            callback: function (v) {
-              if (v >= 1e6) return 'Rp ' + (v / 1e6) + 'Jt';
-              if (v >= 1e3) return 'Rp ' + (v / 1e3) + 'Rb';
-              return 'Rp ' + v;
-            }
-          },
-          gridLines: {
-            color: gridColor
-          }
-        }],
-        xAxes: [{
-          ticks: {
-            fontColor: tickColor,
-            fontFamily: "'Nunito','Segoe UI','Arial'",
-            fontSize: 10
-          },
-          gridLines: {
-            display: false
-          }
-        }]
-      },
-      legend: {
-        labels: {
-          fontColor: tickColor,
-          fontFamily: "'Nunito','Segoe UI','Arial'"
-        }
-      },
-      tooltips: {
-        backgroundColor: '#343a40',
-        titleFontSize: 12,
-        bodyFontSize: 11,
-        callbacks: {
-          label: function (ti, d) {
-            let l = d.datasets[ti.datasetIndex].label || '';
-            return l + ': Rp ' + new Intl.NumberFormat('id-ID').format(ti.yLabel);
-          }
-        }
-      }
-    }
-  });
-
-  // ─── Sales Count Line Chart ──────────────────────────────────────
-  new Chart(document.getElementById('salesCountChart'), {
-    type: 'line',
-    data: {
-      labels: salesLabels,
-      datasets: [{
-        label: 'Jumlah Penjualan',
-        data: salesCountData,
-        borderColor: 'rgba(28,200,138,1)',
-        backgroundColor: 'rgba(28,200,138,0.1)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: tickColor,
-            fontFamily: "'Nunito','Segoe UI','Arial'",
-            beginAtZero: true,
-            precision: 0
-          },
-          gridLines: {
-            color: gridColor
-          }
-        }],
-        xAxes: [{
-          ticks: {
-            fontColor: tickColor,
-            fontFamily: "'Nunito','Segoe UI','Arial'",
-            fontSize: 10
-          },
-          gridLines: {
-            display: false
-          }
-        }]
-      },
-      legend: {
-        labels: {
-          fontColor: tickColor,
-          fontFamily: "'Nunito','Segoe UI','Arial'"
-        }
-      },
-      tooltips: {
-        backgroundColor: '#343a40',
-        titleFontSize: 12,
-        bodyFontSize: 11
-      }
-    }
-  });
-</script>
+  <?= $this->include('App\Modules\Dashboard\Views\components\_scripts') ?>
 <?= $this->endSection() ?>

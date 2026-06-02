@@ -659,330 +659,42 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+
+<?php
+// Pre-calculate total
+$grandTotal = 0;
+foreach ($available_menus as $menus) {
+    foreach ($menus as $k => $v) {
+        $grandTotal++;
+        if (is_array($v)) $grandTotal += count($v['actions']);
+    }
+}
+$groupIcons = [
+    'MANAJEMEN'  => 'fa-users-cog',
+    'PROYEK'     => 'fa-hard-hat',
+    'KONTEN'     => 'fa-layer-group',
+    'AKSES'      => 'fa-sliders-h',
+];
+$groupKeys = array_keys($available_menus);
+$firstGroup = $groupKeys[0] ?? '';
+
+$rolePermissions = [];
+if (!empty($role['permissions'])) {
+    $rolePermissions = json_decode($role['permissions'], true);
+    if (!is_array($rolePermissions)) $rolePermissions = [];
+}
+?>
+
 <div class="cr-wrapper">
 
     <a href="<?= base_url('admin/roles') ?>" class="cr-back">
         <i class="fas fa-arrow-left"></i> Kembali ke Daftar Role
     </a>
 
-    <form id="edit-role-form" method="POST" action="<?= base_url('admin/roles/update/' . $role['id']) ?>">
-        <?= csrf_field() ?>
-
-        <div class="cr-card">
-
-            <div class="cr-banner">
-                <div class="cr-banner-inner">
-                    <div class="cr-banner-ico"><i class="fas fa-shield-alt"></i></div>
-                    <div>
-                        <h4>Edit Role</h4>
-                        <p>Ubah nama role atau hak akses</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cr-body">
-
-                <!-- Nama Role -->
-                <div class="sec-label"><i class="fas fa-id-badge"></i> Informasi Role</div>
-                <label for="role_name" class="cr-label">Nama Role <span>*</span></label>
-                <div class="cr-input-wrap">
-                    <span class="ico"><i class="fas fa-user-tag"></i></span>
-                    <input type="text" id="role_name" name="role_name"
-                        value="<?= old('role_name', $role['role_name'] ?? '') ?>"
-                        placeholder="Contoh: admin_gudang, admin_cs" required>
-                </div>
-                <p class="cr-hint"><i class="fas fa-info-circle me-1"></i>Disarankan huruf kecil, tanpa spasi, pakai underscore sebagai pemisah kata.</p>
-
-                <div class="cr-divider"></div>
-
-                <!-- Hak Akses -->
-                <div class="sec-label"><i class="fas fa-lock-open"></i> Hak Akses Menu</div>
-
-                <?php
-                // Pre-calculate total
-                $grandTotal = 0;
-                foreach ($available_menus as $menus) {
-                    foreach ($menus as $k => $v) {
-                        $grandTotal++;
-                        if (is_array($v)) $grandTotal += count($v['actions']);
-                    }
-                }
-                $groupIcons = [
-                    'MANAJEMEN'  => 'fa-users-cog',
-                    'PROYEK'     => 'fa-hard-hat',
-                    'KONTEN'     => 'fa-layer-group',
-                    'AKSES'      => 'fa-sliders-h',
-                ];
-                $groupKeys = array_keys($available_menus);
-                $firstGroup = $groupKeys[0] ?? '';
-                
-                $rolePermissions = [];
-                if (!empty($role['permissions'])) {
-                    $rolePermissions = json_decode($role['permissions'], true);
-                    if (!is_array($rolePermissions)) $rolePermissions = [];
-                }
-                ?>
-
-                <!-- Global bar -->
-                <div class="cr-global-bar">
-                    <span class="gcb-label"><i class="fas fa-check-circle me-2" style="color:var(--indigo);"></i>Total hak akses dipilih</span>
-                    <span class="gcb-count" id="globalCount">0 dari <?= $grandTotal ?></span>
-                </div>
-
-                <!-- Tab Panel -->
-                <div class="perm-panel">
-
-                    <!-- Sidebar -->
-                    <div class="perm-sidebar">
-                        <div class="perm-sidebar-head">Kategori Menu</div>
-
-                        <?php foreach ($available_menus as $groupName => $menus): ?>
-                            <?php
-                            $groupId = 'tab-' . strtolower(preg_replace('/[^a-z0-9]/i', '-', $groupName));
-                            $icon = $groupIcons[$groupName] ?? 'fa-folder';
-                            $groupTotal = 0;
-                            foreach ($menus as $k => $v) {
-                                $groupTotal++;
-                                if (is_array($v)) $groupTotal += count($v['actions']);
-                            }
-                            ?>
-                            <div class="perm-tab <?= $groupName === $firstGroup ? 'active' : '' ?>"
-                                data-target="<?= $groupId ?>">
-                                <div class="tab-icon"><i class="fas <?= $icon ?>"></i></div>
-                                <div class="tab-info">
-                                    <span class="tab-name"><?= esc($groupName) ?></span>
-                                    <span class="tab-badge" id="badge-<?= $groupId ?>">0 / <?= $groupTotal ?></span>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-
-                        <div class="perm-sidebar-footer">
-                            <button type="button" class="btn-select-all" id="selectAllBtn">☑ Pilih Semua</button>
-                        </div>
-                    </div>
-
-                    <!-- Content -->
-                    <div class="perm-content">
-                        <?php foreach ($available_menus as $groupName => $menus): ?>
-                            <?php
-                            $groupId = 'tab-' . strtolower(preg_replace('/[^a-z0-9]/i', '-', $groupName));
-                            $standalones = [];
-                            $parents = [];
-                            foreach ($menus as $key => $value) {
-                                if (is_array($value)) $parents[$key] = $value;
-                                else $standalones[$key] = $value;
-                            }
-                            ?>
-                            <div class="tab-pane <?= $groupName === $firstGroup ? 'active' : '' ?>" id="<?= $groupId ?>">
-
-                                <div class="pane-header">
-                                    <span class="pane-title"><?= esc($groupName) ?></span>
-                                    <span class="pane-counter" id="pane-counter-<?= $groupId ?>">0 dipilih</span>
-                                </div>
-
-                                <?php if (!empty($standalones)): ?>
-                                    <div class="perm-standalone">
-                                        <?php foreach ($standalones as $key => $label): ?>
-                                            <label class="perm-pill" for="perm_<?= $key ?>">
-                                                <input type="checkbox" class="perm-cb" id="perm_<?= $key ?>"
-                                                    name="permissions[]" value="<?= $key ?>" data-group="<?= $groupId ?>"
-                                                    <?= in_array($key, $rolePermissions) ? 'checked' : '' ?>>
-                                                <span class="pi"></span>
-                                                <span><?= esc($label) ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php foreach ($parents as $key => $value): ?>
-                                    <div class="perm-parent-card" id="card_<?= $key ?>">
-                                        <div class="perm-parent-row">
-                                            <div class="cr-check">
-                                                <input type="checkbox" class="perm-cb parent-cb"
-                                                    id="perm_<?= $key ?>" name="permissions[]" value="<?= $key ?>"
-                                                    data-group="<?= $groupId ?>"
-                                                    <?= in_array($key, $rolePermissions) ? 'checked' : '' ?>>
-                                                <span class="cm"></span>
-                                            </div>
-                                            <label for="perm_<?= $key ?>"><?= esc($value['label']) ?></label>
-                                            <span class="parent-count" id="cnt_<?= $key ?>">0 / <?= count($value['actions']) ?></span>
-                                        </div>
-                                        <div class="perm-children">
-                                            <?php foreach ($value['actions'] as $actKey => $actLabel): ?>
-                                                <label class="perm-pill" for="perm_<?= $actKey ?>">
-                                                    <input type="checkbox" class="perm-cb child-cb"
-                                                        id="perm_<?= $actKey ?>" name="permissions[]" value="<?= $actKey ?>"
-                                                        data-parent="perm_<?= $key ?>" data-group="<?= $groupId ?>"
-                                                        <?= in_array($actKey, $rolePermissions) ? 'checked' : '' ?>>
-                                                    <span class="pi"></span>
-                                                    <span><?= esc($actLabel) ?></span>
-                                                </label>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                </div><!-- /perm-panel -->
-
-                <div class="cr-divider"></div>
-
-                <div class="cr-actions">
-                    <?php if (can('roles_edit')): ?>
-                    <button type="submit" class="btn-cr-save ladda-button" data-style="zoom-out">
-                        <i class="fas fa-save"></i>
-                        <span class="ladda-label">Simpan Role</span>
-                    </button>
-                    <?php else: ?>
-                    <button type="button" class="btn-cr-save" style="background: var(--slate-400); cursor: not-allowed;" disabled>
-                        <i class="fas fa-lock"></i>
-                        <span>Akses Ditolak</span>
-                    </button>
-                    <?php endif; ?>
-                    <a href="<?= base_url('admin/roles') ?>" class="btn-cr-cancel">
-                        <i class="fas fa-times"></i> Batal
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </form>
+    <?= $this->include('App\Modules\Admin\Views\roles\components\_edit_form') ?>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-<script>
-    <?php if (session()->getFlashdata('success')) : ?>
-        iziToast.success({
-            timeout: 5000,
-            title: 'Berhasil',
-            message: '<?= session()->getFlashdata('success') ?>',
-            position: 'topCenter'
-        });
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('error')): ?>
-        iziToast.error({
-            timeout: 6000,
-            title: 'Gagal',
-            message: '<?= strip_tags(session()->getFlashdata('error')) ?>',
-            position: 'topCenter'
-        });
-    <?php endif; ?>
-
-    document.addEventListener('DOMContentLoaded', function() {
-
-        /* ── Ladda ── */
-        const form = document.getElementById('edit-role-form');
-        if (form) {
-            form.addEventListener('submit', function() {
-                const btn = this.querySelector('.ladda-button');
-                if (btn) Ladda.create(btn).start();
-            });
-        }
-
-        /* ── Pill visual sync ── */
-        function syncPill(pill) {
-            const cb = pill.querySelector('input[type="checkbox"]');
-            if (cb) pill.classList.toggle('on', cb.checked);
-        }
-
-        function initPills() {
-            document.querySelectorAll('.perm-pill').forEach(pill => {
-                syncPill(pill);
-                const cb = pill.querySelector('input');
-                if (cb) cb.addEventListener('change', () => {
-                    syncPill(pill);
-                    updateAll();
-                });
-            });
-        }
-
-        /* ── Update counters ── */
-        const grandTotal = <?= $grandTotal ?>;
-
-        function updateAll() {
-            let globalChecked = 0;
-
-            document.querySelectorAll('.tab-pane').forEach(pane => {
-                const id = pane.id;
-                const checked = pane.querySelectorAll('.perm-cb:checked').length;
-                const total = pane.querySelectorAll('.perm-cb').length;
-                globalChecked += checked;
-
-                const pc = document.getElementById('pane-counter-' + id);
-                if (pc) pc.textContent = checked + ' dipilih';
-
-                const badge = document.getElementById('badge-' + id);
-                if (badge) badge.textContent = checked + ' / ' + total;
-            });
-
-            document.querySelectorAll('.parent-cb').forEach(parent => {
-                const key = parent.id.replace('perm_', '');
-                const children = document.querySelectorAll(`.child-cb[data-parent="${parent.id}"]`);
-                const chChecked = document.querySelectorAll(`.child-cb[data-parent="${parent.id}"]:checked`).length;
-
-                const cntEl = document.getElementById('cnt_' + key);
-                if (cntEl) cntEl.textContent = chChecked + ' / ' + children.length;
-
-                const card = document.getElementById('card_' + key);
-                if (card) card.classList.toggle('has-checked', parent.checked || chChecked > 0);
-            });
-
-            document.getElementById('globalCount').textContent = globalChecked + ' dari ' + grandTotal;
-        }
-
-        /* ── Parent → children ── */
-        document.querySelectorAll('.parent-cb').forEach(parent => {
-            parent.addEventListener('change', function() {
-                document.querySelectorAll(`.child-cb[data-parent="${this.id}"]`).forEach(child => {
-                    child.checked = this.checked;
-                    const pill = child.closest('.perm-pill');
-                    if (pill) syncPill(pill);
-                });
-                updateAll();
-            });
-        });
-
-        /* ── Child → parent ── */
-        document.querySelectorAll('.child-cb').forEach(child => {
-            child.addEventListener('change', function() {
-                if (this.checked) {
-                    const parent = document.getElementById(this.getAttribute('data-parent'));
-                    if (parent) parent.checked = true;
-                }
-                updateAll();
-            });
-        });
-
-        /* ── Tab switching ── */
-        document.querySelectorAll('.perm-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.perm-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-                this.classList.add('active');
-                const target = document.getElementById(this.dataset.target);
-                if (target) target.classList.add('active');
-            });
-        });
-
-        /* ── Select All / Clear All ── */
-        let allOn = false;
-        document.getElementById('selectAllBtn').addEventListener('click', function() {
-            allOn = !allOn;
-            document.querySelectorAll('.perm-cb').forEach(cb => {
-                cb.checked = allOn;
-                const pill = cb.closest('.perm-pill');
-                if (pill) syncPill(pill);
-            });
-            this.textContent = allOn ? '✕ Hapus Semua' : '☑ Pilih Semua';
-            updateAll();
-        });
-
-        initPills();
-        updateAll();
-    });
-</script>
+    <?= $this->include('App\Modules\Admin\Views\roles\components\_edit_scripts') ?>
 <?= $this->endSection() ?>

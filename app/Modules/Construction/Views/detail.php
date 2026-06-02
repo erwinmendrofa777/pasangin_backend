@@ -1,4 +1,15 @@
 <?= $this->section('style') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_absensi_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_addendum_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_desain_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_loker_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_material_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_pelamar_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_pembayaran_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_progress_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_rab_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_survey_styles') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_target_styles') ?>
 <?= $this->endSection() ?>
 
 <?= $this->extend('layout/app') ?>
@@ -522,358 +533,25 @@
                         // Initials
                         $nameParts = explode(' ', trim($construction['full_name'] ?? 'K'));
                         $initials = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? substr(end($nameParts), 0, 1) : ''));
+
+                        // Set variables for subviews (CodeIgniter 4 view includes load variables from view data)
+                        $this->setData([
+                            'conStatus'      => $conStatus,
+                            'conStatusMeta'  => $conStatusMeta,
+                            'currentConMeta' => $currentConMeta,
+                        ]);
                         ?>
 
                         <div class="row g-4 align-items-start mt-1">
-
-                            <!-- ======================== LEFT: PROFILE INFO ======================== -->
+                            <!-- Left: Profile & Project Details -->
                             <div class="col-12 col-md-7 mb-4">
-                                <div class="card profile-card">
-                                    <!-- Hero Banner -->
-                                    <div class="profile-hero pb-4">
-                                        <div class="d-flex flex-column flex-md-row justify-content-end align-items-md-end gap-3"
-                                            style="z-index:1;">
-                                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <span class="role-chip-hero">
-                                                    <i class="fas fa-hard-hat me-1"></i>Proyek
-                                                </span>
-                                                <span
-                                                    class="status-pill status-<?= strtolower($currentConMeta['color']) ?>">
-                                                    <span class="dot"></span><?= $currentConMeta['label'] ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Profile Body-->
-                                    <div class="profile-body">
-
-                                        <!-- Info List: Kontak -->
-                                        <div class="info-list mb-4">
-                                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                <p class="section-title text-primary"><i
-                                                        class="fas fa-address-book me-1"></i>Kontak Klien</p>
-                                            </div>
-                                            <div class="info-item">
-                                                <div class="info-icon"><i class="fas fa-user"></i></div>
-                                                <div class="flex-grow-1">
-                                                    <div class="info-label">Nama</div>
-                                                    <div class="info-value">
-                                                        <?= esc($construction['full_name'] ?? '-') ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="info-item">
-                                                <div class="info-icon"><i class="fas fa-key"></i></div>
-                                                <div class="flex-grow-1">
-                                                    <div class="info-label">Id User</div>
-                                                    <div class="info-value">
-                                                        <?= esc($construction['user_id'] ?? '-') ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="info-item">
-                                                <div class="info-icon"><i class="fas fa-calendar-check"></i></div>
-                                                <div class="flex-grow-1">
-                                                    <div class="info-label">Tanggal Pengajuan</div>
-                                                    <div class="info-value">
-                                                        <?= isset($construction['created_at']) ? date('d M Y', strtotime($construction['created_at'])) : '-' ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="info-item">
-                                                <div class="info-icon"><i class="fas fa-envelope"></i></div>
-                                                <div class="flex-grow-1">
-                                                    <div class="info-label">Email</div>
-                                                    <div class="info-value">
-                                                        <?= esc($construction['email'] ?? '-') ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="info-item">
-                                                <div class="info-icon text-success" style="background:#d1e7dd;"><i
-                                                        class="fab fa-whatsapp"></i></div>
-                                                <div
-                                                    class="flex-grow-1 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-                                                    <div>
-                                                        <div class="info-label">Telepon / WhatsApp</div>
-                                                        <div class="info-value">
-                                                            <?= esc($construction['phone'] ?? '-') ?>
-                                                        </div>
-                                                    </div>
-                                                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $construction['phone']) ?>"
-                                                        target="_blank" class="btn btn-sm btn-success px-3 shadow-sm"
-                                                        style="border-radius: 8px;"><i class="fab fa-whatsapp"></i>
-                                                        Chat</a>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Info List: Detail Proyek -->
-                                        <p class="section-title text-primary"><i
-                                                class="fas fa-clipboard-list me-1"></i>Detail Proyek & Keuangan</p>
-                                        <div class="info-list mb-4">
-                                            <div class="row">
-                                                <div class="col-12 col-md-6">
-                                                    <div class="info-item" style="border-bottom:none;">
-                                                        <div class="info-icon text-warning" style="background:#fff3cd;">
-                                                            <i class="fas fa-vector-square"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="info-label">Luas Tanah</div>
-                                                            <div class="info-value">
-                                                                <?= !empty($construction['land_area']) ? $construction['land_area'] . ' m²' : '-' ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6">
-                                                    <div class="info-item" style="border-bottom:none;">
-                                                        <div class="info-icon text-warning" style="background:#fff3cd;">
-                                                            <i class="fas fa-home"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="info-label">Luas Bangunan</div>
-                                                            <div class="info-value">
-                                                                <?= !empty($construction['building_area']) ? $construction['building_area'] . ' m²' : '-' ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6">
-                                                    <div class="info-item" style="border-bottom:none;">
-                                                        <div class="info-icon text-success" style="background:#d1e7dd;">
-                                                            <i class="fas fa-calendar-check"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="info-label">Rencana Mulai</div>
-                                                            <div class="info-value">
-                                                                <?= !empty($construction['start_date']) ? date('d M Y', strtotime($construction['start_date'])) : '-' ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6">
-                                                    <div class="info-item" style="border-bottom:none;">
-                                                        <div class="info-icon text-success" style="background:#d1e7dd;">
-                                                            <i class="fas fa-stopwatch"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="info-label">Estimasi Waktu</div>
-                                                            <div class="info-value">
-                                                                <?= !empty($construction['week']) ? $construction['week'] . ' Minggu' : '-' ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 mt-2">
-                                                    <div class="p-3 rounded"
-                                                        style="background: #f8f9fa; border: 1px dashed #ced4da;">
-                                                        <div
-                                                            class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 gap-1">
-                                                            <span class="text-muted font-weight-bold text-uppercase"
-                                                                style="font-size: 0.75rem;">Total Pembayaran
-                                                                (Estimasi)</span>
-                                                            <span class="font-weight-bold text-primary"
-                                                                style="font-size: 1.1rem;">Rp
-                                                                <?= number_format($construction['total_payment'] ?? 0, 0, ',', '.') ?></span>
-                                                        </div>
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <span class="text-muted font-weight-bold text-uppercase"
-                                                                style="font-size: 0.75rem;">Kode Voucher</span>
-                                                            <span>
-                                                                <?php if (!empty($construction['voucher_code'])): ?>
-                                                                    <span class="badge badge-warning px-2 py-1"><i
-                                                                            class="fas fa-ticket-alt mr-1"></i>
-                                                                        <?= $construction['voucher_code'] ?></span>
-                                                                <?php else: ?>
-                                                                    <span class="text-muted">-</span>
-                                                                <?php endif; ?>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Info List: Lokasi -->
-                                        <p class="section-title text-primary"><i
-                                                class="fas fa-map-marked-alt me-1"></i>Lokasi Geografis & Foto</p>
-                                        <div class="info-list mb-3">
-                                            <div class="info-item">
-                                                <div class="info-icon text-danger" style="background:#f8d7da;"><i
-                                                        class="fas fa-map-marker-alt"></i></div>
-                                                <div>
-                                                    <div class="info-label">Alamat Lengkap</div>
-                                                    <div class="info-value">
-                                                        <?= esc($construction['address'] ?? '-') ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <?php if (!empty($construction['latitude']) && !empty($construction['longitude'])): ?>
-                                            <div class="map-container shadow-sm p-1 bg-white mb-3"
-                                                style="border-radius: 14px; border: 1px solid #e9ecef;">
-                                                <iframe
-                                                    src="https://maps.google.com/maps?q=<?= esc($construction['latitude']) ?>,<?= esc($construction['longitude']) ?>&hl=id&z=15&output=embed"
-                                                    width="100%" height="220" style="border:0; border-radius:10px;"
-                                                    allowfullscreen="" loading="lazy"
-                                                    referrerpolicy="no-referrer-when-downgrade">
-                                                </iframe>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="text-center p-4 bg-light mb-3"
-                                                style="border-radius: 12px; border: 1px dashed #ced4da;">
-                                                <i class="fas fa-map-marked-alt text-muted mb-2"
-                                                    style="font-size:2rem; opacity:0.5;"></i>
-                                                <p class="text-muted mb-0" style="font-size:0.85rem; font-weight:500;">
-                                                    Koordinat peta belum disetel.</p>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <div class="d-flex flex-wrap gap-2 mt-3">
-                                            <?php
-                                            $hasPhotos = false;
-                                            for ($i = 1; $i <= 5; $i++) {
-                                                if (!empty($construction['gambar' . $i])) {
-                                                    $hasPhotos = true;
-                                                    $file = $construction['gambar' . $i];
-                                                    $fileUrl = base_url('uploads/construction/' . $file);
-                                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                                    $isPdf = ($ext === 'pdf');
-                                                    $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv']);
-                                                    $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
-                                                    ?>
-                                                    
-                                                    <?php if ($isPdf): ?>
-                                                        <!-- PDF Link -->
-                                                        <a href="<?= $fileUrl ?>" target="_blank" class="d-flex flex-column align-items-center justify-content-center bg-light shadow-sm rounded position-relative text-decoration-none"
-                                                           style="width: 75px; height: 75px; border: 1px solid #e4e9f0; background: #fff5f5 !important;" title="Lihat PDF">
-                                                            <i class="fas fa-file-pdf text-danger" style="font-size:24px;"></i>
-                                                            <span style="font-size:9px; font-weight:600; color:#dc3545;" class="mt-1">PDF</span>
-                                                        </a>
-                                                    <?php elseif ($isVideo): ?>
-                                                        <!-- Video Player Container and Link -->
-                                                        <div style="display:none;" id="video-construction-<?= $i ?>">
-                                                            <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
-                                                                <video src="<?= $fileUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
-                                                                <div class="text-white mt-2 text-start px-2">
-                                                                    <h6 class="mb-1 fw-bold text-white">Video Lokasi <?= $i ?></h6>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <a href="#video-construction-<?= $i ?>" class="glightbox d-flex flex-column align-items-center justify-content-center bg-light shadow-sm rounded position-relative text-decoration-none"
-                                                           data-gallery="construction-gallery"
-                                                           data-slide-class="glightbox-video-slide"
-                                                           data-type="inline"
-                                                           style="width: 75px; height: 75px; border: 1px solid #e4e9f0; background: #fff9f0 !important;">
-                                                            <i class="fas fa-file-video text-warning" style="font-size:24px;"></i>
-                                                            <span class="position-absolute" style="top:32%;left:50%;transform:translate(-50%,-50%);">
-                                                                <i class="fas fa-play-circle text-warning bg-white rounded-circle" style="font-size:12px;"></i>
-                                                            </span>
-                                                            <span style="font-size:9px; font-weight:600; color:#e0a800;" class="mt-1">VIDEO</span>
-                                                        </a>
-                                                    <?php else: ?>
-                                                        <!-- Image thumbnail with GLightbox -->
-                                                        <a href="<?= $fileUrl ?>" class="glightbox shadow-sm rounded"
-                                                           data-gallery="construction-gallery"
-                                                           data-title="Foto Lokasi <?= $i ?>"
-                                                           style="width: 75px; height: 75px; display: inline-block; overflow: hidden; border: 1px solid #e4e9f0;">
-                                                            <img src="<?= $fileUrl ?>" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Lokasi <?= $i ?>">
-                                                        </a>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php
-                                                }
-                                            }
-                                            if (!$hasPhotos): ?>
-                                                <div class="text-center text-muted small w-100 py-3 bg-light rounded"
-                                                    style="border: 1px dashed #ced4da;">Belum ada foto lokasi yang
-                                                    diunggah.
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-
-                                    </div>
-                                </div>
+                                <?= $this->include('App\Modules\Construction\Views\components\_profile_info') ?>
                             </div>
 
-                            <!-- ======================== RIGHT: UPDATE STATUS ======================== -->
+                            <!-- Right: Workflow Status Controller -->
                             <div class="col-12 col-md-5 mb-4">
-                                <div class="card action-card">
-                                    <!-- Card Header -->
-                                    <div class="card-header">
-                                        <h6 class="text-white mb-0 fw-bold">
-                                            <i class="fas fa-sliders-h mr-2"></i>Kelola Status Proyek
-                                        </h6>
-                                    </div>
-
-                                    <div class="card-body p-2 pt-2">
-                                        <form id="updateStatusFormDirect"
-                                            action="<?= base_url('admin/construction/update-status') ?>" method="post">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="id" value="<?= $construction['id'] ?>">
-                                            <input type="hidden" name="status" id="selectedStatusInput"
-                                                value="<?= $conStatus ?>">
-
-                                            <div class="d-flex flex-column" style="gap: 10px;">
-                                                <?php foreach ($conStatusMeta as $key => $act):
-                                                    $isActive = ($conStatus === $key);
-                                                    ?>
-                                                    <button type="button"
-                                                        class="btn <?= $isActive ? 'btn-' . $act['color'] . ' btn-current-status' : 'btn-outline-' . $act['color'] ?> status-action-btn text-left w-100"
-                                                        data-status="<?= $key ?>" data-color="<?= $act['color'] ?>"
-                                                        data-is-active="<?= $isActive ? 'true' : 'false' ?>">
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-between w-100">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <i class="<?= $act['icon'] ?>"
-                                                                    style="width:20px; text-align:center;"></i>
-                                                                <div class="ml-2">
-                                                                    <div
-                                                                        style="font-size:0.88rem; font-weight:700; line-height:1.2; text-align: left;">
-                                                                        <?= $act['label'] ?>
-                                                                    </div>
-                                                                    <div
-                                                                        style="font-size:0.72rem; font-weight:400; opacity:0.75; text-align: left;">
-                                                                        <?= $act['desc'] ?>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <?php if ($isActive): ?>
-                                                                <i class="fas fa-check-circle status-icon ml-2"
-                                                                    style="font-size:1rem;"></i>
-                                                            <?php else: ?>
-                                                                <i class="fas fa-chevron-right status-icon ml-2"
-                                                                    style="font-size:0.75rem; opacity:0.6;"></i>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </button>
-                                                <?php endforeach; ?>
-                                            </div>
-
-                                            <div class="mt-4 pt-3 border-top text-center">
-                                                <button type="submit"
-                                                    class="btn btn-primary btn-block btn-lg ladda-button shadow-sm"
-                                                    data-style="zoom-in" style="border-radius: 8px; font-weight: bold;">
-                                                    <i class="fas fa-save mr-2"></i>Simpan Perubahan
-                                                </button>
-                                            </div>
-                                        </form>
-
-                                        <div class="mt-3 pt-3 border-top">
-                                            <p class="text-muted mb-0" style="font-size:0.78rem;">
-                                                <i class="fas fa-info-circle text-primary mr-1"></i>
-                                                Pilih status baru lalu klik tombol Simpan. Tombol berwarna solid
-                                                adalah
-                                                status saat ini.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <?= $this->include('App\Modules\Construction\Views\components\_status_manager') ?>
                             </div>
-
                         </div>
                     </div>
                     <!-- end tab 1 detail -->
@@ -982,101 +660,14 @@
 
 <?= $this->endSection(); ?>
 
-
-
 <?= $this->section('script') ?>
-<!-- JS Libraries -->
-<script>
-    // Sliding Nav Logic - Globally Accessible
-    function scrollNav(direction) {
-        const container = document.querySelector('.nav-tabs-premium');
-        const scrollAmount = 400;
-        const currentScroll = container.scrollLeft;
-
-        if (direction === 'left') {
-            container.scrollTo({
-                left: currentScroll - scrollAmount,
-                behavior: 'smooth'
-            });
-        } else {
-            container.scrollTo({
-                left: currentScroll + scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    }
-
-
-    // chocolate js
-    $(document).ready(function () {
-        // Flash Messages
-        <?php if (session()->getFlashdata('success')): ?>
-            iziToast.success({
-                timeout: 5000,
-                title: 'Berhasil',
-                message: '<?= session()->getFlashdata('success') ?>',
-                position: 'topCenter'
-            });
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('error')): ?>
-            iziToast.error({
-                timeout: 5000,
-                title: 'Gagal',
-                message: '<?= session()->getFlashdata('error') ?>',
-                position: 'topCenter'
-            });
-        <?php endif; ?>
-
-        // Ladda Integration
-        $(document).on('submit', 'form', function () {
-            var btn = $(this).find('.ladda-button');
-            if (btn.length > 0) {
-                var l = Ladda.create(btn[0]);
-                l.start();
-            }
-        });
-
-        // Status Selection Logic - Klik tombol untuk memilih status baru
-        $(document).on('click', '.status-action-btn', function () {
-            var $btn = $(this);
-            var newStatus = $btn.data('status');
-
-            // Jika tombol ini sudah merupakan status aktif yang belum diubah, skip
-            // (tapi tetap boleh diklik untuk re-confirm pilihan)
-
-            // Update hidden input dengan status baru
-            $('#selectedStatusInput').val(newStatus);
-
-            // Reset semua tombol ke outline
-            $('.status-action-btn').each(function () {
-                var color = $(this).data('color');
-                $(this).removeClass('btn-' + color + ' btn-current-status').addClass('btn-outline-' + color);
-                $(this).find('.status-icon').removeClass('fa-check-circle').addClass('fa-chevron-right').css('font-size', '0.75rem').css('opacity', '0.6');
-            });
-
-            // Set tombol yang diklik menjadi solid (aktif)
-            var color = $btn.data('color');
-            $btn.removeClass('btn-outline-' + color).addClass('btn-' + color + ' btn-current-status');
-            $btn.find('.status-icon').removeClass('fa-chevron-right').addClass('fa-check-circle').css('font-size', '1rem').css('opacity', '1');
-        });
-
-        // Restore Tab Logic
-        var hash = window.location.hash;
-        if (hash) {
-            $('.nav-tabs a[href="' + hash + '"]').tab('show');
-        }
-        $('.nav-tabs a').on('shown.bs.tab', function (e) {
-            window.location.hash = e.target.hash;
-        });
-
-        // Call RAB calculation functions if they exist (defined in sub-views)
-        try {
-            calculateGrandTotal();
-        } catch (e) { }
-        try {
-            calculateGrandTotalAddendum();
-        } catch (e) { }
-
-    });
-</script>
+    <?= $this->include('App\Modules\Construction\Views\components\_detail_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_absensi_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_addendum_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_material_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_pembayaran_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_progress_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_rab_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_survey_scripts') ?>
+    <?= $this->include('App\Modules\Construction\Views\components\_dtl_target_scripts') ?>
 <?= $this->endSection() ?>

@@ -9,68 +9,7 @@ if (!empty($request['start_date']) && !empty($request['target_date'])) {
 }
 ?>
 
-<style>
-    .tbl-outer {
-        overflow-x: auto;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-    }
 
-    table.table-schedule {
-        min-width: 600px;
-        margin-bottom: 0;
-    }
-
-    table.table-schedule th {
-        background: #f8f9fa;
-        font-size: 12px;
-        font-weight: 600;
-        color: #34395e;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-
-    table.table-schedule td {
-        vertical-align: middle;
-        font-size: 13px;
-    }
-
-    table.table-schedule td.num {
-        text-align: center;
-        color: #6c757d;
-    }
-
-    table.table-schedule .bar {
-        height: 14px;
-        border-radius: 3px;
-        background: #6777ef;
-        min-width: 6px;
-    }
-
-    table.table-schedule .cell-bar {
-        padding: 5px 6px;
-        text-align: center;
-    }
-
-    table.table-schedule .week-th {
-        min-width: 60px;
-    }
-
-    table.table-schedule tr.item-row {
-        cursor: pointer;
-        transition: background 0.15s;
-    }
-
-    table.table-schedule tr.item-row:hover {
-        background: #eef1ff !important;
-    }
-
-    .progress-bar-thin {
-        height: 8px;
-        border-radius: 4px;
-    }
-</style>
 
 <!-- ── TABEL TARGET ── -->
 <!-- ── TABEL TARGET (DESKTOP) ── -->
@@ -368,29 +307,6 @@ if (!empty($request['start_date']) && !empty($request['target_date'])) {
             </div>
         </form>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const startInput = document.getElementById('start_date_input');
-                const targetInput = document.getElementById('target_date_input');
-                const totalInput = document.getElementById('total_hari_input');
-
-                function calculateDays() {
-                    if (startInput.value && targetInput.value) {
-                        const start = new Date(startInput.value);
-                        const end = new Date(targetInput.value);
-                        if (end >= start) {
-                            const diffTime = Math.abs(end - start);
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            totalInput.value = diffDays + " Hari";
-                        } else {
-                            totalInput.value = "0 Hari";
-                        }
-                    }
-                }
-
-                startInput.addEventListener('change', calculateDays);
-                targetInput.addEventListener('change', calculateDays);
-            });
-        </script>
+        
     </div>
 </div>
