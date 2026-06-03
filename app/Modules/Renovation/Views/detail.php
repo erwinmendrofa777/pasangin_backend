@@ -386,6 +386,34 @@
         color: #fc544b !important;
     }
 </style>
+
+<?php if (can('renovation_target')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_target_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_survey')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_survey_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_desain')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_desain_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_rab')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_rab_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_pembayaran')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_pembayaran_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_progress')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_progress_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_lowongan')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_loker_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation_absensi')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_absensi_styles') ?>
+<?php endif; ?>
+<?php if (can('renovation')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_material_styles') ?>
+<?php endif; ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -394,4 +422,26 @@
 
 <?= $this->section('script') ?>
 <?= $this->include('App\Modules\Renovation\Views\components\_dtl_scripts') ?>
+
+<?php if (can('renovation_target')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_target_scripts') ?>
+<?php endif; ?>
+<?php if (can('renovation_survey')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_survey_scripts') ?>
+<?php endif; ?>
+<?php if (can('renovation_rab')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_rab_scripts') ?>
+<?php endif; ?>
+<?php if (can('renovation_pembayaran')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_pembayaran_scripts') ?>
+<?php endif; ?>
+<?php if (can('renovation_progress')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_progress_scripts') ?>
+<?php endif; ?>
+<?php if (can('renovation_absensi')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_absensi_scripts') ?>
+<?php endif; ?>
+<?php if (can('renovation')): ?>
+    <?= $this->include('App\Modules\Renovation\Views\components\_dtl_material_scripts') ?>
+<?php endif; ?>
 <?= $this->endSection() ?>

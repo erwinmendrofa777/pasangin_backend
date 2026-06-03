@@ -30,6 +30,50 @@ class Renovation extends BaseController
         return view('App\Modules\Renovation\Views\index', array_merge($result, ['title' => 'Daftar Proyek Renovasi']));
     }
 
+    public function exportPdf()
+    {
+        if (!can('renovation')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengeksport renovasi.');
+        }
+
+        helper(['terbilang', 'url']);
+
+        $db = \Config\Database::connect();
+        $projects = $db->table('renovation_requests rr')
+            ->select('rr.*, 
+                COALESCE(
+                    (SELECT SUM(ri.amount - COALESCE(v.discount_nominal, 0)) 
+                     FROM renovation_invoices ri 
+                     LEFT JOIN vouchers v ON v.code = ri.voucher_code
+                     WHERE ri.renovation_id = rr.id), 
+                    0
+                ) as total_invoice
+            ')
+            ->orderBy('rr.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $data = [
+            'projects' => $projects,
+            'title' => 'Laporan Proyek Renovasi',
+            'tanggal_cetak' => date('Y-m-d')
+        ];
+
+        $html = view('App\Modules\Renovation\Views\export_pdf', $data);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        ob_end_clean();
+        $dompdf->stream('Laporan_Proyek_Renovasi_' . date('Ymd_His') . '.pdf', ['Attachment' => 0]);
+        exit();
+    }
+
     public function detail($id)
     {
         if (!can('renovation_detail')) {

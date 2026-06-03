@@ -324,4 +324,27 @@
             white-space: nowrap;
         }
     }
+
+    .btn-export-pdf {
+        background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 8px 16px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        height: 42px;
+    }
+
+    .btn-export-pdf:hover {
+        background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+    }
 </style>

@@ -359,6 +359,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('tukang/my-targets/(:num)', 'TukangJobApi::getMyTargets/$1');
     $routes->post('tukang/job-submit', 'JobApplicationController::submit');
     $routes->get('tukang/wallet/(:num)', 'WalletController::getWalletInfo/$1');
+    $routes->get('tukang/withdrawal-requests/(:num)', 'WalletController::getWithdrawalRequests/$1');
     $routes->post('tukang/withdraw', 'WalletController::requestWithdrawal');
     $routes->get('tukang/application-status/(:num)', 'TukangJobApi::getApplicationStatus/$1');
     $routes->get('tukang/banners', 'TukangContentController::banners');

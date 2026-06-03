@@ -33,6 +33,50 @@ class Construction extends BaseController
         return view('App\Modules\Construction\Views\index', array_merge($result, ['title' => 'Daftar Konstruksi']));
     }
 
+    public function exportPdf()
+    {
+        if (!can('construction')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengeksport konstruksi.');
+        }
+
+        helper(['terbilang', 'url']);
+
+        $db = \Config\Database::connect();
+        $projects = $db->table('construction_requests cr')
+            ->select('cr.*, 
+                COALESCE(
+                    (SELECT SUM(ci.amount - COALESCE(v.discount_nominal, 0)) 
+                     FROM construction_invoices ci 
+                     LEFT JOIN vouchers v ON v.code = ci.voucher_code
+                     WHERE ci.construction_id = cr.id), 
+                    0
+                ) as total_invoice
+            ')
+            ->orderBy('cr.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $data = [
+            'projects' => $projects,
+            'title' => 'Laporan Proyek Konstruksi',
+            'tanggal_cetak' => date('Y-m-d')
+        ];
+
+        $html = view('App\Modules\Construction\Views\export_pdf', $data);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        ob_end_clean();
+        $dompdf->stream('Laporan_Proyek_Konstruksi_' . date('Ymd_His') . '.pdf', ['Attachment' => 0]);
+        exit();
+    }
+
     public function detail($id)
     {
         if (!can('construction_detail')) {

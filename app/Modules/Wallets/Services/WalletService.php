@@ -151,7 +151,26 @@ class WalletService
             throw new RuntimeException('Status penarikan tidak valid: ' . $status);
         }
 
-        $this->findWithdrawalOrFail($id);
+        $request = $this->findWithdrawalOrFail($id);
+
+        if ($status === 'approved') {
+            try {
+                // Jalankan pengurangan saldo untuk tukang terkait
+                $this->updateBalance(
+                    (int) $request['tukang_id'],
+                    (float) $request['amount'],
+                    'withdraw',
+                    'Penarikan dana'
+                );
+            } catch (\RuntimeException $e) {
+                // Jika saldo tidak cukup, update status menjadi rejected
+                if (strpos($e->getMessage(), 'tidak cukup') !== false || strpos($e->getMessage(), 'Saldo') !== false) {
+                    $this->withdrawalRepository->update($id, ['status' => 'rejected']);
+                    throw new RuntimeException('Gagal! Saldo tukang tidak cukup. Status penarikan diubah menjadi rejected.');
+                }
+                throw $e;
+            }
+        }
 
         $this->withdrawalRepository->update($id, ['status' => $status]);
     }

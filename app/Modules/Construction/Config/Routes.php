@@ -3,6 +3,7 @@
 $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Construction\Controllers\Admin'], static function ($routes) {
     // Manajemen construction
     $routes->get('construction', 'Construction::index');
+    $routes->get('construction/export-pdf', 'Construction::exportPdf');
     $routes->get('construction/detail/(:num)', 'Construction::detail/$1');
     $routes->post('construction/update-status', 'Construction::updateStatus');
     $routes->post('construction/upload-survey', 'Construction::uploadSurvey');

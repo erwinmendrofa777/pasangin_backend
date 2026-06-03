@@ -3,6 +3,7 @@
 $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Design\Controllers\Admin'], static function ($routes) {
     // Manajemen Design
     $routes->get('design', 'DesignRequests::index');
+    $routes->get('design/export-pdf', 'DesignRequests::exportPdf');
     $routes->get('design/show/(:num)', 'DesignRequests::show/$1');
     $routes->get('design/delete/(:num)', 'DesignRequests::delete/$1');
     $routes->post('design/update-status/(:num)', 'DesignRequests::updateStatus/$1');

@@ -55,6 +55,53 @@ class DesignRequests extends BaseController
     }
 
     // -------------------------------------------------------------------------
+    // 1b. EXPORT LAPORAN PDF
+    // -------------------------------------------------------------------------
+    public function exportPdf()
+    {
+        if (!can('design')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengeksport desain.');
+        }
+
+        helper(['terbilang', 'url']);
+
+        $db = \Config\Database::connect();
+        $requests = $db->table('design_requests dr')
+            ->select('dr.*, 
+                COALESCE(
+                    (SELECT SUM(pi.amount - COALESCE(v.discount_nominal, 0)) 
+                     FROM project_invoices pi 
+                     LEFT JOIN vouchers v ON v.code = pi.voucher_code
+                     WHERE pi.design_request_id = dr.id), 
+                    0
+                ) as total_invoice
+            ')
+            ->orderBy('dr.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $data = [
+            'requests' => $requests,
+            'title' => 'Laporan Proyek Desain',
+            'tanggal_cetak' => date('Y-m-d')
+        ];
+
+        $html = view('App\Modules\Design\Views\export_pdf', $data);
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        ob_end_clean();
+        $dompdf->stream('Laporan_Proyek_Desain_' . date('Ymd_His') . '.pdf', ['Attachment' => 0]);
+        exit();
+    }
+
+    // -------------------------------------------------------------------------
     // 2. DETAIL PROYEK
     // -------------------------------------------------------------------------
     public function show($id)

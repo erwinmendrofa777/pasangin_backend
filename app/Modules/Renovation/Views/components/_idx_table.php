@@ -234,10 +234,15 @@
             style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase; color: #6777ef;">
             <i class="fas fa-list me-2"></i>Daftar Proyek Renovasi
         </h6>
-        <div class="search-wrapper d-flex align-items-center gap-2">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="form-control shadow-sm" id="searchInput"
-                placeholder="Cari pelanggan, tipe, atau status...">
+        <div class="d-flex align-items-center gap-2">
+            <a href="<?= base_url('admin/renovation/export-pdf') ?>" class="btn-export-pdf" target="_blank">
+                <i class="fas fa-file-pdf"></i> Export Laporan
+            </a>
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control shadow-sm" id="searchInput"
+                    placeholder="Cari pelanggan, tipe, atau status...">
+            </div>
         </div>
     </div>
     <div class="card-body p-4">

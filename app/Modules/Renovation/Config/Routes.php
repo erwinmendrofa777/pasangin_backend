@@ -3,6 +3,7 @@
 $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Renovation\Controllers\Admin'], static function ($routes) {
     //Menu Renovation
     $routes->get('renovation', 'Renovation::index');
+    $routes->get('renovation/export-pdf', 'Renovation::exportPdf');
     $routes->get('renovation/detail/(:num)', 'Renovation::detail/$1');
     $routes->post('renovation/update_status', 'Renovation::update_status');
     $routes->post('renovation/update-job-info', 'Renovation::update_job_info');

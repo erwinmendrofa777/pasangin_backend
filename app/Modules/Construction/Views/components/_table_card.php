@@ -7,10 +7,15 @@
             style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase; color: #0d6efd;">
             <i class="fas fa-list me-2"></i>Daftar Proyek Konstruksi
         </h6>
-        <div class="search-wrapper d-flex align-items-center gap-2">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="form-control" id="searchInput"
-                placeholder="Cari pelanggan, lokasi, atau status...">
+        <div class="d-flex align-items-center gap-2">
+            <a href="<?= base_url('admin/construction/export-pdf') ?>" class="btn-export-pdf" target="_blank">
+                <i class="fas fa-file-pdf"></i> Export Laporan
+            </a>
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control" id="searchInput"
+                    placeholder="Cari pelanggan, lokasi, atau status...">
+            </div>
         </div>
     </div>
     <div class="card-body p-4">

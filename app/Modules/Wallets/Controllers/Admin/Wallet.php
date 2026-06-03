@@ -116,9 +116,10 @@ class Wallet extends BaseController
             // Dapatkan data penarikan sebelum diupdate untuk tahu siapa tukangnya
             $request = $this->walletService->findWithdrawalOrFail((int) $id);
 
+            // Delegasikan status update ke service
             $this->walletService->updateWithdrawalStatus((int) $id, $status);
 
-            // Kirim Notifikasi ke Tukang
+            // Kirim Notifikasi ke Tukang jika sukses disetujui / ditolak manual
             if ($request && !empty($request['tukang_id'])) {
                 $tukangId = (int) $request['tukang_id'];
                 $amount = number_format($request['amount'], 0, ',', '.');
@@ -138,6 +139,17 @@ class Wallet extends BaseController
             log_admin_activity('update', 'wallet', 'mengupdate status penarikan dana');
             return redirect()->back()->with('success', 'Status penarikan diperbarui dan notifikasi telah dikirim.');
         } catch (\Throwable $e) {
+            // Jika otomatis ditolak karena saldo kurang
+            if (strpos($e->getMessage(), 'diubah menjadi rejected') !== false) {
+                if (isset($request) && !empty($request['tukang_id'])) {
+                    $tukangId = (int) $request['tukang_id'];
+                    $amount = number_format($request['amount'], 0, ',', '.');
+                    $title = "Penarikan Dana Ditolak";
+                    $message = "Maaf, permintaan penarikan dana sebesar Rp {$amount} telah DITOLAK karena saldo Anda tidak cukup.";
+                    $this->notifService->sendPersonal('tukang', $tukangId, $title, $message);
+                }
+                log_admin_activity('update', 'wallet', 'menolak otomatis penarikan dana karena saldo tidak cukup');
+            }
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
