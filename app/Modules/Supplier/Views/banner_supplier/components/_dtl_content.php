@@ -1,11 +1,3 @@
-<!-- BACK BUTTON -->
-<div class="mb-4">
-    <a href="<?= base_url('admin/banner-supplier') ?>" class="btn btn-light btn-sm px-3 shadow-sm"
-        style="border-radius: 10px; font-weight: 600;">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
-</div>
-
 <div class="row g-4">
     <div class="col-12 col-lg-8">
         <div class="card detail-card">
@@ -62,7 +54,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="p-3 rounded-4" style="background: #f8fbff; border: 1px solid #eef2ff;">
+                            <div class="p-3 rounded-4" style="background: #fffafa; border: 1px solid #eef2ff;">
                                 <span class="info-label text-primary"><i class="fas fa-calendar-check me-1"></i>Masa
                                     Penayangan</span>
                                 <div class="info-value mt-1">

@@ -88,7 +88,7 @@
                   <span class="badge-status <?= $statCls ?>"><?= esc($statusName) ?></span>
                 </td>
                 <td class="text-center">
-                  <a href="<?= esc($p['detail_url']) ?>" class="btn btn-sm btn-outline-primary px-3 py-1 fw-bold" style="border-radius:30px; font-size:0.7rem; border-color:#0d6efd; color:#0d6efd;">
+                  <a href="<?= esc($p['detail_url']) ?>" class="btn btn-sm btn-outline-primary px-3 py-1 fw-bold" style="border-radius:30px; font-size:0.7rem; border-color:var(--palette-primary); color:var(--palette-primary);">
                     Detail
                   </a>
                 </td>

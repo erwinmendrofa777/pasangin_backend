@@ -27,7 +27,7 @@ Manajemen Promo
         right: -60px;
         width: 200px;
         height: 200px;
-        background: rgba(103, 119, 239, 0.05);
+        background: rgba(255, 92, 92, 0.05);
         border-radius: 50%;
     }
 
@@ -38,7 +38,7 @@ Manajemen Promo
         left: -30px;
         width: 260px;
         height: 260px;
-        background: rgba(103, 119, 239, 0.03);
+        background: rgba(255, 92, 92, 0.03);
         border-radius: 50%;
     }
 
@@ -57,7 +57,7 @@ Manajemen Promo
     }
 
     .stat-pill .stat-num {
-        background: #6777ef;
+        background: var(--palette-primary);
         color: #fff;
         border-radius: 50px;
         padding: 1px 10px;
@@ -93,9 +93,9 @@ Manajemen Promo
     }
 
     .search-wrapper input:focus {
-        border-color: #6777ef;
+        border-color: var(--palette-primary);
         background: #fff !important;
-        box-shadow: 0 8px 20px rgba(103, 119, 239, 0.15);
+        box-shadow: 0 8px 20px rgba(255, 92, 92, 0.15);
         width: 350px;
     }
 
@@ -103,7 +103,7 @@ Manajemen Promo
     .table-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(103, 119, 239, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
         overflow: hidden;
     }
 
@@ -117,11 +117,11 @@ Manajemen Promo
     }
 
     #table-1 thead tr {
-        background: #f8f9ff;
+        background: #fff5f5;
     }
 
     #table-1 thead th {
-        color: #6777ef;
+        color: var(--palette-primary);
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
@@ -155,7 +155,7 @@ Manajemen Promo
         object-fit: cover;
         object-position: center;
         border: 2px solid #eef0ff;
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.1);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.1);
     }
 
     /* ===== BADGES ===== */
@@ -204,23 +204,23 @@ Manajemen Promo
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: #0d6efd;
+        color: var(--palette-primary);
         align-items: center;
         justify-content: center;
     }
 
     .dataTables_paginate .page-item.active .page-link {
-        background: #0d6efd !important;
-        border-color: #0d6efd !important;
+        background: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
         color: #fff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
     .dataTables_paginate .page-item:not(.active) .page-link:hover {
-        background: #e7f0ff !important;
-        border-color: #e7f0ff !important;
-        color: #0d6efd !important;
+        background: #ffe5e5 !important;
+        border-color: #ffe5e5 !important;
+        color: var(--palette-primary) !important;
     }
 </style>
 <?= $this->endSection() ?>

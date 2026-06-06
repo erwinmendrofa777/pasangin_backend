@@ -2,7 +2,7 @@
 <div class="page-header-card">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h4><i class="fas fa-lightbulb me-2" style="opacity:0.85;"></i>Tips & Tricks</h4>
+            <h4 class="text-white"><i class="fas fa-lightbulb me-2" style="opacity:0.85;"></i>Tips & Tricks</h4>
             <p>Kelola konten tips dan artikel yang ditampilkan di aplikasi</p>
         </div>
         <?php if (can('tips_create')): ?>
@@ -24,7 +24,7 @@
     <div class="col-6 col-md-3">
         <div class="stat-mini-card bg-white">
             <div class="stat-mini-icon" style="background:#eef0fd;">
-                <i class="fas fa-layer-group" style="color:#6777ef;"></i>
+                <i class="fas fa-layer-group" style="color:var(--palette-primary);"></i>
             </div>
             <div>
                 <div class="stat-val"><?= $total ?></div>
@@ -71,7 +71,7 @@
 <div class="card table-card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
         <h6 class="mb-0 fw-800"
-            style="color:#6777ef; font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase;">
+            style="color:var(--palette-primary); font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase;">
             <i class="fas fa-list-ul me-2"></i>Daftar Tips & Tricks
         </h6>
         <div class="search-wrapper" style="width:260px;">
@@ -106,7 +106,9 @@
                             <tr class="text-center">
                                 <td class="fw-bold text-muted" style="font-size:0.8rem;"><?= $key + 1 ?></td>
                                 <td>
-                                    <a href="<?= base_url('uploads/tips/' . $row['image']) ?>" class="glightbox" data-gallery="tips-gallery" data-title="<?= esc($row['title']) ?>" data-description="Target: <?= esc($row['target_app']) ?>">
+                                    <a href="<?= base_url('uploads/tips/' . $row['image']) ?>" class="glightbox"
+                                        data-gallery="tips-gallery" data-title="<?= esc($row['title']) ?>"
+                                        data-description="Target: <?= esc($row['target_app']) ?>">
                                         <img src="<?= base_url('uploads/tips/' . $row['image']) ?>" class="tips-img"
                                             alt="<?= esc($row['title']) ?>">
                                     </a>
@@ -160,6 +162,12 @@
                                             <a href="<?= base_url('admin/tips/detail/' . $row['id']) ?>"
                                                 class="btn-action btn-action-detail" title="Lihat Detail">
                                                 <i class="fas fa-eye"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        <?php if (can('tips_create') || can('tips_update')): ?>
+                                            <a href="<?= base_url('admin/tips/edit/' . $row['id']) ?>"
+                                                class="btn-action btn-action-edit" title="Edit Konten">
+                                                <i class="fas fa-pencil-alt"></i>
                                             </a>
                                         <?php endif; ?>
                                         <?php if (can('tips_delete')): ?>

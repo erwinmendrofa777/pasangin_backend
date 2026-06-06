@@ -1,3 +1,21 @@
+<?php
+// Variables computed here since $this->include() does not inherit inline view variables
+$grandTotal = 0;
+foreach ($available_menus as $menus) {
+    foreach ($menus as $k => $v) {
+        $grandTotal++;
+        if (is_array($v)) $grandTotal += count($v['actions']);
+    }
+}
+$groupIcons = [
+    'MANAJEMEN' => 'fa-users-cog',
+    'PROYEK'    => 'fa-hard-hat',
+    'KONTEN'    => 'fa-layer-group',
+    'AKSES'     => 'fa-sliders-h',
+];
+$groupKeys  = array_keys($available_menus);
+$firstGroup = $groupKeys[0];
+?>
 <form id="create-role-form" method="POST" action="<?= base_url('admin/roles/store') ?>">
     <?= csrf_field() ?>
 
@@ -7,7 +25,7 @@
             <div class="cr-banner-inner">
                 <div class="cr-banner-ico"><i class="fas fa-shield-alt"></i></div>
                 <div>
-                    <h4>Tambah Role Baru</h4>
+                    <h4 class="text-white">Tambah Role Baru</h4>
                     <p>Atur nama role lalu pilih hak akses per kategori menu</p>
                 </div>
             </div>

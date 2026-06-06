@@ -10,14 +10,6 @@ Kirim Notifikasi Massal
 
 <?= $this->section('content') ?>
 
-<!-- BACK BUTTON -->
-<div class="mb-3">
-    <a href="<?= base_url('admin/notification') ?>" class="btn btn-light btn-sm px-3 shadow-sm border-0"
-        style="border-radius: 8px; font-weight: 600;">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
-</div>
-
 <form id="create-notification-form" method="POST" action="<?= base_url('admin/notification/send') ?>"
     enctype="multipart/form-data">
     <?= csrf_field() ?>

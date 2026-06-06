@@ -13,7 +13,7 @@ Tentang Aplikasi Pasangin
     .form-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.08);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.08);
     }
 
     .form-card .card-header {
@@ -46,8 +46,8 @@ Tentang Aplikasi Pasangin
     }
 
     .editor-wrapper:focus-within {
-        border-color: #6777ef;
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.1);
+        border-color: var(--palette-primary);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.1);
     }
 
     #editorjs {
@@ -66,7 +66,7 @@ Tentang Aplikasi Pasangin
 
     .ce-toolbar__plus:hover,
     .ce-toolbar__settings-btn:hover {
-        background: #6777ef !important;
+        background: var(--palette-primary) !important;
         color: #fff !important;
     }
 </style>

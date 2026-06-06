@@ -23,12 +23,12 @@
     .loker-preview-card {
         border: none;
         border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(103, 119, 239, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 20px rgba(255, 92, 92, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
         overflow: hidden;
     }
 
     .loker-preview-header {
-        background: linear-gradient(135deg, #6777ef 0%, #7e8ef5 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         padding: 16px 22px;
     }
 
@@ -68,16 +68,16 @@
     }
 
     .loker-stat-card {
-        background: #f8f9ff;
+        background: #fafafa;
         border-radius: 10px;
         padding: 14px 16px;
-        border: 1px solid #e8ebff;
+        border: 1px solid #e5e7eb;
         transition: all 0.2s ease;
     }
 
     .loker-stat-card:hover {
-        border-color: #c5ccff;
-        background: #f0f3ff;
+        border-color: #ffcccc;
+        background: #fffcfc;
     }
 
     .loker-stat-icon {
@@ -95,12 +95,12 @@
     .loker-form-card {
         border: none;
         border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(103, 119, 239, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 20px rgba(255, 92, 92, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
         overflow: hidden;
     }
 
     .loker-form-header {
-        background: linear-gradient(135deg, #3751c9 0%, #6777ef 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         padding: 14px 22px;
     }
 
@@ -115,19 +115,19 @@
 
     .loker-form-input {
         border-radius: 8px;
-        border: 1.5px solid #e0e4ff;
+        border: 1.5px solid #e5e7eb;
         padding: 10px 14px;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
         font-size: 0.88rem;
     }
 
     .loker-form-input:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
     }
 
     .btn-loker-submit {
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         border: none;
         border-radius: 10px;
         padding: 12px;
@@ -138,7 +138,7 @@
 
     .btn-loker-submit:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(103, 119, 239, 0.35);
+        box-shadow: 0 6px 16px rgba(255, 92, 92, 0.35);
     }
 
     /* ── MOBILE RESPONSIVE ── */

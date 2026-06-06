@@ -12,7 +12,7 @@ Manajemen Voucher
 <style>
     /* ===== HERO HEADER ===== */
     .edit-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 28px 28px 72px;
         position: relative;
@@ -65,7 +65,7 @@ Manajemen Voucher
         border-radius: 12px;
         border: 4px solid #fff;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        background: linear-gradient(135deg, #6ea8fe, #0d6efd);
+        background: linear-gradient(135deg, #FFA3A3, var(--palette-primary));
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -77,7 +77,7 @@ Manajemen Voucher
     .edit-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
@@ -88,18 +88,18 @@ Manajemen Voucher
     .section-card {
         border: none;
         border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(13, 110, 253, 0.08), 0 1px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(255, 92, 92, 0.08), 0 1px 6px rgba(0, 0, 0, 0.05);
     }
 
     .section-card .card-header {
-        background: #f0f6ff;
-        border-bottom: 1px solid #dce8ff;
+        background: #fff5f5;
+        border-bottom: 1px solid #ffdddd;
         border-radius: 14px 14px 0 0 !important;
         padding: 14px 20px;
     }
 
     .section-card .card-header h6 {
-        color: #0d6efd;
+        color: var(--palette-primary);
         font-weight: 700;
         font-size: 0.82rem;
         letter-spacing: 0.5px;
@@ -132,8 +132,8 @@ Manajemen Voucher
 
     .form-control:focus,
     .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
     }
 
     .input-group-text {
@@ -157,14 +157,14 @@ Manajemen Voucher
         font-size: 0.9rem;
         letter-spacing: 0.3px;
         transition: all 0.2s ease;
-        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         border: none;
         color: #fff;
     }
 
     .btn-save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.35);
+        box-shadow: 0 6px 20px rgba(255, 92, 92, 0.35);
         color: #fff;
     }
 
@@ -177,9 +177,9 @@ Manajemen Voucher
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<?= $this->include('Modules\Vouchers\Views\components\_crt_form') ?>
+<?= $this->include('App\Modules\Vouchers\Views\components\_crt_form') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-<?= $this->include('Modules\Vouchers\Views\components\_crt_scripts') ?>
+<?= $this->include('App\Modules\Vouchers\Views\components\_crt_scripts') ?>
 <?= $this->endSection() ?>

@@ -50,7 +50,7 @@
                                 </a>
                             </td>
                             <td><span class="badge bg-light text-primary fw-bold px-3 py-2"
-                                    style="border: 1px dashed #0d6efd; border-radius: 8px;"><?= esc($row['code']) ?></span>
+                                    style="border: 1px dashed var(--palette-primary); border-radius: 8px;"><?= esc($row['code']) ?></span>
                             </td>
                             <td class="text-start fw-semibold"><?= esc($row['name'] ?: '-') ?></td>
                             <td><span class="fw-bold text-success">Rp

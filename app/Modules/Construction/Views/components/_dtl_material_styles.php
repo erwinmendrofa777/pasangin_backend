@@ -13,7 +13,7 @@
   }
 
   .ms-root .ms-header {
-    background: #4f46e5;
+    background: var(--palette-primary);
     border-radius: 12px 12px 0 0;
     padding: 1.1rem 1.4rem;
     display: flex;
@@ -80,7 +80,7 @@
 
   .ms-root .ms-badge.total {
     background: #fff;
-    color: #4f46e5;
+    color: var(--palette-primary);
     font-weight: 600;
   }
 
@@ -127,8 +127,8 @@
   }
 
   .ms-root .ms-search:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    border-color: var(--palette-primary);
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
     background: #fff;
   }
 
@@ -156,12 +156,12 @@
 
   .ms-root .ms-filter-dd-btn:hover {
     background: #f3f4f6;
-    border-color: #a5b4fc;
-    color: #4f46e5;
+    border-color: #ffcccc;
+    color: var(--palette-primary);
   }
 
   .ms-root .ms-filter-dd-btn:focus {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
   }
 
   .ms-root .ms-table-wrap {
@@ -230,7 +230,7 @@
   }
 
   .ms-root tbody tr:hover {
-    background: #f8f8ff;
+    background: #fff5f5;
   }
 
   .ms-root tbody td {
@@ -301,14 +301,14 @@
     padding: 3px 9px;
     border-radius: 20px;
     font-size: 12px;
-    background: #f0f0ff;
-    color: #3730a3;
-    border: 1px solid #c7d2fe;
+    background: #fff5f5;
+    color: var(--palette-primary);
+    border: 1px solid #ffcccc;
   }
 
   .ms-root .item-chip .ti {
     font-size: 11px;
-    color: #6366f1;
+    color: var(--palette-primary-hover);
   }
 
   .ms-root .time-date {
@@ -448,8 +448,8 @@
   }
 
   .ms-root .dd-item.all-item:hover {
-    background: #ede9fe;
-    color: #4f46e5;
+    background: #fff5f5;
+    color: var(--palette-primary);
   }
 
   .ms-root .dd-item.bahan-item {
@@ -508,15 +508,15 @@
   }
 
   .ms-root .pag-btn:hover:not(:disabled):not(.active) {
-    background: #ede9fe;
-    color: #4f46e5;
-    border-color: #a5b4fc;
+    background: #fff5f5;
+    color: var(--palette-primary);
+    border-color: #ffcccc;
   }
 
   .ms-root .pag-btn.active {
-    background: #4f46e5;
+    background: var(--palette-primary);
     color: #fff;
-    border-color: #4f46e5;
+    border-color: var(--palette-primary);
   }
 
   .ms-root .pag-btn:disabled {
@@ -545,10 +545,10 @@
     padding: 6px 13px;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid #4f46e5;
+    border: 1px solid var(--palette-primary);
     border-radius: 20px;
     cursor: pointer;
-    background: #4f46e5;
+    background: var(--palette-primary);
     color: #fff;
     transition: all 0.15s;
     display: inline-flex;
@@ -558,8 +558,8 @@
   }
 
   .ms-root .ms-add-btn:hover {
-    background: #394eea;
-    border-color: #394eea;
+    background: var(--palette-primary-hover);
+    border-color: var(--palette-primary-hover);
   }
 
   .ms-root .btn-action {
@@ -582,15 +582,15 @@
   }
 
   .ms-root .btn-action.detail {
-    background: #4f46e5;
-    border: 1px solid #4f46e5;
+    background: var(--palette-primary);
+    border: 1px solid var(--palette-primary);
   }
 
   .ms-root .btn-action.detail:hover {
-    background: #3b30e2;
-    border-color: #3b30e2;
+    background: var(--palette-primary-hover);
+    border-color: var(--palette-primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 8px rgba(255, 92, 92, 0.3);
     color: #fff !important;
   }
 
@@ -630,7 +630,7 @@
   }
 
   .ms-modal-header {
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
     color: #ffffff;
     padding: 1.25rem 1.5rem !important;
     border-bottom: none !important;
@@ -810,7 +810,7 @@
     font-weight: 600;
     border: none;
     border-radius: 20px;
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
     color: #ffffff;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -818,35 +818,35 @@
     align-items: center;
     gap: 6px;
     outline: none;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25);
   }
 
   .ms-root .ms-btn-primary:hover {
-    background: linear-gradient(135deg, #3b30e2 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, var(--palette-primary-hover) 0%, var(--palette-primary) 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.35);
+    box-shadow: 0 6px 15px rgba(255, 92, 92, 0.35);
   }
 
   .ms-root .ms-select-container:focus-within {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+    border-color: var(--palette-primary) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
   }
 
   .ms-root .ms-select-custom:focus {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+    border-color: var(--palette-primary) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
   }
 
   .ms-root .custom-select-trigger:focus {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+    border-color: var(--palette-primary) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
   }
   .ms-root .custom-select-option:hover {
-    background: #f5f3ff !important;
-    color: #4f46e5 !important;
+    background: #fff5f5 !important;
+    color: var(--palette-primary) !important;
   }
   .ms-root .custom-select-option:hover .ti {
-    color: #4f46e5 !important;
+    color: var(--palette-primary) !important;
   }
   .ms-root .custom-select-options::-webkit-scrollbar {
     width: 6px;
@@ -873,7 +873,7 @@
   }
   .ms-root .detail-section-title i {
     font-size: 15px;
-    color: #4f46e5;
+    color: var(--palette-primary);
   }
   .ms-root .detail-info-grid {
     display: grid;
@@ -925,7 +925,7 @@
     transform: translateX(4px);
   }
   .ms-root .detail-item-card i {
-    color: #6366f1;
+    color: var(--palette-primary);
     font-size: 16px;
   }
   .ms-root .detail-photo-wrapper {

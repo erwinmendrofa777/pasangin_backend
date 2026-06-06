@@ -12,7 +12,7 @@ Detail Supplier
 <style>
     /* ===== HERO BANNER ===== */
     .profile-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 18px 28px 68px;
         position: relative;
@@ -72,7 +72,7 @@ Detail Supplier
         border-radius: 50%;
         border: 4px solid #fff;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
-        background: #0d6efd;
+        background: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -85,7 +85,7 @@ Detail Supplier
     .profile-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
@@ -97,12 +97,12 @@ Detail Supplier
     .action-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         height: 100%;
     }
 
     .action-card .card-header {
-        background: #6777EF !important;
+        background: var(--palette-primary) !important;
         border-radius: 16px 16px 0 0;
         padding: 18px 22px;
         border: none;
@@ -172,8 +172,8 @@ Detail Supplier
         height: 34px;
         min-width: 34px;
         border-radius: 10px;
-        background: #e7f0ff;
-        color: #0d6efd;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -234,7 +234,7 @@ Detail Supplier
         font-weight: 700;
         letter-spacing: 0.8px;
         text-transform: uppercase;
-        color: #0d6efd;
+        color: var(--palette-primary);
         margin-bottom: 10px;
     }
 

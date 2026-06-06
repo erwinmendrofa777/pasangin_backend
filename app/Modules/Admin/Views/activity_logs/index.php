@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <style>
     :root {
-        --primary-color: #6777ef;
-        --primary-light: #f0f4ff;
+        --primary-color: var(--palette-primary);
+        --primary-light: #fff5f5;
         --secondary-color: #6c757d;
         --success-color: #47c363;
         --info-color: #3abaf4;
@@ -21,8 +21,8 @@
     .page-header-card {
         border: none;
         border-radius: 24px;
-        background: linear-gradient(135deg, #6777ef 0%, #3f4ed0 100%);
-        box-shadow: 0 15px 35px rgba(103, 119, 239, 0.2);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
+        box-shadow: 0 15px 35px rgba(255, 92, 92, 0.25);
         overflow: hidden;
         position: relative;
         padding: 40px;
@@ -108,7 +108,7 @@
     }
 
     .table-custom tbody tr:hover {
-        background-color: #f8f9ff !important;
+        background-color: #fffafa !important;
         box-shadow: inset 4px 0 0 var(--primary-color);
     }
 
@@ -138,7 +138,7 @@
         font-weight: 800;
         font-size: 0.8rem;
         border: 2px solid #fff;
-        box-shadow: 0 4px 10px rgba(103, 119, 239, 0.15);
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.15);
     }
 
     .admin-info .name {
@@ -245,14 +245,14 @@
 
     .pagination-rounded .page-item.active .page-link {
         background-color: var(--primary-color);
-        box-shadow: 0 4px 10px rgba(103, 119, 239, 0.3);
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.3);
     }
 
     /* ===== FOOTER DATATABLE ===== */
     .dt-footer {
         padding: 14px 20px;
         border-top: 1px solid #f0f4fa;
-        background: #fafcff;
+        background: #fffafa;
     }
 
     .dataTables_info {
@@ -265,23 +265,23 @@
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: #0d6efd;
+        color: var(--palette-primary);
         align-items: center;
         justify-content: center;
     }
 
     .dataTables_paginate .page-item.active .page-link {
-        background: #0d6efd !important;
-        border-color: #0d6efd !important;
+        background: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
         color: #fff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
     .dataTables_paginate .page-item:not(.active) .page-link:hover {
-        background: #e7f0ff !important;
-        border-color: #e7f0ff !important;
-        color: #0d6efd !important;
+        background: #ffe5e5 !important;
+        border-color: #ffe5e5 !important;
+        color: var(--palette-primary) !important;
     }
 </style>
 <?= $this->endSection() ?>

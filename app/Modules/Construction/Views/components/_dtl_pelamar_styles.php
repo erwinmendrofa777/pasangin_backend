@@ -18,7 +18,7 @@
     }
 
     .pelamar-count-badge {
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         border-radius: 50px;
         padding: 3px 12px;
@@ -31,11 +31,11 @@
 
         0%,
         100% {
-            box-shadow: 0 0 0 0 rgba(103, 119, 239, 0.4);
+            box-shadow: 0 0 0 0 rgba(255, 92, 92, 0.4);
         }
 
         50% {
-            box-shadow: 0 0 0 6px rgba(103, 119, 239, 0);
+            box-shadow: 0 0 0 6px rgba(255, 92, 92, 0);
         }
     }
 
@@ -64,13 +64,13 @@
     }
 
     .applicant-card:hover {
-        box-shadow: 0 8px 28px rgba(103, 119, 239, 0.12);
+        box-shadow: 0 8px 28px rgba(255, 92, 92, 0.12);
         transform: translateY(-2px);
-        border-color: #d5daff;
+        border-color: #ffcccc;
     }
 
     .applicant-card:hover::before {
-        background: #6777ef;
+        background: var(--palette-primary);
     }
 
     .applicant-card.status-approved::before {
@@ -94,7 +94,7 @@
         width: 46px;
         height: 46px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #6777ef, #9fa8ff);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         display: flex;
         align-items: center;
@@ -102,7 +102,7 @@
         font-size: 1.1rem;
         font-weight: 700;
         flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.3);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.3);
     }
 
     /* ===== STATUS PILLS ===== */
@@ -152,26 +152,26 @@
 
     /* ===== SELECT INLINE ===== */
     .status-select-inline {
-        border: 1.5px solid #e0e4ff;
+        border: 1.5px solid #f3f4f6;
         border-radius: 8px;
         padding: 5px 10px;
         font-size: 0.82rem;
         font-weight: 500;
         color: #34395e;
-        background: #f8f9ff;
+        background: #fafafa;
         outline: none;
         cursor: pointer;
-        transition: border-color 0.2s ease;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
         min-width: 160px;
     }
 
     .status-select-inline:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.15);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
     }
 
     .btn-update-status {
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -185,7 +185,7 @@
 
     .btn-update-status:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.4);
         color: #fff;
     }
 
@@ -200,13 +200,13 @@
         width: 72px;
         height: 72px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #f0f3ff, #e0e4ff);
+        background: linear-gradient(135deg, #fff5f5, #ffe5e5);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 16px;
         font-size: 1.8rem;
-        color: #6777ef;
+        color: var(--palette-primary);
         opacity: 0.7;
     }
 

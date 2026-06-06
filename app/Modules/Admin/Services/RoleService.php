@@ -96,6 +96,13 @@ class RoleService
                         'wallet_withdraw_request' => 'Permintaan Tarik Dana'
                     ]
                 ],
+                'admin_balance' => [
+                    'label' => 'Akses Saldo Admin',
+                    'actions' => [
+                        'admin_balance_view' => 'Lihat Saldo Admin',
+                        'admin_balance_manage' => 'Kelola Saldo Admin'
+                    ]
+                ],
                 'tukang' => [
                     'label' => 'Akses Menu Tukang',
                     'actions' => [
@@ -219,6 +226,13 @@ class RoleService
                 ],
             ],
             'AKSES' => [
+                'settings' => [
+                    'label' => 'Akses Pengaturan Aplikasi',
+                    'actions' => [
+                        'settings_view' => 'Lihat Pengaturan',
+                        'settings_edit' => 'Ubah Pengaturan'
+                    ]
+                ],
                 'roles' => [
                     'label' => 'Akses Menu Role',
                     'actions' => [

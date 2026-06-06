@@ -8,7 +8,7 @@ Detail Banner Supplier - <?= esc($banner['title']) ?>
 <style>
     /* ===== HERO HEADER ===== */
     .detail-hero {
-        background: #6777ef;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 28px 28px 72px;
         position: relative;
@@ -41,7 +41,7 @@ Detail Banner Supplier - <?= esc($banner['title']) ?>
         object-position: center;
         border-radius: 16px;
         border: 4px solid #fff;
-        box-shadow: 0 8px 30px rgba(103, 119, 239, 0.2);
+        box-shadow: 0 8px 30px rgba(255, 92, 92, 0.2);
         background: #e9ecef;
         cursor: pointer;
         transition: transform 0.2s ease;
@@ -55,7 +55,7 @@ Detail Banner Supplier - <?= esc($banner['title']) ?>
     .detail-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(103, 119, 239, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
         background: #fff;
     }

@@ -1,7 +1,7 @@
 <!-- BACK BUTTON -->
 <div class="mb-4">
     <a href="<?= base_url('admin/tips') ?>" class="btn btn-light btn-sm px-3 shadow-sm"
-        style="border-radius: 10px; font-weight: 700; color: #6777ef;">
+        style="border-radius: 10px; font-weight: 700; color: var(--palette-primary);">
         <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
     </a>
 </div>
@@ -13,7 +13,7 @@
             <div class="detail-hero">
                 <div class="d-flex justify-content-between align-items-center position-relative" style="z-index: 1;">
                     <div class="text-white">
-                        <h5 class="mb-1 fw-bold" style="opacity: 0.9;">Artikel & Tips</h5>
+                        <h5 class="mb-1 fw-bold text-white" style="opacity: 0.9;">Artikel & Tips</h5>
                         <p class="small mb-0" style="opacity: 0.7;">Pratinjau konten aplikasi</p>
                     </div>
                     <div class="d-flex gap-2">

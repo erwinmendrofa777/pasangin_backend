@@ -1,8 +1,8 @@
 <style>
     /* ── Loker Canvas Design System (Primary Theme) ── */
     :root {
-        --canvas-primary: #6777ef;
-        --canvas-primary-dark: #394eea;
+        --canvas-primary: var(--palette-primary);
+        --canvas-primary-dark: var(--palette-primary-hover);
         --canvas-success: #47c363;
         --canvas-warning: #ffa426;
         --canvas-danger: #fc544b;
@@ -32,10 +32,10 @@
 
     /* Hero Card (Primary BG) */
     .hero-primary-card {
-        background: linear-gradient(135deg, var(--canvas-primary) 0%, #828eff 100%);
+        background: linear-gradient(135deg, var(--canvas-primary) 0%, var(--canvas-primary-dark) 100%);
         border-radius: var(--canvas-radius);
         border: none;
-        box-shadow: 0 10px 25px rgba(103, 119, 239, 0.25);
+        box-shadow: 0 10px 25px rgba(255, 92, 92, 0.25);
         color: #fff;
         margin-bottom: 35px;
     }
@@ -132,7 +132,7 @@
         border-color: var(--canvas-primary);
         background: #fff;
         outline: none;
-        box-shadow: 0 0 0 4px rgba(103, 119, 239, 0.1);
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
     }
 
     .canvas-btn-primary {
@@ -145,13 +145,13 @@
         font-size: 1rem;
         width: 100%;
         transition: all 0.3s;
-        box-shadow: 0 5px 15px rgba(103, 119, 239, 0.3);
+        box-shadow: 0 5px 15px rgba(255, 92, 92, 0.3);
     }
 
     .canvas-btn-primary:hover {
         background: var(--canvas-primary-dark);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(103, 119, 239, 0.4);
+        box-shadow: 0 8px 20px rgba(255, 92, 92, 0.4);
     }
 
     /* Radar List */

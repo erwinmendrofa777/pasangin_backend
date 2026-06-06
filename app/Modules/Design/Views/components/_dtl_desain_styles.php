@@ -8,7 +8,7 @@
     }
 
     .upload-card:hover {
-        border-color: #6777ef;
+        border-color: var(--palette-primary);
         background: #f0f2ff;
     }
 
@@ -23,7 +23,7 @@
 
     .design-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(103, 119, 239, .18);
+        box-shadow: 0 8px 24px rgba(255, 92, 92, .18);
     }
 
     .design-card.approved {
@@ -163,7 +163,7 @@
     }
 
     .file-upload-box:hover {
-        border-color: #6777ef;
+        border-color: var(--palette-primary);
         background: #f8f9ff;
     }
 
@@ -194,6 +194,6 @@
     }
 
     .file-upload-box:hover i {
-        color: #6777ef;
+        color: var(--palette-primary);
     }
 </style>

@@ -3,7 +3,7 @@
     .survey-card-history {
         border: none;
         border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(103, 119, 239, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 20px rgba(255, 92, 92, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
         overflow: hidden;
         animation: surveyFadeUp 0.4s ease both;
     }
@@ -26,7 +26,7 @@
 
     .survey-card-form .card-header,
     .survey-card-history .card-header {
-        background: linear-gradient(135deg, #6777ef 0%, #7e8ef5 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         border: none;
         padding: 16px 22px;
     }
@@ -42,18 +42,18 @@
 
     .survey-input {
         border-radius: 8px;
-        border: 1.5px solid #e0e4ff;
+        border: 1.5px solid #e5e7eb;
         padding: 10px 14px;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .survey-input:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
     }
 
     .btn-survey-submit {
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         border: none;
         border-radius: 8px;
         padding: 11px;
@@ -64,7 +64,7 @@
 
     .btn-survey-submit:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(103, 119, 239, 0.35);
+        box-shadow: 0 6px 16px rgba(255, 92, 92, 0.35);
     }
 
     .empty-survey {
@@ -77,13 +77,13 @@
         width: 64px;
         height: 64px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #f0f3ff, #e0e4ff);
+        background: linear-gradient(135deg, #fff5f5, #ffe5e5);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 14px;
         font-size: 1.6rem;
-        color: #6777ef;
+        color: var(--palette-primary);
         opacity: 0.6;
     }
 
@@ -106,8 +106,8 @@
     .file-upload-box {
         position: relative;
         height: 48px;
-        background: #f8faff;
-        border: 2px dashed #6777ef55;
+        background: #fafafa;
+        border: 2px dashed var(--palette-primary)55;
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -118,7 +118,7 @@
 
     .file-upload-box:hover {
         background: #fff;
-        border-color: #6777ef;
+        border-color: var(--palette-primary);
     }
 
     .file-upload-box .file-label {
@@ -141,32 +141,33 @@
     }
 
     .file-upload-box i {
-        color: #6777ef;
+        color: var(--palette-primary);
         font-size: 1.1rem;
         margin-left: 10px;
     }
 
     /* ===== GLIGHTBOX VIDEO INLINE SLIDE PREMIUM SYSTEM ===== */
     .glightbox-video-slide .gslide-inline {
-        background: #000000 !important;
-        border-radius: 16px;
+        background: #000 !important;
         padding: 0 !important;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
-        max-width: 850px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        width: 95% !important;
+        max-width: 900px !important;
+        border-radius: 12px;
+        overflow: hidden !important;
+        overflow-y: hidden !important;
     }
-
     .glightbox-video-slide .gslide-inner-content {
-        background: transparent !important;
+        background: #000 !important;
+        overflow: hidden !important;
+        width: 100% !important;
     }
-
     .glightbox-video-slide .gslide-description {
-        background: rgba(0, 0, 0, 0.85) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px 20px !important;
+        display: none !important;
     }
-
     .glightbox-video-slide .gslide-media {
         box-shadow: none !important;
+        overflow: hidden !important;
+        background: #000 !important;
     }
 </style>

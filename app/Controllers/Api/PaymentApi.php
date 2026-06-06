@@ -27,6 +27,67 @@ class PaymentApi extends BaseController
     }
 
     /**
+     * FUNGSI TAGIHAN PRODUK/TRANSAKSI (TRX-...)
+     */
+    public function getPaymentToken($id)
+    {
+        $transaction = $this->db->table('transactions')->where('id', $id)->get()->getRowArray();
+        if (!$transaction) {
+            return $this->failNotFound('Transaksi tidak ditemukan.');
+        }
+
+        // Cek jika transaksi sudah dibayar
+        if (strtoupper($transaction['status']) === 'PAID') {
+            return $this->fail('Transaksi ini sudah lunas.');
+        }
+
+        $userId = $transaction['user_id'];
+        $user = $this->db->table('users')->where('id', $userId)->get()->getRowArray();
+        if (!$user) {
+            return $this->failNotFound('User tidak ditemukan.');
+        }
+
+        $transactionIdUnique = $transaction['transaction_id'];
+        $customOrderId = $transactionIdUnique . '-' . time();
+        $grossAmount = (int) $transaction['total_amount'];
+
+        // Ambil salah satu order untuk mendapatkan data penerima (opsional, sebagai fallback)
+        $order = $this->db->table('orders')
+            ->where('transaction_id', $transactionIdUnique)
+            ->get()
+            ->getRowArray();
+
+        $recipientName = $order['recipient_name'] ?? $user['full_name'] ?? 'Pelanggan';
+        $recipientPhone = $order['recipient_phone'] ?? $user['phone_number'] ?? '08123456789';
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $customOrderId,
+                'gross_amount' => $grossAmount,
+            ],
+            'customer_details' => [
+                'first_name' => $recipientName,
+                'email' => $user['email'] ?? 'customer@example.com',
+                'phone' => $recipientPhone,
+            ],
+        ];
+
+        try {
+            $midtransTransaction = \Midtrans\Snap::createTransaction($params);
+            return $this->respond([
+                'status' => true,
+                'transaction_id' => $transactionIdUnique,
+                'midtrans_order_id' => $customOrderId,
+                'gross_amount' => $grossAmount,
+                'redirect_url' => $midtransTransaction->redirect_url,
+                'order_id' => $customOrderId
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Gagal Midtrans: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * FUNGSI TAGIHAN DESAIN
      */
     public function getDesignPaymentToken($invoiceId, $voucherCode = null)
@@ -234,6 +295,15 @@ class PaymentApi extends BaseController
             $status = \Midtrans\Transaction::status($orderId);
             $transactionStatus = is_array($status) ? ($status['transaction_status'] ?? '') : ($status->transaction_status ?? '');
 
+            // Extract base transaction ID if it has a suffix (TRX-{timestamp}-{userId}-{timestamp})
+            $lookupId = $orderId;
+            if (strpos($orderId, 'TRX-') === 0) {
+                $parts = explode('-', $orderId);
+                if (count($parts) > 3) {
+                    $lookupId = implode('-', array_slice($parts, 0, 3));
+                }
+            }
+
             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
 
                 $tableName = '';
@@ -256,41 +326,201 @@ class PaymentApi extends BaseController
 
                 if (!empty($tableName)) {
                     // Ambil data invoice/order  
-                    $dataObj = $this->db->table($tableName)->where($idColumn, $orderId)->get()->getRowArray();
+                    $dataObj = $this->db->table($tableName)->where($idColumn, $lookupId)->get()->getRowArray();
 
                     if ($dataObj) {
-                        // Update Status  
-                        $this->db->table($tableName)->where($idColumn, $orderId)->update([$statusColumn => 'PAID']);
+                        // Cek status saat ini untuk mencegah pemrosesan ulang/duplikasi transaksi saldo
+                        $currentStatus = $dataObj[$statusColumn] ?? '';
 
-                        $userId = $dataObj['user_id'] ?? null;
-                        $title = "Pembayaran Berhasil";
-                        $message = "Terima kasih! Pembayaran Anda untuk tagihan {$orderId} telah kami terima.";
-                        $permission = "";
+                        if (strtoupper($currentStatus) !== 'PAID') {
+                            // Update Status  
+                            $this->db->table($tableName)->where($idColumn, $lookupId)->update([$statusColumn => 'PAID']);
 
-                        // Tentukan Permission Admin  
-                        if ($tableName == 'project_invoices') {
-                            $permission = 'design_pembayaran';
-                        } elseif ($tableName == 'construction_invoices') {
-                            $permission = 'construction_pembayaran';
-                        } elseif ($tableName == 'renovation_invoices') {
-                            $permission = 'renovation_pembayaran';
-                        } elseif ($tableName == 'orders') {
-                            $permission = 'order_view';
+                            // Update transactions table as well
+                            if ($tableName == 'orders') {
+                                $this->db->table('transactions')
+                                    ->where('transaction_id', $lookupId)
+                                    ->update(['status' => 'PAID', 'updated_at' => date('Y-m-d H:i:s')]);
+                            }
+
+                            // =========================================================================
+                            // SINKRONISASI SALDO ADMIN DENGAN TRANSAKSI MIDTRANS
+                            // =========================================================================
+                            $alreadyLogged = $this->db->table('admin_transactions')
+                                ->where('reference_id', $orderId)
+                                ->where('source', 'midtrans_payin')
+                                ->get()
+                                ->getRow();
+
+                            if (!$alreadyLogged) {
+                                $grossAmount = is_array($status) ? (float) ($status['gross_amount'] ?? 0) : (float) ($status->gross_amount ?? 0);
+                                $fee = $this->_calculateMidtransFee($status);
+
+                                $adminBalanceSvc = new \App\Modules\Wallets\Services\AdminBalanceService();
+                                try {
+                                    // 1. Catat uang masuk (gross)
+                                    $adminBalanceSvc->addTransaction(
+                                        $grossAmount,
+                                        'income',
+                                        'midtrans_payin',
+                                        $orderId,
+                                        'Pembayaran ' . ucfirst(str_replace('_invoices', '', $tableName)) . ' via Midtrans (Order ID: ' . $orderId . ')'
+                                    );
+
+                                    // 2. Catat biaya layanan Midtrans (pengeluaran)
+                                    if ($fee > 0) {
+                                        $adminBalanceSvc->addTransaction(
+                                            $fee,
+                                            'expense',
+                                            'midtrans_fee',
+                                            $orderId,
+                                            'Biaya layanan Midtrans untuk Order ID: ' . $orderId
+                                        );
+                                    }
+                                } catch (\Exception $e) {
+                                    log_message('error', 'Gagal mencatat saldo admin otomatis dari Midtrans: ' . $e->getMessage());
+                                }
+                            }
+                            // =========================================================================
+
+                            $userId = $dataObj['user_id'] ?? null;
+                            $title = "Pembayaran Berhasil";
+                            if ($tableName == 'orders') {
+                                $message = "Terima kasih! Pembayaran Anda untuk transaksi {$lookupId} telah kami terima.";
+                            } else {
+                                $message = "Terima kasih! Pembayaran Anda untuk tagihan {$orderId} telah kami terima.";
+                            }
+                            $permission = "";
+
+                            // Tentukan Permission Admin  
+                            if ($tableName == 'project_invoices') {
+                                $permission = 'design_pembayaran';
+                            } elseif ($tableName == 'construction_invoices') {
+                                $permission = 'construction_pembayaran';
+                            } elseif ($tableName == 'renovation_invoices') {
+                                $permission = 'renovation_pembayaran';
+                            } elseif ($tableName == 'orders') {
+                                $permission = 'order_view';
+                            }
+
+                            // 1. Kirim Notif ke Client  
+                            if ($userId) {
+                                $this->notifService->sendPersonal('client', (int) $userId, $title, $message);
+                            }
+
+                            // 2. Kirim Notif ke Admin  
+                            if ($permission) {
+                                $this->notifService->sendToPermission($permission, "Pembayaran Masuk", "Pembayaran lunas untuk tagihan {$orderId}.");
+                            }
+
+                            // 3. Kirim Notif ke Supplier (untuk orders)
+                            if ($tableName == 'orders') {
+                                $suppliers = $this->db->table('orders')
+                                    ->select('products.supplier_id')
+                                    ->join('order_items', 'order_items.order_id = orders.id')
+                                    ->join('products', 'products.id = order_items.product_id')
+                                    ->where('orders.transaction_id', $lookupId)
+                                    ->distinct()
+                                    ->get()
+                                    ->getResultArray();
+
+                                foreach ($suppliers as $s) {
+                                    if ($s['supplier_id']) {
+                                        $this->notifService->sendPersonal(
+                                            'supplier',
+                                            (int) $s['supplier_id'],
+                                            'Pesanan Baru',
+                                            'Anda mendapatkan pesanan baru! Silakan cek notifikasi pesanan Anda.'
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
+                if (strpos($orderId, 'TRX-') === 0) {
+                    $transaction = $this->db->table('transactions')
+                        ->where('transaction_id', $lookupId)
+                        ->get()
+                        ->getRow();
+
+                    if ($transaction && $transaction->status === 'PENDING') {
+                        // Kembalikan stok produk
+                        $orders = $this->db->table('orders')
+                            ->where('transaction_id', $lookupId)
+                            ->get()
+                            ->getResultArray();
+
+                        foreach ($orders as $order) {
+                            $orderItems = $this->db->table('order_items')
+                                ->where('order_id', $order['id'])
+                                ->get()
+                                ->getResultArray();
+
+                            foreach ($orderItems as $item) {
+                                $this->db->table('products')
+                                    ->set('stock', 'stock + ' . (int) $item['quantity'], false)
+                                    ->where('id', $item['product_id'])
+                                    ->update();
+                            }
                         }
 
-                        // 1. Kirim Notif ke Client  
-                        if ($userId) {
-                            $this->notifService->sendPersonal('client', (int) $userId, $title, $message);
-                        }
+                        // Update status orders ke CANCELLED
+                        $this->db->table('orders')
+                            ->where('transaction_id', $lookupId)
+                            ->update(['status' => 'CANCELLED']);
 
-                        // 2. Kirim Notif ke Admin  
-                        if ($permission) {
-                            $this->notifService->sendToPermission($permission, "Pembayaran Masuk", "Pembayaran lunas untuk tagihan {$orderId}.");
-                        }
+                        // Update status transaction ke FAILED
+                        $this->db->table('transactions')
+                            ->where('transaction_id', $lookupId)
+                            ->update(['status' => 'FAILED', 'updated_at' => date('Y-m-d H:i:s')]);
                     }
                 }
             }
         } catch (\Exception $e) {
+            log_message('error', 'Midtrans Update Status Error: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Menghitung biaya admin Midtrans berdasarkan tipe pembayaran + PPN 11%.
+     * Sesuai dengan tarif resmi akun PT. Indrayata Architecture Construction.
+     */
+    private function _calculateMidtransFee($statusObj)
+    {
+        $paymentType = is_array($statusObj) ? ($statusObj['payment_type'] ?? '') : ($statusObj->payment_type ?? '');
+        $grossAmount = is_array($statusObj) ? (float) ($statusObj['gross_amount'] ?? 0) : (float) ($statusObj->gross_amount ?? 0);
+
+        $baseFee = 4000.00;
+
+        switch ($paymentType) {
+            case 'bank_transfer':
+            case 'echannel':
+            case 'permata':
+                $baseFee = 4000.00;
+                break;
+            case 'gopay':
+                $baseFee = $grossAmount * 0.02;
+                break;
+            case 'qris':
+                $baseFee = $grossAmount * 0.007;
+                break;
+            case 'shopeepay':
+                $baseFee = $grossAmount * 0.02;
+                break;
+            case 'cstore': // Indomaret / Alfamart
+                $baseFee = 5000.00;
+                break;
+            default:
+                $baseFee = 4000.00;
+                break;
+        }
+
+        // PPN 11% dihitung dari nilai biaya metode pembayaran
+        $totalFee = $baseFee * 1.11;
+        return round($totalFee, 2);
+    }
 }
+
+

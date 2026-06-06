@@ -3,8 +3,8 @@
     <!-- Card Header: Search -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center px-4 py-3 gap-3"
         style="border-bottom: 1px solid #f0f4fa;">
-        <h6 class="mb-0 fw-bold"
-            style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase; color: #0d6efd;">
+        <h6 class="mb-0 fw-bold text-primary"
+            style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase;">
             <i class="fas fa-list me-2"></i>Daftar Proyek Konstruksi
         </h6>
         <div class="d-flex align-items-center gap-2">

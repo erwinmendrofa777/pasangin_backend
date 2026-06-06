@@ -14,8 +14,8 @@ Manajemen Konten
     .page-header-card {
         border: none;
         border-radius: 20px;
-        background: linear-gradient(135deg, #6777ef 0%, #4d5fd1 100%);
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.25);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.25);
         overflow: hidden;
         position: relative;
         padding: 28px 32px;
@@ -91,7 +91,7 @@ Manajemen Konten
         border: none;
         border-radius: 16px;
         padding: 18px 20px;
-        box-shadow: 0 4px 16px rgba(103, 119, 239, 0.08);
+        box-shadow: 0 4px 16px rgba(255, 92, 92, 0.08);
         display: flex;
         align-items: center;
         gap: 14px;
@@ -128,7 +128,7 @@ Manajemen Konten
     .table-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.08);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.08);
     }
 
     .table-card .card-header {
@@ -168,8 +168,8 @@ Manajemen Konten
     }
 
     .search-wrapper input:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
         outline: none;
     }
 
@@ -179,16 +179,16 @@ Manajemen Konten
     }
 
     #table-1 thead tr {
-        background: #f8f7ff;
+        background: #fff5f5;
     }
 
     #table-1 thead th {
-        color: #6777ef;
+        color: var(--palette-primary);
         font-size: 0.72rem;
         font-weight: 800;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #ebe8ff;
+        border-bottom: 2px solid #ffdddd;
         padding: 14px 16px;
     }
 
@@ -204,7 +204,7 @@ Manajemen Konten
     }
 
     #table-1 tbody tr:hover {
-        background: #faf9ff;
+        background: #fffafa;
     }
 
     /* ===== TIPS IMAGE ===== */
@@ -286,17 +286,27 @@ Manajemen Konten
     }
 
     .btn-action-detail {
-        background: #eef0fd;
-        color: #6777ef;
+        background: var(--palette-primary);
+        color: var(--palette-primary);
     }
 
     .btn-action-detail:hover {
-        background: #6777ef;
+        background: var(--palette-primary);
+        color: #fff;
+    }
+
+    .btn-action-edit {
+        background: #f76707;
+        color: #f76707;
+    }
+
+    .btn-action-edit:hover {
+        background: #f76707;
         color: #fff;
     }
 
     .btn-action-delete {
-        background: #fff0f0;
+        background: #e03131;
         color: #e03131;
     }
 
@@ -322,23 +332,23 @@ Manajemen Konten
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: #0d6efd;
+        color: var(--palette-primary);
         align-items: center;
         justify-content: center;
     }
 
     .dataTables_paginate .page-item.active .page-link {
-        background: #0d6efd !important;
-        border-color: #0d6efd !important;
+        background: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
         color: #fff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
     .dataTables_paginate .page-item:not(.active) .page-link:hover {
-        background: #e7f0ff !important;
-        border-color: #e7f0ff !important;
-        color: #0d6efd !important;
+        background: #ffe5e5 !important;
+        border-color: #ffe5e5 !important;
+        color: var(--palette-primary) !important;
     }
 
     /* ===== EMPTY STATE ===== */

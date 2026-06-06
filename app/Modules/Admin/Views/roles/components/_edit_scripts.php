@@ -1,3 +1,12 @@
+<?php
+$grandTotal = 0;
+foreach ($available_menus as $menus) {
+    foreach ($menus as $k => $v) {
+        $grandTotal++;
+        if (is_array($v)) $grandTotal += count($v['actions']);
+    }
+}
+?>
 <script>
     <?php if (session()->getFlashdata('success')) : ?>
         iziToast.success({

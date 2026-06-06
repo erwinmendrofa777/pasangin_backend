@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <div class="card-body" style="background: #f8fbff; border-radius: 0 0 20px 20px; padding: 24px;">
+    <div class="card-body" style="background: #fffafa; border-radius: 0 0 20px 20px; padding: 24px;">
         <?php if (!empty($designerTasks)): ?>
             <!-- Horizontal Scroll Container -->
             <div class="d-flex flex-nowrap gap-4 pb-3 pt-2 px-1 task-scroll-container"

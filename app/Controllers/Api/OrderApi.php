@@ -202,7 +202,7 @@ class OrderApi extends BaseController
 
                     // Kurangi stok produk
                     $stockUpdate = $this->db->table('products')
-                        ->set('stock', 'stock - ' . (int)$item['quantity'], false)
+                        ->set('stock', 'stock - ' . (int) $item['quantity'], false)
                         ->where('id', $item['product_id'])
                         ->update();
 
@@ -253,9 +253,11 @@ class OrderApi extends BaseController
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
 
+            $customOrderId = $transactionIdUnique . '-' . time();
+
             $params = [
                 'transaction_details' => [
-                    'order_id' => $transactionIdUnique,
+                    'order_id' => $customOrderId,
                     'gross_amount' => (int) $totalPrice,
                 ],
                 'customer_details' => [
@@ -277,6 +279,7 @@ class OrderApi extends BaseController
             return $this->respond([
                 'status' => true,
                 'transaction_id' => $transactionIdUnique,
+                'midtrans_order_id' => $customOrderId,
                 'order_count' => count($createdOrderIds),
                 'orders' => $createdOrderMeta,
                 'redirect_url' => $midtransTransaction->redirect_url
@@ -293,15 +296,33 @@ class OrderApi extends BaseController
     public function history()
     {
         $userId = $this->request->user->uid;
-        $data = $this->db->table('orders')
-            ->where('user_id', $userId)
-            ->orderBy('id', 'DESC')
+
+
+        $orders = $this->db->table('orders')
+            ->select('orders.id, orders.transaction_id, orders.order_id, orders.status, orders.created_at, orders.recipient_name, orders.recipient_phone, orders.shipping_address, orders.total_price, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, transactions.id as id_transaction, transactions.total_amount as transaction_total_amount')
+            ->join('transactions', 'transactions.transaction_id = orders.transaction_id')
+            ->where('orders.user_id', $userId)
+            ->orderBy('orders.id', 'DESC')
             ->get()
             ->getResultArray();
 
+        foreach ($orders as &$order) {
+            $order['items'] = $this->db->table('order_items')
+                ->select('order_items.quantity, order_items.price, products.name, products.photo')
+                ->join('products', 'products.id = order_items.product_id')
+                ->where('order_items.order_id', $order['id'])
+                ->get()
+                ->getResultArray();
+
+            foreach ($order['items'] as &$item) {
+                $item['image_url'] = base_url('uploads/products/' . ($item['photo'] ?? 'default.png'));
+                unset($item['photo']); // Pangkas data photo
+            }
+        }
+
         return $this->respond([
             'status' => true,
-            'data' => $data
+            'data' => $orders
         ]);
     }
 
@@ -331,46 +352,83 @@ class OrderApi extends BaseController
     /**
      * Menghapus Order beserta item di dalamnya
      */
-    public function delete($id)
+    public function delete($transactionId)
     {
-        $order = $this->db->table('orders')->where('id', $id)->get()->getRow();
+        // Ambil data transaksi
+        $transaction = $this->db->table('transactions')
+            ->where('transaction_id', $transactionId)
+            ->get()
+            ->getRow();
 
-        if (!$order) {
+        if (!$transaction) {
+            return $this->failNotFound('Transaksi tidak ditemukan.');
+        }
+
+        if ($transaction->status === 'FAILED') {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Transaksi sudah dibatalkan sebelumnya.'
+            ]);
+        }
+
+        // Ambil semua orders yang terkait dengan transaksi ini
+        $orders = $this->db->table('orders')
+            ->where('transaction_id', $transactionId)
+            ->get()
+            ->getResultArray();
+
+        if (empty($orders)) {
             return $this->failNotFound('Order tidak ditemukan.');
         }
 
         $this->db->transStart();
 
-        // Kembalikan stok produk jika status order yang dihapus adalah UNPAID
-        if ($order->status === 'UNPAID') {
-            $orderItems = $this->db->table('order_items')
-                ->where('order_id', $id)
-                ->get()
-                ->getResultArray();
+        foreach ($orders as $order) {
+            // Kembalikan stok produk jika status order adalah UNPAID
+            if ($order['status'] === 'UNPAID') {
+                $orderItems = $this->db->table('order_items')
+                    ->where('order_id', $order['id']) // Menggunakan order ID (integer)
+                    ->get()
+                    ->getResultArray();
 
-            foreach ($orderItems as $item) {
-                $this->db->table('products')
-                    ->set('stock', 'stock + ' . (int)$item['quantity'], false)
-                    ->where('id', $item['product_id'])
-                    ->update();
+                foreach ($orderItems as $item) {
+                    $this->db->table('products')
+                        ->set('stock', 'stock + ' . (int) $item['quantity'], false)
+                        ->where('id', $item['product_id'])
+                        ->update();
+                }
             }
+
+            // Ubah status order menjadi CANCELLED
+            $this->db->table('orders')
+                ->where('id', $order['id'])
+                ->update(['status' => 'CANCELLED']);
         }
 
-        // Hapus item order terlebih dahulu
-        $this->db->table('order_items')->where('order_id', $id)->delete();
-
-        // Hapus order utama
-        $this->db->table('orders')->where('id', $id)->delete();
+        // Ubah status transaksi menjadi FAILED jika transaksi masih PENDING
+        if ($transaction->status === 'PENDING') {
+            $this->db->table('transactions')
+                ->where('transaction_id', $transactionId)
+                ->update(['status' => 'FAILED']);
+        }
 
         $this->db->transComplete();
 
         if ($this->db->transStatus() === false) {
-            return $this->fail('Gagal menghapus order.');
+            return $this->fail('Gagal membatalkan transaksi.');
         }
+
+        // Kirim Notifikasi ke Client/User jika transaksi sudah dibatalkan
+        $this->notifService->sendPersonal(
+            'client',
+            (int) $transaction->user_id,
+            'Pesanan Dibatalkan',
+            "Pesanan Anda untuk transaksi {$transactionId} telah dibatalkan."
+        );
 
         return $this->respondDeleted([
             'status' => true,
-            'message' => 'Order berhasil dihapus.'
+            'message' => 'Transaksi berhasil dibatalkan.'
         ]);
     }
 
@@ -432,6 +490,15 @@ class OrderApi extends BaseController
 
             // Update transaction status berdasarkan Midtrans response
             $transactionId = $notif->order_id;
+
+            // Extract base transaction ID if it has a suffix (TRX-{timestamp}-{userId}-{timestamp})
+            if (strpos($transactionId, 'TRX-') === 0) {
+                $parts = explode('-', $transactionId);
+                if (count($parts) > 3) {
+                    $transactionId = implode('-', array_slice($parts, 0, 3));
+                }
+            }
+
             $transaction = $this->db->table('transactions')
                 ->where('transaction_id', $transactionId)
                 ->get()
@@ -498,7 +565,7 @@ class OrderApi extends BaseController
 
                         foreach ($orderItems as $item) {
                             $this->db->table('products')
-                                ->set('stock', 'stock + ' . (int)$item['quantity'], false)
+                                ->set('stock', 'stock + ' . (int) $item['quantity'], false)
                                 ->where('id', $item['product_id'])
                                 ->update();
                         }
@@ -551,5 +618,163 @@ class OrderApi extends BaseController
             'status' => true,
             'data' => $transactions
         ]);
+    }
+
+    /**
+     * Konfirmasi pesanan diterima oleh pelanggan
+     * POST api/orders/complete/(:num)
+     */
+    public function complete($orderId)
+    {
+        $userId = $this->request->user->uid;
+
+        // Ambil data order
+        $order = $this->db->table('orders')->where('id', $orderId)->get()->getRow();
+        if (!$order) {
+            return $this->failNotFound('Pesanan tidak ditemukan.');
+        }
+
+        // Validasi kepemilikan pesanan
+        if ((int) $order->user_id !== (int) $userId) {
+            return $this->failForbidden('Anda tidak memiliki akses untuk pesanan ini.');
+        }
+
+        // Cek status saat ini
+        if ($order->status === 'COMPLETED') {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Pesanan sudah diselesaikan sebelumnya.'
+            ]);
+        }
+
+        // Hanya pesanan yang sudah dibayar atau dikirim yang bisa diselesaikan
+        if (in_array($order->status, ['CANCELLED', 'UNPAID', 'FAILED'])) {
+            return $this->fail('Pesanan yang dibatalkan, belum dibayar, atau gagal tidak dapat diselesaikan.');
+        }
+
+        try {
+            $this->db->transStart();
+
+            // 1. Update status pesanan menjadi COMPLETED
+            $this->db->table('orders')
+                ->where('id', $orderId)
+                ->update(['status' => 'COMPLETED']);
+
+            // 2. Ambil semua item produk di pesanan ini untuk mendapatkan supplier_id & menghitung subtotal
+            $items = $this->db->table('order_items')
+                ->select('order_items.price, order_items.quantity, products.supplier_id')
+                ->join('products', 'products.id = order_items.product_id')
+                ->where('order_items.order_id', $orderId)
+                ->get()
+                ->getResultArray();
+
+            if (empty($items)) {
+                throw new \Exception('Item pesanan tidak ditemukan.');
+            }
+
+            $supplierId = null;
+            $totalProductAmount = 0;
+            foreach ($items as $item) {
+                $totalProductAmount += (float) $item['price'] * (int) $item['quantity'];
+                $supplierId = $item['supplier_id']; // Dipecah per supplier di checkout, jadi semua item di order yang sama memiliki supplier_id yang sama
+            }
+
+            // Tambahkan ongkir (shipping_fee) ke biaya yang dikirim ke supplier
+            $shippingFee = (float) ($order->shipping_fee ?? 0);
+            $totalSupplierAmount = $totalProductAmount + $shippingFee;
+
+            // 3. Tambahkan nominal total ke kolom balance di tabel suppliers
+            if ($supplierId && $totalSupplierAmount > 0) {
+                $this->db->table('suppliers')
+                    ->where('id', $supplierId)
+                    ->set('balance', 'balance + ' . $totalSupplierAmount, false)
+                    ->update();
+
+                // 4. Catat riwayat transaksi supplier ke tabel supplier_transactions (Dipisah antara total produk & ongkir)
+                if ($totalProductAmount > 0) {
+                    $this->db->table('supplier_transactions')->insert([
+                        'supplier_Id' => $supplierId,
+                        'amount' => $totalProductAmount,
+                        'type' => 'income',
+                        'description' => 'Pendapatan produk dari pesanan ' . $order->order_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+
+                if ($shippingFee > 0) {
+                    $this->db->table('supplier_transactions')->insert([
+                        'supplier_Id' => $supplierId,
+                        'amount' => $shippingFee,
+                        'type' => 'income',
+                        'description' => 'Ongkos kirim dari pesanan ' . $order->order_id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+
+            // 5. Tambahkan biaya aplikasi (app_fee) & pajak (tax_amount) ke Saldo Admin secara otomatis
+            $adminBalanceSvc = new \App\Modules\Wallets\Services\AdminBalanceService();
+
+            $appFee = (float) ($order->app_fee ?? 0);
+            if ($appFee > 0) {
+                $adminBalanceSvc->addTransaction(
+                    $appFee,
+                    'income',
+                    'order_app_fee',
+                    $order->order_id,
+                    'Biaya aplikasi dari pesanan ' . $order->order_id
+                );
+            }
+
+            $taxAmount = (float) ($order->tax_amount ?? 0);
+            if ($taxAmount > 0) {
+                $adminBalanceSvc->addTransaction(
+                    $taxAmount,
+                    'income',
+                    'order_tax_amount',
+                    $order->order_id,
+                    'Pajak dari pesanan ' . $order->order_id
+                );
+            }
+
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \Exception('Gagal memproses transaksi di database.');
+            }
+
+            // ==========================================
+            // 4. KIRIM NOTIFIKASI
+            // ==========================================
+            $amountFormatted = number_format($totalSupplierAmount, 0, ',', '.');
+
+            // Notifikasi ke Client (Pembeli)
+            $this->notifService->sendPersonal(
+                'client',
+                (int) $userId,
+                'Pesanan Selesai',
+                "Terima kasih! Pesanan Anda dengan kode {$order->order_id} telah selesai."
+            );
+
+            // Notifikasi ke Supplier
+            if ($supplierId) {
+                $this->notifService->sendPersonal(
+                    'supplier',
+                    (int) $supplierId,
+                    'Dana Pesanan Masuk',
+                    "Pesanan {$order->order_id} telah selesai. Dana sebesar Rp {$amountFormatted} telah ditambahkan ke saldo Anda."
+                );
+            }
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Pesanan berhasil diselesaikan dan saldo supplier telah diperbarui.'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            return $this->fail('Gagal menyelesaikan pesanan: ' . $e->getMessage());
+        }
     }
 }

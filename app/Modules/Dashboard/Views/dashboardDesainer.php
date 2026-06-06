@@ -34,7 +34,7 @@ Dashboard Desainer
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-left: 5px solid #6777ef;
+    border-left: 5px solid var(--palette-primary);
     position: relative;
     overflow: hidden;
   }
@@ -46,7 +46,7 @@ Dashboard Desainer
     right: -50px;
     width: 150px;
     height: 150px;
-    background: linear-gradient(135deg, rgba(103, 119, 239, 0.06), rgba(103, 119, 239, 0.01));
+    background: linear-gradient(135deg, rgba(255, 92, 92, 0.06), rgba(255, 92, 92, 0.01));
     border-radius: 50%;
     pointer-events: none;
   }
@@ -59,7 +59,7 @@ Dashboard Desainer
   }
 
   .header-left h1 span {
-    background: linear-gradient(135deg, #6777ef, #4e5fe0);
+    background: linear-gradient(135deg, var(--palette-primary), #4e5fe0);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -71,9 +71,9 @@ Dashboard Desainer
   }
 
   .role-badge {
-    background: linear-gradient(135deg, rgba(103, 119, 239, 0.1), rgba(103, 119, 239, 0.05));
-    border: 1px solid rgba(103, 119, 239, 0.15);
-    color: #6777ef;
+    background: linear-gradient(135deg, rgba(255, 92, 92, 0.1), rgba(255, 92, 92, 0.05));
+    border: 1px solid rgba(255, 92, 92, 0.15);
+    color: var(--palette-primary);
     padding: 6px 16px;
     border-radius: 30px;
     font-size: 0.8rem;
@@ -107,7 +107,7 @@ Dashboard Desainer
 
   .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(103, 119, 239, 0.08);
+    box-shadow: 0 12px 30px rgba(255, 92, 92, 0.08);
   }
 
   .stat-card::after {
@@ -151,8 +151,8 @@ Dashboard Desainer
 
   /* Card Gradients */
   .icon-design {
-    background: linear-gradient(135deg, #6777ef, #4e5fe0);
-    box-shadow: 0 8px 20px rgba(103, 119, 239, 0.25);
+    background: linear-gradient(135deg, var(--palette-primary), #4e5fe0);
+    box-shadow: 0 8px 20px rgba(255, 92, 92, 0.25);
   }
 
   .icon-construction {
@@ -208,7 +208,7 @@ Dashboard Desainer
   }
 
   .chart-card h4 i {
-    color: #6777ef;
+    color: var(--palette-primary);
   }
 
   .chart-container {

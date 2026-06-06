@@ -9,8 +9,8 @@
     }
 
     .desain-upload-card:hover {
-        border-color: #6777ef;
-        background: #f0f2ff;
+        border-color: var(--palette-primary);
+        background: #fff5f5;
     }
 
     /* ── Gallery card ── */
@@ -42,7 +42,7 @@
 
     .desain-gallery-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(103, 119, 239, 0.18);
+        box-shadow: 0 8px 24px rgba(255, 92, 92, 0.18);
     }
 
     .desain-gallery-card .desain-thumb {
@@ -109,15 +109,15 @@
 
     .desain-input {
         border-radius: 8px;
-        border: 1.5px solid #e0e4ff;
+        border: 1.5px solid #e5e7eb;
         font-size: 0.85rem;
         padding: 9px 14px;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .desain-input:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
     }
 
     @keyframes desainFadeUp {

@@ -16,7 +16,7 @@ if (!empty($request['start_date']) && !empty($request['target_date'])) {
 <div class="tbl-outer mt-4 g-3 d-none d-md-block shadow-sm">
     <div class="card-header bg-primary text-white border-bottom-0"
         style="border-radius: 10px 10px 0 0; padding: 16px 20px;">
-        <h6 class="mb-0 fw-bold"><i class="fas fa-tasks me-2"></i>Target Pengerjaan</h6>
+        <h6 class="mb-0 fw-bold text-white"><i class="fas fa-tasks me-2"></i>Target Pengerjaan</h6>
     </div>
     <div class="bg-white rounded-bottom" style="overflow-x: auto;">
         <table class="table table-bordered table-sm table-schedule table-hover mb-0">
@@ -52,7 +52,7 @@ if (!empty($request['start_date']) && !empty($request['target_date'])) {
                             <td class="text-start ps-2">
                                 <span class="fw-semibold" style="font-size:13px;"><?= esc($t['task_name']) ?></span>
                                 <div class="mt-1 d-flex align-items-center"
-                                    style="font-size:11px;color:#6777ef;font-weight:600;"
+                                    style="font-size:11px;color:var(--palette-primary);font-weight:600;"
                                     title="Dikerjakan oleh: <?= esc($t['admin_name'] ?? 'Sistem') ?>">
                                     <i class="fas fa-user-tie me-1"></i>
                                     <?= esc(strlen($t['admin_name'] ?? 'Sistem') > 15 ? substr($t['admin_name'] ?? 'Sistem', 0, 15) . '...' : ($t['admin_name'] ?? 'Sistem')) ?>
@@ -152,7 +152,7 @@ if (!empty($request['start_date']) && !empty($request['target_date'])) {
                         </div>
 
                         <div class="d-flex align-items-center mb-3"
-                            style="font-size: 0.8rem; color: #6777ef; font-weight: 600;">
+                            style="font-size: 0.8rem; color: var(--palette-primary); font-weight: 600;">
                             <i class="fas fa-user-tie me-2"></i> PJ: <?= esc($t['admin_name'] ?? 'Sistem') ?>
                         </div>
 
@@ -307,6 +307,6 @@ if (!empty($request['start_date']) && !empty($request['target_date'])) {
             </div>
         </form>
 
-        
+
     </div>
 </div>

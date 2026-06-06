@@ -3,9 +3,9 @@
    ROOT & BASE
 ────────────────────────────────────────────────────── */
   :root {
-    --c-primary: #4f46e5;
-    --c-primary-l: #818cf8;
-    --c-accent: #06b6d4;
+    --c-primary: #FF5C5C;
+    --c-primary-l: #ff8e8e;
+    --c-accent: #ff8e8e;
     --c-success: #10b981;
     --c-danger: #ef4444;
     --c-warn: #f59e0b;
@@ -14,13 +14,13 @@
     --c-border: #e5e7eb;
     --c-text: #111827;
     --c-muted: #6b7280;
-    --c-group-bg: #eef2ff;
-    --c-group-txt: #3730a3;
+    --c-group-bg: #fff5f5;
+    --c-group-txt: #c92a2a;
     --c-sub-bg: #f8fafc;
     --c-sub-txt: #475569;
     --radius-card: 14px;
     --radius-sm: 8px;
-    --shadow-card: 0 2px 12px rgba(79, 70, 229, .08), 0 1px 3px rgba(0, 0, 0, .05);
+    --shadow-card: 0 2px 12px rgba(255, 92, 92, .08), 0 1px 3px rgba(0, 0, 0, .05);
     --font: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
@@ -47,8 +47,8 @@
     letter-spacing: .07em;
     text-transform: uppercase;
     color: var(--c-primary);
-    background: #eef2ff;
-    border: 1.5px solid #c7d2fe;
+    background: #fff5f5;
+    border: 1.5px solid #ffcccc;
     border-radius: 20px;
     padding: 4px 14px;
     margin-bottom: 12px;
@@ -130,14 +130,14 @@
     position: sticky;
     top: 0;
     z-index: 4;
-    background: #f0f1ff;
+    background: #fff5f5;
     font-family: var(--font);
     font-size: .68rem;
     font-weight: 700;
     letter-spacing: .04em;
     text-transform: uppercase;
     color: var(--c-primary);
-    border-bottom: 2px solid #c7d2fe;
+    border-bottom: 2px solid #ffcccc;
     padding: 10px 10px;
     white-space: nowrap;
     text-align: center;
@@ -154,18 +154,18 @@
 
   table.tbl-sched thead th.week-th {
     min-width: 72px;
-    background: #f5f3ff;
-    color: #6d28d9;
+    background: #fffafa;
+    color: var(--c-primary);
     font-size: .6rem;
     padding: 6px 4px;
-    border-left: 1px dashed #ddd6fe;
+    border-left: 1px dashed #ffdddd;
   }
 
   table.tbl-sched thead th.week-th .wk-num {
     display: block;
     font-size: .72rem;
     font-weight: 800;
-    color: #4338ca;
+    color: var(--c-primary);
     line-height: 1;
   }
 
@@ -173,7 +173,7 @@
     display: block;
     font-size: .55rem;
     font-weight: 500;
-    color: #7c3aed;
+    color: var(--c-primary);
     opacity: .8;
     margin-top: 2px;
   }
@@ -212,8 +212,8 @@
     font-size: .75rem;
     letter-spacing: .03em;
     padding: 8px 12px;
-    border-top: 2px solid #c7d2fe;
-    border-bottom: 1px solid #c7d2fe;
+    border-top: 2px solid #ffcccc;
+    border-bottom: 1px solid #ffcccc;
   }
 
   /* SUBGROUP row */
@@ -234,11 +234,11 @@
   }
 
   table.tbl-sched tr.row-item:hover {
-    background: #f5f3ff !important;
+    background: #fff5f5 !important;
   }
 
   table.tbl-sched tr.row-item.selected {
-    background: #ede9fe !important;
+    background: #ffe5e5 !important;
   }
 
   table.tbl-sched tr.row-item td:first-child {
@@ -253,10 +253,10 @@
 
   /* TOTAL row */
   table.tbl-sched tr.row-total td {
-    background: #f0f1ff;
+    background: #fff5f5;
     font-weight: 700;
     font-size: .78rem;
-    border-top: 2px solid #c7d2fe;
+    border-top: 2px solid #ffcccc;
     border-bottom: none;
   }
 
@@ -341,11 +341,11 @@
   }
 
   .form-card-header.primary {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, var(--c-primary), #ff7373);
   }
 
   .form-card-header.teal {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    background: linear-gradient(135deg, var(--c-primary), #ff7373);
   }
 
   .form-card-header .hdr-icon {
@@ -417,7 +417,7 @@
 
   .fc-ctrl:focus {
     border-color: var(--c-primary) !important;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, .12) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, .12) !important;
     outline: none !important;
   }
 
@@ -428,8 +428,8 @@
 
   /* Selected item card inside form */
   .selected-item-card {
-    background: #eef2ff;
-    border: 1.5px solid #c7d2fe;
+    background: #fff5f5;
+    border: 1.5px solid #ffcccc;
     border-radius: 10px;
     padding: 10px 14px;
     margin-bottom: 16px;
@@ -469,7 +469,7 @@
 
   /* Btn primary custom */
   .btn-submit-custom {
-    background: linear-gradient(135deg, var(--c-primary), #7c3aed);
+    background: linear-gradient(135deg, var(--c-primary), #ff7373);
     color: #fff;
     border: none;
     border-radius: var(--radius-sm);
@@ -496,7 +496,7 @@
   }
 
   .btn-teal-custom {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    background: linear-gradient(135deg, var(--c-primary), #ff7373);
     color: #fff;
     border: none;
     border-radius: var(--radius-sm);
@@ -552,8 +552,8 @@
     .week-badge-mob {
       display: inline-block;
       font-size: .6rem;
-      background: #ede9fe;
-      color: #4f46e5;
+      background: #ffe5e5;
+      color: var(--c-primary);
       border-radius: 4px;
       padding: 1px 5px;
       margin-top: 3px;

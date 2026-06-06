@@ -11,13 +11,6 @@
     <!-- Card Header -->
     <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center p-3 table-card-header"
         style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
-        <div class="d-flex flex-column flex-sm-row gap-2 header-actions">
-            <a href="<?= base_url('admin/wallet') ?>"
-                class="btn btn-secondary d-flex align-items-center justify-content-center text-nowrap"
-                style="border-radius: 12px; font-size: 0.78rem; padding: 7px 16px;">
-                <i class="fas fa-arrow-left me-1"></i> Kembali
-            </a>
-        </div>
         <h6 class="mb-0 fw-bold text-primary d-flex align-items-center justify-content-end"
             style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
             Daftar Pengajuan Penarikan <i class="fas fa-file-invoice-dollar ms-2"></i>
@@ -37,7 +30,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($requests)): foreach ($requests as $r): ?>
+                    <?php if (!empty($requests)):
+                        foreach ($requests as $r): ?>
                             <tr class="text-center align-middle">
                                 <td class="text-muted" style="font-size:0.85rem;">
                                     <?= date('d/m/Y H:i', strtotime($r['created_at'])) ?>
@@ -51,7 +45,8 @@
                                 </td>
                                 <td>
                                     <?php if ($r['status'] == 'pending'): ?>
-                                        <span class="badge bg-warning text-dark px-3 py-2" style="border-radius: 50px;">Menunggu</span>
+                                        <span class="badge bg-warning text-dark px-3 py-2"
+                                            style="border-radius: 50px;">Menunggu</span>
                                     <?php elseif ($r['status'] == 'approved'): ?>
                                         <span class="badge bg-success px-3 py-2" style="border-radius: 50px;">Disetujui</span>
                                     <?php else: ?>

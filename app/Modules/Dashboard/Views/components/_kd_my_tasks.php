@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div class="card-body p-3 p-md-4" style="background: #f8fbff; border-radius: 0 0 20px 20px;">
+  <div class="card-body p-3 p-md-4" style="background: #fffafa; border-radius: 0 0 20px 20px;">
     <?php if (!empty($designerTasks)): ?>
       <div class="d-flex flex-nowrap gap-4 pb-3 pt-2 px-1 task-scroll-container"
            style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;">

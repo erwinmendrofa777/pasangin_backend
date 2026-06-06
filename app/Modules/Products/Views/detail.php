@@ -12,7 +12,7 @@ Detail Produk
 <style>
     /* ===== HERO BANNER ===== */
     .profile-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 18px 28px 68px;
         position: relative;
@@ -72,7 +72,7 @@ Detail Produk
         border-radius: 12px;
         border: 4px solid #fff;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
-        background: #0d6efd;
+        background: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -85,7 +85,7 @@ Detail Produk
     .profile-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
@@ -97,12 +97,12 @@ Detail Produk
     .action-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         height: 100%;
     }
 
     .action-card .card-header {
-        background: #6777EF !important;
+        background: var(--palette-primary) !important;
         border-radius: 16px 16px 0 0;
         padding: 18px 22px;
         border: none;
@@ -167,8 +167,8 @@ Detail Produk
         height: 34px;
         min-width: 34px;
         border-radius: 10px;
-        background: #e7f0ff;
-        color: #0d6efd;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -229,7 +229,7 @@ Detail Produk
         font-weight: 700;
         letter-spacing: 0.8px;
         text-transform: uppercase;
-        color: #0d6efd;
+        color: var(--palette-primary);
         margin-bottom: 10px;
     }
 
@@ -251,9 +251,9 @@ Detail Produk
 /* ===== STATUS META ===== */
 $status = $product['status'] ?? 'unknown';
 $statusMeta = [
-    'aktif'       => ['class' => 'status-aktif',       'icon' => 'fas fa-check-circle',  'label' => 'Aktif'],
-    'tidak aktif' => ['class' => 'status-tidak_aktif', 'icon' => 'fas fa-times-circle',   'label' => 'Tidak Aktif'],
-    'habis'       => ['class' => 'status-habis',       'icon' => 'fas fa-box-open',      'label' => 'Habis'],
+    'aktif' => ['class' => 'status-aktif', 'icon' => 'fas fa-check-circle', 'label' => 'Aktif'],
+    'tidak aktif' => ['class' => 'status-tidak_aktif', 'icon' => 'fas fa-times-circle', 'label' => 'Tidak Aktif'],
+    'habis' => ['class' => 'status-habis', 'icon' => 'fas fa-box-open', 'label' => 'Habis'],
 ];
 $currentMeta = $statusMeta[$status] ?? ['class' => 'status-default', 'icon' => 'fas fa-circle', 'label' => ucfirst($status)];
 
@@ -268,7 +268,7 @@ if (!empty($product['photo'])) {
 
 /* ===== INITIALS ===== */
 $nameParts = explode(' ', trim($product['name'] ?? 'P'));
-$initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? substr(end($nameParts), 0, 1) : ''));
+$initials = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? substr(end($nameParts), 0, 1) : ''));
 
 $this->setData([
     'status' => $status,
@@ -278,13 +278,6 @@ $this->setData([
     'initials' => $initials
 ]);
 ?>
-
-<!-- BACK BUTTON -->
-<div class="mb-3">
-    <a href="<?= base_url('admin/products') ?>" class="btn btn-secondary btn-sm px-3">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
-</div>
 
 <!-- ===== 2-COLUMN LAYOUT ===== -->
 <div class="row g-4 align-items-start">
@@ -298,5 +291,5 @@ $this->setData([
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-    <?= $this->include('App\Modules\Products\Views\components\_dtl_scripts') ?>
+<?= $this->include('App\Modules\Products\Views\components\_dtl_scripts') ?>
 <?= $this->endSection() ?>

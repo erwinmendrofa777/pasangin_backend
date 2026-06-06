@@ -66,7 +66,7 @@
                     danger:  { bg: '#f8d7da', color: '#842029' },
                     dark:    { bg: '#dee2e6', color: '#212529' },
                 };
-                var c = colorMap[color] || { bg: '#e7f0ff', color: '#0d6efd' };
+                var c = colorMap[color] || { bg: '#fff5f5', color: 'var(--palette-primary)' };
 
                 var iconWrap = document.getElementById('globalModalIconWrap');
                 iconWrap.style.background = c.bg;

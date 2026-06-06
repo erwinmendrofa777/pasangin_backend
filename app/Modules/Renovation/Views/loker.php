@@ -1,5 +1,3 @@
-
-
 <div class="canvas-wrapper mt-4">
 
     <!-- HERO SECTION (PRIMARY BG) -->
@@ -14,14 +12,14 @@
                     <div class="row text-center text-md-left">
                         <div class="col-md-4 hero-stat-item">
                             <span class="hero-stat-label">Total Pelamar</span>
-                            <h3 class="hero-stat-value"><?= count($applicants) ?> Orang</h3>
+                            <h3 class="hero-stat-value text-white"><?= count($applicants) ?> Orang</h3>
                         </div>
                         <div class="col-md-1 d-none d-md-block">
                             <div class="stat-divider mx-auto"></div>
                         </div>
                         <div class="col-md-4 hero-stat-item">
                             <span class="hero-stat-label">Upah Harian</span>
-                            <h3 class="hero-stat-value">Rp
+                            <h3 class="hero-stat-value text-white">Rp
                                 <?= number_format($job_info['upah_per_hari'] ?? 0, 0, ',', '.') ?>
                             </h3>
                         </div>
@@ -151,13 +149,17 @@
                     <?php if (!empty($applicants)):
                         foreach ($applicants as $app):
                             $st = $app['status'] ?? 'Berkas Diproses';
-                            
+
                             // Color mapping for new statuses
                             $stColor = 'badge-warning'; // Default for "Berkas Diproses"
-                            if ($st === 'Siap Kerja') $stColor = 'badge-success';
-                            if ($st === 'Ditolak') $stColor = 'badge-danger';
-                            if ($st === 'Proses Test') $stColor = 'badge-primary';
-                            if ($st === 'Proses Aktivasi') $stColor = 'badge-info';
+                            if ($st === 'Siap Kerja')
+                                $stColor = 'badge-success';
+                            if ($st === 'Ditolak')
+                                $stColor = 'badge-danger';
+                            if ($st === 'Proses Test')
+                                $stColor = 'badge-primary';
+                            if ($st === 'Proses Aktivasi')
+                                $stColor = 'badge-info';
                             ?>
                             <div class="radar-item">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -167,7 +169,8 @@
                                         </div>
                                         <small class="text-muted"><?= date('d M Y', strtotime($app['created_at'])) ?></small>
                                     </div>
-                                    <span class="badge <?= $stColor ?> px-2 py-1" style="font-size:9px;"><?= strtoupper($st) ?></span>
+                                    <span class="badge <?= $stColor ?> px-2 py-1"
+                                        style="font-size:9px;"><?= strtoupper($st) ?></span>
                                 </div>
 
                                 <form action="<?= base_url('admin/renovation/update_applicant_status') ?>" method="post">
@@ -176,10 +179,14 @@
                                     <div class="input-group">
                                         <select name="status" class="form-control form-control-sm canvas-input"
                                             style="padding: 6px 10px; height:auto; border-radius: 8px 0 0 8px;">
-                                            <option value="Berkas Diproses" <?= $st === 'Berkas Diproses' ? 'selected' : '' ?>>Berkas Diproses</option>
-                                            <option value="Proses Test" <?= $st === 'Proses Test' ? 'selected' : '' ?>>Proses Test</option>
-                                            <option value="Proses Aktivasi" <?= $st === 'Proses Aktivasi' ? 'selected' : '' ?>>Proses Aktivasi</option>
-                                            <option value="Siap Kerja" <?= $st === 'Siap Kerja' ? 'selected' : '' ?>>Siap Kerja</option>
+                                            <option value="Berkas Diproses" <?= $st === 'Berkas Diproses' ? 'selected' : '' ?>>
+                                                Berkas Diproses</option>
+                                            <option value="Proses Test" <?= $st === 'Proses Test' ? 'selected' : '' ?>>Proses Test
+                                            </option>
+                                            <option value="Proses Aktivasi" <?= $st === 'Proses Aktivasi' ? 'selected' : '' ?>>
+                                                Proses Aktivasi</option>
+                                            <option value="Siap Kerja" <?= $st === 'Siap Kerja' ? 'selected' : '' ?>>Siap Kerja
+                                            </option>
                                             <option value="Ditolak" <?= $st === 'Ditolak' ? 'selected' : '' ?>>Ditolak</option>
                                         </select>
                                         <div class="input-group-append">

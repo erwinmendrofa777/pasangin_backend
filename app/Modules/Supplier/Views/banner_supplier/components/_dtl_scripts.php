@@ -10,7 +10,7 @@
                 text: "Status banner akan diubah menjadi " + status + ".",
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#6777ef',
+                confirmButtonColor: 'var(--palette-primary)',
                 cancelButtonColor: '#adb5bd',
                 confirmButtonText: 'Ya, Lanjutkan',
                 cancelButtonText: 'Batal'
@@ -46,7 +46,7 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#6777ef',
+                cancelButtonColor: 'var(--palette-primary)',
                 confirmButtonText: 'Ya, Hapus!',
                 cancelButtonText: 'Batal'
             }).then((result) => {

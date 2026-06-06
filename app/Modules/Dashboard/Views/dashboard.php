@@ -154,7 +154,7 @@ Dashboard
   .product-price {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #0d6efd;
+    color: var(--palette-primary);
     white-space: nowrap;
     margin-left: auto;
   }

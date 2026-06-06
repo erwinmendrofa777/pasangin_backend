@@ -74,6 +74,11 @@ class DashboardAccountingService
             ->selectSum('balance')
             ->get()->getRowArray()['balance'] ?? 0;
 
+        // Total Saldo Platform Internal & Live Midtrans Payin
+        $adminBalanceSvc = new \App\Modules\Wallets\Services\AdminBalanceService();
+        $totalAdminBalance = $adminBalanceSvc->getBalance();
+        $midtransPayinBalance = $adminBalanceSvc->getMidtransPayinBalance()['balance'];
+
         // Pencairan Dana Berhasil (Approved Payout)
         $approvedPayoutsAmount = $this->db->table('withdrawal_requests')
             ->where('status', 'approved')
@@ -330,6 +335,8 @@ class DashboardAccountingService
                 'total_project_budget'      => $totalProjectBudget,
                 'total_project_realization' => $totalProjectRealization,
                 'total_project_difference'  => $totalProjectDifference,
+                'total_admin_balance'       => $totalAdminBalance,
+                'midtrans_payin_balance'    => $midtransPayinBalance,
             ],
             'charts' => [
                 'cashflow_monthly' => [

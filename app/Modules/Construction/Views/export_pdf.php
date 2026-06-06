@@ -26,7 +26,7 @@
         .company-name {
             font-size: 16px;
             font-weight: bold;
-            color: #0d6efd;
+            color: var(--palette-primary);
             text-transform: uppercase;
         }
         .company-address {
@@ -61,8 +61,8 @@
             vertical-align: middle;
         }
         .table-data th {
-            background-color: #f0f6ff;
-            color: #0d6efd;
+            background-color: #fff5f5;
+            color: var(--palette-primary);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 10px;
@@ -89,7 +89,7 @@
             font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
-            color: #0d6efd;
+            color: var(--palette-primary);
         }
     </style>
 </head>
@@ -135,9 +135,9 @@
                 <div style="font-size: 10px; text-transform: uppercase; color: #6c757d; font-weight: bold; margin-bottom: 5px;">Total RAB Proyek</div>
                 <div style="font-size: 16px; font-weight: bold; color: #333;">Rp <?= number_format($total_rab, 0, ',', '.') ?></div>
             </td>
-            <td style="width: 33.33%; background-color: #f0f6ff; border: 1px solid #bce0fd; border-radius: 8px; padding: 12px; text-align: center;">
-                <div style="font-size: 10px; text-transform: uppercase; color: #0d6efd; font-weight: bold; margin-bottom: 5px;">Total Invoice Terbit</div>
-                <div style="font-size: 16px; font-weight: bold; color: #0d6efd;">Rp <?= number_format($total_invoice, 0, ',', '.') ?></div>
+            <td style="width: 33.33%; background-color: #fff5f5; border: 1px solid #bce0fd; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="font-size: 10px; text-transform: uppercase; color: var(--palette-primary); font-weight: bold; margin-bottom: 5px;">Total Invoice Terbit</div>
+                <div style="font-size: 16px; font-weight: bold; color: var(--palette-primary);">Rp <?= number_format($total_invoice, 0, ',', '.') ?></div>
             </td>
             <td style="width: 33.33%; background-color: #e6f9ed; border: 1px solid #b7ebc6; border-radius: 8px; padding: 12px; text-align: center;">
                 <div style="font-size: 10px; text-transform: uppercase; color: #198754; font-weight: bold; margin-bottom: 5px;">Total Anggaran Kontrak</div>
@@ -170,7 +170,7 @@
                             <span style="font-size: 9px; color: #666;"><?= esc($row['phone'] ?: '-') ?></span>
                         </td>
                         <td>
-                            <span class="fw-bold" style="color: #0d6efd; font-size: 9px;">Luas: <?= $row['land_area'] ?> m²</span><br>
+                            <span class="fw-bold" style="color: var(--palette-primary); font-size: 9px;">Luas: <?= $row['land_area'] ?> m²</span><br>
                             <?= esc($row['address'] ?: '-') ?>
                         </td>
                         <td class="text-center">
@@ -210,7 +210,7 @@
                     </tr>
                 <?php endforeach; ?>
                 <!-- Row Total -->
-                <tr style="background-color: #f0f6ff; font-weight: bold;">
+                <tr style="background-color: #fff5f5; font-weight: bold;">
                     <td colspan="5" class="text-right" style="padding: 10px;">GRAND TOTAL:</td>
                     <td class="text-right">Rp <?= number_format($total_rab, 0, ',', '.') ?></td>
                     <td class="text-right">Rp <?= number_format($total_invoice, 0, ',', '.') ?></td>

@@ -34,13 +34,13 @@
         width: 40px;
         height: 40px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #e0e7ff 0%, #e0f2fe 100%);
+        background: linear-gradient(135deg, #ffe5e5 0%, #fff5f5 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #4f46e5;
+        color: var(--palette-primary);
         font-size: 18px;
-        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.08);
+        box-shadow: 0 4px 6px -1px rgba(255, 92, 92, 0.15);
     }
 
     .rab-panel-title span {
@@ -76,14 +76,14 @@
     }
 
     .btn-adm-primary {
-        background: linear-gradient(135deg, #3d5af1, #4f46e5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25);
     }
 
     .btn-adm-primary:hover {
-        background: linear-gradient(135deg, #2d48e0, #4338ca);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+        background: linear-gradient(135deg, var(--palette-primary-hover), var(--palette-primary));
+        box-shadow: 0 6px 20px rgba(255, 92, 92, 0.35);
         color: #fff;
     }
 
@@ -147,13 +147,13 @@
 
     .tbl-rab thead th {
         padding: 8px 10px;
-        background: #3d5af1;
+        background: var(--palette-primary);
         color: #ffffff;
         font-size: 9px;
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        border-bottom: 2px solid #2d48e0;
+        border-bottom: 2px solid var(--palette-primary-hover);
         white-space: nowrap;
         text-align: center;
     }
@@ -175,10 +175,10 @@
 
     .tbl-rab tfoot td {
         padding: 10px 12px;
-        background: #eff2ff;
+        background: #fff5f5;
         font-size: 11px;
         font-weight: 600;
-        color: #3d5af1;
+        color: var(--palette-primary);
         border-top: 2px solid #cbd5e1;
     }
 
@@ -201,8 +201,8 @@
     .tbl-rab input[type="text"]:focus,
     .tbl-rab input[type="number"]:focus,
     .tbl-rab input[type="float"]:focus {
-        border-color: #3d5af1 !important;
-        box-shadow: 0 0 0 3px rgba(61, 90, 241, 0.15) !important;
+        border-color: var(--palette-primary) !important;
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
     }
 
     /* ── Hide Number Input Arrows ── */
@@ -231,7 +231,7 @@
     .input-roman {
         text-align: center;
         font-weight: 700;
-        color: #4f46e5 !important;
+        color: var(--palette-primary) !important;
     }
 
     /* ── Row States ── */
@@ -251,7 +251,7 @@
     }
 
     .row-locked input.input-roman {
-        color: #4f46e5 !important;
+        color: var(--palette-primary) !important;
     }
 
     /* ── Total Cell ── */
@@ -267,13 +267,13 @@
 
     /* ── Subtotal Row ── */
     .row-rab-subtotal td {
-        background: #eff2ff !important;
+        background: #fff5f5 !important;
         font-weight: 700;
         border-top: 1px solid #cbd5e1;
-        border-bottom: 2px solid #b4c6fc !important;
+        border-bottom: 2px solid #ffcccc !important;
         padding-top: 6px !important;
         padding-bottom: 6px !important;
-        color: #3d5af1;
+        color: var(--palette-primary);
         font-size: 11px;
     }
 
@@ -282,7 +282,7 @@
         font-family: 'Outfit', sans-serif !important;
         font-size: 14px !important;
         font-weight: 700 !important;
-        color: #3d5af1 !important;
+        color: var(--palette-primary) !important;
         text-align: center;
         padding-right: 14px !important;
     }
@@ -307,13 +307,13 @@
     }
 
     .tbl-btn-mat {
-        background: #eef2ff;
-        color: #4f46e5;
+        background: #fff5f5;
+        color: var(--palette-primary);
     }
 
     .tbl-btn-mat:hover {
-        background: #e0e7ff;
-        color: #3730a3;
+        background: #ffe5e5;
+        color: var(--palette-primary-hover);
         transform: translateY(-2px);
     }
 
@@ -420,7 +420,7 @@
     }
 
     .modal-rab .modal-header {
-        background: linear-gradient(135deg, #3d5af1 0%, #4f46e5 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         padding: 20px 24px;
         border: none;
     }
@@ -537,13 +537,13 @@
     }
 
     .row-add-row-in-group button {
-        color: #3b82f6 !important;
+        color: var(--palette-primary) !important;
         transition: all 0.2s ease;
         font-weight: 600;
     }
 
     .row-add-row-in-group button:hover {
-        color: #1d4ed8 !important;
+        color: var(--palette-primary-hover) !important;
         transform: translateX(4px);
         text-decoration: none !important;
     }

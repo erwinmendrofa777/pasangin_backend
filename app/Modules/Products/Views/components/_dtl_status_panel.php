@@ -1,7 +1,7 @@
 <!-- ======================== RIGHT: UPDATE STATUS & REVIEWS ======================== -->
 <div class="col-12 col-md-5 mt-0">
     <?php if (can('products_status')): ?>
-        <div class="card shadow-sm mb-3 action-card">
+        <div class="card shadow-sm mt-sm-4 action-card">
 
             <!-- Card Header -->
             <div class="card-header">
@@ -14,26 +14,24 @@
                 <div class="d-grid gap-2">
                     <?php
                     $actions = [
-                        'aktif'       => ['color' => 'success', 'icon' => 'fas fa-check-circle',  'label' => 'Aktif',       'desc' => 'Produk tersedia dan dapat dibeli'],
-                        'tidak aktif' => ['color' => 'danger',  'icon' => 'fas fa-times-circle',  'label' => 'Tidak Aktif', 'desc' => 'Produk disembunyikan'],
-                        'habis'       => ['color' => 'warning', 'icon' => 'fas fa-box-open',      'label' => 'Habis',       'desc' => 'Stok produk kosong'],
+                        'aktif' => ['color' => 'success', 'icon' => 'fas fa-check-circle', 'label' => 'Aktif', 'desc' => 'Produk tersedia dan dapat dibeli'],
+                        'tidak aktif' => ['color' => 'danger', 'icon' => 'fas fa-times-circle', 'label' => 'Tidak Aktif', 'desc' => 'Produk disembunyikan'],
+                        'habis' => ['color' => 'warning', 'icon' => 'fas fa-box-open', 'label' => 'Habis', 'desc' => 'Stok produk kosong'],
                     ];
                     foreach ($actions as $key => $act):
                         $isActive = ($status === $key);
-                    ?>
+                        ?>
                         <button type="button"
                             class="btn <?= $isActive ? 'btn-' . $act['color'] : 'btn-outline-' . $act['color'] ?> status-action-btn text-start"
-                            <?= $isActive ? 'disabled' : '' ?>
-                            <?= !$isActive ? 'data-bs-toggle="modal" data-bs-target="#confirmStatusModal"' : '' ?>
-                            data-status="<?= $key ?>"
-                            data-status-label="<?= $act['label'] ?>"
-                            data-color="<?= $act['color'] ?>"
+                            <?= $isActive ? 'disabled' : '' ?>         <?= !$isActive ? 'data-bs-toggle="modal" data-bs-target="#confirmStatusModal"' : '' ?> data-status="<?= $key ?>"
+                            data-status-label="<?= $act['label'] ?>" data-color="<?= $act['color'] ?>"
                             data-icon="<?= $act['icon'] ?>">
                             <div class="d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="<?= $act['icon'] ?>" style="width:16px; text-align:center;"></i>
                                     <div>
-                                        <div style="font-size:0.88rem; font-weight:700; line-height:1.2;"><?= $act['label'] ?></div>
+                                        <div style="font-size:0.88rem; font-weight:700; line-height:1.2;"><?= $act['label'] ?>
+                                        </div>
                                         <div style="font-size:0.72rem; font-weight:400; opacity:0.75;"><?= $act['desc'] ?></div>
                                     </div>
                                 </div>
@@ -63,7 +61,8 @@
     <div class="card shadow-sm action-card mt-3">
         <div class="card-header bg-white border-bottom py-3" style="border-radius: 16px 16px 0 0;">
             <h6 class="mb-0 fw-bold" style="color: #495057;">
-                <i class="fas fa-star text-warning me-2"></i> <span class="text-white">Ulasan Produk (<?= count($ratings ?? []) ?>)</span>
+                <i class="fas fa-star text-warning me-2"></i> <span class="text-white">Ulasan Produk
+                    (<?= count($ratings ?? []) ?>)</span>
             </h6>
         </div>
         <div class="card-body p-0 my-2" style="max-height: 294px; overflow-y: auto;">
@@ -79,7 +78,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="text-warning" style="font-size:0.85rem;">
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star <?= ($i <= (int)$rating['rating']) ? '' : 'text-light' ?>"></i>
+                                        <i class="fas fa-star <?= ($i <= (int) $rating['rating']) ? '' : 'text-light' ?>"></i>
                                     <?php endfor; ?>
                                 </div>
                                 <small class="text-muted" style="font-size:0.75rem; font-weight: 500;">
@@ -102,7 +101,10 @@
                                             : base_url('uploads/products/rating/' . $rating[$imgKey]);
                                         ?>
                                         <a href="<?= $imgSrc ?>" target="_blank" class="d-inline-block">
-                                            <img src="<?= $imgSrc ?>" alt="Review Image" class="rounded border shadow-sm" style="width:60px; height:60px; object-fit:cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                            <img src="<?= $imgSrc ?>" alt="Review Image" class="rounded border shadow-sm"
+                                                style="width:60px; height:60px; object-fit:cover; transition: transform 0.2s;"
+                                                onmouseover="this.style.transform='scale(1.05)'"
+                                                onmouseout="this.style.transform='scale(1)'">
                                         </a>
                                     <?php endif; ?>
                                 <?php endfor; ?>

@@ -4,22 +4,44 @@
 <div id="tab-wallet" class="tab-pane">
   <!-- Ringkasan Dompet & Voucher -->
   <div class="row g-3 mb-4">
-    <div class="col-12 col-md-6">
-      <div class="premium-card mb-0 p-4 text-center border-0 shadow-sm d-flex justify-content-between align-items-center" style="border-radius: 12px; background: linear-gradient(135deg, #1e293b, #0f172a);">
+    <!-- Saldo Tukang -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="premium-card mb-0 p-4 text-center border-0 shadow-sm d-flex justify-content-between align-items-center" style="border-radius: 12px; background: linear-gradient(135deg, #1e293b, #0f172a); height: 100%;">
         <div class="text-start">
-          <div class="text-light fw-bold" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.8;">Total Saldo Tukang (Liabilitas)</div>
-          <div class="fw-bold text-white mt-1" style="font-size: 1.4rem;">Rp <?= number_format($accountingStats['kpis']['total_tukang_balance'], 0, ',', '.') ?></div>
+          <div class="text-light fw-bold" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.8;">Saldo Tukang (Liabilitas)</div>
+          <div class="fw-bold text-white mt-1" style="font-size: 1.3rem;">Rp <?= number_format($accountingStats['kpis']['total_tukang_balance'], 0, ',', '.') ?></div>
         </div>
-        <i class="fas fa-wallet text-white" style="font-size: 2.5rem; opacity: 0.3;"></i>
+        <i class="fas fa-wallet text-white" style="font-size: 2.2rem; opacity: 0.25;"></i>
       </div>
     </div>
-    <div class="col-12 col-md-6">
-      <div class="premium-card mb-0 p-4 text-center border-0 shadow-sm d-flex justify-content-between align-items-center" style="border-radius: 12px; background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+    <!-- Saldo Platform Internal -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="premium-card mb-0 p-4 text-center border-0 shadow-sm d-flex justify-content-between align-items-center" style="border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); height: 100%;">
         <div class="text-start">
-          <div class="text-light fw-bold" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.8;">Total Penghematan Voucher</div>
-          <div class="fw-bold text-white mt-1" style="font-size: 1.4rem;">Rp <?= number_format($accountingStats['kpis']['total_voucher_discount'], 0, ',', '.') ?></div>
+          <div class="text-light fw-bold" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.8;">Saldo Platform (Internal)</div>
+          <div class="fw-bold text-white mt-1" style="font-size: 1.3rem;">Rp <?= number_format($accountingStats['kpis']['total_admin_balance'], 0, ',', '.') ?></div>
         </div>
-        <i class="fas fa-ticket-alt text-white" style="font-size: 2.5rem; opacity: 0.3;"></i>
+        <i class="fas fa-university text-white" style="font-size: 2.2rem; opacity: 0.25;"></i>
+      </div>
+    </div>
+    <!-- Saldo Penampungan Midtrans -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="premium-card mb-0 p-4 text-center border-0 shadow-sm d-flex justify-content-between align-items-center" style="border-radius: 12px; background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover)); height: 100%;">
+        <div class="text-start">
+          <div class="text-light fw-bold" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.8;">Saldo Midtrans (Payin)</div>
+          <div class="fw-bold text-white mt-1" style="font-size: 1.3rem;">Rp <?= number_format($accountingStats['kpis']['midtrans_payin_balance'], 0, ',', '.') ?></div>
+        </div>
+        <i class="fas fa-dollar-sign text-white" style="font-size: 2.2rem; opacity: 0.25;"></i>
+      </div>
+    </div>
+    <!-- Penghematan Voucher -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="premium-card mb-0 p-4 text-center border-0 shadow-sm d-flex justify-content-between align-items-center" style="border-radius: 12px; background: linear-gradient(135deg, #6f42c1, #59359a); height: 100%;">
+        <div class="text-start">
+          <div class="text-light fw-bold" style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.8;">Penghematan Voucher</div>
+          <div class="fw-bold text-white mt-1" style="font-size: 1.3rem;">Rp <?= number_format($accountingStats['kpis']['total_voucher_discount'], 0, ',', '.') ?></div>
+        </div>
+        <i class="fas fa-ticket-alt text-white" style="font-size: 2.2rem; opacity: 0.25;"></i>
       </div>
     </div>
   </div>

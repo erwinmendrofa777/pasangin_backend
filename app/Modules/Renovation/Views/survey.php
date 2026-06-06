@@ -130,7 +130,7 @@
                                                 <?php endif; ?>
                                             <?php else: ?>
                                                 <div class="flex-shrink-0 d-flex align-items-center justify-content-center"
-                                                    style="width:48px; height:48px; background:linear-gradient(135deg,#e7f0ff,#d5dfff); border-radius:10px; color:#6777ef; font-size:1.25rem; flex-shrink:0;">
+                                                    style="width:48px; height:48px; background:linear-gradient(135deg,#ffe5e5,#d5dfff); border-radius:10px; color:var(--palette-primary); font-size:1.25rem; flex-shrink:0;">
                                                     <i class="fas fa-file-alt"></i>
                                                 </div>
                                             <?php endif; ?>

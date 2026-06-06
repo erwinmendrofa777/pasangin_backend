@@ -4,7 +4,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm border-0" style="border-radius: 12px;">
             <div class="card-header bg-primary text-white" style="border-radius: 12px 12px 0 0; padding: 16px 20px;">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2"></i>Tambah Laporan Survey</h6>
+                <h6 class="mb-0 fw-bold text-white"><i class="fas fa-plus-circle me-2"></i>Tambah Laporan Survey</h6>
             </div>
             <div class="card-body p-4">
                 <form action="<?= base_url('admin/design/add-survey/' . $request['id']) ?>" method="post"

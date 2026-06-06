@@ -1,9 +1,9 @@
 <style>
     .rab-click-row:hover {
-        background-color: #e8f0fe !important;
+        background-color: #fff5f5 !important;
     }
 
     .rab-click-row.rab-selected {
-        background-color: #cfe2ff !important;
+        background-color: #ffe5e5 !important;
     }
 </style>

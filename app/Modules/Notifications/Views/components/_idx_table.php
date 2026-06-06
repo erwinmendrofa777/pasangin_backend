@@ -10,7 +10,7 @@
                 </div>
                 <?php if (can('notification_create')): ?>
                     <a href="<?= base_url('admin/notification/create') ?>" class="btn btn-primary px-4 py-2 fw-bold"
-                        style="border-radius: 12px; box-shadow: 0 4px 12px rgba(103, 119, 239, 0.35); height: 44px; display: flex; align-items: center;">
+                        style="border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 92, 92, 0.35); height: 44px; display: flex; align-items: center;">
                         <i class="fas fa-paper-plane me-2"></i>Kirim Notifikasi Baru
                     </a>
                 <?php endif; ?>

@@ -1,27 +1,9 @@
 <style>
-    .animate-up {
-        animation: progFadeUp 0.4s ease both;
-    }
-
-    @keyframes progFadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(15px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
     .progress-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 12px;
     }
 
     .progress-title {
@@ -35,27 +17,36 @@
     }
 
     .progress-count-badge {
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         border-radius: 50px;
-        padding: 4px 12px;
-        font-size: 0.72rem;
+        padding: 3px 12px;
+        font-size: 0.78rem;
         font-weight: 700;
-        white-space: nowrap;
     }
 
     /* ── Target Group Card ── */
     .target-group-card {
         border: 1px solid #e4e9f0;
         border-radius: 14px;
-        overflow: hidden;
         margin-bottom: 16px;
-        background: #fff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        animation: progFadeUp 0.4s ease both;
+    }
+
+    .target-group-card:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    .target-group-card:nth-child(2) {
+        animation-delay: 0.10s;
+    }
+
+    .target-group-card:nth-child(3) {
+        animation-delay: 0.15s;
     }
 
     .target-group-header {
-        background: linear-gradient(135deg, #f8f9ff, #eef1ff);
+        background: linear-gradient(135deg, #fffcfc, #fff5f5);
         padding: 14px 20px;
         display: flex;
         align-items: center;
@@ -63,10 +54,12 @@
         cursor: pointer;
         transition: background 0.2s ease;
         border-bottom: 1px solid #e4e9f0;
+        border-top-left-radius: 13px;
+        border-top-right-radius: 13px;
     }
 
     .target-group-header:hover {
-        background: #eaedff;
+        background: #ffe5e5;
     }
 
     .target-group-header .target-name {
@@ -75,40 +68,31 @@
         color: #34395e;
         display: flex;
         align-items: center;
-        gap: 10px;
-        flex: 1;
-        min-width: 0;
+        gap: 8px;
     }
 
     .target-group-header .target-name .tg-icon {
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
         border-radius: 8px;
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: 0.78rem;
         flex-shrink: 0;
-    }
-
-    .target-group-header .target-name>div {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     .target-group-header .tg-meta {
         display: flex;
         align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
+        gap: 8px;
     }
 
     .target-group-header .tg-chevron {
         transition: transform 0.25s ease;
-        color: #6777ef;
+        color: var(--palette-primary);
         font-size: 0.8rem;
     }
 
@@ -117,17 +101,21 @@
     }
 
     .tg-count-pill {
-        background: #e0e4ff;
-        color: #6777ef;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         border-radius: 50px;
         padding: 2px 10px;
-        font-size: 0.68rem;
+        font-size: 0.72rem;
         font-weight: 700;
+    }
+
+    .target-group-body {
+        padding: 0;
     }
 
     /* ── Progress Card inside group ── */
     .progress-item-card {
-        padding: 16px 20px;
+        padding: 14px 20px;
         background: #fff;
         transition: all 0.2s ease;
         position: relative;
@@ -136,6 +124,8 @@
 
     .progress-item-card:last-child {
         border-bottom: none;
+        border-bottom-left-radius: 13px;
+        border-bottom-right-radius: 13px;
     }
 
     .progress-item-card::before {
@@ -150,11 +140,11 @@
     }
 
     .progress-item-card:hover {
-        background: #fafbff;
+        background: #fffafa;
     }
 
     .progress-item-card:hover::before {
-        background: #6777ef;
+        background: var(--palette-primary);
     }
 
     .progress-item-card.st-approved::before {
@@ -173,16 +163,19 @@
     .prog-status-pill {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 6px 14px;
+        gap: 5px;
+        padding: 4px 12px;
         border-radius: 50px;
-        font-size: 0.68rem;
-        font-weight: 800;
-        letter-spacing: 0.4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
         cursor: pointer;
         transition: all 0.2s ease;
         border: none;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .prog-status-pill:hover {
+        filter: brightness(0.92);
     }
 
     .pill-approved {
@@ -205,129 +198,195 @@
         height: 6px;
         border-radius: 50%;
         background: currentColor;
+        opacity: 0.7;
     }
 
-    /* ── Number & Photos ── */
+    /* ── Number badge ── */
     .prog-num {
-        width: 26px;
-        height: 26px;
+        width: 28px;
+        height: 28px;
         border-radius: 6px;
-        background: #f0f3ff;
-        color: #6777ef;
+        background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 700;
         flex-shrink: 0;
     }
 
+    /* ── Photo thumb ── */
     .prog-photo-thumb {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
         object-fit: cover;
-        border: 2px solid #fff;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
+        border: 2px solid #e9ecef;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+        cursor: pointer;
     }
 
     .prog-photo-thumb:hover {
-        transform: scale(1.1);
+        border-color: var(--palette-primary);
+        transform: scale(1.08);
     }
 
     .prog-no-photo {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
         background: #f8f9fa;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #ced4da;
+        color: #ccc;
+        font-size: 1rem;
     }
 
-    /* ── Mobile Optimization ── */
-    @media (max-width: 575px) {
-        .progress-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
+    /* ── Dropdown ── */
+    .prog-dropdown .dropdown-menu {
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+        padding: 6px;
+        min-width: 150px;
+    }
 
-        .target-group-header {
-            padding: 12px 15px;
-        }
+    .prog-dropdown .dropdown-item {
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 6px 12px;
+    }
 
-        .target-group-header .tg-meta .tg-count-pill {
-            display: none;
-        }
-
-        .progress-item-card {
-            padding: 15px;
-        }
-
-        .progress-item-card .d-flex {
-            flex-wrap: wrap;
-        }
-
-        .progress-item-card .prog-dropdown {
-            width: 100%;
-            margin-top: 12px;
-        }
-
-        .progress-item-card .prog-status-pill {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .prog-num {
-            display: none;
-        }
-
-        /* Hide number on mobile to save space */
+    .prog-dropdown .dropdown-item:hover {
+        background: #fff5f5;
     }
 
     /* ── Empty state ── */
     .progress-empty {
         text-align: center;
-        padding: 60px 20px;
+        padding: 56px 24px;
+        animation: progFadeUp 0.5s ease both;
     }
 
     .progress-empty-icon {
-        width: 70px;
-        height: 70px;
+        width: 68px;
+        height: 68px;
         border-radius: 50%;
-        background: #f0f3ff;
+        background: linear-gradient(135deg, #fff5f5, #ffe5e5);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 15px;
-        font-size: 1.8rem;
-        color: #6777ef;
-        opacity: 0.5;
+        margin: 0 auto 14px;
+        font-size: 1.6rem;
+        color: var(--palette-primary);
+        opacity: 0.6;
     }
 
+    @keyframes progFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ── MOBILE FRIENDLY ── */
+    @media (max-width: 767px) {
+        .progress-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .target-group-header {
+            padding: 12px 14px;
+        }
+
+        .target-group-header .target-name {
+            font-size: 0.82rem;
+        }
+
+        .target-group-header .target-name .tg-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 0.7rem;
+        }
+
+        .tg-count-pill {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+        }
+
+        /* Use Grid for progress item to keep alignment crisp */
+        .progress-item-card>.d-flex {
+            display: grid !important;
+            grid-template-columns: auto auto 1fr;
+            grid-template-areas:
+                "num photo content"
+                "dropdown dropdown dropdown";
+            gap: 12px;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(1) {
+            grid-area: num;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(2) {
+            grid-area: photo;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(3) {
+            grid-area: content;
+        }
+
+        .progress-item-card>.d-flex> :nth-child(4) {
+            grid-area: dropdown;
+        }
+
+        .prog-dropdown {
+            width: 100%;
+            margin-top: 0;
+            padding-top: 12px;
+            border-top: 1px dashed #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .prog-dropdown .dropdown {
+            width: 100%;
+        }
+
+        .prog-dropdown .prog-status-pill {
+            width: 100%;
+            justify-content: center;
+            padding: 8px 12px;
+        }
     /* ===== GLIGHTBOX VIDEO INLINE SLIDE PREMIUM SYSTEM ===== */
     .glightbox-video-slide .gslide-inline {
         background: #000000 !important;
         border-radius: 16px;
         padding: 0 !important;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8) !important;
         max-width: 850px !important;
     }
-
     .glightbox-video-slide .gslide-inner-content {
         background: transparent !important;
     }
-
     .glightbox-video-slide .gslide-description {
         background: rgba(0, 0, 0, 0.85) !important;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: 15px 20px !important;
     }
-
     .glightbox-video-slide .gslide-media {
         box-shadow: none !important;
+    }
     }
 </style>

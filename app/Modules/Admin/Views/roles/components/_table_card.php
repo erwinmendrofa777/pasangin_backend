@@ -90,7 +90,7 @@
                                     </span>
                                 <?php else: ?>
                                     <span class="badge rounded-pill"
-                                        style="background:#e7f3ff; color:#0a58ca; font-size:0.75rem; padding:5px 12px;">
+                                        style="background:#e7f3ff; color:var(--palette-primary-hover); font-size:0.75rem; padding:5px 12px;">
                                         <?= count($perms) ?> izin
                                     </span>
                                 <?php endif; ?>

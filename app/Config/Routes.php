@@ -170,6 +170,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     // Webhook Payment
     $routes->post('payment/notification', 'PaymentApi::notification');
 
+    // Pengaturan Pajak & Biaya Aplikasi
+    $routes->get('settings/tax-fee', 'SettingsApi::getTaxFeeSettings');
+
+
     // meminta kode OTP
     $routes->post('forgot-password', 'AuthAPI::requestOtp');
     $routes->post('verify-otp', 'AuthAPI::verifyOtp');
@@ -190,6 +194,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->post('supplier/orders/update-status/(:num)', 'SupplierOrderApi::updateStatus/$1');
     $routes->post('supplier/withdraw', 'SupplierOrderApi::withdraw');
     $routes->get('supplier/withdrawals', 'SupplierOrderApi::withdrawalHistory');
+    $routes->get('supplier/transactions', 'SupplierOrderApi::transactionHistory');
     $routes->post('supplier/change-password', 'SupplierAuthController::changePassword');
 
     // API promo supplier
@@ -337,7 +342,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->post('checkout', 'OrderApi::checkout');
     $routes->get('orders/history', 'OrderApi::history');
     $routes->get('orders/detail/(:any)', 'OrderApi::detail/$1');
-    $routes->delete('orders/delete/(:num)', 'OrderApi::delete/$1');
+    $routes->delete('orders/delete/(:any)', 'OrderApi::delete/$1');
+    $routes->post('orders/complete/(:num)', 'OrderApi::complete/$1');
     $routes->get('payment/check_status/(:any)', 'PaymentApi::checkStatus/$1');
     $routes->get('payment/token/(:num)', 'PaymentApi::getPaymentToken/$1');
     $routes->get('payment/token/design/(:num)(/(:any))?', 'PaymentApi::getDesignPaymentToken/$1/$3');

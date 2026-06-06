@@ -12,7 +12,7 @@ Manajemen Tukang
 <style>
     /* ===== HERO HEADER ===== */
     .edit-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 28px 28px 72px;
         position: relative;
@@ -65,7 +65,7 @@ Manajemen Tukang
         border-radius: 20px;
         border: 4px solid #fff;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        background: linear-gradient(135deg, #6ea8fe, #0d6efd);
+        background: linear-gradient(135deg, #FFA3A3, var(--palette-primary));
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -77,7 +77,7 @@ Manajemen Tukang
     .edit-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
@@ -88,19 +88,19 @@ Manajemen Tukang
     .section-card {
         border: none;
         border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(13, 110, 253, 0.08), 0 1px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(255, 92, 92, 0.08), 0 1px 6px rgba(0, 0, 0, 0.05);
         margin-bottom: 20px;
     }
 
     .section-card .card-header {
-        background: #f0f6ff;
-        border-bottom: 1px solid #dce8ff;
+        background: #fff5f5;
+        border-bottom: 1px solid #ffdddd;
         border-radius: 14px 14px 0 0 !important;
         padding: 14px 20px;
     }
 
     .section-card .card-header h6 {
-        color: #0d6efd;
+        color: var(--palette-primary);
         font-weight: 700;
         font-size: 0.82rem;
         letter-spacing: 0.5px;
@@ -129,8 +129,8 @@ Manajemen Tukang
 
     .form-control:focus,
     .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
     }
 
     .input-group-text {
@@ -160,8 +160,8 @@ Manajemen Tukang
     }
 
     .doc-upload-box:hover {
-        border-color: #0d6efd;
-        background: #f0f6ff;
+        border-color: var(--palette-primary);
+        background: #fff5f5;
     }
 
     .doc-preview-img {
@@ -181,7 +181,7 @@ Manajemen Tukang
         font-weight: 700;
         font-size: 0.95rem;
         letter-spacing: 0.5px;
-        background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         border: none;
         color: #fff;
         transition: all 0.2s ease;
@@ -189,7 +189,7 @@ Manajemen Tukang
 
     .btn-save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.35);
+        box-shadow: 0 6px 20px rgba(255, 92, 92, 0.35);
     }
 
     @media (max-width: 768px) {

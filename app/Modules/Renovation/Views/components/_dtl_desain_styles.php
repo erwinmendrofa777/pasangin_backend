@@ -9,8 +9,8 @@
     }
 
     .desain-upload-card:hover {
-        border-color: #6777ef;
-        background: #f0f2ff;
+        border-color: var(--palette-primary);
+        background: #fff5f5;
     }
 
     /* ── Gallery card ── */
@@ -42,7 +42,7 @@
 
     .desain-gallery-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(103, 119, 239, 0.18);
+        box-shadow: 0 8px 24px rgba(255, 92, 92, 0.18);
     }
 
     .desain-gallery-card .desain-thumb {
@@ -109,15 +109,15 @@
 
     .desain-input {
         border-radius: 8px;
-        border: 1.5px solid #e0e4ff;
+        border: 1.5px solid #e5e7eb;
         font-size: 0.85rem;
         padding: 9px 14px;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .desain-input:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
     }
 
     @keyframes desainFadeUp {
@@ -181,25 +181,26 @@
 
     /* ===== GLIGHTBOX VIDEO INLINE SLIDE PREMIUM SYSTEM ===== */
     .glightbox-video-slide .gslide-inline {
-        background: #000000 !important;
-        border-radius: 16px;
+        background: #000 !important;
         padding: 0 !important;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
-        max-width: 850px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        width: 95% !important;
+        max-width: 900px !important;
+        border-radius: 12px;
+        overflow: hidden !important;
+        overflow-y: hidden !important;
     }
-
     .glightbox-video-slide .gslide-inner-content {
-        background: transparent !important;
+        background: #000 !important;
+        overflow: hidden !important;
+        width: 100% !important;
     }
-
     .glightbox-video-slide .gslide-description {
-        background: rgba(0, 0, 0, 0.85) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px 20px !important;
+        display: none !important;
     }
-
     .glightbox-video-slide .gslide-media {
         box-shadow: none !important;
+        overflow: hidden !important;
+        background: #000 !important;
     }
 </style>

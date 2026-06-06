@@ -125,7 +125,7 @@
                   <?php foreach ($applicants as $app): ?>
                     <div class="custom-select-option" data-value="<?= $app['id'] ?>" onclick="selectCustomOption('<?= $app['id'] ?>', '<?= esc($app['tukang_name']) ?>')" style="padding: 10px 12px; font-size: 13px; color: #1a1a2e; border-radius: 6px; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: space-between;">
                       <span style="display: flex; align-items: center; gap: 8px;">
-                        <i class="ti ti-user" style="font-size: 14px; color: #2563eb;" aria-hidden="true"></i>
+                        <i class="ti ti-user" style="font-size: 14px; color: var(--palette-primary-hover);" aria-hidden="true"></i>
                         <span style="font-weight: 500;"><?= esc($app['tukang_name']) ?></span>
                       </span>
                       <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #f3f4f6; color: #6b7280; font-weight: 600;"><?= esc($app['status']) ?></span>
@@ -180,8 +180,8 @@
             <div class="ms-file-upload-wrap" style="position: relative; border: 2px dashed #d1d5db; border-radius: 8px; padding: 16px; text-align: center; background: #f9fafb; cursor: pointer; transition: all 0.2s ease;">
               <input type="file" name="photo" id="submission-photo" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;" onchange="handleFileChange(this)">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; z-index: 1;">
-                <i class="ti ti-camera" style="font-size: 26px; color: #3b82f6;" aria-hidden="true"></i>
-                <div style="font-size: 13px; font-weight: 600; color: #2563eb;" id="photo-file-label">Pilih Foto atau Ambil Gambar</div>
+                <i class="ti ti-camera" style="font-size: 26px; color: var(--palette-primary);" aria-hidden="true"></i>
+                <div style="font-size: 13px; font-weight: 600; color: var(--palette-primary-hover);" id="photo-file-label">Pilih Foto atau Ambil Gambar</div>
                 <div style="font-size: 11px; color: #6b7280;">Format: JPG, PNG, WebP (Maks. 5MB)</div>
               </div>
             </div>

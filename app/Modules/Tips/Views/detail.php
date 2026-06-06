@@ -12,7 +12,7 @@ Detail Tips & Tricks
 <style>
     /* ===== HERO HEADER ===== */
     .detail-hero {
-        background: linear-gradient(135deg, #6777ef 0%, #4d5fd1 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         border-radius: 20px 20px 0 0;
         padding: 35px 35px 85px;
         position: relative;
@@ -64,7 +64,7 @@ Detail Tips & Tricks
     .detail-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.08);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.08);
         overflow: hidden;
     }
 
@@ -155,12 +155,12 @@ Detail Tips & Tricks
 
     .rendered-content blockquote {
         background: #f8f9ff;
-        border-left: 4px solid #6777ef;
+        border-left: 4px solid var(--palette-primary);
         padding: 20px 25px;
         border-radius: 0 12px 12px 0;
         margin: 2rem 0;
         font-style: italic;
-        color: #4d5fd1;
+        color: var(--palette-primary-hover);
     }
 
     .rendered-content hr {
@@ -174,7 +174,7 @@ Detail Tips & Tricks
     .side-widget {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.08);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.08);
     }
 </style>
 <?= $this->endSection() ?>

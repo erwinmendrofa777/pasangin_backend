@@ -32,6 +32,7 @@
   <!-- Template CSS -->
   <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
   <link rel="stylesheet" href="<?= base_url('assets/css/components.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('assets/css/custom.css') ?>">
 
   <style>
     /* Overlay for mandatory notification */
@@ -148,6 +149,22 @@
     body.sidebar-mini .main-sidebar::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.15) !important;
       border-radius: 4px !important;
+    }
+
+    /* Fix overlap and reduce navbar height globally */
+    .navbar-bg {
+      height: 70px !important;
+      /* Reduced from 115px */
+    }
+
+    .main-content {
+      padding-top: 90px !important;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        padding-top: 90px !important;
+      }
     }
   </style>
 
@@ -310,6 +327,13 @@
                 </li>
               <?php endif; ?>
 
+              <?php if (can('admin_balance_view') || $isAccounting): ?>
+                <li class="<?= ($seg2 == 'admin-balance') ? 'active' : '' ?>">
+                  <a class="nav-link" href="<?= site_url('admin/admin-balance') ?>"><i class="fas fa-university"></i>
+                    <span>Saldo Admin</span></a>
+                </li>
+              <?php endif; ?>
+
               <?php if (can('tukang')): ?>
                 <li class="<?= ($seg2 == 'tukang') ? 'active' : '' ?>">
                   <a class="nav-link" href="<?= site_url('admin/tukang/index') ?>"><i class="fas fa-hard-hat"></i>
@@ -413,8 +437,15 @@
             <?php endif; ?>
 
             <!-- ============ AKSES ============ -->
-            <?php if (canAny(['roles', 'admin', 'activity_log_view'])): ?>
+            <?php if (canAny(['roles', 'admin', 'activity_log_view', 'settings_view'])): ?>
               <li class="menu-header">AKSES</li>
+
+              <?php if (can('settings_view')): ?>
+                <li class="<?= ($seg2 == 'settings') ? 'active' : '' ?>">
+                  <a class="nav-link" href="<?= site_url('admin/settings') ?>"><i class="fas fa-cog"></i> <span>Pengaturan
+                      Aplikasi</span></a>
+                </li>
+              <?php endif; ?>
 
               <?php if (can('admin')): ?>
                 <li class="<?= ($seg2 == 'admin') ? 'active' : '' ?>">

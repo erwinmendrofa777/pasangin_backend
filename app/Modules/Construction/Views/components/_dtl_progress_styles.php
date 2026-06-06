@@ -17,7 +17,7 @@
     }
 
     .progress-count-badge {
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         border-radius: 50px;
         padding: 3px 12px;
@@ -46,7 +46,7 @@
     }
 
     .target-group-header {
-        background: linear-gradient(135deg, #f8f9ff, #eef1ff);
+        background: linear-gradient(135deg, #fffcfc, #fff5f5);
         padding: 14px 20px;
         display: flex;
         align-items: center;
@@ -59,7 +59,7 @@
     }
 
     .target-group-header:hover {
-        background: #eaedff;
+        background: #ffe5e5;
     }
 
     .target-group-header .target-name {
@@ -75,7 +75,7 @@
         width: 30px;
         height: 30px;
         border-radius: 8px;
-        background: linear-gradient(135deg, #6777ef, #7e8ef5);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         color: #fff;
         display: flex;
         align-items: center;
@@ -92,7 +92,7 @@
 
     .target-group-header .tg-chevron {
         transition: transform 0.25s ease;
-        color: #6777ef;
+        color: var(--palette-primary);
         font-size: 0.8rem;
     }
 
@@ -101,8 +101,8 @@
     }
 
     .tg-count-pill {
-        background: #e0e4ff;
-        color: #6777ef;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         border-radius: 50px;
         padding: 2px 10px;
         font-size: 0.72rem;
@@ -140,11 +140,11 @@
     }
 
     .progress-item-card:hover {
-        background: #fafbff;
+        background: #fffafa;
     }
 
     .progress-item-card:hover::before {
-        background: #6777ef;
+        background: var(--palette-primary);
     }
 
     .progress-item-card.st-approved::before {
@@ -206,8 +206,8 @@
         width: 28px;
         height: 28px;
         border-radius: 6px;
-        background: linear-gradient(135deg, #f0f3ff, #e0e4ff);
-        color: #6777ef;
+        background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -228,7 +228,7 @@
     }
 
     .prog-photo-thumb:hover {
-        border-color: #6777ef;
+        border-color: var(--palette-primary);
         transform: scale(1.08);
     }
 
@@ -261,7 +261,7 @@
     }
 
     .prog-dropdown .dropdown-item:hover {
-        background: #f0f3ff;
+        background: #fff5f5;
     }
 
     /* ── Empty state ── */
@@ -275,13 +275,13 @@
         width: 68px;
         height: 68px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #f0f3ff, #e0e4ff);
+        background: linear-gradient(135deg, #fff5f5, #ffe5e5);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 14px;
         font-size: 1.6rem;
-        color: #6777ef;
+        color: var(--palette-primary);
         opacity: 0.6;
     }
 

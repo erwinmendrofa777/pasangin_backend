@@ -1,7 +1,7 @@
 <style>
     /* ===== HEADER CARD ===== */
     .page-header-card {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 60%, #084298 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 60%, var(--palette-primary-hover) 100%);
         border: none;
         border-radius: 16px;
         position: relative;
@@ -56,8 +56,8 @@
     }
 
     .search-wrapper input:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
     }
 
     .search-wrapper input::placeholder {
@@ -69,7 +69,7 @@
     .table-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
         overflow: hidden;
     }
 
@@ -83,16 +83,16 @@
     }
 
     #table-1 thead tr {
-        background: #f0f6ff;
+        background: #fff5f5;
     }
 
     #table-1 thead th {
-        color: #0d6efd;
+        color: var(--palette-primary);
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #dce8ff;
+        border-bottom: 2px solid #ffdddd;
         border-top: none;
         padding: 14px 12px;
         white-space: nowrap;
@@ -103,7 +103,7 @@
     }
 
     #table-1 tbody tr:hover {
-        background: #f8fbff !important;
+        background: #fffafa !important;
     }
 
     #table-1 tbody td {
@@ -177,7 +177,7 @@
     }
 
     .btn-action-detail {
-        background: #0d6efd;
+        background: var(--palette-primary);
         color: #ffffff;
     }
 
@@ -224,23 +224,23 @@
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: #0d6efd;
+        color: var(--palette-primary);
         align-items: center;
         justify-content: center;
     }
 
     .dataTables_paginate .page-item.active .page-link {
-        background: #0d6efd !important;
-        border-color: #0d6efd !important;
+        background: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
         color: #fff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
     .dataTables_paginate .page-item:not(.active) .page-link:hover {
-        background: #e7f0ff !important;
-        border-color: #e7f0ff !important;
-        color: #0d6efd !important;
+        background: #ffe5e5 !important;
+        border-color: #ffe5e5 !important;
+        color: var(--palette-primary) !important;
     }
 
     /* ===== TASK SCROLL ===== */
@@ -285,13 +285,13 @@
         background: #f8f9fa;
         border-radius: 50%;
         transition: all 0.2s;
-        color: #0d6efd;
+        color: var(--palette-primary);
     }
 
     .task-card:hover .btn-minimal {
-        background: #0d6efd;
+        background: var(--palette-primary);
         color: #ffffff;
-        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25) !important;
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25) !important;
     }
 
     @media (max-width: 768px) {

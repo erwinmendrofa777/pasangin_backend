@@ -33,7 +33,7 @@
     table.table-schedule .bar {
         height: 14px;
         border-radius: 3px;
-        background: #6777ef;
+        background: var(--palette-primary);
         min-width: 6px;
     }
 

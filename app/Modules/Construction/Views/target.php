@@ -348,10 +348,10 @@ $totalSelisihHargaAddendumAll = 0;
 
     <!-- ===== PREMIUM FORM PANEL ===== -->
     <div class="card mt-4"
-        style="border:none; border-radius:16px; box-shadow: 0 6px 24px rgba(103,119,239,0.10), 0 2px 8px rgba(0,0,0,0.04); overflow:hidden;">
+        style="border:none; border-radius:16px; box-shadow: 0 6px 24px rgba(255, 92, 92,0.10), 0 2px 8px rgba(0,0,0,0.04); overflow:hidden;">
 
         <!-- SECTION 1: Tambah / Edit Target -->
-        <div style="background: linear-gradient(135deg,#6777ef 0%,#7e8ef5 100%); padding:14px 20px;">
+        <div style="background: linear-gradient(135deg,var(--palette-primary) 0%,var(--palette-primary-hover) 100%); padding:14px 20px;">
             <h6 class="text-white mb-0" style="font-size:0.9rem; font-weight:700;">
                 <i class="fas fa-crosshairs mr-2"></i> Tambah / Edit Target
                 <small class="ml-2" id="selected-info-<?= $constructionId ?>"
@@ -374,7 +374,7 @@ $totalSelisihHargaAddendumAll = 0;
                         </label>
                         <input type="text" class="form-control form-control-sm" id="inp-group-<?= $constructionId ?>"
                             placeholder="Klik pekerjaan di atas"
-                            style="border-radius:8px; border:1.5px solid #e0e4ff; background:#f8f9ff;" readonly>
+                            style="border-radius:8px; border:1.5px solid #e5e7eb; background:#fafafa;" readonly>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1"
@@ -382,7 +382,7 @@ $totalSelisihHargaAddendumAll = 0;
                             <i class="fas fa-sitemap mr-1 text-primary" style="font-size:0.7rem;"></i>Sub Grup
                         </label>
                         <input type="text" class="form-control form-control-sm" id="inp-subgroup-<?= $constructionId ?>"
-                            placeholder="–" style="border-radius:8px; border:1.5px solid #e0e4ff; background:#f8f9ff;"
+                            placeholder="–" style="border-radius:8px; border:1.5px solid #e5e7eb; background:#fafafa;"
                             readonly>
                     </div>
                     <div class="col-md-6">
@@ -392,7 +392,7 @@ $totalSelisihHargaAddendumAll = 0;
                         </label>
                         <input type="text" class="form-control form-control-sm" id="inp-name-<?= $constructionId ?>"
                             placeholder="Klik pekerjaan pada tabel di atas..."
-                            style="border-radius:8px; border:1.5px solid #e0e4ff; background:#f8f9ff;" readonly>
+                            style="border-radius:8px; border:1.5px solid #e5e7eb; background:#fafafa;" readonly>
                     </div>
                 </div>
 
@@ -405,7 +405,7 @@ $totalSelisihHargaAddendumAll = 0;
                         </label>
                         <select name="id_job_applications" required class="form-select form-select-sm"
                             id="inp-tukang-<?= $constructionId ?>"
-                            style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                            style="border-radius:8px; border:1.5px solid #e5e7eb;">
                             <option value="">Pilih Tukang</option>
                             <?php foreach ($applicants ?? [] as $app): ?>
                                 <option value="<?= $app['id'] ?>"><?= esc($app['tukang_name']) ?></option>
@@ -419,7 +419,7 @@ $totalSelisihHargaAddendumAll = 0;
                         </label>
                         <input type="number" class="form-control form-control-sm" name="bobot"
                             id="inp-bobot-<?= $constructionId ?>" step="0.01" min="0" max="100" placeholder="0.00"
-                            style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                            style="border-radius:8px; border:1.5px solid #e5e7eb;">
                     </div>
                     <div class="col-2">
                         <label class="form-label mb-1"
@@ -428,7 +428,7 @@ $totalSelisihHargaAddendumAll = 0;
                         </label>
                         <input type="number" class="form-control form-control-sm" name="start_week"
                             id="inp-start-<?= $constructionId ?>" min="1" max="<?= $numWeeks ?>" value="1"
-                            style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                            style="border-radius:8px; border:1.5px solid #e5e7eb;">
                     </div>
                     <div class="col-2">
                         <label class="form-label mb-1"
@@ -437,7 +437,7 @@ $totalSelisihHargaAddendumAll = 0;
                         </label>
                         <input type="number" class="form-control form-control-sm" name="end_week"
                             id="inp-end-<?= $constructionId ?>" min="1" max="<?= $numWeeks ?>" value="2"
-                            style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                            style="border-radius:8px; border:1.5px solid #e5e7eb;">
                     </div>
                     <div class="col-2">
                         <button type="submit" class="btn btn-sm btn-primary shadow-sm"
@@ -451,12 +451,12 @@ $totalSelisihHargaAddendumAll = 0;
         </div>
 
         <!-- SECTION 2: Atur Jadwal Proyek -->
-        <div style="background: linear-gradient(135deg,#6777ef 0%,#7e8ef5 100%); padding:12px 20px;">
+        <div style="background: linear-gradient(135deg,var(--palette-primary) 0%,var(--palette-primary-hover) 100%); padding:12px 20px;">
             <h6 class="text-white mb-0" style="font-size:0.85rem; font-weight:700;">
                 <i class="fas fa-calendar-alt mr-2"></i> Atur Jadwal Proyek
             </h6>
         </div>
-        <div class="card-body" style="padding:18px 20px; background:#fafffe;">
+        <div class="card-body" style="padding:18px 20px; background:#fff;">
             <form action="<?= base_url('admin/construction/update-schedule') ?>" method="post"
                 class="row g-2 align-items-end flex-wrap">
                 <?= csrf_field() ?>
@@ -467,7 +467,7 @@ $totalSelisihHargaAddendumAll = 0;
                         <i class="fas fa-hashtag mr-1 text-primary" style="font-size:0.7rem;"></i>Jumlah Minggu
                     </label>
                     <input type="number" class="form-control form-control-sm" name="week" min="1" max="52"
-                        value="<?= $numWeeks ?>" style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                        value="<?= $numWeeks ?>" style="border-radius:8px; border:1.5px solid #e5e7eb;">
                 </div>
                 <div class="col-12 col-sm-auto">
                     <label class="form-label mb-1"
@@ -475,7 +475,7 @@ $totalSelisihHargaAddendumAll = 0;
                         <i class="fas fa-briefcase mr-1 text-primary" style="font-size:0.7rem;"></i>Kerja/Minggu
                     </label>
                     <input type="number" class="form-control form-control-sm" name="workday" min="1" max="7"
-                        value="<?= $workday ?>" style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                        value="<?= $workday ?>" style="border-radius:8px; border:1.5px solid #e5e7eb;">
                 </div>
                 <div class="col-12 col-sm-auto">
                     <label class="form-label mb-1"
@@ -483,7 +483,7 @@ $totalSelisihHargaAddendumAll = 0;
                         <i class="fas fa-calendar-check mr-1 text-primary" style="font-size:0.7rem;"></i>Tanggal Mulai
                     </label>
                     <input type="date" class="form-control form-control-sm" name="start_date"
-                        value="<?= $startDate ?? '' ?>" style="border-radius:8px; border:1.5px solid #e0e4ff;">
+                        value="<?= $startDate ?? '' ?>" style="border-radius:8px; border:1.5px solid #e5e7eb;">
                 </div>
                 <div class="col-12 col-sm-auto">
                     <button type="submit" class="btn btn-sm btn-primary shadow-sm"

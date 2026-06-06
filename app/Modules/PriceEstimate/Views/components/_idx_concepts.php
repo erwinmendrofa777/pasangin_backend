@@ -15,7 +15,7 @@
                     </div>
                     <div class="d-flex gap-2">
                         <?php if (can('price-estimate_update')): ?>
-                        <button class="btn btn-light btn-sm fw-bold px-3 btn-edit-concept" data-id="<?= $concept['id'] ?>" data-name="<?= $concept['name'] ?>" style="border-radius: 8px; color: #6777ef;">
+                        <button class="btn btn-light btn-sm fw-bold px-3 btn-edit-concept" data-id="<?= $concept['id'] ?>" data-name="<?= $concept['name'] ?>" style="border-radius: 8px; color: var(--palette-primary);">
                             <i class="fas fa-edit me-1"></i> Rename
                         </button>
                         <?php endif; ?>

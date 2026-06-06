@@ -250,19 +250,66 @@ class SupplierOrderApi extends BaseController
         if (!$supplierId)
             return $this->failUnauthorized();
 
-        $amount = $this->request->getVar('amount');
+        $amount = (float)$this->request->getVar('amount');
+        $bankName = $this->request->getVar('bank_name');
+        $accountNumber = $this->request->getVar('account_number');
+        $accountName = $this->request->getVar('account_name');
 
-        $this->db->table('supplier_withdrawals')->insert([
-            'supplier_id' => $supplierId,
-            'amount' => $amount,
-            'bank_name' => $this->request->getVar('bank_name'),
-            'account_number' => $this->request->getVar('account_number'),
-            'account_name' => $this->request->getVar('account_name'),
-            'status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
+        // 1. Cek apakah saldo mencukupi
+        $supplier = $this->db->table('suppliers')->where('id', $supplierId)->get()->getRow();
+        if (!$supplier) {
+            return $this->failNotFound('Data supplier tidak ditemukan.');
+        }
 
-        return $this->respondCreated(['status' => true, 'message' => 'Permintaan penarikan dana berhasil dikirim.']);
+        $currentBalance = (float)$supplier->balance;
+        if ($currentBalance < $amount) {
+            return $this->fail('Gagal! Saldo Anda tidak cukup.');
+        }
+
+        try {
+            $this->db->transStart();
+
+            // 2. Insert ke supplier_withdrawals dengan status 'approved'
+            $this->db->table('supplier_withdrawals')->insert([
+                'supplier_id' => $supplierId,
+                'amount' => $amount,
+                'bank_name' => $bankName,
+                'account_number' => $accountNumber,
+                'account_name' => $accountName,
+                'status' => 'approved',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // 3. Potong saldo supplier di tabel suppliers
+            $this->db->table('suppliers')
+                ->where('id', $supplierId)
+                ->set('balance', 'balance - ' . $amount, false)
+                ->update();
+
+            // 4. Catat riwayat transaksi supplier ke tabel supplier_transactions
+            $this->db->table('supplier_transactions')->insert([
+                'supplier_Id' => $supplierId,
+                'amount' => $amount,
+                'type' => 'withdraw',
+                'description' => "Penarikan dana ke {$bankName} - {$accountNumber} a/n {$accountName}",
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \Exception('Gagal memproses penarikan dana di database.');
+            }
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Penarikan dana berhasil disetujui secara otomatis dan saldo telah dipotong.'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            return $this->fail('Gagal melakukan penarikan dana: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -281,6 +328,25 @@ class SupplierOrderApi extends BaseController
 
         return $this->respond(['status' => true, 'data' => $data]);
     }
+
+    /**
+     * --- 4b. RIWAYAT TRANSAKSI SUPPLIER ---
+     */
+    public function transactionHistory()
+    {
+        $supplierId = $this->getSupplierId();
+        if (!$supplierId)
+            return $this->failUnauthorized('Sesi berakhir, silakan login ulang.');
+
+        $data = $this->db->table('supplier_transactions')
+            ->where('supplier_Id', $supplierId)
+            ->orderBy('id', 'DESC')
+            ->get()->getResultArray();
+
+        return $this->respond(['status' => true, 'data' => $data]);
+    }
+
+
 
     /**
      * --- 5. UPDATE STATUS PESANAN ---

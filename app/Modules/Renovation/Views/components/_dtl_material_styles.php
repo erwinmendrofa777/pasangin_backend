@@ -13,7 +13,7 @@
   }
 
   .ms-root .ms-header {
-    background: #2563eb;
+    background: var(--palette-primary);
     border-radius: 12px 12px 0 0;
     padding: 1.1rem 1.4rem;
     display: flex;
@@ -80,7 +80,7 @@
 
   .ms-root .ms-badge.total {
     background: #fff;
-    color: #2563eb;
+    color: var(--palette-primary);
     font-weight: 600;
   }
 
@@ -127,8 +127,8 @@
   }
 
   .ms-root .ms-search:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: var(--palette-primary);
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
     background: #fff;
   }
 
@@ -156,12 +156,12 @@
 
   .ms-root .ms-filter-dd-btn:hover {
     background: #f3f4f6;
-    border-color: #93c5fd;
-    color: #2563eb;
+    border-color: #ffcccc;
+    color: var(--palette-primary);
   }
 
   .ms-root .ms-filter-dd-btn:focus {
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
   }
 
   .ms-root .ms-table-wrap {
@@ -230,7 +230,7 @@
   }
 
   .ms-root tbody tr:hover {
-    background: #f8faff;
+    background: #fff5f5;
   }
 
   .ms-root tbody td {
@@ -279,9 +279,9 @@
   }
 
   .ms-root .type-badge.alat {
-    background: #eff6ff;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
+    background: #ede9fe;
+    color: #5b21b6;
+    border: 1px solid #c4b5fd;
   }
 
   .ms-root .type-badge .ti {
@@ -301,14 +301,14 @@
     padding: 3px 9px;
     border-radius: 20px;
     font-size: 12px;
-    background: #eff6ff;
-    color: #1e3a8a;
-    border: 1px solid #bfdbfe;
+    background: #fff5f5;
+    color: var(--palette-primary);
+    border: 1px solid #ffcccc;
   }
 
   .ms-root .item-chip .ti {
     font-size: 11px;
-    color: #3b82f6;
+    color: var(--palette-primary-hover);
   }
 
   .ms-root .time-date {
@@ -448,8 +448,8 @@
   }
 
   .ms-root .dd-item.all-item:hover {
-    background: #dbeafe;
-    color: #2563eb;
+    background: #fff5f5;
+    color: var(--palette-primary);
   }
 
   .ms-root .dd-item.bahan-item {
@@ -462,12 +462,12 @@
   }
 
   .ms-root .dd-item.alat-item {
-    color: #1e40af;
+    color: #6d28d9;
   }
 
   .ms-root .dd-item.alat-item:hover {
-    background: #eff6ff;
-    color: #1e40af;
+    background: #ede9fe;
+    color: #6d28d9;
   }
 
   .ms-root .dd-menu.filter-menu {
@@ -508,15 +508,15 @@
   }
 
   .ms-root .pag-btn:hover:not(:disabled):not(.active) {
-    background: #dbeafe;
-    color: #2563eb;
-    border-color: #bfdbfe;
+    background: #fff5f5;
+    color: var(--palette-primary);
+    border-color: #ffcccc;
   }
 
   .ms-root .pag-btn.active {
-    background: #2563eb;
+    background: var(--palette-primary);
     color: #fff;
-    border-color: #2563eb;
+    border-color: var(--palette-primary);
   }
 
   .ms-root .pag-btn:disabled {
@@ -545,10 +545,10 @@
     padding: 6px 13px;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid #2563eb;
+    border: 1px solid var(--palette-primary);
     border-radius: 20px;
     cursor: pointer;
-    background: #2563eb;
+    background: var(--palette-primary);
     color: #fff;
     transition: all 0.15s;
     display: inline-flex;
@@ -558,8 +558,8 @@
   }
 
   .ms-root .ms-add-btn:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
+    background: var(--palette-primary-hover);
+    border-color: var(--palette-primary-hover);
   }
 
   .ms-root .btn-action {
@@ -582,15 +582,15 @@
   }
 
   .ms-root .btn-action.detail {
-    background: #2563eb;
-    border: 1px solid #2563eb;
+    background: var(--palette-primary);
+    border: 1px solid var(--palette-primary);
   }
 
   .ms-root .btn-action.detail:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
+    background: var(--palette-primary-hover);
+    border-color: var(--palette-primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 8px rgba(255, 92, 92, 0.3);
     color: #fff !important;
   }
 
@@ -630,7 +630,7 @@
   }
 
   .ms-modal-header {
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
     color: #ffffff;
     padding: 1.25rem 1.5rem !important;
     border-bottom: none !important;
@@ -735,17 +735,17 @@
   }
 
   .ms-root #type-alat:checked+.ms-type-card.alat {
-    border-color: #3b82f6;
-    background: #f8fafc;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    border-color: #8b5cf6;
+    background: #fbfaff;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
   }
 
   .ms-root #type-alat:checked+.ms-type-card.alat i {
-    color: #2563eb;
+    color: #7c3aed;
   }
 
   .ms-root #type-alat:checked+.ms-type-card.alat .title {
-    color: #1e40af;
+    color: #6d28d9;
   }
 
   /* Custom Textarea */
@@ -760,9 +760,9 @@
   }
 
   .ms-root .ms-textarea-container:focus-within {
-    border-color: #2563eb;
+    border-color: #6366f1;
     background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
   }
 
   .ms-root .ms-textarea-hint {
@@ -778,7 +778,7 @@
 
   .ms-root .ms-textarea-hint i {
     font-size: 13px;
-    color: #2563eb;
+    color: #6366f1;
   }
 
   /* Custom Buttons */
@@ -810,7 +810,7 @@
     font-weight: 600;
     border: none;
     border-radius: 20px;
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
     color: #ffffff;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -818,48 +818,43 @@
     align-items: center;
     gap: 6px;
     outline: none;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25);
   }
 
   .ms-root .ms-btn-primary:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--palette-primary-hover) 0%, var(--palette-primary) 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 6px 15px rgba(255, 92, 92, 0.35);
   }
 
   .ms-root .ms-select-container:focus-within {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    border-color: var(--palette-primary) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
   }
 
   .ms-root .ms-select-custom:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    border-color: var(--palette-primary) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
   }
 
   .ms-root .custom-select-trigger:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    border-color: var(--palette-primary) !important;
+    box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15) !important;
   }
-
   .ms-root .custom-select-option:hover {
-    background: #eff6ff !important;
-    color: #2563eb !important;
+    background: #fff5f5 !important;
+    color: var(--palette-primary) !important;
   }
-
   .ms-root .custom-select-option:hover .ti {
-    color: #2563eb !important;
+    color: var(--palette-primary) !important;
   }
-
   .ms-root .custom-select-options::-webkit-scrollbar {
     width: 6px;
   }
-
   .ms-root .custom-select-options::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
   }
-
   .ms-root .custom-select-options::-webkit-scrollbar-track {
     background: transparent;
   }
@@ -876,12 +871,10 @@
     align-items: center;
     gap: 6px;
   }
-
   .ms-root .detail-section-title i {
     font-size: 15px;
-    color: #2563eb;
+    color: var(--palette-primary);
   }
-
   .ms-root .detail-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -892,13 +885,11 @@
     padding: 16px;
     margin-bottom: 20px;
   }
-
   .ms-root .detail-info-item {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
-
   .ms-root .detail-info-label {
     font-size: 10px;
     font-weight: 700;
@@ -906,7 +897,6 @@
     text-transform: uppercase;
     letter-spacing: 0.3px;
   }
-
   .ms-root .detail-info-value {
     font-size: 13px;
     font-weight: 600;
@@ -915,7 +905,6 @@
     align-items: center;
     gap: 4px;
   }
-
   .ms-root .detail-item-card {
     display: flex;
     align-items: center;
@@ -930,18 +919,15 @@
     margin-bottom: 8px;
     transition: all 0.15s ease;
   }
-
   .ms-root .detail-item-card:hover {
     border-color: #cbd5e1;
     background: #f8fafc;
     transform: translateX(4px);
   }
-
   .ms-root .detail-item-card i {
-    color: #3b82f6;
+    color: var(--palette-primary);
     font-size: 16px;
   }
-
   .ms-root .detail-photo-wrapper {
     position: relative;
     border-radius: 12px;
@@ -953,7 +939,6 @@
     text-align: center;
     padding: 8px;
   }
-
   .ms-root .detail-photo-wrapper img {
     max-width: 100%;
     max-height: 250px;
@@ -961,11 +946,9 @@
     object-fit: contain;
     transition: transform 0.2s ease;
   }
-
   .ms-root .detail-photo-wrapper img:hover {
     transform: scale(1.02);
   }
-
   .ms-root .detail-comment-box {
     margin-top: 8px;
     padding: 12px 16px;

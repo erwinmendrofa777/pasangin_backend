@@ -13,7 +13,7 @@ Syarat & Ketentuan
     .detail-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.08);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.08);
         overflow: hidden;
     }
 
@@ -76,7 +76,7 @@ Syarat & Ketentuan
         display: inline-block;
         padding: 6px 16px;
         background: #f0f4ff;
-        color: #6777ef;
+        color: var(--palette-primary);
         border-radius: 50px;
         font-weight: 800;
         font-size: 0.75rem;

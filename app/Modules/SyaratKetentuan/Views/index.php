@@ -32,26 +32,38 @@ if (!function_exists('editorPreview')) {
 
 <?= $this->section('style') ?>
 <style>
+    /* Force card header title to Coral Red */
+    .card .card-header h4,
+    .card-header h4 {
+        color: #ff5c5c !important;
+    }
+
     /* Styling Tabs Premium */
     .nav-pills.custom-pills .nav-link {
-        color: #495057;
-        font-weight: 600;
-        border-radius: 12px;
-        padding: 10px 20px;
+        color: var(--palette-primary) !important;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 7px 20px;
         margin-right: 8px;
-        transition: all 0.3s ease;
-        background: #f8f9fa;
-        border: 1px solid transparent;
+        transition: all 0.25s ease;
+        background: #fff5f5;
+        border: 1px solid #ffd3d3 !important;
+        font-size: 0.88rem;
     }
 
     .nav-pills.custom-pills .nav-link:hover {
-        background: #e9ecef;
+        background: #ffe0e0;
+        border-color: var(--palette-primary) !important;
+        color: var(--palette-primary) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.15);
     }
 
     .nav-pills.custom-pills .nav-link.active {
-        background: #6777EF;
-        color: #fff;
-        box-shadow: 0 4px 10px rgba(103, 119, 239, 0.3);
+        background: var(--palette-primary);
+        border-color: var(--palette-primary) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.35);
     }
 
     /* Table Styling */
@@ -61,19 +73,19 @@ if (!function_exists('editorPreview')) {
     }
 
     .table-custom thead th {
-        color: #0d6efd;
+        color: var(--palette-primary);
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #dce8ff;
+        border-bottom: 2px solid #ffdddd;
         border-top: none;
         padding: 14px 12px;
         white-space: nowrap;
     }
 
     .table-custom thead tr {
-        background: #f0f6ff;
+        background: #fff5f5;
     }
 
     .table-custom tbody tr {

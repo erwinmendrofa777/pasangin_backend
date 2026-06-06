@@ -22,13 +22,6 @@ $nameParts = explode(' ', trim($supplier['name'] ?? 'S'));
 $initials = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? substr(end($nameParts), 0, 1) : ''));
 ?>
 
-<!-- BACK BUTTON -->
-<div class="mb-3">
-    <a href="<?= base_url('admin/suppliers') ?>" class="btn btn-secondary btn-sm px-3">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
-</div>
-
 <!-- ===== 2-COLUMN LAYOUT ===== -->
 <div class="row g-4 align-items-start">
 

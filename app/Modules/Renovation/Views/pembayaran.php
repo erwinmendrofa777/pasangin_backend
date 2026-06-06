@@ -33,7 +33,7 @@ $invoicedDescs = array_map('strtolower', array_column($invoiceList, 'description
                     <div class="col-md-5">
                         <small class="text-white-50 text-uppercase" style="letter-spacing:.8px;font-size:11px;">Nilai
                             Kontrak Renovasi</small>
-                        <h3 class="font-weight-bold mb-1">Rp <?= number_format($grandTotal) ?></h3>
+                        <h3 class="font-weight-bold mb-1" style="color: #fff !important;">Rp <?= number_format($grandTotal) ?></h3>
                         <small class="text-white-50"><?= count($list_tagihan) ?> item pekerjaan &bull; RAB terkunci</small>
                         <div class="mt-3">
                             <small class="text-white-50"><?= $paidPct ?>% terbayar</small>
@@ -49,7 +49,7 @@ $invoicedDescs = array_map('strtolower', array_column($invoiceList, 'description
                             <div class="col-12 col-sm-4 px-2 mb-2 mb-sm-0">
                                 <div class="py-2 px-1 text-center"
                                     style="background:rgba(255,255,255,.15);border-radius:10px;">
-                                    <div class="font-weight-bold" style="font-size:1.1rem;">Rp
+                                    <div class="font-weight-bold" style="font-size:1.1rem; color: #fff !important;">Rp
                                         <?= number_format($totalPaid) ?>
                                     </div>
                                     <small class="text-white-50 d-block" style="font-size:0.75rem;">Terbayar</small>
@@ -58,14 +58,14 @@ $invoicedDescs = array_map('strtolower', array_column($invoiceList, 'description
                             <div class="col-6 col-sm-4 px-2">
                                 <div class="py-2 px-1 text-center"
                                     style="background:rgba(255,255,255,.15);border-radius:10px;">
-                                    <div class="font-weight-bold" style="font-size:1.1rem;"><?= $countUnpaid ?></div>
+                                    <div class="font-weight-bold" style="font-size:1.1rem; color: #fff !important;"><?= $countUnpaid ?></div>
                                     <small class="text-white-50 d-block" style="font-size:0.75rem;">Tagihan Aktif</small>
                                 </div>
                             </div>
                             <div class="col-6 col-sm-4 px-2">
                                 <div class="py-2 px-1 text-center"
                                     style="background:rgba(255,255,255,.15);border-radius:10px;">
-                                    <div class="font-weight-bold" style="font-size:1.1rem;"><?= count($invoiceList) ?></div>
+                                    <div class="font-weight-bold" style="font-size:1.1rem; color: #fff !important;"><?= count($invoiceList) ?></div>
                                     <small class="text-white-50 d-block" style="font-size:0.75rem;">Total Tagihan</small>
                                 </div>
                             </div>
@@ -240,10 +240,12 @@ $invoicedDescs = array_map('strtolower', array_column($invoiceList, 'description
                         </div>
                     </div>
                 <?php endforeach; ?>
-
-                <div class="alert alert-primary d-flex justify-content-between align-items-center mt-3 shadow-sm border-0">
-                    <span class="font-weight-bold text-uppercase small">Total Nilai Kontrak Renovasi</span>
-                    <span class="font-weight-bold" style="font-size:1.1rem;">Rp <?= number_format($grandTotal) ?></span>
+                <div class="alert alert-primary d-flex justify-content-between align-items-center mt-3 shadow-sm border-0 text-white"
+                    style="color: #fff !important;">
+                    <span class="font-weight-bold text-uppercase small text-white" style="color: #fff !important;">Total
+                        Nilai Kontrak Renovasi</span>
+                    <span class="font-weight-bold text-white" style="font-size:1.1rem; color: #fff !important;">Rp
+                        <?= number_format($grandTotal) ?></span>
                 </div>
             <?php else: ?>
                 <div class="card border-0 shadow-sm text-center p-5 bg-white" style="border-radius: 12px;">
@@ -259,7 +261,8 @@ $invoicedDescs = array_map('strtolower', array_column($invoiceList, 'description
             <div class="card border-primary shadow-lg mt-3 mt-md-0"
                 style="position:sticky; top:20px; border-radius: 12px; overflow: hidden;">
                 <div class="card-header bg-primary text-white py-3">
-                    <h6 class="mb-0 font-weight-bold"><i class="fas fa-plus-circle mr-1"></i> Buat Tagihan Baru</h6>
+                    <h6 class="mb-0 font-weight-bold text-white" style="color: #fff !important;"><i
+                            class="fas fa-plus-circle mr-1"></i> Buat Tagihan Baru</h6>
                 </div>
                 <div class="card-body p-4">
                     <div id="selectedRabInfo" class="alert alert-info py-2 px-3 small mb-3 shadow-sm"
@@ -306,5 +309,3 @@ $invoicedDescs = array_map('strtolower', array_column($invoiceList, 'description
         </div>
     </div>
 </div>
-
-

@@ -5,7 +5,7 @@
         <div class="upload-card p-4 h-100">
             <div class="d-flex align-items-center mb-3">
                 <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
-                    style="width:36px;height:36px;background:#6777ef22;">
+                    style="width:36px;height:36px;background:var(--palette-primary)22;">
                     <i class="fas fa-cloud-upload-alt text-primary"></i>
                 </div>
                 <div>

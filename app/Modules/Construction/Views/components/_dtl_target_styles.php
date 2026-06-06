@@ -35,17 +35,17 @@
     }
 
     table.table-schedule tr.group-header td {
-        background: #e8ecf3;
+        background: #ffebeb;
         font-weight: 700;
-        color: #2c3e6b;
+        color: #b91c1c;
         font-size: 13px;
-        border-top: 2px solid #c5cee0;
+        border-top: 2px solid var(--palette-primary);
     }
 
     table.table-schedule tr.subgroup-header td {
-        background: #f4f6f9;
+        background: #fafafa;
         font-weight: 600;
-        color: #546a8e;
+        color: #6c757d;
         font-size: 12.5px;
         padding-left: 24px !important;
         font-style: italic;
@@ -54,7 +54,7 @@
     table.table-schedule .bar {
         height: 14px;
         border-radius: 3px;
-        background: #6777ef;
+        background: var(--palette-primary);
         min-width: 6px;
     }
 
@@ -74,11 +74,11 @@
     }
 
     table.table-schedule tr.item-row:hover {
-        background: #eef1ff !important;
+        background: #fff5f5 !important;
     }
 
     table.table-schedule tr.item-row.selected {
-        background: #dde4ff !important;
+        background: #ffe5e5 !important;
     }
 
     .btn-del {
@@ -193,7 +193,7 @@
             display: inline-block;
             font-size: 10px;
             background: #e8ecff;
-            color: #6777ef;
+            color: var(--palette-primary);
             border-radius: 4px;
             padding: 1px 5px;
             margin-top: 2px;

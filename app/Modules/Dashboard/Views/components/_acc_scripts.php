@@ -31,8 +31,8 @@
               type: 'bar',
               label: 'Pendapatan Masuk (Lunas)',
               data: chartData.cashflow_monthly.income,
-              backgroundColor: '#0d6efd',
-              hoverBackgroundColor: '#0a58ca',
+              backgroundColor: 'var(--palette-primary)',
+              hoverBackgroundColor: 'var(--palette-primary-hover)',
               borderWidth: 0,
               barPercentage: 0.6
             },
@@ -109,7 +109,7 @@
       const ctxDivision = document.getElementById('divisionRevenueChart').getContext('2d');
       const divLabels = chartData.division_revenue.labels;
       const divValues = chartData.division_revenue.data;
-      const colorPalette = ['#6366f1', '#0d6efd', '#f59e0b']; // Indigo, Teal, Amber
+      const colorPalette = ['#6366f1', 'var(--palette-primary)', '#f59e0b']; // Indigo, Teal, Amber
       
       const totalSum = divValues.reduce((a, b) => a + b, 0);
 

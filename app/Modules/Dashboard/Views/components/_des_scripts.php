@@ -20,7 +20,7 @@
             statsData.totals.renovation
           ],
           backgroundColor: [
-            '#6777ef', // Violet
+            'var(--palette-primary)', // Violet
             '#1cc88a', // Emerald Green
             '#fc544b'  // Coral Red
           ],
@@ -74,8 +74,8 @@
         datasets: [{
           label: 'Jumlah Proyek',
           data: designValues,
-          backgroundColor: createHorizontalGradient(ctxDesign, 'rgba(103, 119, 239, 1)', 'rgba(103, 119, 239, 0.25)'),
-          borderColor: '#6777ef',
+          backgroundColor: createHorizontalGradient(ctxDesign, 'rgba(255, 92, 92, 1)', 'rgba(255, 92, 92, 0.25)'),
+          borderColor: 'var(--palette-primary)',
           borderWidth: 1.5,
           borderRadius: 6,
           borderSkipped: false

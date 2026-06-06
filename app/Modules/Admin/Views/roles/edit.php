@@ -4,16 +4,17 @@
 <?= $this->section('page_title') ?>Edit Role<?= $this->endSection() ?>
 
 <?= $this->section('style') ?>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 <style>
     * {
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     :root {
-        --indigo: #0d6efd;
-        --indigo-light: #e7f3ff;
-        --indigo-mid: #90b8fd;
+        --indigo: var(--palette-primary);
+        --indigo-light: #fff5f5;
+        --indigo-mid: #ffb3b3;
         --slate-50: #f8fafc;
         --slate-100: #f1f5f9;
         --slate-200: #e2e8f0;
@@ -54,12 +55,12 @@
         background: #fff;
         border-radius: 18px;
         overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 60px -10px rgba(13, 110, 253, 0.11);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 20px 60px -10px rgba(255, 92, 92, 0.11);
     }
 
     /* Banner */
     .cr-banner {
-        background: linear-gradient(130deg, #084298 0%, #0a58ca 55%, #0d6efd 100%);
+        background: linear-gradient(130deg, var(--palette-primary-hover) 0%, var(--palette-primary-hover) 55%, var(--palette-primary) 100%);
         padding: 30px 36px 36px;
         position: relative;
         overflow: hidden;
@@ -107,7 +108,7 @@
     }
 
     .cr-banner-ico i {
-        color: #bfdbfe;
+        color: rgba(255, 255, 255, .85);
         font-size: 1.2rem;
     }
 
@@ -119,7 +120,7 @@
     }
 
     .cr-banner p {
-        color: #93c5fd;
+        color: rgba(255, 255, 255, .75);
         font-size: .8rem;
         margin: 0;
     }
@@ -144,7 +145,7 @@
         content: '';
         flex: 1;
         height: 1px;
-        background: linear-gradient(90deg, #dbeafe, transparent);
+        background: linear-gradient(90deg, #ffd3d3, transparent);
     }
 
     .cr-label {
@@ -172,7 +173,7 @@
     .cr-input-wrap:focus-within {
         border-color: var(--indigo);
         background: #fff;
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, .1);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, .1);
     }
 
     .cr-input-wrap .ico {
@@ -277,7 +278,7 @@
     }
 
     .perm-tab:hover {
-        background: #f0effe;
+        background: var(--indigo-light);
     }
 
     .perm-tab.active {
@@ -411,7 +412,7 @@
     }
 
     .perm-parent-card.has-checked {
-        border-color: #bfdbfe;
+        border-color: var(--indigo-mid);
     }
 
     .perm-parent-row {
@@ -509,7 +510,7 @@
 
     .perm-pill:hover {
         border-color: var(--indigo-mid);
-        background: #f5f3ff;
+        background: var(--indigo-light);
     }
 
     .perm-pill input {
@@ -547,7 +548,7 @@
 
     .perm-pill.on {
         background: var(--indigo-light);
-        border-color: #a78bfa;
+        border-color: var(--indigo-mid);
     }
 
     .perm-pill.on .pi {
@@ -566,7 +567,7 @@
     }
 
     .perm-pill.on span {
-        color: #0a58ca;
+        color: var(--palette-primary-hover);
     }
 
     .parent-count {
@@ -597,7 +598,7 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background: linear-gradient(135deg, #0a58ca, #3b82f6);
+        background: linear-gradient(135deg, var(--palette-primary-hover), var(--palette-primary));
         color: #fff;
         font-weight: 700;
         font-size: .88rem;
@@ -606,12 +607,12 @@
         padding: 13px 24px;
         cursor: pointer;
         transition: all .2s;
-        box-shadow: 0 4px 14px rgba(13, 110, 253, .35);
+        box-shadow: 0 4px 14px rgba(255, 92, 92, .35);
     }
 
     .btn-cr-save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(13, 110, 253, .45);
+        box-shadow: 0 8px 22px rgba(255, 92, 92, .45);
         color: #fff;
     }
 
@@ -666,14 +667,15 @@ $grandTotal = 0;
 foreach ($available_menus as $menus) {
     foreach ($menus as $k => $v) {
         $grandTotal++;
-        if (is_array($v)) $grandTotal += count($v['actions']);
+        if (is_array($v))
+            $grandTotal += count($v['actions']);
     }
 }
 $groupIcons = [
-    'MANAJEMEN'  => 'fa-users-cog',
-    'PROYEK'     => 'fa-hard-hat',
-    'KONTEN'     => 'fa-layer-group',
-    'AKSES'      => 'fa-sliders-h',
+    'MANAJEMEN' => 'fa-users-cog',
+    'PROYEK' => 'fa-hard-hat',
+    'KONTEN' => 'fa-layer-group',
+    'AKSES' => 'fa-sliders-h',
 ];
 $groupKeys = array_keys($available_menus);
 $firstGroup = $groupKeys[0] ?? '';
@@ -681,20 +683,16 @@ $firstGroup = $groupKeys[0] ?? '';
 $rolePermissions = [];
 if (!empty($role['permissions'])) {
     $rolePermissions = json_decode($role['permissions'], true);
-    if (!is_array($rolePermissions)) $rolePermissions = [];
+    if (!is_array($rolePermissions))
+        $rolePermissions = [];
 }
 ?>
 
 <div class="cr-wrapper">
-
-    <a href="<?= base_url('admin/roles') ?>" class="cr-back">
-        <i class="fas fa-arrow-left"></i> Kembali ke Daftar Role
-    </a>
-
     <?= $this->include('App\Modules\Admin\Views\roles\components\_edit_form') ?>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-    <?= $this->include('App\Modules\Admin\Views\roles\components\_edit_scripts') ?>
+<?= $this->include('App\Modules\Admin\Views\roles\components\_edit_scripts') ?>
 <?= $this->endSection() ?>

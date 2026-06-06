@@ -33,6 +33,7 @@ class SupplierModel extends Model
         'rata_rata_rating',
         'total_ulasan',
         'status',
+        'balance',
         'fcm_token'
     ];
 

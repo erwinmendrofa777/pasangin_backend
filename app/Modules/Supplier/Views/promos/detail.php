@@ -12,7 +12,7 @@ Detail Promo
 <style>
     /* ===== HERO BANNER ===== */
     .promo-hero {
-        background: #6777ef;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 20px 28px 70px;
         position: relative;
@@ -63,12 +63,12 @@ Detail Promo
     .detail-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(103, 119, 239, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
         overflow: hidden;
     }
 
     .action-card .card-header {
-        background: #6777EF !important;
+        background: var(--palette-primary) !important;
         border-radius: 16px 16px 0 0;
         padding: 18px 22px;
         border: none;
@@ -116,7 +116,7 @@ Detail Promo
         min-width: 38px;
         border-radius: 12px;
         background: #f0f4ff;
-        color: #6777ef;
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -158,7 +158,7 @@ Detail Promo
 
     .promo-code-box {
         background: #f8f9ff;
-        border: 2px dashed #6777ef;
+        border: 2px dashed var(--palette-primary);
         border-radius: 12px;
         padding: 15px;
         text-align: center;
@@ -167,7 +167,7 @@ Detail Promo
     .promo-code-text {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #6777ef;
+        color: var(--palette-primary);
         letter-spacing: 2px;
     }
 </style>

@@ -5,7 +5,7 @@
             <i class="fas fa-shield-alt"></i>
         </div>
         <div>
-            <h4>Audit Log Aktivitas</h4>
+            <h4 class="text-white">Audit Log Aktivitas</h4>
             <p>Sistem pencatatan otomatis setiap tindakan administratif untuk transparansi dan keamanan data.</p>
         </div>
     </div>

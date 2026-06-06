@@ -9,6 +9,10 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Admin\
     $routes->post('admin/update/(:num)', 'AdminController::update/$1');
     $routes->get('admin/delete/(:num)', 'AdminController::delete/$1');
 
+    // PENGATURAN APLIKASI
+    $routes->get('settings', 'AppSettingsController::index');
+    $routes->post('settings/update', 'AppSettingsController::update');
+
     // LOG AKTIVITAS
     $routes->get('activity-logs', 'ActivityLog::index');
 

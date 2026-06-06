@@ -31,11 +31,11 @@
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: #f0f4ff;
+        background: #fff5f5;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #3d5af1;
+        color: var(--palette-primary);
         font-size: 16px;
     }
 
@@ -68,14 +68,14 @@
     }
 
     .btn-adm-primary {
-        background: #3d5af1;
+        background: var(--palette-primary);
         color: #fff;
     }
 
     .btn-adm-primary:hover {
-        background: #2d48e0;
+        background: var(--palette-primary-hover);
         color: #fff;
-        box-shadow: 0 4px 12px rgba(61, 90, 241, 0.3);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.3);
     }
 
     .btn-adm-danger {
@@ -151,7 +151,7 @@
     }
 
     .tbl-addendum tbody tr:hover {
-        background: #fafbff;
+        background: #fff5f5;
     }
 
     .tbl-addendum tbody td {
@@ -186,8 +186,8 @@
     }
 
     .tbl-addendum input:focus {
-        border-color: #3d5af1;
-        box-shadow: 0 0 0 3px rgba(61, 90, 241, 0.12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
     }
 
     /* ── Hide Number Input Arrows ── */
@@ -215,7 +215,7 @@
     .input-roman {
         text-align: center;
         font-weight: 600;
-        color: #3d5af1 !important;
+        color: var(--palette-primary) !important;
     }
 
     /* ── Row States ── */
@@ -246,7 +246,7 @@
     #grandTotalAddendum {
         font-family: 'JetBrains Mono', monospace;
         font-size: 14px;
-        color: #3d5af1;
+        color: var(--palette-primary);
         text-align: right;
         padding-right: 14px !important;
     }
@@ -271,8 +271,8 @@
     }
 
     .tbl-btn-mat {
-        background: #eff2ff;
-        color: #3d5af1;
+        background: #fff5f5;
+        color: var(--palette-primary);
     }
 
     .tbl-btn-mat:hover {
@@ -381,7 +381,7 @@
     }
 
     .modal-addendum .modal-header {
-        background: #3d5af1;
+        background: var(--palette-primary);
         padding: 18px 24px;
         border: none;
     }

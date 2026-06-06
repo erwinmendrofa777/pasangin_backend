@@ -10,12 +10,12 @@
     .inv-form-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 8px 24px rgba(99, 102, 241, .08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 8px 24px rgba(255, 92, 92, .08);
         overflow: hidden;
     }
 
     .inv-form-header {
-        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 60%, var(--palette-primary-hover) 100%);
         padding: 20px 24px;
         position: relative;
         overflow: hidden;
@@ -70,8 +70,8 @@
     }
 
     .inv-control:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 3px rgba(255, 92, 92, .12);
         background: #fff;
         outline: none;
     }
@@ -81,7 +81,7 @@
     }
 
     .inv-submit-btn {
-        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         border: none;
         border-radius: 10px;
         padding: 12px;
@@ -90,12 +90,12 @@
         letter-spacing: .3px;
         color: #fff;
         transition: transform .15s, box-shadow .15s, opacity .15s;
-        box-shadow: 0 4px 14px rgba(99, 102, 241, .35);
+        box-shadow: 0 4px 14px rgba(255, 92, 92, .25);
     }
 
     .inv-submit-btn:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(99, 102, 241, .45);
+        box-shadow: 0 6px 20px rgba(255, 92, 92, .35);
         opacity: .95;
     }
 
@@ -107,13 +107,13 @@
     .inv-list-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 8px 24px rgba(99, 102, 241, .08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 8px 24px rgba(255, 92, 92, .08);
         overflow: hidden;
         min-height: 510px;
     }
 
     .inv-list-header {
-        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 60%, var(--palette-primary-hover) 100%);
         padding: 20px 24px 14px;
         position: relative;
         overflow: hidden;
@@ -143,7 +143,7 @@
     }
 
     .inv-table tbody tr:hover {
-        background: #f5f3ff;
+        background: #fff5f5;
     }
 
     .inv-table tbody td {
@@ -155,11 +155,11 @@
         width: 44px;
         height: 44px;
         border-radius: 12px;
-        background: #ede9fe;
+        background: #fff5f5;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #6366f1;
+        color: var(--palette-primary);
         font-size: 1.1rem;
         flex-shrink: 0;
     }
@@ -189,7 +189,7 @@
     .inv-amount-final {
         font-size: .95rem;
         font-weight: 700;
-        color: #4f46e5;
+        color: var(--palette-primary);
     }
 
     .inv-amount-old {
@@ -257,7 +257,7 @@
     }
 
     .inv-mobile-card:hover {
-        box-shadow: 0 4px 16px rgba(99, 102, 241, .12);
+        box-shadow: 0 4px 16px rgba(255, 92, 92, .12);
     }
 
     .inv-divider {

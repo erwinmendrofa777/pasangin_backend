@@ -27,7 +27,7 @@ Estimasi Harga
         right: -60px;
         width: 200px;
         height: 200px;
-        background: rgba(103, 119, 239, 0.05);
+        background: rgba(255, 92, 92, 0.05);
         border-radius: 50%;
     }
 
@@ -38,26 +38,26 @@ Estimasi Harga
         left: -30px;
         width: 260px;
         height: 260px;
-        background: rgba(103, 119, 239, 0.03);
+        background: rgba(255, 92, 92, 0.03);
         border-radius: 50%;
     }
 
     /* ===== STAT PILLS ===== */
     .stat-pill {
-        background: #f0f4ff;
+        background: #fff5f5;
         border-radius: 50px;
         padding: 6px 16px;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         font-size: 0.82rem;
-        color: #4b49ac;
+        color: var(--palette-primary);
         font-weight: 700;
-        border: 1px solid #e0e6ff;
+        border: 1px solid #ffd3d3;
     }
 
     .stat-pill .stat-num {
-        background: #6777ef;
+        background: var(--palette-primary);
         color: #fff;
         border-radius: 50px;
         padding: 1px 10px;
@@ -69,7 +69,7 @@ Estimasi Harga
     .concept-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(103, 119, 239, 0.05);
+        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.05);
         background: #fff;
         margin-bottom: 30px;
         overflow: hidden;
@@ -87,13 +87,14 @@ Estimasi Harga
     }
 
     .quality-table thead th {
-        background: #fcfcff;
-        color: #8e94a9;
+        background: #fff5f5;
+        color: var(--palette-primary);
         font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1px;
         border: none;
+        border-bottom: 2px solid #ffdddd;
         padding: 15px 20px;
     }
 
@@ -111,8 +112,8 @@ Estimasi Harga
 
     /* ===== PRICE TAGS ===== */
     .price-pill {
-        background: #f3f6ff;
-        color: #6777ef;
+        background: #fff5f5;
+        color: var(--palette-primary);
         font-weight: 800;
         padding: 5px 12px;
         border-radius: 8px;
@@ -131,11 +132,11 @@ Estimasi Harga
         transition: all 0.2s ease;
         border: 1px solid #eee;
         background: #fff;
-        color: #6777ef;
+        color: var(--palette-primary);
     }
 
     .btn-circle-action:hover {
-        background: #6777ef;
+        background: var(--palette-primary);
         color: #fff;
         transform: translateY(-2px);
     }
@@ -180,9 +181,9 @@ Estimasi Harga
     }
 
     .form-control-custom:focus {
-        border-color: #6777ef;
+        border-color: var(--palette-primary);
         background: #fff;
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.1);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.1);
     }
 </style>
 <?= $this->endSection() ?>

@@ -29,19 +29,19 @@ Kelola Permintaan Desain
         justify-content: center;
         font-size: 2.5rem;
         font-weight: 700;
-        color: #0d6efd;
+        color: var(--palette-primary);
     }
 
     /* ===== PROFILE CARD ===== */
     .profile-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
     .profile-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 18px 28px 24px;
         position: relative;
@@ -95,12 +95,35 @@ Kelola Permintaan Desain
         opacity: 0.75;
     }
 
-    .status-completed  { background: #d1fae5; color: #065f46; }
-    .status-pending    { background: #fef9c3; color: #854d0e; }
-    .status-survey     { background: #e0f2fe; color: #0369a1; }
-    .status-payment    { background: #dbeafe; color: #1d4ed8; }
-    .status-cancelled  { background: #fee2e2; color: #991b1b; }
-    .status-default    { background: #e2e3e5; color: #41464b; }
+    .status-completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-pending {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .status-survey {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .status-payment {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-default {
+        background: #e2e3e5;
+        color: #41464b;
+    }
 
     /* ===== INFO LIST ===== */
     .info-item {
@@ -111,15 +134,17 @@ Kelola Permintaan Desain
         border-bottom: 1px solid #f0f2f5;
     }
 
-    .info-item:last-child { border-bottom: none; }
+    .info-item:last-child {
+        border-bottom: none;
+    }
 
     .info-icon {
         width: 34px;
         height: 34px;
         min-width: 34px;
         border-radius: 10px;
-        background: #e7f0ff;
-        color: #0d6efd;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -147,7 +172,7 @@ Kelola Permintaan Desain
         font-weight: 700;
         letter-spacing: 0.8px;
         text-transform: uppercase;
-        color: #0d6efd;
+        color: var(--palette-primary);
         margin-bottom: 10px;
     }
 
@@ -184,7 +209,9 @@ Kelola Permintaan Desain
         scroll-behavior: smooth;
     }
 
-    .nav-tabs-premium::-webkit-scrollbar { display: none; }
+    .nav-tabs-premium::-webkit-scrollbar {
+        display: none;
+    }
 
     .nav-scroll-btn {
         width: 40px;
@@ -195,7 +222,7 @@ Kelola Permintaan Desain
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #0d6efd;
+        color: var(--palette-primary);
         cursor: pointer;
         z-index: 10;
         transition: all 0.3s ease;
@@ -204,11 +231,25 @@ Kelola Permintaan Desain
         flex-shrink: 0;
     }
 
-    .nav-scroll-btn:hover { background: #f8f9fa; opacity: 1; color: #0b5ed7; }
-    .nav-scroll-btn.left  { border-right: 1px solid #f1f3f9; box-shadow: 5px 0 10px rgba(0,0,0,0.02); }
-    .nav-scroll-btn.right { border-left: 1px solid #f1f3f9; box-shadow: -5px 0 10px rgba(0,0,0,0.02); }
+    .nav-scroll-btn:hover {
+        background: #f8f9fa;
+        opacity: 1;
+        color: #0b5ed7;
+    }
 
-    .nav-tabs-premium .nav-item { margin-bottom: -1px; }
+    .nav-scroll-btn.left {
+        border-right: 1px solid #f1f3f9;
+        box-shadow: 5px 0 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .nav-scroll-btn.right {
+        border-left: 1px solid #f1f3f9;
+        box-shadow: -5px 0 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .nav-tabs-premium .nav-item {
+        margin-bottom: -1px;
+    }
 
     .nav-tabs-premium .nav-link {
         border: none !important;
@@ -227,16 +268,18 @@ Kelola Permintaan Desain
         background: transparent !important;
     }
 
-    .nav-tabs-premium .nav-link i { font-size: 14px; }
+    .nav-tabs-premium .nav-link i {
+        font-size: 14px;
+    }
 
     .nav-tabs-premium .nav-link:hover {
-        color: #0d6efd !important;
-        background: rgba(13, 110, 253, 0.03) !important;
+        color: var(--palette-primary) !important;
+        background: rgba(255, 92, 92, 0.03) !important;
     }
 
     .nav-tabs-premium .nav-link.active {
-        color: #0d6efd !important;
-        border-bottom: 3px solid #0d6efd !important;
+        color: var(--palette-primary) !important;
+        border-bottom: 3px solid var(--palette-primary) !important;
         background: transparent !important;
         position: relative;
     }
@@ -245,19 +288,24 @@ Kelola Permintaan Desain
     .glightbox-video-slide .gslide-inline {
         background: #000 !important;
         padding: 0 !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
         width: 95% !important;
         max-width: 900px !important;
         border-radius: 12px;
         overflow: hidden !important;
         overflow-y: hidden !important;
     }
+
     .glightbox-video-slide .gslide-inner-content {
         background: #000 !important;
         overflow: hidden !important;
         width: 100% !important;
     }
-    .glightbox-video-slide .gslide-description { display: none !important; }
+
+    .glightbox-video-slide .gslide-description {
+        display: none !important;
+    }
+
     .glightbox-video-slide .gslide-media {
         box-shadow: none !important;
         overflow: hidden !important;
@@ -265,12 +313,35 @@ Kelola Permintaan Desain
     }
 
     @media (max-width: 768px) {
-        .profile-hero { padding: 20px 20px 40px; }
-        .profile-hero .d-flex { flex-direction: column; align-items: flex-start !important; gap: 12px; }
-        .profile-body { padding: 0 16px 20px; }
-        .avatar-initials { width: 80px; height: 80px; font-size: 2rem; border-width: 3px; }
-        .avatar-wrapper { margin-top: -40px; }
-        .back-btn-wrapper { margin-bottom: 20px !important; }
+        .profile-hero {
+            padding: 20px 20px 40px;
+        }
+
+        .profile-hero .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 12px;
+        }
+
+        .profile-body {
+            padding: 0 16px 20px;
+        }
+
+        .avatar-initials {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            border-width: 3px;
+        }
+
+        .avatar-wrapper {
+            margin-top: -40px;
+        }
+
+        .back-btn-wrapper {
+            margin-bottom: 20px !important;
+        }
+
         .back-btn-wrapper .btn {
             border-radius: 10px !important;
             padding: 8px 16px !important;
@@ -291,19 +362,12 @@ Kelola Permintaan Desain
 
 <?= $this->section('content') ?>
 
-<!-- BACK BUTTON -->
-<div class="mb-3 back-btn-wrapper">
-    <a href="<?= base_url('admin/design') ?>" class="btn btn-light btn-sm px-3 shadow-sm border"
-        style="border-radius: 8px; font-weight: 600; color: #495057;">
-        <i class="fas fa-arrow-left me-1 text-primary"></i> Kembali
-    </a>
-</div>
-
 <div class="row">
     <div class="card">
         <div class="card-header p-0 bg-white" style="border-radius: 10px 10px 0 0;">
             <div class="nav-tabs-container">
-                <button class="nav-scroll-btn left" onclick="scrollNav('left')"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-scroll-btn left" onclick="scrollNav('left')"><i
+                        class="fas fa-chevron-left"></i></button>
                 <div class="nav-tabs-wrapper">
                     <ul class="nav nav-tabs nav-tabs-premium" id="myTab" role="tablist">
 
@@ -357,7 +421,8 @@ Kelola Permintaan Desain
 
                     </ul>
                 </div>
-                <button class="nav-scroll-btn right" onclick="scrollNav('right')"><i class="fas fa-chevron-right"></i></button>
+                <button class="nav-scroll-btn right" onclick="scrollNav('right')"><i
+                        class="fas fa-chevron-right"></i></button>
             </div>
         </div>
 

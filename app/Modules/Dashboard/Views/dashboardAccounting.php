@@ -27,7 +27,7 @@ Dashboard Accounting
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-left: 5px solid #0d6efd;
+    border-left: 5px solid var(--palette-primary);
   }
   .header-left h1 {
     font-size: 1.6rem;
@@ -36,7 +36,7 @@ Dashboard Accounting
     margin: 0 0 4px;
   }
   .header-left h1 span {
-    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -46,8 +46,8 @@ Dashboard Accounting
     margin: 0;
   }
   .role-badge {
-    background: rgba(13, 110, 253, 0.1);
-    color: #0d6efd;
+    background: rgba(255, 92, 92, 0.1);
+    color: var(--palette-primary);
     padding: 6px 14px;
     border-radius: 30px;
     font-size: 0.8rem;
@@ -84,13 +84,13 @@ Dashboard Accounting
     white-space: nowrap;
   }
   .custom-tab-btn:hover {
-    color: #0d6efd;
-    background: rgba(13, 110, 253, 0.05);
+    color: var(--palette-primary);
+    background: rgba(255, 92, 92, 0.05);
   }
   .custom-tab-btn.active {
-    background: #0d6efd;
+    background: var(--palette-primary);
     color: #ffffff;
-    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.25);
+    box-shadow: 0 6px 16px rgba(255, 92, 92, 0.25);
   }
   .tab-pane {
     display: none;
@@ -131,7 +131,7 @@ Dashboard Accounting
     width: 4px;
     background: #e2e8f0;
   }
-  .stat-card.card-primary::before { background: #0d6efd; }
+  .stat-card.card-primary::before { background: var(--palette-primary); }
   .stat-card.card-indigo::before { background: #6366f1; }
   .stat-card.card-amber::before { background: #f59e0b; }
   .stat-card.card-emerald::before { background: #10b981; }
@@ -159,7 +159,7 @@ Dashboard Accounting
     justify-content: center;
     font-size: 1.3rem;
   }
-  .card-primary .stat-icon-wrapper { background: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+  .card-primary .stat-icon-wrapper { background: rgba(255, 92, 92, 0.1); color: var(--palette-primary); }
   .card-indigo .stat-icon-wrapper { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
   .card-amber .stat-icon-wrapper { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
   .card-emerald .stat-icon-wrapper { background: rgba(16, 185, 129, 0.1); color: #10b981; }
@@ -257,7 +257,7 @@ Dashboard Accounting
     border-radius: 3px;
     transition: width 0.6s ease;
   }
-  .progress-primary { background: #0d6efd; }
+  .progress-primary { background: var(--palette-primary); }
   .progress-emerald { background: #10b981; }
   .progress-slate { background: #64748b; }
 

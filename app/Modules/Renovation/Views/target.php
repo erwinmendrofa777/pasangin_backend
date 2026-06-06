@@ -246,7 +246,8 @@ function renderSchedTable(
     <div class="stat-chip">
       <div class="label"><i class="fas fa-coins me-1"></i>Selisih Harga</div>
       <div class="value <?= $totalSelisihHargaAll > 0 ? 'danger' : 'success' ?>">Rp
-        <?= number_format($totalSelisihHargaAll) ?></div>
+        <?= number_format($totalSelisihHargaAll) ?>
+      </div>
     </div>
   </div>
 
@@ -254,51 +255,53 @@ function renderSchedTable(
        SECTION: ADDENDUM (conditional)
   ══════════════════════════════════ -->
   <?php if (!empty($groupedAddendum)): ?>
-      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 mt-4">
-        <span class="sched-section-badge addendum">
-          <i class="fas fa-file-medical-alt"></i> Target Pekerjaan Addendum
-        </span>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 mt-4">
+      <span class="sched-section-badge addendum">
+        <i class="fas fa-file-medical-alt"></i> Target Pekerjaan Addendum
+      </span>
+    </div>
+
+    <?php
+    renderSchedTable(
+      'addendumTable',
+      $groupedAddendum,
+      $targetByAddendumId,
+      $totalHargaAddendum,
+      $numWeeks,
+      $startDate,
+      $workday,
+      $progressByTargetId,
+      $renovationId,
+      true,
+      $totalRealisasiAddendumAll,
+      $totalSelisihAddendumAll,
+      $totalHargaRealisasiAddendumAll,
+      $totalSelisihHargaAddendumAll
+    );
+    ?>
+
+    <div class="summary-stats mt-3">
+      <div class="stat-chip">
+        <div class="label"><i class="fas fa-wallet me-1"></i>Total Addendum</div>
+        <div class="value">Rp <?= number_format($totalHargaAddendum) ?></div>
       </div>
-
-      <?php
-      renderSchedTable(
-        'addendumTable',
-        $groupedAddendum,
-        $targetByAddendumId,
-        $totalHargaAddendum,
-        $numWeeks,
-        $startDate,
-        $workday,
-        $progressByTargetId,
-        $renovationId,
-        true,
-        $totalRealisasiAddendumAll,
-        $totalSelisihAddendumAll,
-        $totalHargaRealisasiAddendumAll,
-        $totalSelisihHargaAddendumAll
-      );
-      ?>
-
-      <div class="summary-stats mt-3">
-        <div class="stat-chip">
-          <div class="label"><i class="fas fa-wallet me-1"></i>Total Addendum</div>
-          <div class="value">Rp <?= number_format($totalHargaAddendum) ?></div>
-        </div>
-        <div class="stat-chip">
-          <div class="label"><i class="fas fa-chart-pie me-1"></i>Realisasi</div>
-          <div class="value success"><?= number_format($totalRealisasiAddendumAll, 2) ?>%</div>
-        </div>
-        <div class="stat-chip">
-          <div class="label"><i class="fas fa-balance-scale me-1"></i>Selisih Bobot</div>
-          <div class="value <?= $totalSelisihAddendumAll > 0 ? 'danger' : 'success' ?>">
-            <?= number_format($totalSelisihAddendumAll, 2) ?>%</div>
-        </div>
-        <div class="stat-chip">
-          <div class="label"><i class="fas fa-coins me-1"></i>Selisih Harga</div>
-          <div class="value <?= $totalSelisihHargaAddendumAll > 0 ? 'danger' : 'success' ?>">Rp
-            <?= number_format($totalSelisihHargaAddendumAll) ?></div>
+      <div class="stat-chip">
+        <div class="label"><i class="fas fa-chart-pie me-1"></i>Realisasi</div>
+        <div class="value success"><?= number_format($totalRealisasiAddendumAll, 2) ?>%</div>
+      </div>
+      <div class="stat-chip">
+        <div class="label"><i class="fas fa-balance-scale me-1"></i>Selisih Bobot</div>
+        <div class="value <?= $totalSelisihAddendumAll > 0 ? 'danger' : 'success' ?>">
+          <?= number_format($totalSelisihAddendumAll, 2) ?>%
         </div>
       </div>
+      <div class="stat-chip">
+        <div class="label"><i class="fas fa-coins me-1"></i>Selisih Harga</div>
+        <div class="value <?= $totalSelisihHargaAddendumAll > 0 ? 'danger' : 'success' ?>">Rp
+          <?= number_format($totalSelisihHargaAddendumAll) ?>
+        </div>
+      </div>
+    </div>
   <?php endif; ?>
 
   <!-- ══════════════════════════════════
@@ -310,7 +313,7 @@ function renderSchedTable(
     <div class="form-card-header primary">
       <div class="hdr-icon"><i class="fas fa-crosshairs"></i></div>
       <div>
-        <h6>Tambah / Edit Target</h6>
+        <h6 class="text-white">Tambah / Edit Target</h6>
         <small id="selected-info-<?= $renovationId ?>">Klik baris pekerjaan pada tabel di atas untuk memilih</small>
       </div>
     </div>
@@ -358,7 +361,7 @@ function renderSchedTable(
               id="inp-tukang-<?= $renovationId ?>">
               <option value="">— Pilih Tukang —</option>
               <?php foreach ($applicants ?? [] as $app): ?>
-                  <option value="<?= $app['id'] ?>"><?= esc($app['tukang_name']) ?></option>
+                <option value="<?= $app['id'] ?>"><?= esc($app['tukang_name']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -390,7 +393,7 @@ function renderSchedTable(
     <div class="form-card-header teal">
       <div class="hdr-icon"><i class="fas fa-calendar-alt"></i></div>
       <div>
-        <h6>Atur Jadwal Proyek</h6>
+        <h6 class="text-white">Atur Jadwal Proyek</h6>
         <small>Perbarui durasi, hari kerja, dan tanggal mulai renovasi</small>
       </div>
     </div>

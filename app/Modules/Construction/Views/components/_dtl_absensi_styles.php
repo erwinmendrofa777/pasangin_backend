@@ -21,7 +21,7 @@
     }
 
     .desc-popover .popover-header {
-        background: linear-gradient(135deg, #6777ef 0%, #4a5ce7 100%) !important;
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%) !important;
         color: #fff !important;
         font-size: 0.8rem !important;
         font-weight: 600 !important;
@@ -59,8 +59,8 @@
 
     .desc-popover-btn:hover .badge {
         background: #f1f3f9 !important;
-        color: #6777ef !important;
-        border-color: rgba(103, 119, 239, 0.3) !important;
+        color: var(--palette-primary) !important;
+        border-color: rgba(255, 92, 92, 0.3) !important;
         transition: all 0.2s ease;
     }
 

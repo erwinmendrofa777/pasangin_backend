@@ -29,16 +29,16 @@ Permintaan Penarikan Dana Tukang
     }
 
     #table-1 thead tr {
-        background: #f0f6ff;
+        background: #fff5f5;
     }
 
     #table-1 thead th {
-        color: #0d6efd;
+        color: var(--palette-primary);
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #dce8ff;
+        border-bottom: 2px solid #ffdddd;
         border-top: none;
         padding: 14px 12px;
         white-space: nowrap;
@@ -49,7 +49,7 @@ Permintaan Penarikan Dana Tukang
     }
 
     #table-1 tbody tr:hover {
-        background: #f8fbff !important;
+        background: #fffafa !important;
     }
 
     #table-1 tbody td {

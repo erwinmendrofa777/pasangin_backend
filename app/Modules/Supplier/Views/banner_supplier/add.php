@@ -8,7 +8,7 @@ Tambah Banner Supplier
 <style>
     /* ===== HERO HEADER ===== */
     .edit-hero {
-        background: #6777ef;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 28px 28px 72px;
         position: relative;
@@ -63,7 +63,7 @@ Tambah Banner Supplier
         border-radius: 14px;
         border: 4px solid #fff;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        background: linear-gradient(135deg, #8996fa, #6777ef);
+        background: linear-gradient(135deg, #FFA3A3, var(--palette-primary));
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -75,7 +75,7 @@ Tambah Banner Supplier
     .edit-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(103, 119, 239, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
         background: #fff;
     }
@@ -87,18 +87,18 @@ Tambah Banner Supplier
     .section-card {
         border: none;
         border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(103, 119, 239, 0.08), 0 1px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 20px rgba(255, 92, 92, 0.08), 0 1px 6px rgba(0, 0, 0, 0.05);
     }
 
     .section-card .card-header {
-        background: #f8fbff;
+        background: #fffafa;
         border-bottom: 1px solid #eef2ff;
         border-radius: 14px 14px 0 0 !important;
         padding: 14px 20px;
     }
 
     .section-card .card-header h6 {
-        color: #6777ef;
+        color: var(--palette-primary);
         font-weight: 700;
         font-size: 0.82rem;
         letter-spacing: 0.5px;
@@ -126,8 +126,8 @@ Tambah Banner Supplier
     }
 
     .form-control:focus {
-        border-color: #6777ef;
-        box-shadow: 0 0 0 4px rgba(103, 119, 239, 0.1);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
     }
 
     .select2-container--default .select2-selection--single {
@@ -143,14 +143,14 @@ Tambah Banner Supplier
         font-weight: 700;
         font-size: 0.9rem;
         transition: all 0.2s ease;
-        background: linear-gradient(135deg, #6777ef, #4c5fd7);
+        background: linear-gradient(135deg, var(--palette-primary), var(--palette-primary-hover));
         border: none;
         color: #fff;
     }
 
     .btn-save:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(103, 119, 239, 0.35);
+        box-shadow: 0 6px 20px rgba(255, 92, 92, 0.35);
         color: #fff;
     }
 

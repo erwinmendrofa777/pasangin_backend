@@ -31,7 +31,7 @@
                     <div class="col-6">
                         <div class="loker-stat-card">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="loker-stat-icon" style="background:rgba(103,119,239,0.12); color:#6777ef;">
+                                <div class="loker-stat-icon" style="background:rgba(255, 92, 92,0.12); color:var(--palette-primary);">
                                     <i class="fas fa-home"></i>
                                 </div>
                                 <div>
@@ -55,7 +55,7 @@
                                 </div>
                                 <div>
                                     <div class="loker-field-label mb-1">Upah / Hari</div>
-                                    <div style="font-size:0.95rem; font-weight:700; color:#6777ef;">
+                                    <div style="font-size:0.95rem; font-weight:700; color:var(--palette-primary);">
                                         Rp <?= number_format($job_info['upah_per_hari'] ?? 0, 0, ',', '.') ?>
                                     </div>
                                 </div>

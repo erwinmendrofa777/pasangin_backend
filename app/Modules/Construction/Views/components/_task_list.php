@@ -17,7 +17,7 @@
         <!-- Card Antrean Pekerjaan -->
         <div class="col-lg-4 col-md-6 mb-3">
             <div class="card border-0 shadow-sm rounded-4 p-3 mb-0"
-                style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%); color: #fff;">
+                style="background: linear-gradient(135deg, var(--palette-primary) 0%, #0dcaf0 100%); color: #fff;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h6 class="text-white-50 mb-1"
@@ -97,7 +97,7 @@
             </div>
         </div>
 
-        <div class="card-body" style="background: #f8fbff; border-radius: 0 0 20px 20px; padding: 24px;">
+        <div class="card-body" style="background: #fffafa; border-radius: 0 0 20px 20px; padding: 24px;">
             <?php if (!empty($designerTasks)): ?>
                 <!-- Custom styles for elegant task cards -->
                 <style>
@@ -143,13 +143,13 @@
                         background: #f8f9fa;
                         border-radius: 50%;
                         transition: all 0.2s;
-                        color: #0d6efd;
+                        color: var(--palette-primary);
                     }
 
                     .task-card:hover .btn-minimal {
-                        background: #0d6efd;
+                        background: var(--palette-primary);
                         color: #ffffff;
-                        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25) !important;
+                        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25) !important;
                     }
                 </style>
 

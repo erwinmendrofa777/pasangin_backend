@@ -22,7 +22,7 @@
             <?= (int) ($kadivStats['overview']['active_projects_breakdown']['renovation'] ?? 0) ?>
           ],
           backgroundColor: [
-            '#6777ef', // Violet
+            'var(--palette-primary)', // Violet
             '#1cc88a', // Emerald Green
             '#fc544b'  // Coral Red
           ],
@@ -153,8 +153,8 @@
           {
             label: 'Total Proyek Aktif',
             data: <?= json_encode($activeProjectsData) ?>,
-            borderColor: '#6777ef',
-            backgroundColor: 'rgba(103, 119, 239, 0.05)',
+            borderColor: 'var(--palette-primary)',
+            backgroundColor: 'rgba(255, 92, 92, 0.05)',
             fill: true,
             tension: 0.3,
             borderWidth: 3

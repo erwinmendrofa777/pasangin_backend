@@ -2,7 +2,7 @@
     <div class="col-12">
         <div class="card shadow-sm rounded-lg" style="border: none;">
             <div class="card-header d-flex justify-content-between align-items-center bg-white pt-4 pb-3" style="border-bottom: 1px solid #f0f0f0;">
-                <h4 class="m-0 text-primary fw-bold"><i class="fas fa-file-contract me-2"></i>Kelola Syarat & Ketentuan</h4>
+                <h4 class="m-0 fw-bold" style="color: #ff5c5c !important;"><i class="fas fa-file-contract me-2"></i>Kelola Syarat & Ketentuan</h4>
                 <?php if (can('syarat_ketentuan_create')): ?>
                 <a href="<?= base_url('admin/syarat_ketentuan/create') ?>" class="btn btn-primary btn-sm px-3 py-2" style="border-radius: 8px;">
                     <i class="fas fa-plus me-1"></i> Tambah Baru
@@ -14,22 +14,22 @@
                 <!-- Nav Tabs -->
                 <ul class="nav nav-pills custom-pills mb-4" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="pills-client-tab" data-toggle="pill" href="#pills-client" role="tab" aria-controls="pills-client" aria-selected="true" style="border:none;">
+                        <a class="nav-link active" id="pills-client-tab" data-toggle="pill" href="#pills-client" role="tab" aria-controls="pills-client" aria-selected="true">
                             <i class="fas fa-user me-2"></i>Aplikasi Client
                         </a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="pills-tukang-tab" data-toggle="pill" href="#pills-tukang" role="tab" aria-controls="pills-tukang" aria-selected="false" style="border:none;">
+                        <a class="nav-link" id="pills-tukang-tab" data-toggle="pill" href="#pills-tukang" role="tab" aria-controls="pills-tukang" aria-selected="false">
                             <i class="fas fa-tools me-2"></i>Aplikasi Tukang
                         </a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="pills-supplier-tab" data-toggle="pill" href="#pills-supplier" role="tab" aria-controls="pills-supplier" aria-selected="false" style="border:none;">
+                        <a class="nav-link" id="pills-supplier-tab" data-toggle="pill" href="#pills-supplier" role="tab" aria-controls="pills-supplier" aria-selected="false">
                             <i class="fas fa-store me-2"></i>Aplikasi Supplier
                         </a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="pills-proyek-tab" data-toggle="pill" href="#pills-proyek" role="tab" aria-controls="pills-proyek" aria-selected="false" style="border:none;">
+                        <a class="nav-link" id="pills-proyek-tab" data-toggle="pill" href="#pills-proyek" role="tab" aria-controls="pills-proyek" aria-selected="false">
                             <i class="fas fa-store me-2"></i>Proyek
                         </a>
                     </li>
@@ -44,10 +44,10 @@
                             <table class="table table-custom w-100" id="table-client">
                                 <thead>
                                     <tr>
-                                        <th class="text-center text-primary fw-bold" width="5%">No</th>
-                                        <th class="text-primary fw-bold" width="25%">Judul T&C</th>
-                                        <th class="text-primary fw-bold" width="55%">Deskripsi / Konten</th>
-                                        <th class="text-center text-primary fw-bold" width="15%">Aksi</th>
+                                        <th class="text-center fw-bold" width="5%" style="color: var(--palette-primary);">No</th>
+                                        <th class="fw-bold" width="25%" style="color: var(--palette-primary);">Judul T&C</th>
+                                        <th class="fw-bold" width="55%" style="color: var(--palette-primary);">Deskripsi / Konten</th>
+                                        <th class="text-center fw-bold" width="15%" style="color: var(--palette-primary);">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -65,7 +65,7 @@
                                                 </td>
                                                 <td class="text-center">
                                                     <?php if (can('syarat_ketentuan_update')): ?>
-                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm text-primary shadow-sm rounded" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
+                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm shadow-sm rounded" style="color: var(--palette-primary);" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
                                                     <?php endif; ?>
 
                                                     <?php if (can('syarat_ketentuan_delete')): ?>
@@ -92,10 +92,10 @@
                             <table class="table table-custom w-100" id="table-tukang">
                                 <thead>
                                     <tr>
-                                        <th class="text-center text-primary fw-bold" width="5%">No</th>
-                                        <th class="text-primary fw-bold" width="25%">Judul T&C</th>
-                                        <th class="text-primary fw-bold" width="55%">Deskripsi / Konten</th>
-                                        <th class="text-center text-primary fw-bold" width="15%">Aksi</th>
+                                        <th class="text-center fw-bold" width="5%" style="color: var(--palette-primary);">No</th>
+                                        <th class="fw-bold" width="25%" style="color: var(--palette-primary);">Judul T&C</th>
+                                        <th class="fw-bold" width="55%" style="color: var(--palette-primary);">Deskripsi / Konten</th>
+                                        <th class="text-center fw-bold" width="15%" style="color: var(--palette-primary);">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -112,7 +112,7 @@
                                                     <p class="desc-text text-muted"><?= editorPreview($row['description']) ?></p>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm text-primary shadow-sm rounded" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
+                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm shadow-sm rounded" style="color: var(--palette-primary);" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
                                                     <a href="<?= base_url('admin/syarat_ketentuan/delete/' . $row['id']) ?>" class="btn btn-light btn-sm text-danger shadow-sm rounded ladda-button" data-style="zoom-in" onclick="if(confirm('Hapus prasyarat ini?')) { Ladda.create(this).start(); return true; } return false;" data-toggle="tooltip" title="Hapus">
                                                         <span class="ladda-label"><i class="fas fa-trash"></i></span>
                                                     </a>
@@ -131,10 +131,10 @@
                             <table class="table table-custom w-100" id="table-supplier">
                                 <thead>
                                     <tr>
-                                        <th class="text-center text-primary fw-bold" width="5%">No</th>
-                                        <th class="text-primary fw-bold" width="25%">Judul T&C</th>
-                                        <th class="text-primary fw-bold" width="55%">Deskripsi / Konten</th>
-                                        <th class="text-center text-primary fw-bold" width="15%">Aksi</th>
+                                        <th class="text-center fw-bold" width="5%" style="color: var(--palette-primary);">No</th>
+                                        <th class="fw-bold" width="25%" style="color: var(--palette-primary);">Judul T&C</th>
+                                        <th class="fw-bold" width="55%" style="color: var(--palette-primary);">Deskripsi / Konten</th>
+                                        <th class="text-center fw-bold" width="15%" style="color: var(--palette-primary);">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -151,7 +151,7 @@
                                                     <p class="desc-text text-muted"><?= editorPreview($row['description']) ?></p>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm text-primary shadow-sm rounded" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
+                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm shadow-sm rounded" style="color: var(--palette-primary);" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
                                                     <a href="<?= base_url('admin/syarat_ketentuan/delete/' . $row['id']) ?>" class="btn btn-light btn-sm text-danger shadow-sm rounded ladda-button" data-style="zoom-in" onclick="if(confirm('Hapus prasyarat ini?')) { Ladda.create(this).start(); return true; } return false;" data-toggle="tooltip" title="Hapus">
                                                         <span class="ladda-label"><i class="fas fa-trash"></i></span>
                                                     </a>
@@ -170,10 +170,10 @@
                             <table class="table table-custom w-100" id="table-proyek">
                                 <thead>
                                     <tr>
-                                        <th class="text-center text-primary fw-bold" width="5%">No</th>
-                                        <th class="text-primary fw-bold" width="25%">Judul T&C</th>
-                                        <th class="text-primary fw-bold" width="55%">Deskripsi / Konten</th>
-                                        <th class="text-center text-primary fw-bold" width="15%">Aksi</th>
+                                        <th class="text-center fw-bold" width="5%" style="color: var(--palette-primary);">No</th>
+                                        <th class="fw-bold" width="25%" style="color: var(--palette-primary);">Judul T&C</th>
+                                        <th class="fw-bold" width="55%" style="color: var(--palette-primary);">Deskripsi / Konten</th>
+                                        <th class="text-center fw-bold" width="15%" style="color: var(--palette-primary);">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -190,7 +190,7 @@
                                                     <p class="desc-text text-muted"><?= editorPreview($row['description']) ?></p>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm text-primary shadow-sm rounded" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
+                                                    <a href="<?= base_url('admin/syarat_ketentuan/edit/' . $row['id']) ?>" class="btn btn-light btn-sm shadow-sm rounded" style="color: var(--palette-primary);" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></a>
                                                     <a href="<?= base_url('admin/syarat_ketentuan/delete/' . $row['id']) ?>" class="btn btn-light btn-sm text-danger shadow-sm rounded ladda-button" data-style="zoom-in" onclick="if(confirm('Hapus prasyarat ini?')) { Ladda.create(this).start(); return true; } return false;" data-toggle="tooltip" title="Hapus">
                                                         <span class="ladda-label"><i class="fas fa-trash"></i></span>
                                                     </a>

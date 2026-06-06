@@ -36,8 +36,8 @@ Kelola Role
     }
 
     .search-wrapper input:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        border-color: var(--palette-primary);
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
     }
 
     .search-wrapper input::placeholder {
@@ -49,7 +49,7 @@ Kelola Role
     .table-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
         overflow: hidden;
     }
 
@@ -63,16 +63,16 @@ Kelola Role
     }
 
     #table-1 thead tr {
-        background: #f0f6ff;
+        background: #fff5f5;
     }
 
     #table-1 thead th {
-        color: #0d6efd;
+        color: var(--palette-primary);
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #dce8ff;
+        border-bottom: 2px solid #ffdddd;
         border-top: none;
         padding: 14px 12px;
         white-space: nowrap;
@@ -83,7 +83,7 @@ Kelola Role
     }
 
     #table-1 tbody tr:hover {
-        background: #f8fbff !important;
+        background: #fffafa !important;
     }
 
     #table-1 tbody td {
@@ -107,15 +107,15 @@ Kelola Role
     }
 
     .role-icon-super {
-        background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         color: #fff;
-        box-shadow: 0 3px 8px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 3px 8px rgba(255, 92, 92, 0.3);
     }
 
     .role-icon-custom {
         background: #e7f3ff;
-        color: #0d6efd;
-        border: 2px solid #dce8ff;
+        color: var(--palette-primary);
+        border: 2px solid #ffdddd;
     }
 
     /* ===== PERMISSION BADGES ===== */
@@ -133,7 +133,7 @@ Kelola Role
 
     .pill-parent {
         background: #e7f3ff;
-        color: #0a58ca;
+        color: var(--palette-primary-hover);
         border: 1px solid #cce5ff;
     }
 
@@ -146,10 +146,10 @@ Kelola Role
     }
 
     .pill-full {
-        background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         color: #fff;
         border: none;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.2);
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.2);
         font-size: 0.73rem;
         padding: 4px 12px;
     }
@@ -175,13 +175,13 @@ Kelola Role
     }
 
     .role-type-super {
-        background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
         color: #fff;
     }
 
     .role-type-custom {
         background: #e7f3ff;
-        color: #0d6efd;
+        color: var(--palette-primary);
     }
 
     /* ===== ACTION BUTTONS ===== */
@@ -204,7 +204,7 @@ Kelola Role
     }
 
     .btn-action-edit {
-        background: #fff4e6;
+        background: #fd7e14;
         color: #fd7e14;
     }
 
@@ -214,7 +214,7 @@ Kelola Role
     }
 
     .btn-action-delete {
-        background: #fff5f5;
+        background: #fa5252;
         color: #fa5252;
     }
 
@@ -224,7 +224,7 @@ Kelola Role
     }
 
     .btn-action-lock {
-        background: #f1f3f5;
+        background: #adb5bd;
         color: #adb5bd;
         cursor: not-allowed;
     }
@@ -246,23 +246,23 @@ Kelola Role
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: #0d6efd;
+        color: var(--palette-primary);
         align-items: center;
         justify-content: center;
     }
 
     .dataTables_paginate .page-item.active .page-link {
-        background: #0d6efd !important;
-        border-color: #0d6efd !important;
+        background: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
         color: #fff !important;
         font-weight: 600;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
     .dataTables_paginate .page-item:not(.active) .page-link:hover {
-        background: #e7f0ff !important;
-        border-color: #e7f0ff !important;
-        color: #0d6efd !important;
+        background: #ffe5e5 !important;
+        border-color: #ffe5e5 !important;
+        color: var(--palette-primary) !important;
     }
 
     @media (max-width: 768px) {
@@ -274,9 +274,9 @@ Kelola Role
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-    <?= $this->include('App\Modules\Admin\Views\roles\components\_table_card') ?>
+<?= $this->include('App\Modules\Admin\Views\roles\components\_table_card') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-    <?= $this->include('App\Modules\Admin\Views\roles\components\_scripts') ?>
+<?= $this->include('App\Modules\Admin\Views\roles\components\_scripts') ?>
 <?= $this->endSection() ?>

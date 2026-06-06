@@ -12,7 +12,7 @@ Detail Voucher
 <style>
     /* ===== HERO BANNER ===== */
     .voucher-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 18px 28px 68px;
         position: relative;
@@ -63,7 +63,7 @@ Detail Voucher
     .detail-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
@@ -112,8 +112,8 @@ Detail Voucher
         height: 38px;
         min-width: 38px;
         border-radius: 12px;
-        background: #e7f0ff;
-        color: #0d6efd;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -138,7 +138,7 @@ Detail Voucher
     /* ===== CODE BOX ===== */
     .voucher-code-box {
         background: #f8fafc;
-        border: 2px dashed #0d6efd;
+        border: 2px dashed var(--palette-primary);
         border-radius: 12px;
         padding: 15px;
         text-align: center;
@@ -149,7 +149,7 @@ Detail Voucher
         font-family: 'Monaco', 'Consolas', monospace;
         font-size: 1.5rem;
         font-weight: 800;
-        color: #0d6efd;
+        color: var(--palette-primary);
         letter-spacing: 2px;
     }
 
@@ -163,9 +163,9 @@ Detail Voucher
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<?= $this->include('Modules\Vouchers\Views\components\_dtl_content') ?>
+<?= $this->include('App\Modules\Vouchers\Views\components\_dtl_content') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-<?= $this->include('Modules\Vouchers\Views\components\_dtl_scripts') ?>
+<?= $this->include('App\Modules\Vouchers\Views\components\_dtl_scripts') ?>
 <?= $this->endSection() ?>

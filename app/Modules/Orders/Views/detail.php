@@ -12,7 +12,7 @@ Detail Pesanan
 <style>
     /* ===== HERO BANNER ===== */
     .profile-hero {
-        background: #0d6efd;
+        background: var(--palette-primary);
         border-radius: 16px 16px 0 0;
         padding: 18px 28px 24px;
         position: relative;
@@ -60,14 +60,14 @@ Detail Pesanan
         justify-content: center;
         font-size: 2.5rem;
         font-weight: 700;
-        color: #0d6efd;
+        color: var(--palette-primary);
     }
 
     /* ===== LEFT CARD ===== */
     .profile-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         overflow: hidden;
     }
 
@@ -79,12 +79,12 @@ Detail Pesanan
     .action-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(13, 110, 253, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
         height: 100%;
     }
 
     .action-card .card-header {
-        background: #6777EF !important;
+        background: var(--palette-primary) !important;
         border-radius: 16px 16px 0 0;
         padding: 18px 22px;
         border: none;
@@ -149,8 +149,8 @@ Detail Pesanan
         height: 34px;
         min-width: 34px;
         border-radius: 10px;
-        background: #e7f0ff;
-        color: #0d6efd;
+        background: #ffe5e5;
+        color: var(--palette-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -203,7 +203,7 @@ Detail Pesanan
         font-weight: 700;
         letter-spacing: 0.8px;
         text-transform: uppercase;
-        color: #0d6efd;
+        color: var(--palette-primary);
         margin-bottom: 10px;
     }
 
@@ -230,8 +230,8 @@ Detail Pesanan
 
     .order-item-img:hover {
         transform: scale(1.12);
-        border-color: #0d6efd;
-        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+        border-color: var(--palette-primary);
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.2);
     }
 </style>
 <?= $this->endSection() ?>
@@ -245,13 +245,6 @@ $this->setData([
 ]);
 ?>
 
-<!-- BACK BUTTON -->
-<div class="mb-3">
-    <a href="<?= base_url('admin/orders') ?>" class="btn btn-secondary btn-sm px-3">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
-</div>
-
 <!-- ===== 2-COLUMN LAYOUT ===== -->
 <div class="row g-4 align-items-start">
     <?= $this->include('App\Modules\Orders\Views\components\_dtl_order_info') ?>
@@ -263,5 +256,5 @@ $this->setData([
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-    <?= $this->include('App\Modules\Orders\Views\components\_dtl_scripts') ?>
+<?= $this->include('App\Modules\Orders\Views\components\_dtl_scripts') ?>
 <?= $this->endSection() ?>

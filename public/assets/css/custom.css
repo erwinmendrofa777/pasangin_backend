@@ -1,8 +1,162 @@
 /**
- *
- * You can write your CSS code here, DO NOT touch the default JavaScript file
- * because it will make it harder for you to update.
- * 
+ * Custom CSS for Palette 2 - Light Mode Clean (Light Sidebar)
  */
+
+:root {
+  --palette-primary: #FF5C5C;
+  --palette-primary-hover: #E04D4D;
+  --palette-bg: #F8F9FC;
+  --palette-surface: #FFFFFF;
+  --palette-sidebar: #2D3561;
+  --palette-sidebar-hover: #374278;
+  --palette-sidebar-active: #414E8F;
+  --palette-text-main: #1E2235;
+  --palette-text-muted: #6B7280;
+  --palette-sidebar-text: #E2E8F0;
+  --palette-sidebar-text-muted: #94A3B8;
+}
+
+/* GLOBAL BACKGROUND & TEXT */
+body {
+  background-color: var(--palette-bg) !important;
+  color: var(--palette-text-main) !important;
+}
+
+h1, h2, h3, h4, h5, h6, .text-dark {
+  color: var(--palette-text-main) !important;
+}
+
+.text-muted, .text-secondary {
+  color: var(--palette-text-muted) !important;
+}
+
+/* SURFACES */
+.card, .modal-content, .dropdown-menu {
+  background-color: var(--palette-surface) !important;
+}
+
+/* PRIMARY COLOR OVERRIDES */
+.navbar-bg {
+  background-color: var(--palette-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--palette-primary) !important;
+}
+
+.text-primary {
+  color: var(--palette-primary) !important;
+}
+
+.btn-primary, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--palette-primary) !important;
+  border-color: var(--palette-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--palette-primary-hover) !important;
+  border-color: var(--palette-primary-hover) !important;
+}
+
+.badge-primary {
+  background-color: var(--palette-primary) !important;
+}
+
+.page-item.active .page-link {
+  background-color: var(--palette-primary) !important;
+  border-color: var(--palette-primary) !important;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  background-color: var(--palette-primary) !important;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  background-color: var(--palette-primary) !important;
+}
+
+/* SIDEBAR (LIGHT) */
+.main-sidebar {
+  background-color: #ffffff !important;
+}
+
+.main-sidebar .sidebar-menu li.active a {
+  color: var(--palette-primary) !important;
+}
+
+/* The left active line marker on sidebar */
+.main-sidebar .sidebar-menu li.active a:before {
+  background-color: var(--palette-primary) !important;
+}
+
+/* ADDITIONAL STISLA & BOOTSTRAP OVERRIDES */
+a {
+  color: var(--palette-primary);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--palette-primary-hover);
+}
+
+.btn-outline-primary {
+  border-color: var(--palette-primary) !important;
+  color: var(--palette-primary) !important;
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+  background-color: var(--palette-primary) !important;
+  border-color: var(--palette-primary) !important;
+  color: #fff !important;
+}
+
+.form-control:focus, .custom-select:focus {
+  border-color: var(--palette-primary) !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 92, 92, 0.25) !important;
+}
+
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: var(--palette-primary) !important;
+  border-color: var(--palette-primary) !important;
+}
+.custom-radio .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: var(--palette-primary) !important;
+  border-color: var(--palette-primary) !important;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+  border-bottom-color: var(--palette-primary) !important;
+  color: var(--palette-primary) !important;
+}
+.nav-tabs .nav-link:hover {
+  border-bottom-color: var(--palette-primary-hover) !important;
+}
+
+.card.card-primary {
+  border-top: 2px solid var(--palette-primary) !important;
+}
+
+.alert-primary {
+  background-color: var(--palette-primary) !important;
+  border-color: var(--palette-primary) !important;
+  color: #fff !important;
+}
+
+/* ACTION CARDS (KELOLA STATUS) HEADER ALIGNMENT FIX */
+.action-card .card-header {
+  padding: 18px 22px !important;
+  min-height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.action-card .card-header h6,
+.action-card .card-header h5,
+.action-card .card-header h4 {
+  margin: 0 !important;
+  line-height: 1.2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
 
 /*# sourceMappingURL=custom.css.map */

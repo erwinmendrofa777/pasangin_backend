@@ -1,3 +1,15 @@
+<?php
+/* ===== AVATAR & INITIALS ===== */
+if (!empty($admin['photo'])) {
+    $avatarSrc = strpos($admin['photo'], 'http') === 0
+        ? $admin['photo']
+        : base_url('uploads/profile/' . $admin['photo']);
+} else {
+    $avatarSrc = null;
+}
+$nameParts = explode(' ', trim($admin['full_name'] ?? 'A'));
+$initials   = strtoupper(substr($nameParts[0], 0, 1) . (count($nameParts) > 1 ? substr(end($nameParts), 0, 1) : ''));
+?>
 <form id="edit-admin-form" method="POST" action="<?= base_url('admin/admin/update/' . $admin['id']) ?>" enctype="multipart/form-data">
     <?= csrf_field() ?>
 

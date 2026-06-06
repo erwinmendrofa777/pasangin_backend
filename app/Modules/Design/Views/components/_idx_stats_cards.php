@@ -4,7 +4,7 @@
     <!-- Card Survei -->
     <div class="col-lg-4 col-md-6 mb-3">
         <div class="card border-0 shadow-sm rounded-4 p-3 mb-0"
-            style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%); color: #fff;">
+            style="background: linear-gradient(135deg, var(--palette-primary) 0%, #0dcaf0 100%); color: #fff;">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <h6 class="text-white-50 mb-1"

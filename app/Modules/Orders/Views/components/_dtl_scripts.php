@@ -64,8 +64,8 @@
                     },
                 };
                 var c = colorMap[color] || {
-                    bg: '#e7f0ff',
-                    color: '#0d6efd'
+                    bg: '#ffe5e5',
+                    color: 'var(--palette-primary)'
                 };
 
                 var iconWrap = document.getElementById('modalIconWrap');
