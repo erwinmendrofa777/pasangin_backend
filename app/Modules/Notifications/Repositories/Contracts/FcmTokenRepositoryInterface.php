@@ -8,7 +8,7 @@ interface FcmTokenRepositoryInterface
      * Simpan atau update token untuk user tertentu.
      * Menggunakan fcm_token sebagai kunci unik.
      */
-    public function upsertToken(int $userId, string $userType, string $token): bool;
+    public function upsertToken(int $userId, string $userType, string $token): ?array;
 
     /**
      * Ambil token admin berdasarkan permission tertentu.

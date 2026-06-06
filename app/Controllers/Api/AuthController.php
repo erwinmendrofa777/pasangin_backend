@@ -110,11 +110,12 @@ class AuthController extends ResourceController
 
             // Simpan ke tabel baru (multi-perangkat)
             $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
-            $tokenRepo->upsertToken($userId, 'client', $fcmToken);
+            $result = $tokenRepo->upsertToken($userId, 'client', $fcmToken);
 
             return $this->respond([
                 'status' => true,
-                'message' => 'FCM token berhasil diperbarui.'
+                'message' => 'FCM token berhasil diperbarui.',
+                'data' => $result
             ], 200);
 
         } catch (Exception $e) {
