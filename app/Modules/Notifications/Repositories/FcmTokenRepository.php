@@ -18,26 +18,28 @@ class FcmTokenRepository implements FcmTokenRepositoryInterface
      * Simpan atau update token untuk user tertentu.
      * Menggunakan fcm_token sebagai kunci unik.
      */
-    public function upsertToken(int $userId, string $userType, string $token): bool
+    public function upsertToken(int $userId, string $userType, string $token): ?array
     {
-        if (empty($token)) return false;
+        if (empty($token)) return null;
 
         $data = [
-            'user_id'    => $userId,
-            'user_type'  => $userType,
-            'fcm_token'  => $token,
+            'user_id'   => $userId,
+            'user_type' => $userType,
+            'fcm_token' => $token,
         ];
 
-        // Cek apakah token sudah ada
+        // cek existing token
         $existing = $this->model->where('fcm_token', $token)->first();
 
         if ($existing) {
-            // Update jika token sudah ada
-            return (bool) $this->model->update($existing['id'], $data);
+            $this->model->update($existing['id'], $data);
+            $id = $existing['id'];
         } else {
-            // Insert baru
-            return (bool) $this->model->insert($data);
+            $id = $this->model->insert($data);
         }
+
+        // ambil data terbaru setelah upsert
+        return $this->model->find($id);
     }
 
     /**

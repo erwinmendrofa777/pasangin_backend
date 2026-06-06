@@ -177,11 +177,12 @@ class TukangAuthController extends ResourceController
 
             // Simpan ke tabel baru (multi-perangkat)
             $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
-            $tokenRepo->upsertToken($tukangId, 'tukang', $fcmToken);
+            $result = $tokenRepo->upsertToken($tukangId, 'tukang', $fcmToken);
 
             return $this->respond([
                 'status' => true,
-                'message' => 'Token FCM Tukang berhasil diperbarui.'
+                'message' => 'Token FCM Tukang berhasil diperbarui.',
+                'data' => $result
             ]);
         } catch (Exception $e) {
             return $this->failServerError($e->getMessage());

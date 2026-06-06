@@ -365,9 +365,9 @@ class SupplierAuthController extends ResourceController
 
             // Simpan ke tabel baru (multi-perangkat)
             $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();
-            $tokenRepo->upsertToken($supplierId, 'supplier', $fcmToken);
+            $result = $tokenRepo->upsertToken($supplierId, 'supplier', $fcmToken);
 
-            return $this->respond(['status' => true, 'message' => 'Token FCM diperbarui.']);
+            return $this->respond(['status' => true, 'message' => 'Token FCM diperbarui.', 'data' => $result]);
         } catch (Exception $e) {
             return $this->failServerError($e->getMessage());
         }
