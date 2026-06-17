@@ -1,26 +1,4 @@
 <div class="card table-card">
-    <!-- Header with Search and Create Button -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 table-card-header"
-        style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
-        <h6 class="mb-0 fw-bold text-primary d-flex align-items-center"
-            style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-tools me-2"></i>Daftar Mitra Tukang
-        </h6>
-        <div class="d-flex flex-column flex-sm-row gap-2 header-actions">
-            <div class="search-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, email...">
-            </div>
-            <?php if (can('tukang_create')): ?>
-                <a href="<?= base_url('admin/tukang/create') ?>"
-                    class="btn btn-primary d-flex align-items-center justify-content-center text-nowrap"
-                    style="border-radius: 12px; font-size: 0.82rem; padding: 8px 14px;">
-                    <i class="fas fa-plus me-1"></i> Tambah Mitra
-                </a>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover" id="table-1">

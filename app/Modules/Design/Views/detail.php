@@ -182,7 +182,7 @@ Kelola Permintaan Desain
         display: flex;
         align-items: center;
         background: #fff;
-        border-radius: 10px 10px 0 0;
+        border-radius: 12px;
         border-bottom: 1px solid #f1f3f9;
         overflow: hidden !important;
         width: 100% !important;
@@ -363,116 +363,118 @@ Kelola Permintaan Desain
 <?= $this->section('content') ?>
 
 <div class="row">
-    <div class="card">
-        <div class="card-header p-0 bg-white" style="border-radius: 10px 10px 0 0;">
-            <div class="nav-tabs-container">
-                <button class="nav-scroll-btn left" onclick="scrollNav('left')"><i
-                        class="fas fa-chevron-left"></i></button>
-                <div class="nav-tabs-wrapper">
-                    <ul class="nav nav-tabs nav-tabs-premium" id="myTab" role="tablist">
+    <div class="col-12">
+        <!-- Card for Tab Navigation -->
+        <div class="card shadow-sm mb-3" style="border-radius: 12px; overflow: hidden; border: none;">
+            <div class="card-body p-0">
+                <div class="nav-tabs-container">
+                    <button class="nav-scroll-btn left" onclick="scrollNav('left')"><i
+                            class="fas fa-chevron-left"></i></button>
+                    <div class="nav-tabs-wrapper">
+                        <ul class="nav nav-tabs nav-tabs-premium" id="myTab" role="tablist">
 
-                        <?php if (can('design_detail')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link active" id="detail-tab" data-bs-toggle="tab" href="#detail" role="tab">
-                                    <i class="fas fa-user"></i> Detail
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (can('design_detail')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="detail-tab" data-bs-toggle="tab" href="#detail"
+                                        role="tab">
+                                        <i class="fas fa-user"></i> Detail
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (can('design_survey')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" id="survey-tab" data-bs-toggle="tab" href="#survey" role="tab">
-                                    <i class="fas fa-clipboard-check"></i> Survey
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (can('design_survey')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="survey-tab" data-bs-toggle="tab" href="#survey" role="tab">
+                                        <i class="fas fa-clipboard-check"></i> Survey
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (can('design_desain')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" id="design-tab" data-bs-toggle="tab" href="#design" role="tab">
-                                    <i class="fas fa-drafting-compass"></i> Desain
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (can('design_target')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="target-tab" data-bs-toggle="tab" href="#target" role="tab">
+                                        <i class="fas fa-tasks"></i> Target
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (can('design_target')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" id="target-tab" data-bs-toggle="tab" href="#target" role="tab">
-                                    <i class="fas fa-tasks"></i> Target
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (can('design_desain')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="design-tab" data-bs-toggle="tab" href="#design" role="tab">
+                                        <i class="fas fa-drafting-compass"></i> Desain
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (can('design_progress')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" id="progress-tab" data-bs-toggle="tab" href="#progress" role="tab">
-                                    <i class="fas fa-tasks"></i> Progress
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (can('design_progress')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="progress-tab" data-bs-toggle="tab" href="#progress" role="tab">
+                                        <i class="fas fa-tasks"></i> Progress
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                        <?php if (can('design_pembayaran')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link" id="payment-tab" data-bs-toggle="tab" href="#payment" role="tab">
-                                    <i class="fas fa-wallet"></i> Pembayaran
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                            <?php if (can('design_pembayaran')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="payment-tab" data-bs-toggle="tab" href="#payment" role="tab">
+                                        <i class="fas fa-wallet"></i> Pembayaran
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                    </ul>
+                        </ul>
+                    </div>
+                    <button class="nav-scroll-btn right" onclick="scrollNav('right')"><i
+                            class="fas fa-chevron-right"></i></button>
                 </div>
-                <button class="nav-scroll-btn right" onclick="scrollNav('right')"><i
-                        class="fas fa-chevron-right"></i></button>
             </div>
         </div>
 
-        <div class="card-body pt-0">
-            <div class="tab-content" id="myTabContent">
+        <!-- Tab Content Area -->
+        <div class="tab-content" id="myTabContent">
 
-                <!-- 1. TAB DETAIL -->
-                <div class="tab-pane fade show active" id="detail" role="tabpanel">
-                    <?= $this->include('App\Modules\Design\Views\components\_dtl_tab_detail') ?>
-                </div>
-
-                <!-- 2. TAB SURVEY -->
-                <?php if (can('design_survey')): ?>
-                    <div class="tab-pane fade" id="survey" role="tabpanel">
-                        <?= $this->include('App\Modules\Design\Views\survey') ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- 3. TAB DESAIN -->
-                <?php if (can('design_desain')): ?>
-                    <div class="tab-pane fade" id="design" role="tabpanel">
-                        <?= $this->include('App\Modules\Design\Views\desain') ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- 4. TAB TARGET -->
-                <?php if (can('design_target')): ?>
-                    <div class="tab-pane fade" id="target" role="tabpanel">
-                        <?= $this->include('App\Modules\Design\Views\target') ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- 5. TAB PROGRESS -->
-                <?php if (can('design_progress')): ?>
-                    <div class="tab-pane fade" id="progress" role="tabpanel">
-                        <?= $this->include('App\Modules\Design\Views\progress') ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- 6. TAB PEMBAYARAN -->
-                <?php if (can('design_pembayaran')): ?>
-                    <div class="tab-pane fade" id="payment" role="tabpanel">
-                        <?= $this->include('App\Modules\Design\Views\pembayaran') ?>
-                    </div>
-                <?php endif; ?>
-
+            <!-- 1. TAB DETAIL -->
+            <div class="tab-pane fade show active py-0" id="detail" role="tabpanel">
+                <?= $this->include('App\Modules\Design\Views\components\_dtl_tab_detail') ?>
             </div>
+
+            <!-- 2. TAB SURVEY -->
+            <?php if (can('design_survey')): ?>
+                <div class="tab-pane fade py-0" id="survey" role="tabpanel">
+                    <?= $this->include('App\Modules\Design\Views\survey') ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- 3. TAB TARGET -->
+            <?php if (can('design_target')): ?>
+                <div class="tab-pane fade py-0" id="target" role="tabpanel">
+                    <?= $this->include('App\Modules\Design\Views\target') ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- 4. TAB DESAIN -->
+            <?php if (can('design_desain')): ?>
+                <div class="tab-pane fade py-0" id="design" role="tabpanel">
+                    <?= $this->include('App\Modules\Design\Views\desain') ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- 5. TAB PROGRESS -->
+            <?php if (can('design_progress')): ?>
+                <div class="tab-pane fade py-0" id="progress" role="tabpanel">
+                    <?= $this->include('App\Modules\Design\Views\progress') ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- 6. TAB PEMBAYARAN -->
+            <?php if (can('design_pembayaran')): ?>
+                <div class="tab-pane fade py-0" id="payment" role="tabpanel">
+                    <?= $this->include('App\Modules\Design\Views\pembayaran') ?>
+                </div>
+            <?php endif; ?>
+
         </div>
     </div>
-</div>
 </div>
 <?= $this->endSection() ?>
 

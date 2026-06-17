@@ -53,6 +53,7 @@
             }
         });
 
+
         // Hubungkan search input custom dengan DataTables search
         $('#searchInput').on('keyup', function () {
             table.search(this.value).draw();

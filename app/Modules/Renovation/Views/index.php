@@ -12,12 +12,11 @@ Renovasi
 <style>
     /* ===== HEADER CARD ===== */
     .page-header-card {
-        background: #fff;
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 60%, var(--palette-primary-hover) 100%);
         border: none;
         border-radius: 16px;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
     .page-header-card::before {
@@ -27,7 +26,7 @@ Renovasi
         right: -60px;
         width: 200px;
         height: 200px;
-        background: rgba(255, 92, 92, 0.05);
+        background: rgba(255, 255, 255, 0.06);
         border-radius: 50%;
     }
 
@@ -38,96 +37,237 @@ Renovasi
         left: -30px;
         width: 260px;
         height: 260px;
-        background: rgba(255, 92, 92, 0.03);
+        background: rgba(255, 255, 255, 0.04);
         border-radius: 50%;
     }
 
     /* ===== STAT PILLS ===== */
     .stat-pill {
-        background: #f0f4ff;
+        background: rgba(255, 255, 255, 0.15);
         border-radius: 50px;
         padding: 6px 16px;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         font-size: 0.82rem;
-        color: #4b49ac;
-        font-weight: 700;
-        border: 1px solid #e0e6ff;
+        color: #fff;
+        font-weight: 600;
+        backdrop-filter: blur(4px);
     }
 
     .stat-pill .stat-num {
-        background: var(--palette-primary);
-        color: #fff;
+        background: rgba(255, 255, 255, 0.25);
         border-radius: 50px;
         padding: 1px 10px;
         font-weight: 700;
         font-size: 0.85rem;
     }
 
-    /* ===== SEARCH INPUT ===== */
+    /* ===== PREMIUM CUSTOM DROPDOWN & SEARCH ===== */
+    .filter-wrapper,
     .search-wrapper {
         position: relative;
+        display: inline-block;
     }
 
-    .search-icon {
+    /* Common Hover & Focus transitions */
+    .dropdown-trigger,
+    .search-input {
+        display: block !important;
+        width: 100% !important;
+        height: 40px !important;
+        border-radius: 10px !important;
+        font-size: 0.82rem !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        color: #334155 !important;
+        font-weight: 600 !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01) !important;
+        outline: none !important;
+    }
+
+    .dropdown-trigger:hover,
+    .search-input:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        background: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    .dropdown-trigger:focus,
+    .dropdown-trigger.open,
+    .search-input:focus {
+        border-color: var(--palette-primary) !important;
+        background-color: #fff !important;
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.12), 0 6px 16px rgba(255, 92, 92, 0.06) !important;
+        transform: translateY(-1px);
+        color: #0f172a !important;
+    }
+
+    /* Icons animation */
+    .filter-wrapper .filter-icon,
+    .search-wrapper .search-icon {
         position: absolute;
-        left: 16px;
+        left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #adb5bd;
-        font-size: 0.95rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
         pointer-events: none;
         z-index: 5;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    .search-wrapper input {
-        padding-left: 44px !important;
-        border-radius: 12px !important;
-        border: 1.5px solid #dee2e6;
+    .dropdown-trigger.open .arrow-icon {
+        transform: rotate(180deg);
+        color: var(--palette-primary) !important;
+    }
+
+    .dropdown-trigger.open ~ .filter-icon,
+    .dropdown-trigger:focus ~ .filter-icon,
+    .dropdown-trigger:hover ~ .filter-icon {
+        color: var(--palette-primary) !important;
+        transform: translateY(-50%) scale(1.15) rotate(-10deg) !important;
+    }
+
+    .search-input:focus ~ .search-icon,
+    .search-input:hover ~ .search-icon {
+        color: var(--palette-primary) !important;
+        transform: translateY(-50%) scale(1.15) rotate(15deg) !important;
+    }
+
+    /* Custom Dropdown Options Menu */
+    .dropdown-menu-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        margin-top: 8px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+        border: 1px solid #e2e8f0 !important;
+        padding: 6px 0 !important;
+        z-index: 1000;
+        display: block !important;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .dropdown-menu-list.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .dropdown-item-custom {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none !important;
         transition: all 0.2s ease;
-        font-size: 0.88rem;
-        height: 42px;
-        width: 280px;
+        border-radius: 10px;
+        margin: 2px 6px;
     }
 
-    .search-wrapper input:focus {
-        border-color: var(--palette-primary);
-        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
-        width: 350px;
+    .dropdown-item-custom:hover {
+        background: #fff5f5;
+        color: var(--palette-primary);
+        transform: translateX(4px);
+    }
+
+    .dropdown-item-custom.active {
+        background: rgba(255, 92, 92, 0.08);
+        color: var(--palette-primary);
+    }
+
+    .search-input::placeholder {
+        color: #94a3b8;
+        opacity: 0.8;
+    }
+
+    /* ===== HEADER CARD ===== */
+    .header-card {
+        border: 1px solid rgba(255, 92, 92, 0.08) !important;
+        border-left: 4px solid var(--palette-primary) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 36px rgba(255, 92, 92, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        background: #fff !important;
     }
 
     /* ===== TABLE CARD ===== */
     .table-card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01) !important;
+        overflow: hidden !important;
+        background: #fff !important;
+        animation: fadeUp 0.5s ease both;
+    }
+
+    .table-card .card-body {
+        padding: 0 !important;
     }
 
     /* ===== TABLE ===== */
     #table-1 {
+        margin-top: 0px !important;
         margin-bottom: 0 !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
     }
 
     #table-1 thead tr {
-        background: #fff5f5;
+        background: var(--palette-primary) !important;
     }
 
     #table-1 thead th {
-        color: var(--palette-primary);
+        color: rgba(255, 255, 255, 0.92) !important;
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #ffdddd;
+        border-bottom: none !important;
         border-top: none;
         padding: 14px 12px;
         white-space: nowrap;
     }
 
+    #table-1 thead th:first-child {
+        border-top-left-radius: 16px !important;
+    }
+
+    #table-1 thead th:last-child {
+        border-top-right-radius: 16px !important;
+    }
+
+    #table-1 tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 16px !important;
+    }
+
+    #table-1 tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 16px !important;
+    }
+
+    #table-1 tbody tr {
+        transition: background 0.15s ease;
+    }
+
+    #table-1 tbody tr:hover {
+        background: #fffafa !important;
+    }
+
     #table-1 tbody td {
-        padding: 16px 12px;
+        padding: 12px;
         vertical-align: middle;
         border-color: #f0f4fa;
         font-size: 0.88rem;
@@ -146,9 +286,10 @@ Renovasi
         gap: 5px;
     }
 
+    /* Specific status styles for Renovation */
     .st-pending {
         background: #fff9db;
-        color: #f1c40f;
+        color: #854d0e;
     }
 
     .st-survey {
@@ -183,14 +324,15 @@ Renovasi
 
     /* ===== ACTION BUTTONS ===== */
     .btn-action {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
+        font-size: 0.82rem;
         border: none;
+        transition: all 0.18s ease;
         text-decoration: none;
     }
 
@@ -200,8 +342,19 @@ Renovasi
     }
 
     .btn-kelola {
-        background: var(--palette-primary);
-        color: #fff;
+        background: var(--palette-primary) !important;
+        color: #fff !important;
+        box-shadow: 0 2px 6px rgba(255, 77, 77, 0.15) !important;
+    }
+
+    .btn-kelola i {
+        color: #fff !important;
+    }
+
+    .btn-kelola:hover {
+        background: var(--palette-primary-hover) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(255, 77, 77, 0.35) !important;
     }
 
     /* ===== FOOTER DATATABLE ===== */
@@ -221,9 +374,17 @@ Renovasi
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: var(--palette-primary);
+        color: var(--palette-primary) !important;
+        display: flex;
         align-items: center;
         justify-content: center;
+        background: transparent;
+    }
+
+    .dataTables_paginate .page-item.disabled .page-link {
+        color: #98a6ad !important;
+        opacity: 0.5;
+        background: transparent !important;
     }
 
     .dataTables_paginate .page-item.active .page-link {
@@ -234,30 +395,62 @@ Renovasi
         box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
-    .dataTables_paginate .page-item:not(.active) .page-link:hover {
+    .dataTables_paginate .page-item:not(.active):not(.disabled) .page-link:hover {
         background: #ffe5e5 !important;
         border-color: #ffe5e5 !important;
         color: var(--palette-primary) !important;
     }
 
     @media (max-width: 768px) {
-        .table-header-controls {
+        .page-header-card {
+            border-radius: 12px;
+        }
+
+        .page-header-card>.d-flex {
             flex-direction: column;
             align-items: flex-start !important;
             gap: 12px;
         }
 
-        .search-wrapper {
-            width: 100%;
+        .table-card-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 16px;
+            padding: 16px !important;
         }
 
-        .search-wrapper input {
+        .search-wrapper {
             width: 100% !important;
         }
-    }
 
-    .animate-up {
-        animation: fadeUp 0.5s ease both;
+        .dt-footer {
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px;
+            padding: 16px !important;
+        }
+
+        .dataTables_paginate {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+
+        .dataTables_paginate .pagination {
+            justify-content: center !important;
+            margin: 0 !important;
+        }
+
+        .dataTables_info {
+            text-align: center !important;
+            width: 100% !important;
+        }
+
+        #table-1 th,
+        #table-1 td {
+            white-space: nowrap;
+        }
     }
 
     @keyframes fadeUp {
@@ -271,32 +464,36 @@ Renovasi
             transform: translateY(0);
         }
     }
+
     .btn-export-pdf {
-        background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
-        color: #ffffff;
-        border: none;
-        border-radius: 12px;
-        padding: 8px 16px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        height: 42px;
+        background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 8px 16px !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        text-decoration: none !important;
+        height: 40px !important;
+        cursor: pointer !important;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.15) !important;
     }
 
     .btn-export-pdf:hover {
-        background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
-        color: #ffffff;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+        background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%) !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25) !important;
     }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?= $this->include('App\Modules\Renovation\Views\components\_header_card') ?>
 <?= $this->include('App\Modules\Renovation\Views\components\_idx_table') ?>
 <?= $this->endSection() ?>
 

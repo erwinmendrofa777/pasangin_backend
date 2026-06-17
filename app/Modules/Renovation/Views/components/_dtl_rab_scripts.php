@@ -312,13 +312,46 @@
         activeRabId = rabId;
         $('#modalRabMaterialTitle').text('Bahan: ' + activityName);
         loadRabMaterials(rabId);
+
+        // Reset select2 value
+        $('#selectProductRab').val('').trigger('change');
+
+        // Destroy existing select2 if initialized, then re-initialize with dropdownParent
+        if ($('#selectProductRab').hasClass("select2-hidden-accessible")) {
+            $('#selectProductRab').select2('destroy');
+        }
+        $('#selectProductRab').select2({
+            dropdownParent: $('#modalRabMaterials'),
+            placeholder: "— Pilih Produk —",
+            allowClear: true
+        });
+
         const modal = new bootstrap.Modal(document.getElementById('modalRabMaterials'));
         modal.show();
     }
 
     function loadRabMaterials(rabId) {
+        // Show loading state
+        $('#rabMaterialList').html(
+            `<div class="empty-materials" style="border-style: solid; border-color: #f1f5f9;">
+                <i class="fas fa-spinner fa-spin" style="color: var(--palette-primary); opacity: 1;"></i>
+                <span>Memuat daftar bahan...</span>
+            </div>`
+        );
+
         $.get('<?= base_url('admin/renovation/get_rab_materials') ?>/' + rabId, function (data) {
+            // Reset all options to original text and enabled state
+            $('#selectProductRab option').each(function () {
+                const opt = $(this);
+                if (!opt.data('original-text')) {
+                    opt.data('original-text', opt.text());
+                }
+                opt.text(opt.data('original-text'));
+                opt.prop('disabled', false);
+            });
+
             if (!Array.isArray(data) || data.length === 0) {
+                $('#selectProductRab').trigger('change.select2');
                 $('#rabMaterialList').html(
                     `<div class="empty-materials">
                         <i class="fas fa-box-open"></i>
@@ -327,14 +360,53 @@
                 );
                 return;
             }
+
+            // Disable options and append suffix for selected items
+            data.forEach(function (m) {
+                if (m.product_id) {
+                    const opt = $(`#selectProductRab option[value="${m.product_id}"]`);
+                    if (opt.length > 0) {
+                        opt.text(opt.data('original-text') + ' — (Produk sudah dipilih)');
+                        opt.prop('disabled', true);
+                    }
+                }
+            });
+            $('#selectProductRab').trigger('change.select2');
+
             let html = '';
             data.forEach(function (m) {
+                const supplierInfo = m.supplier_name ? `<span class="mat-meta"><i class="fas fa-store me-1"></i>${m.supplier_name}</span>` : '';
+                const stockInfo = m.stock !== null ? `<span class="mat-meta"><i class="fas fa-cubes me-1"></i>Stok: ${m.stock} ${m.unit || ''}</span>` : '';
+                const unitInfo = m.unit ? `<span class="mat-meta-badge">${m.unit}</span>` : '';
+
+                // Photo URL
+                let photoHtml = '';
+                if (m.photo) {
+                    const photoSrc = m.photo.indexOf('http') === 0 ? m.photo : '<?= base_url('uploads/products') ?>/' + m.photo;
+                    photoHtml = `<img src="${photoSrc}" alt="${m.material_name}" class="mat-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                 <div class="mat-photo-placeholder" style="display:none;"><i class="fas fa-box"></i></div>`;
+                } else {
+                    photoHtml = `<div class="mat-photo-placeholder"><i class="fas fa-box"></i></div>`;
+                }
+
                 html += `<div class="material-item">
-                    <div>
-                        <div class="mat-name">${m.material_name}</div>
-                        <div class="mat-price">Rp ${Number(m.price).toLocaleString('id-ID')}</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="mat-photo-wrapper">
+                            ${photoHtml}
+                        </div>
+                        <div class="d-flex flex-column gap-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="mat-name">${m.material_name}</span>
+                                ${unitInfo}
+                            </div>
+                            <div class="mat-price">Rp ${Number(m.price).toLocaleString('id-ID')}</div>
+                            <div class="mat-meta-list d-flex flex-wrap gap-3 mt-1">
+                                ${supplierInfo}
+                                ${stockInfo}
+                            </div>
+                        </div>
                     </div>
-                    <button class="tbl-btn tbl-btn-del" title="Hapus" onclick="deleteRabMaterial(${m.id})">
+                    <button class="tbl-btn tbl-btn-del ms-3" title="Hapus" onclick="deleteRabMaterial(this, ${m.id})">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>`;
@@ -364,14 +436,22 @@
         });
     }
 
-    function deleteRabMaterial(id) {
+    function deleteRabMaterial(btn, id) {
         if (!confirm('Hapus bahan ini?')) return;
+        const $btn = $(btn);
+        const originalContent = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+
         $.get('<?= base_url('admin/renovation/delete_rab_material') ?>/' + id, function (res) {
             if (res.status) {
                 loadRabMaterials(activeRabId);
             } else {
                 alert(res.message);
+                $btn.html(originalContent).prop('disabled', false);
             }
+        }).fail(function () {
+            alert('Gagal menghapus bahan!');
+            $btn.html(originalContent).prop('disabled', false);
         });
     }
 

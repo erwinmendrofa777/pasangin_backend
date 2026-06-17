@@ -34,7 +34,7 @@ Dashboard Desainer
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-left: 5px solid var(--palette-primary);
+    border-left: 5px solid #e53935;
     position: relative;
     overflow: hidden;
   }
@@ -59,7 +59,7 @@ Dashboard Desainer
   }
 
   .header-left h1 span {
-    background: linear-gradient(135deg, var(--palette-primary), #4e5fe0);
+    background: linear-gradient(135deg, #e53935, #ff7043);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -71,16 +71,16 @@ Dashboard Desainer
   }
 
   .role-badge {
-    background: linear-gradient(135deg, rgba(255, 92, 92, 0.1), rgba(255, 92, 92, 0.05));
-    border: 1px solid rgba(255, 92, 92, 0.15);
-    color: var(--palette-primary);
-    padding: 6px 16px;
+    background: linear-gradient(135deg, #e53935, #ff7043);
+    color: #ffffff;
+    padding: 8px 18px;
     border-radius: 30px;
     font-size: 0.8rem;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
   }
 
   /* Stats Grid System */
@@ -151,23 +151,23 @@ Dashboard Desainer
 
   /* Card Gradients */
   .icon-design {
-    background: linear-gradient(135deg, var(--palette-primary), #4e5fe0);
-    box-shadow: 0 8px 20px rgba(255, 92, 92, 0.25);
+    background: linear-gradient(135deg, #e53935, #ff7043);
+    box-shadow: 0 8px 20px rgba(229, 57, 53, 0.25);
   }
 
   .icon-construction {
-    background: linear-gradient(135deg, #1cc88a, #13855c);
-    box-shadow: 0 8px 20px rgba(28, 200, 138, 0.25);
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
   }
 
   .icon-renovation {
-    background: linear-gradient(135deg, #fc544b, #f73c3b);
-    box-shadow: 0 8px 20px rgba(252, 84, 75, 0.25);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
   }
 
   .icon-grand {
-    background: linear-gradient(135deg, #ffa426, #f88f01);
-    box-shadow: 0 8px 20px rgba(255, 164, 38, 0.25);
+    background: linear-gradient(135deg, #6f42c1, #8e2de2);
+    box-shadow: 0 8px 20px rgba(111, 66, 193, 0.25);
   }
 
   /* Charts Grid System */
@@ -208,7 +208,7 @@ Dashboard Desainer
   }
 
   .chart-card h4 i {
-    color: var(--palette-primary);
+    color: #e53935;
   }
 
   .chart-container {

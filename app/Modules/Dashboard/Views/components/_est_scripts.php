@@ -32,23 +32,23 @@
           {
             label: 'Total Anggaran RAB Utama',
             data: monthlyRab,
-            borderColor: '#4e73df',
-            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+            borderColor: '#e53935',
+            backgroundColor: 'rgba(229, 57, 53, 0.05)',
             fill: true,
             tension: 0.3,
             borderWidth: 3,
-            pointBackgroundColor: '#4e73df',
+            pointBackgroundColor: '#e53935',
             pointHoverRadius: 7
           },
           {
             label: 'Total Anggaran Addendum',
             data: monthlyAddendum,
-            borderColor: '#f39c12',
-            backgroundColor: 'rgba(243, 156, 18, 0.05)',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.05)',
             fill: true,
             tension: 0.3,
             borderWidth: 3,
-            pointBackgroundColor: '#f39c12',
+            pointBackgroundColor: '#f59e0b',
             pointHoverRadius: 7
           }
         ]
@@ -133,12 +133,12 @@
     const catValues = <?= json_encode($estimatorStats['charts']['categories']['values']) ?>;
     
     const colorPalette = [
-      '#4e73df', // Blue
-      '#1cc88a', // Emerald Green
-      '#f39c12', // Orange
-      '#9b51e0', // Purple
-      '#36b9cc', // Teal
-      '#858796'  // Slate Grey (for 'Lainnya')
+      '#e53935', // Brand Red (Primary)
+      '#10b981', // Emerald Green
+      '#f59e0b', // Amber
+      '#7c3aed', // Purple
+      '#6366f1', // Indigo
+      '#64748b'  // Slate Grey
     ];
 
     if (catValues.length === 0) {

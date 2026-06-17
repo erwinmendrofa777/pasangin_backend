@@ -26,11 +26,13 @@ use App\Modules\Tips\Config\Validations\TipsRules;
 use App\Modules\Tukang\Config\Validations\TukangRules;
 use App\Modules\Vouchers\Config\Validations\VoucherRules;
 use App\Modules\Wallets\Config\Validations\WalletRules;
+use App\Modules\Satuan\Config\Validations\SatuanRules;
+use App\Modules\AHSP\Config\Validations\AHSPRules;
 
 class Validation extends BaseConfig
 {
     // Menggunakan trait untuk memisahkan aturan per modul agar file ini tidak menumpuk
-    use UserRules, SupplierRules, ProductRules, AdminRules, AuthRules, BannerRules, ConstructionRules, DesignRules, NotificationRules, OrderRules, PriceEstimateRules, PromoRules, RenovationRules, RoleRules, SyaratKetentuanRules, TipsRules, TukangRules, VoucherRules, WalletRules;
+    use UserRules, SupplierRules, ProductRules, AdminRules, AuthRules, BannerRules, ConstructionRules, DesignRules, NotificationRules, OrderRules, PriceEstimateRules, PromoRules, RenovationRules, RoleRules, SyaratKetentuanRules, TipsRules, TukangRules, VoucherRules, WalletRules, SatuanRules, AHSPRules;
 
     // --------------------------------------------------------------------
     // Setup

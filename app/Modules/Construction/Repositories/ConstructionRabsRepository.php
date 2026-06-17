@@ -31,7 +31,10 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
 
     public function findByConstructionId(int $constructionId): array
     {
-        return $this->model->where('construction_id', $constructionId)
+        return $this->model
+            ->select('construction_rabs.*, ahsp.uraian as activity_name, ahsp.kode as ahsp_kode')
+            ->join('ahsp', 'ahsp.id = construction_rabs.ahsp_id', 'left')
+            ->where('construction_id', $constructionId)
             ->orderBy('roman_number', 'ASC')
             ->orderBy('id', 'ASC')
             ->findAll();

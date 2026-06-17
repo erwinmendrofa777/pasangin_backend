@@ -14,11 +14,6 @@
                                         class="fas fa-info-circle"></i> Detail</a></li>
                         <?php endif; ?>
 
-                        <?php if (can('renovation_target')): ?>
-                            <li class="nav-item"><a class="nav-link text-warning" data-bs-toggle="tab" href="#target"><i
-                                        class="fas fa-bullseye"></i> Target</a></li>
-                        <?php endif; ?>
-
                         <?php if (can('renovation_survey')): ?>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#survey"><i
                                         class="fas fa-map-marker-alt"></i> Survey</a></li>
@@ -34,9 +29,9 @@
                                         class="fas fa-calculator"></i> Kelola RAB</a></li>
                         <?php endif; ?>
 
-                        <?php if (can('renovation_pembayaran')): ?>
-                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#payment"><i
-                                        class="fas fa-credit-card"></i> Pembayaran</a></li>
+                        <?php if (can('renovation_target')): ?>
+                            <li class="nav-item"><a class="nav-link text-warning" data-bs-toggle="tab" href="#target"><i
+                                        class="fas fa-bullseye"></i> Target</a></li>
                         <?php endif; ?>
 
                         <?php if (can('renovation_progress')): ?>
@@ -44,9 +39,9 @@
                                         class="fas fa-chart-line"></i> Progress</a></li>
                         <?php endif; ?>
 
-                        <?php if (can('renovation_lowongan')): ?>
-                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#info-pekerjaan"><i
-                                        class="fas fa-tools"></i> Lowongan</a></li>
+                        <?php if (can('renovation_pembayaran')): ?>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#payment"><i
+                                        class="fas fa-credit-card"></i> Pembayaran</a></li>
                         <?php endif; ?>
 
                         <?php if (can('renovation_absensi')): ?>
@@ -57,6 +52,11 @@
                         <?php if (can('renovation')): ?>
                             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#material"><i
                                         class="fas fa-boxes"></i> Pengajuan Material</a></li>
+                        <?php endif; ?>
+
+                        <?php if (can('renovation_lowongan')): ?>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#info-pekerjaan"><i
+                                        class="fas fa-tools"></i> Lowongan</a></li>
                         <?php endif; ?>
 
                     </ul>

@@ -109,7 +109,7 @@
       const ctxDivision = document.getElementById('divisionRevenueChart').getContext('2d');
       const divLabels = chartData.division_revenue.labels;
       const divValues = chartData.division_revenue.data;
-      const colorPalette = ['#6366f1', 'var(--palette-primary)', '#f59e0b']; // Indigo, Teal, Amber
+      const colorPalette = ['var(--palette-primary)', '#10b981', '#f59e0b']; // Red (Desain), Emerald (Konstruksi), Amber (Renovasi)
       
       const totalSum = divValues.reduce((a, b) => a + b, 0);
 

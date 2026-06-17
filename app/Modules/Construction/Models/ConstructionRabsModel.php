@@ -18,7 +18,7 @@ class ConstructionRabsModel extends Model
         'sub_group_name',
         'section_group',
         'section_name',
-        'activity_name',
+        'ahsp_id',
         'volume',
         'unit',
         'selected_material_id',

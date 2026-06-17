@@ -1,28 +1,6 @@
 <!-- ===== TABLE CARD ===== -->
 <div class="card table-card">
 
-    <!-- Card Header: Search & Add -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 table-card-header"
-        style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
-        <h6 class="mb-0 fw-bold text-primary d-flex align-items-center"
-            style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-truck me-2"></i>Daftar Supplier
-        </h6>
-        <div class="d-flex flex-column flex-sm-row gap-2 header-actions">
-            <div class="search-wrapper pb-sm-0 pb-3">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, email, telepon...">
-            </div>
-            <?php if (can('suppliers_create')): ?>
-                <a href="<?= base_url('admin/suppliers/create') ?>"
-                    class="btn btn-primary d-flex align-items-center justify-content-center"
-                    style="border-radius: 12px; font-size: 0.88rem; padding: 3px 16px; white-space: nowrap;">
-                    <i class="fas fa-plus me-1"></i> Tambah Baru
-                </a>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover" id="table-1" style="width:100%">

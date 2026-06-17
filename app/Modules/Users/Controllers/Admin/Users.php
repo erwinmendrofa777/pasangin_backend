@@ -37,7 +37,7 @@ class Users extends BaseController
             return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat data user.');
         }
 
-        $data['users'] = $this->userService->getAllClients();
+        $data['users'] = $this->userService->getAllClientsWithCounts();
 
         return view('App\Modules\Users\Views\index', $data);
     }
@@ -158,5 +158,65 @@ class Users extends BaseController
             log_message('error', '[Users::update] ID ' . $id . ': ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan sistem saat memperbarui data.');
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. AJAX ENDPOINT: GET ORDERS
+    // -------------------------------------------------------------------------
+    public function get_orders($userId)
+    {
+        if (!can('users')) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Anda tidak memiliki akses.']);
+        }
+
+        $db = \Config\Database::connect();
+        $orders = $db->table('orders')
+            ->where('user_id', $userId)
+            ->orderBy('id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data'   => $orders
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. AJAX ENDPOINT: GET PROJECTS
+    // -------------------------------------------------------------------------
+    public function get_projects($userId)
+    {
+        if (!can('users')) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Anda tidak memiliki akses.']);
+        }
+
+        $db = \Config\Database::connect();
+        $construction = $db->table('construction_requests')
+            ->where('user_id', $userId)
+            ->orderBy('id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $design = $db->table('design_requests')
+            ->where('user_id', $userId)
+            ->orderBy('id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $renovation = $db->table('renovation_requests')
+            ->where('user_id', $userId)
+            ->orderBy('id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data'   => [
+                'construction' => $construction,
+                'design'       => $design,
+                'renovation'   => $renovation
+            ]
+        ]);
     }
 }

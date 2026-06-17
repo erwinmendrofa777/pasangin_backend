@@ -9,7 +9,6 @@ use App\Modules\Dashboard\Services\DashboardKadivDesainerService;
 use App\Modules\Dashboard\Services\DashboardEstimatorService;
 use App\Modules\Dashboard\Services\DashboardContentCreatorService;
 use App\Modules\Dashboard\Services\DashboardAccountingService;
-use App\Modules\Design\Services\DesignRequestService;
 
 class Dashboard extends BaseController
 {
@@ -19,7 +18,6 @@ class Dashboard extends BaseController
     protected DashboardEstimatorService $estimatorSvc;
     protected DashboardContentCreatorService $creatorSvc;
     protected DashboardAccountingService $accountingSvc;
-    protected DesignRequestService $designSvc;
 
     public function __construct()
     {
@@ -29,7 +27,6 @@ class Dashboard extends BaseController
         $this->estimatorSvc = new DashboardEstimatorService();
         $this->creatorSvc = new DashboardContentCreatorService();
         $this->accountingSvc = new DashboardAccountingService();
-        $this->designSvc = new DesignRequestService();
     }
 
     public function index()
@@ -50,12 +47,10 @@ class Dashboard extends BaseController
         // 2. Admin dengan role Kepala Divisi Desain ATAU memiliki permission dashboard_kadiv_desainer
         if ($role === 'kepala divisi desain' || can('dashboard_kadiv_desainer')) {
             $kadivStats = $this->kadivSvc->getKadivDashboardStats();
-            $myTasks = $this->designSvc->getDesignerTasks($userId);
 
             return view('App\Modules\Dashboard\Views\dashboardKadivDesainer', [
                 'title' => 'Dashboard Kepala Divisi Desain',
                 'kadivStats' => $kadivStats,
-                'designerTasks' => $myTasks,
             ]);
         }
 

@@ -1,50 +1,54 @@
 <div class="card table-card">
-    <div class="d-flex justify-content-between align-items-center px-4 py-3" style="border-bottom: 1px solid #f0f4fa;">
-        <h6 class="mb-0 fw-bold text-primary"
-            style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-user-tie me-2"></i>Daftar Admin
-        </h6>
-        <div class="d-flex gap-3 align-items-center">
-            <div class="search-wrapper" style="width: 250px;">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, email, role...">
-            </div>
-            <?php if (can('admin_create')): ?>
-                <a href="<?= base_url('admin/admin/create') ?>"
-                    class="btn btn-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-2">
-                    <i class="fas fa-plus"></i> Tambah Admin
-                </a>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover" id="table-1" style="width:100%">
-                <thead class="text-center">
+                <thead>
                     <tr>
-                        <th class="text-center">No</th>
-                        <th class="text-center">Nama Lengkap</th>
-                        <th class="text-center">Email</th>
-                        <th class="text-center">Role</th>
-                        <th class="text-center">Aksi</th>
+                        <th class="text-center" style="width: 60px;">No</th>
+                        <th class="text-start">Nama Lengkap</th>
+                        <th class="text-start">Email</th>
+                        <th class="text-center" style="width: 180px;">Role</th>
+                        <th class="text-center" style="width: 120px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($admins as $key => $row): ?>
-                        <tr class="text-center align-middle">
-                            <td><span class="fw-semibold text-muted" style="font-size:0.82rem;"><?= $key + 1 ?></span></td>
-                            <td class="fw-semibold text-start ps-3"><?= esc($row['full_name'] ?: '-') ?></td>
-                            <td class="text-muted"><?= esc($row['email'] ?: '-') ?></td>
-                            <td>
+                        <tr class="align-middle">
+                            <td class="text-center">
+                                <span class="fw-semibold text-muted" style="font-size:0.82rem;"><?= $key + 1 ?></span>
+                            </td>
+                            <td class="text-start">
+                                <div class="d-flex align-items-center gap-3">
+                                    <?php
+                                    $avatarUrl = '';
+                                    if (strpos($row['photo'] ?? '', 'http') === 0) {
+                                        $avatarUrl = $row['photo'];
+                                    } elseif (!empty($row['photo'])) {
+                                        $avatarUrl = base_url('uploads/profile/' . $row['photo']);
+                                    } else {
+                                        $avatarUrl = base_url('uploads/profile/default.jpg');
+                                    }
+                                    ?>
+                                    <a href="<?= $avatarUrl ?>" class="glightbox" data-gallery="avatar-<?= $row['id'] ?>"
+                                        data-title="<?= esc($row['full_name']) ?>"
+                                        data-description="Email: <?= esc($row['email'] ?: '-') ?> &lt;br&gt; Role: <?= esc($row['role'] === 'super_admin' ? 'Super Admin' : ucfirst($row['role'])) ?>">
+                                        <img src="<?= $avatarUrl ?>" class="user-avatar" data-toggle="tooltip"
+                                            title="<?= esc($row['full_name']) ?>">
+                                    </a>
+                                    <div>
+                                        <span class="d-block fw-bold text-dark" style="font-size:0.9rem;"><?= esc($row['full_name'] ?: '-') ?></span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-muted text-start"><?= esc($row['email'] ?: '-') ?></td>
+                            <td class="text-center">
                                 <?php if ($row['role'] === 'super_admin'): ?>
-                                    <span class="status-badge status-super"><i class="fas fa-crown"></i> Super Admin</span>
+                                    <span class="status-badge status-super"><i class="fas fa-crown me-1"></i> Super Admin</span>
                                 <?php else: ?>
-                                    <span class="status-badge status-default"><i class="fas fa-user-cog"></i>
-                                        <?= esc(ucfirst($row['role'])) ?></span>
+                                    <span class="status-badge status-default"><i class="fas fa-user-cog me-1"></i> <?= esc(ucfirst($row['role'])) ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <?php if (can('admin_edit')): ?>
                                         <a href="<?= base_url('admin/admin/edit/' . $row['id']) ?>"
@@ -59,7 +63,7 @@
                                                 class="btn-action btn-action-delete"
                                                 onclick="return confirm('Yakin ingin menghapus admin ini?')" data-toggle="tooltip"
                                                 title="Hapus Admin">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-trash-alt"></i>
                                             </a>
                                         <?php endif; ?>
                                     <?php endif; ?>

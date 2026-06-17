@@ -170,4 +170,102 @@
         overflow: hidden !important;
         background: #000 !important;
     }
+
+    /* Multiple file list styles */
+    .survey-attachments-box {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed #e4e9f0;
+    }
+    .survey-file-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+    }
+    .survey-file-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s ease;
+    }
+    .survey-file-card:hover {
+        background: #fff;
+        border-color: var(--palette-primary);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.05);
+        transform: translateY(-1px);
+    }
+    .file-icon-wrapper {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .file-icon-pdf {
+        background: #fff5f5;
+        color: #dc3545;
+        border: 1px solid #ffcccc;
+    }
+    .file-icon-image {
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+    }
+    .file-icon-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .file-icon-video {
+        background: #fff9f0;
+        color: #ffc107;
+        border: 1px solid #ffeeba;
+    }
+    .file-icon-other {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #cbd5e1;
+    }
+    .file-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+    .file-info .file-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #334155;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .file-info .file-meta {
+        font-size: 0.68rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 500;
+    }
+    .file-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+    .btn-file-action {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        padding: 0;
+        transition: all 0.15s ease;
+    }
 </style>
+

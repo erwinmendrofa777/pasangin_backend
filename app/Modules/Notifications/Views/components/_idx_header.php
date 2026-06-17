@@ -1,29 +1,46 @@
-<!-- ===== HEADER SECTION: Ringkasan Statistik ===== -->
-<div class="card page-header-card mb-2 shadow-sm">
-    <div class="card-body p-4 position-relative" style="z-index: 1;">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h4 class="text-primary mb-2 fw-bold">Riwayat Notifikasi</h4>
-                <p class="text-muted mb-0 small">Pantau semua notifikasi sistem dan promosi yang telah dikirimkan ke
-                    mitra &amp; pelanggan.</p>
+<!-- ===== STAT CARDS ===== -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon" style="background: rgba(255, 92, 92, 0.1); color: var(--palette-primary);">
+                <i class="fas fa-paper-plane"></i>
             </div>
-            <div class="col-md-6 d-flex flex-wrap justify-content-md-end gap-2 mt-3 mt-md-0">
-                <div class="stat-pill shadow-sm">
-                    <span>Total Sent</span>
-                    <span class="stat-num"><?= number_format($stats['total']) ?></span>
-                </div>
-                <div class="stat-pill shadow-sm">
-                    <span>Clients</span>
-                    <span class="stat-num"><?= number_format($stats['client']) ?></span>
-                </div>
-                <div class="stat-pill shadow-sm">
-                    <span>Tukang</span>
-                    <span class="stat-num"><?= number_format($stats['tukang']) ?></span>
-                </div>
-                <div class="stat-pill shadow-sm">
-                    <span>Suppliers</span>
-                    <span class="stat-num"><?= number_format($stats['supplier']) ?></span>
-                </div>
+            <div>
+                <div class="stat-val"><?= number_format($stats['total']) ?></div>
+                <div class="stat-lbl">Total Sent</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon" style="background: rgba(3, 105, 161, 0.1); color: #0369a1;">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <div class="stat-val"><?= number_format($stats['client']) ?></div>
+                <div class="stat-lbl">Clients</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon" style="background: rgba(133, 77, 14, 0.1); color: #854d0e;">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div>
+                <div class="stat-val"><?= number_format($stats['tukang']) ?></div>
+                <div class="stat-lbl">Tukang</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon" style="background: rgba(21, 128, 61, 0.1); color: #15803d;">
+                <i class="fas fa-store"></i>
+            </div>
+            <div>
+                <div class="stat-val"><?= number_format($stats['supplier']) ?></div>
+                <div class="stat-lbl">Suppliers</div>
             </div>
         </div>
     </div>

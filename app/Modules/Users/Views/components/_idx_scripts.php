@@ -35,7 +35,7 @@
             },
             "columnDefs": [{
                 "sortable": false,
-                "targets": [1, 3, 4, 6]
+                "targets": [1, 5, 6]
             }],
             "pageLength": 10,
             "searching": true,
@@ -43,12 +43,49 @@
             "info": true,
             "autoWidth": false,
             "responsive": true,
-            "dom": 'rt<"dt-footer d-flex justify-content-between align-items-center"ip>',
+            "dom": 'r<"table-responsive"t><"dt-footer d-flex justify-content-between align-items-center"ip>',
             "drawCallback": function () {
                 $('[data-toggle="tooltip"]').tooltip();
                 if (window.globalLightbox) {
                     window.globalLightbox.reload();
                 }
+            }
+        });
+
+        /* ===== Custom Dropdown Status ===== */
+        var dropdownTrigger = $('#dropdownStatusTrigger');
+        var dropdownMenu = $('#dropdownStatusMenu');
+
+        dropdownTrigger.on('click', function (e) {
+            e.stopPropagation();
+            $(this).toggleClass('open');
+            dropdownMenu.toggleClass('show');
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.custom-dropdown').length) {
+                dropdownTrigger.removeClass('open');
+                dropdownMenu.removeClass('show');
+            }
+        });
+
+        $('.dropdown-item-custom').on('click', function (e) {
+            e.preventDefault();
+            $('.dropdown-item-custom').removeClass('active');
+            $(this).addClass('active');
+
+            var val = $(this).data('value');
+            var text = $(this).text().trim();
+            $('#selectedStatusText').text(text);
+
+            dropdownTrigger.removeClass('open');
+            dropdownMenu.removeClass('show');
+
+            if (val === 'all') {
+                table.column(2).search('').draw();
+            } else {
+                var label = val.charAt(0).toUpperCase() + val.slice(1);
+                table.column(2).search('^' + label + '$', true, false).draw();
             }
         });
 

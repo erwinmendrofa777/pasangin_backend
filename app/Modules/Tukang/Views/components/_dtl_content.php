@@ -1,4 +1,5 @@
 <?php
+/** @var array $tukang */
 $status = $tukang['status'];
 $statusMeta = [
     'Berkas Diproses' => ['class' => 'status-berkas', 'icon' => 'fas fa-file-medical'],

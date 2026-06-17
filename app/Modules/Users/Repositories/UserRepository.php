@@ -47,6 +47,27 @@ class UserRepository implements UserRepositoryInterface
             ->findAll();
     }
 
+    /**
+     * Ambil semua client beserta hitungan pesanan & proyek menggunakan subquery.
+     * Satu query, tidak ada N+1 problem.
+     */
+    public function findAllClientsWithCounts(): array
+    {
+        return $this->model->db
+            ->table('users')
+            ->select([
+                'users.*',
+                '(SELECT COUNT(*) FROM orders WHERE orders.user_id = users.id) as orders_count',
+                '(SELECT COUNT(*) FROM construction_requests WHERE construction_requests.user_id = users.id) as construction_count',
+                '(SELECT COUNT(*) FROM design_requests WHERE design_requests.user_id = users.id) as design_count',
+                '(SELECT COUNT(*) FROM renovation_requests WHERE renovation_requests.user_id = users.id) as renovation_count',
+            ])
+            ->where('users.role', 'client')
+            ->orderBy('users.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
     public function countClients(): int
     {
         return $this->model->where('role', 'client')->countAllResults();

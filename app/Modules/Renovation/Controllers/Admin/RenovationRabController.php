@@ -151,8 +151,9 @@ class RenovationRabController extends BaseController
     public function get_rab_materials($rabId)
     {
         $materials = $this->db->table('renovation_rab_materials')
-            ->select('renovation_rab_materials.id, products.name as material_name, products.price')
+            ->select('renovation_rab_materials.id, renovation_rab_materials.product_id, products.name as material_name, products.price, products.unit, products.stock, products.photo, suppliers.name as supplier_name')
             ->join('products', 'products.id = renovation_rab_materials.product_id')
+            ->join('suppliers', 'suppliers.id = products.supplier_id', 'left')
             ->where('rab_id', $rabId)
             ->get()->getResultArray();
 

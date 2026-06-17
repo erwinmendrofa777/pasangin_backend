@@ -66,6 +66,70 @@ class DashboardKadivDesainerService
             ->where('created_at >=', $firstDayOfMonth)
             ->countAllResults();
 
+        // 1b. Tambahan Metrik Operasional Baru
+        // Tugas Belum Ditugaskan Desainer
+        $unassignedTasksCount = $this->designTargetsModel
+            ->where('user_admin_id', null)
+            ->countAllResults();
+
+        // Antrean Review Desain (project_designs PENDING)
+        $db = \Config\Database::connect();
+        $awaitingReviews = $db->table('project_designs pd')
+            ->select('pd.*, dt.task_name, dt.design_request_id, dr.design_concept, dr.full_name as client_name, ua.full_name as designer_name, ua.photo as designer_photo')
+            ->join('design_targets dt', 'dt.id = pd.design_targets_id', 'left')
+            ->join('design_requests dr', 'dr.id = pd.design_request_id', 'left')
+            ->join('user_admin ua', 'ua.id = pd.user_admin_id', 'left')
+            ->where('pd.status', 'PENDING')
+            ->orderBy('pd.created_at', 'DESC')
+            ->limit(5)
+            ->get()
+            ->getResultArray();
+
+        $awaitingReviewsCount = $this->projectDesignModel
+            ->where('status', 'PENDING')
+            ->countAllResults();
+
+        // Statistik Tugas Aktif per Status Kanban
+        $tasksBuilder = $db->table('design_targets dt')
+            ->select("
+                dt.status as target_status,
+                COUNT(pd.id) as total_designs,
+                SUM(CASE WHEN pd.status = 'APPROVED' THEN 1 ELSE 0 END) as approved_designs,
+                SUM(CASE WHEN pd.status = 'PENDING' THEN 1 ELSE 0 END) as pending_designs,
+                SUM(CASE WHEN pd.status = 'REJECTED' THEN 1 ELSE 0 END) as rejected_designs
+            ")
+            ->join('design_requests dr', 'dr.id = dt.design_request_id', 'left')
+            ->join('project_designs pd', 'pd.design_targets_id = dt.id', 'left')
+            ->whereNotIn('dr.status', ['COMPLETED', 'CANCELLED'])
+            ->groupBy('dt.id')
+            ->get()
+            ->getResultArray();
+
+        $kanbanStatusSummary = [
+            'pending' => 0,
+            'progress' => 0,
+            'review' => 0,
+            'done' => 0,
+        ];
+
+        foreach ($tasksBuilder as $task) {
+            $tStatus = $task['target_status'];
+            $totalDesigns = (int)($task['total_designs'] ?? 0);
+            $approvedDesigns = (int)($task['approved_designs'] ?? 0);
+            $pendingDesigns = (int)($task['pending_designs'] ?? 0);
+            $rejectedDesigns = (int)($task['rejected_designs'] ?? 0);
+
+            if ($tStatus === 'DONE' || $approvedDesigns > 0) {
+                $kanbanStatusSummary['done']++;
+            } elseif ($totalDesigns > 0 && $approvedDesigns == 0 && $pendingDesigns > 0) {
+                $kanbanStatusSummary['review']++;
+            } elseif ($tStatus === 'ON PROGRESS' || ($totalDesigns > 0 && $rejectedDesigns > 0 && $approvedDesigns == 0)) {
+                $kanbanStatusSummary['progress']++;
+            } else {
+                $kanbanStatusSummary['pending']++;
+            }
+        }
+
         // 2. Beban Kerja Tim (Drafter & Arsitek)
         $designers = $this->userAdminModel
             ->groupStart()
@@ -108,7 +172,7 @@ class DashboardKadivDesainerService
             ->limit(5)
             ->findAll();
 
-        $historicalTrends = $this->getHistoricalTrends();
+        $submissionTrends = $this->getSubmissionTrends();
 
         return [
             'overview' => [
@@ -120,98 +184,39 @@ class DashboardKadivDesainerService
                 ],
                 'pending_requests' => $pendingDesignRequests,
                 'approved_this_month' => $approvedDesignsThisMonth,
+                'unassigned_tasks' => $unassignedTasksCount,
+                'awaiting_reviews_count' => $awaitingReviewsCount,
             ],
             'team_workload' => $teamWorkload,
             'critical_projects' => $criticalProjects,
-            'historical_trends' => $historicalTrends,
+            'submission_trends' => $submissionTrends,
+            'awaiting_reviews' => $awaitingReviews,
+            'kanban_status_summary' => $kanbanStatusSummary,
         ];
     }
 
     /**
-     * Mendapatkan tren riwayat proyek aktif, antrean, dan desain disetujui (6 bulan lalu, 1 bulan lalu, sekarang)
+     * Mendapatkan total pengajuan proyek desain per bulan dalam 12 bulan terakhir.
      */
-    private function getHistoricalTrends(): array
+    private function getSubmissionTrends(): array
     {
-        $now = date('Y-m-d H:i:s');
-        $oneMonthAgo = date('Y-m-d H:i:s', strtotime('-1 month'));
-        $sixMonthsAgo = date('Y-m-d H:i:s', strtotime('-6 months'));
+        $monthlyData = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $monthStart = date('Y-m-01 00:00:00', strtotime("-$i months"));
+            $monthEnd = date('Y-m-t 23:59:59', strtotime("-$i months"));
+            $label = date('M Y', strtotime("-$i months")); // Contoh: "Jun 2026"
 
-        $points = [
-            [
-                'label' => '6 Bulan Lalu',
-                'date' => $sixMonthsAgo,
-                'start_of_month' => date('Y-m-01 00:00:00', strtotime('-6 months')),
-                'end_of_month' => date('Y-m-t 23:59:59', strtotime('-6 months')),
-            ],
-            [
-                'label' => '1 Bulan Lalu',
-                'date' => $oneMonthAgo,
-                'start_of_month' => date('Y-m-01 00:00:00', strtotime('-1 month')),
-                'end_of_month' => date('Y-m-t 23:59:59', strtotime('-1 month')),
-            ],
-            [
-                'label' => 'Sekarang',
-                'date' => $now,
-                'start_of_month' => date('Y-m-01 00:00:00'),
-                'end_of_month' => date('Y-m-t 23:59:59'),
-            ]
-        ];
-
-        $data = [];
-        foreach ($points as $pt) {
-            $dateLimit = $pt['date'];
-
-            // Active Projects at $dateLimit
-            $activeDesign = $this->designModel
-                ->where('created_at <=', $dateLimit)
-                ->groupStart()
-                    ->whereNotIn('status', ['COMPLETED', 'CANCELLED'])
-                    ->orWhere('updated_at >', $dateLimit)
-                ->groupEnd()
+            $count = $this->designModel
+                ->where('created_at >=', $monthStart)
+                ->where('created_at <=', $monthEnd)
                 ->countAllResults();
 
-            $activeConstruction = $this->constructionModel
-                ->where('created_at <=', $dateLimit)
-                ->groupStart()
-                    ->where('status', 'DESIGNING')
-                    ->orWhere('updated_at >', $dateLimit)
-                ->groupEnd()
-                ->countAllResults();
-
-            $activeRenovation = $this->renovationModel
-                ->where('created_at <=', $dateLimit)
-                ->groupStart()
-                    ->where('status', 'DESIGNING')
-                    ->orWhere('updated_at >', $dateLimit)
-                ->groupEnd()
-                ->countAllResults();
-
-            $activeProjects = $activeDesign + $activeConstruction + $activeRenovation;
-
-            // Pending Requests at $dateLimit
-            $pendingRequests = $this->designModel
-                ->where('created_at <=', $dateLimit)
-                ->groupStart()
-                    ->where('status', 'PENDING')
-                    ->orWhere('updated_at >', $dateLimit)
-                ->groupEnd()
-                ->countAllResults();
-
-            // Approved Designs in that month
-            $approvedDesigns = $this->projectDesignModel
-                ->where('status', 'APPROVED')
-                ->where('created_at >=', $pt['start_of_month'])
-                ->where('created_at <=', $pt['end_of_month'])
-                ->countAllResults();
-
-            $data[] = [
-                'label' => $pt['label'],
-                'active_projects' => $activeProjects,
-                'pending_requests' => $pendingRequests,
-                'approved_designs' => $approvedDesigns,
+            $monthlyData[] = [
+                'label' => $label,
+                'count' => (int) $count
             ];
         }
 
-        return $data;
+        return $monthlyData;
     }
 }

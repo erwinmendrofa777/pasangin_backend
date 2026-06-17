@@ -15,6 +15,7 @@ interface UserRepositoryInterface
      * Ambil semua user dengan role 'client', diurutkan dari terbaru.
      */
     public function findAllClients(): array;
+    public function findAllClientsWithCounts(): array;
     public function countClients(): int;
 
     /**

@@ -51,6 +51,17 @@ $('[data-confirm]').each(function() {
 
 // Global
 $(function() {
+  // Bypass NiceScroll for the sidebar and dropdown lists to use smooth native CSS scroll
+  const originalNiceScroll = $.fn.niceScroll;
+  $.fn.niceScroll = function(options) {
+    if (this.hasClass('main-sidebar') || this.is('.main-sidebar') || 
+        this.hasClass('dropdown-list-icons') || this.hasClass('dropdown-list-message') ||
+        this.is('.dropdown-list-icons') || this.is('.dropdown-list-message')) {
+      return this;
+    }
+    return originalNiceScroll.apply(this, arguments);
+  };
+
   let sidebar_nicescroll_opts = {
     cursoropacitymin: 0,
     cursoropacitymax: .8,

@@ -31,11 +31,11 @@ class ContentController extends ResourceController
     {
         try {
             $model = new TipsModel();
-            
+
             // Ambil data yang statusnya aktif saja, urutkan dari yang terbaru
             $data = $model->where('is_active', 1)
-                          ->orderBy('id', 'DESC')
-                          ->findAll();
+                ->orderBy('id', 'DESC')
+                ->findAll();
 
             // Modifikasi data untuk menambahkan URL lengkap ke gambar
             $finalData = [];
@@ -48,20 +48,20 @@ class ContentController extends ResourceController
                 }
 
                 $finalData[] = [
-                    'id'         => $row['id'],
-                    'title'      => $row['title'],
-                    'content'    => $row['content'],
+                    'id' => $row['id'],
+                    'title' => $row['title'],
+                    'content' => $row['content'],
                     // 'target_app' => $row['target_app'], // Bisa diaktifkan jika perlu
-                    'image_url'  => $imageUrl, 
+                    'image_url' => $imageUrl,
                     'created_at' => $row['created_at']
                 ];
             }
 
             // PERBAIKAN: Menggunakan format respons standar yang lebih informatif
             return $this->respond([
-                'status'  => true, // Gunakan boolean true/false untuk status
+                'status' => true, // Gunakan boolean true/false untuk status
                 'message' => 'Data tips berhasil diambil.',
-                'data'    => $finalData
+                'data' => $finalData
             ]);
 
         } catch (\Exception $e) {
@@ -81,7 +81,7 @@ class ContentController extends ResourceController
     {
         try {
             $model = new BannerModel();
-            $data = $model->where('is_active', 1)->orderBy('id', 'DESC')->findAll();
+            $data = $model->where('target_app', 'client')->where('is_active', 1)->orderBy('id', 'DESC')->findAll();
 
             $finalData = [];
             foreach ($data as $row) {
@@ -91,17 +91,16 @@ class ContentController extends ResourceController
                 }
 
                 $finalData[] = [
-                    'id'        => $row['id'],
+                    'id' => $row['id'],
                     'image_url' => $imageUrl,
-                    // 'target_app' => $row['target_app'] // Bisa diaktifkan jika perlu
                 ];
             }
 
             // PERBAIKAN: Menggunakan format respons standar
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data banner berhasil diambil.',
-                'data'    => $finalData
+                'data' => $finalData
             ]);
 
         } catch (\Exception $e) {
@@ -121,22 +120,22 @@ class ContentController extends ResourceController
         try {
             $conceptsModel = new PriceEstimateConceptsModel();
             $qualitiesModel = new PriceEstimateQualitiesModel();
-            
+
             $concepts = $conceptsModel->orderBy('id', 'ASC')->findAll();
 
             $finalData = [];
             foreach ($concepts as $row) {
                 $finalData[] = [
-                    'id'        => $row['id'],
-                    'concept'   => $row['name'],
+                    'id' => $row['id'],
+                    'concept' => $row['name'],
                     'qualities' => $qualitiesModel->where('concept_id', $row['id'])->orderBy('min_price', 'ASC')->findAll()
                 ];
             }
 
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data estimasi harga berhasil diambil.',
-                'data'    => $finalData
+                'data' => $finalData
             ]);
 
         } catch (\Exception $e) {

@@ -261,27 +261,106 @@ Detail User
             padding: 0 16px 22px;
         }
     }
+
+    /* ===== TAB NAVIGATION ===== */
+    .tab-nav-link {
+        border: none !important;
+        background: transparent !important;
+        color: #64748b !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        padding: 12px 20px !important;
+        border-bottom: 3px solid transparent !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+
+    .tab-nav-link:hover {
+        color: var(--palette-primary) !important;
+    }
+
+    .tab-nav-link.active {
+        color: var(--palette-primary) !important;
+        border-bottom-color: var(--palette-primary) !important;
+        background: transparent !important;
+    }
+
+    .detail-container-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        background: #fff;
+    }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<!-- ===== 2-COLUMN LAYOUT ===== -->
-<div class="row g-4 align-items-start">
 
-    <!-- ======================== LEFT: PROFILE INFO ======================== -->
-    <div class="col-12 col-md-7">
-        <?= $this->include('App\Modules\Users\Views\components\_profile_info') ?>
+<div class="card detail-container-card shadow-sm">
+    <!-- Profile Hero Card Header -->
+    <?= $this->include('App\Modules\Users\Views\components\_profile_info_hero') ?>
+
+    <!-- Tabs Nav Bar -->
+    <div class="bg-light border-bottom px-4 pt-2">
+        <ul class="nav nav-tabs border-0" id="detailTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active tab-nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button" role="tab" aria-controls="profile-content" aria-selected="true">
+                    <i class="fas fa-user me-2"></i>Profil
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link tab-nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders-content" type="button" role="tab" aria-controls="orders-content" aria-selected="false">
+                    <i class="fas fa-shopping-cart me-2"></i>Pesanan
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link tab-nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects-content" type="button" role="tab" aria-controls="projects-content" aria-selected="false">
+                    <i class="fas fa-building me-2"></i>Proyek
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link tab-nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-content" type="button" role="tab" aria-controls="status-content" aria-selected="false">
+                    <i class="fas fa-sliders-h me-2"></i>Kelola Status
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link tab-nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity-content" type="button" role="tab" aria-controls="activity-content" aria-selected="false">
+                    <i class="fas fa-history me-2"></i>Aktivitas
+                </button>
+            </li>
+        </ul>
     </div>
-    <!-- /LEFT -->
 
-    <!-- ======================== RIGHT: UPDATE STATUS ======================== -->
-    <div class="col-12 col-md-5 mt-0 mt-sm-4">
-        <?= $this->include('App\Modules\Users\Views\components\_status_actions') ?>
+    <!-- Tabs Content -->
+    <div class="card-body p-4">
+        <div class="tab-content" id="detailTabsContent">
+            <!-- 1. Profil -->
+            <div class="tab-pane fade show active" id="profile-content" role="tabpanel" aria-labelledby="profile-tab">
+                <?= $this->include('App\Modules\Users\Views\components\_profile_info') ?>
+            </div>
+            
+            <!-- 2. Pesanan (AJAX) -->
+            <div class="tab-pane fade" id="orders-content" role="tabpanel" aria-labelledby="orders-tab">
+                <?= $this->include('App\Modules\Users\Views\components\_tab_orders') ?>
+            </div>
+            
+            <!-- 3. Proyek (AJAX) -->
+            <div class="tab-pane fade" id="projects-content" role="tabpanel" aria-labelledby="projects-tab">
+                <?= $this->include('App\Modules\Users\Views\components\_tab_projects') ?>
+            </div>
+            
+            <!-- 4. Kelola Status -->
+            <div class="tab-pane fade" id="status-content" role="tabpanel" aria-labelledby="status-tab">
+                <?= $this->include('App\Modules\Users\Views\components\_status_actions') ?>
+            </div>
+            
+            <!-- 5. Aktivitas -->
+            <div class="tab-pane fade" id="activity-content" role="tabpanel" aria-labelledby="activity-tab">
+                <?= $this->include('App\Modules\Users\Views\components\_tab_activity') ?>
+            </div>
+        </div>
     </div>
-    <!-- /RIGHT -->
-
 </div>
-<!-- /2-COLUMN LAYOUT -->
 
 <?= $this->endSection() ?>
 

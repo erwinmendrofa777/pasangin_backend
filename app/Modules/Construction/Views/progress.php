@@ -112,7 +112,7 @@ $totalTargets = count($groupedProgress);
                                 <div class="flex-grow-1" style="min-width:0;">
                                     <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                                         <span class="badge badge-light shadow-sm" style="font-size:0.75rem;">
-                                            <i class="fas fa-weight-hanging mr-1 text-primary"></i><?= esc($app['bobot']) ?>
+                                            <i class="fas fa-box mr-1 text-primary"></i><?= esc($app['volume']) ?>
                                         </span>
                                         <span class="text-muted" style="font-size:0.78rem;">
                                             <i class="fas fa-calendar-alt mr-1"></i><?= esc($app['created_at']) ?>

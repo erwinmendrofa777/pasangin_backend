@@ -104,6 +104,175 @@ class AuthAPI extends Controller
         }
     }
 
+
+    // ==========================================================
+    // 1B. ENDPOINT REQUEST OTP VIA EMAIL
+    // ==========================================================
+    public function requestOtpByEmail()
+    {
+        // 1. Validasi Input (Email dan Role wajib ada)
+        $rules = [
+            'email' => 'required|valid_email',
+            'role'  => 'required|in_list[user,tukang,supplier]'
+        ];
+
+        $messages = [
+            'email' => [
+                'required'    => 'Email wajib diisi.',
+                'valid_email' => 'Format email tidak valid.'
+            ],
+            'role' => [
+                'required' => 'Role wajib diisi.',
+                'in_list'  => 'Role tidak valid. Gunakan: user, tukang, atau supplier.'
+            ]
+        ];
+
+        if (!$this->validate($rules, $messages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $email = $this->request->getVar('email');
+        $role  = $this->request->getVar('role');
+
+        // 2. Keamanan: Whitelist tabel dan cek apakah email tersebut terdaftar
+        $allowedRoles = [
+            'user'     => 'users',
+            'tukang'   => 'tukang', 
+            'supplier' => 'suppliers'
+        ];
+
+        $tableName = $allowedRoles[$role];
+        $db = \Config\Database::connect();
+
+        $user = $db->table($tableName)->where('email', $email)->get()->getRow();
+        
+        if (!$user) {
+            return $this->failNotFound("Email tidak terdaftar sebagai {$role}.");
+        }
+
+        // 3. Generate 6 digit OTP code
+        $otpCode = sprintf("%06d", mt_rand(0, 999999));
+
+        // 4. Simpan OTP ke database password_reset_tokens
+        // Hapus token lama untuk email & role ini
+        $db->table('password_reset_tokens')
+           ->where('email', $email)
+           ->where('role', $role)
+           ->delete();
+
+        // Simpan token baru
+        $db->table('password_reset_tokens')->insert([
+            'email'      => $email,
+            'token'      => $otpCode,
+            'role'       => $role,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 5. Kirim email menggunakan konfigurasi SMTP dari .env
+        $emailService = \Config\Services::email();
+        $fromEmail = getenv('email.SMTPUser') ?: 'pasanginapp@gmail.com';
+        $emailService->setFrom($fromEmail, 'Pasangin');
+        $emailService->setTo($email);
+        $emailService->setSubject('Kode OTP Lupa Password');
+
+        $namaUser = $user->name ?? $user->full_name ?? 'Pengguna';
+        $pesan = "<div style='font-family:Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #eee;border-radius:8px;padding:32px;'>";
+        $pesan .= "<h2 style='color:#007bff;margin-top:0;'>🔑 Kode Verifikasi Lupa Password</h2>";
+        $pesan .= "<p>Halo, <strong>{$namaUser}</strong>.</p>";
+        $pesan .= "<p>Kami menerima permintaan untuk mereset password akun Anda di aplikasi <strong>Pasangin</strong>.</p>";
+        $pesan .= "<p>Gunakan kode OTP 6 digit berikut untuk melanjutkan proses reset password:</p>";
+        $pesan .= "<div style='text-align:center;margin:24px 0;'>";
+        $pesan .= "<span style='font-size:36px;font-weight:bold;letter-spacing:10px;color:#007bff;'>{$otpCode}</span>";
+        $pesan .= "</div>";
+        $pesan .= "<p style='color:#718096;font-size:13px;'>Kode ini berlaku selama <strong>15 menit</strong>.</p>";
+        $pesan .= "<p style='color:#718096;font-size:13px;'>Jika Anda tidak meminta ini, abaikan email ini. Password Anda tidak akan diubah.</p>";
+        $pesan .= "<hr style='border:none;border-top:1px solid #eee;margin:24px 0;'>";
+        $pesan .= "<p style='color:#a0aec0;font-size:12px;'>Tim Pasangin</p>";
+        $pesan .= "</div>";
+
+        $emailService->setMessage($pesan);
+
+        if (!$emailService->send()) {
+            log_message('error', '[Forgot Password Email] Gagal mengirim email OTP: ' . $emailService->printDebugger(['headers']));
+            return $this->failServerError('Gagal mengirim email OTP. Silakan coba lagi.');
+        }
+
+        return $this->respond([
+            'status'  => true,
+            'message' => 'Kode OTP berhasil dikirim ke email Anda. Silakan periksa kotak masuk atau spam.',
+        ], 200);
+    }
+
+    // ==========================================================
+    // 1C. ENDPOINT VERIFY OTP VIA EMAIL
+    // ==========================================================
+    public function verifyOtpByEmail()
+    {
+        // 1. Validasi Input (Email, OTP 6 digit, dan Role)
+        $rules = [
+            'email' => 'required|valid_email',
+            'otp'   => 'required|exact_length[6]|numeric',
+            'role'  => 'required|in_list[user,tukang,supplier]'
+        ];
+
+        $messages = [
+            'email' => [
+                'required'    => 'Email wajib diisi.',
+                'valid_email' => 'Format email tidak valid.'
+            ],
+            'otp' => [
+                'required'     => 'Kode OTP wajib diisi.',
+                'exact_length' => 'Kode OTP harus 6 digit.',
+                'numeric'      => 'Kode OTP hanya boleh berisi angka.'
+            ],
+            'role' => [
+                'required' => 'Role wajib diisi.',
+                'in_list'  => 'Role tidak valid. Gunakan: user, tukang, atau supplier.'
+            ]
+        ];
+
+        if (!$this->validate($rules, $messages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $email = $this->request->getVar('email');
+        $otp   = $this->request->getVar('otp');
+        $role  = $this->request->getVar('role');
+
+        // 2. Cek OTP di database
+        $db = \Config\Database::connect();
+        $cekOtp = $db->table('password_reset_tokens')
+                     ->where('email', $email)
+                     ->where('role', $role)
+                     ->where('token', $otp)
+                     ->get()->getRow();
+
+        if (!$cekOtp) {
+            return $this->failUnauthorized('Kode OTP tidak valid atau salah.');
+        }
+
+        // 3. Logika kadaluarsa (15 Menit = 900 detik)
+        $waktuDibuat = strtotime($cekOtp->created_at);
+        $waktuSekarang = time();
+
+        if (($waktuSekarang - $waktuDibuat) > 900) {
+            $db->table('password_reset_tokens')
+               ->where('email', $email)
+               ->where('role', $role)
+               ->delete();
+            return $this->failUnauthorized('Kode OTP sudah kadaluarsa. Silakan minta kode baru.');
+        }
+
+        return $this->respond([
+            'status'  => 200,
+            'message' => 'Kode OTP valid. Silakan lanjutkan ke pembuatan password baru.',
+            'data'    => [
+                'email' => $email,
+                'role'  => $role
+            ]
+        ], 200);
+    }
+
     // ==========================================================
     // 2. ENDPOINT VERIFY OTP
     // ==========================================================
@@ -204,7 +373,7 @@ class AuthAPI extends Controller
     {
         $rules = [
             'email'        => 'required|valid_email',
-            'otp'          => 'required|exact_length[4]|numeric',
+            'otp'          => 'required|min_length[4]|max_length[6]|numeric',
             'role'         => 'required|in_list[user,tukang,supplier]',
             'new_password' => 'required|min_length[6]'
         ];
@@ -215,9 +384,10 @@ class AuthAPI extends Controller
                 'valid_email' => 'Format email tidak valid.'
             ],
             'otp' => [
-                'required'     => 'Kode OTP wajib diisi.',
-                'exact_length' => 'Kode OTP harus 4 digit.',
-                'numeric'      => 'Kode OTP hanya boleh berisi angka.'
+                'required'   => 'Kode OTP wajib diisi.',
+                'min_length' => 'Kode OTP minimal 4 digit.',
+                'max_length' => 'Kode OTP maksimal 6 digit.',
+                'numeric'    => 'Kode OTP hanya boleh berisi angka.'
             ],
             'role' => [
                 'required' => 'Role (tipe akun) wajib diisi.',

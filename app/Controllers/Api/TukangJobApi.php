@@ -112,15 +112,15 @@ class TukangJobApi extends ResourceController
             $sql = "
                     (
                         SELECT 
-                            crab.group_name,
-                            crab.sub_group_name,
-                            crab.activity_name,
+                            COALESCE(crab.group_name, ca.group_name) as group_name,
+                            COALESCE(crab.sub_group_name, ca.sub_group_name) as sub_group_name,
+                            COALESCE(crab.activity_name, ca.activity_name) as activity_name,
                             creq.id as construction_id,
                             null as renovation_id,
                             creq.workday as hari_kerja,
                             ct.start_week,
                             ct.end_week,
-                            ct.bobot,
+                            COALESCE(crab.volume, ca.volume) as bobot,
                             ct.status as target_status,
                             creq.status as construction_status,
                             ja.project_type,
@@ -130,11 +130,12 @@ class TukangJobApi extends ResourceController
                             (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_count,
                             (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'rejected') as rejected_count,
                             (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_count,
-                            (SELECT SUM(bobot) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_weight,
-                            (SELECT SUM(bobot) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_weight
+                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_weight,
+                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_weight
                         FROM construction_targets ct
                         JOIN job_applications ja ON ja.id = ct.id_job_applications
-                        JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs
+                        LEFT JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs
+                        LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                         JOIN construction_requests creq ON creq.id = ct.construction_id
                         WHERE ja.tukang_id = ?
                     )
@@ -342,8 +343,9 @@ class TukangJobApi extends ResourceController
 
             // 4. Ambil data target (difilter berdasarkan tukang_id)
             $targetsRaw = $this->db->table('construction_targets t')
-                ->select('t.id, r.activity_name as target_name, t.start_week as startweek, t.end_week as endweek, t.bobot as weight, t.status')
+                ->select('t.id, COALESCE(r.activity_name, ca.activity_name) as target_name, t.start_week as startweek, t.end_week as endweek, COALESCE(r.volume, ca.volume) as weight, t.status')
                 ->join('construction_rabs r', 'r.id = t.id_construction_rabs', 'left')
+                ->join('construction_addendum ca', 'ca.id = t.id_construction_addendum', 'left')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
                 ->where('ja.tukang_id', $tukangId)
                 ->where('t.construction_id', $currentConstructionId)
@@ -377,10 +379,10 @@ class TukangJobApi extends ResourceController
                     foreach ($pList as $p) {
                         $pStatus = strtolower($p['status'] ?? 'pending');
                         if ($pStatus === 'approved') {
-                            $approved_weight += (float) $p['bobot'];
+                            $approved_weight += (float) $p['volume'];
                             $approved_count++;
                         } elseif ($pStatus === 'pending') {
-                            $pending_weight += (float) $p['bobot'];
+                            $pending_weight += (float) $p['volume'];
                             $pending_count++;
                         } elseif ($pStatus === 'rejected') {
                             $rejected_count++;
@@ -445,7 +447,7 @@ class TukangJobApi extends ResourceController
             $this->db->table('construction_progress')->insert([
                 'id_construction_targets' => $this->request->getPost('id_construction_targets'),
                 'construction_id' => $this->request->getPost('construction_id'),
-                'bobot' => $this->request->getPost('bobot') ?? 0,
+                'volume' => $this->request->getPost('volume') ?? $this->request->getPost('bobot') ?? 0,
                 'description' => $this->request->getPost('description'),
                 'status' => 'pending',
                 'photo_url' => $newName,
@@ -673,8 +675,8 @@ class TukangJobApi extends ResourceController
                 ->select("'construction' as tipe_proyek", false)
                 ->select("(SELECT COALESCE(SUM(total_price), 0) FROM construction_rabs WHERE construction_id = cr.id) as total_rab_price", false)
                 ->select("(SELECT COALESCE(SUM(total_price), 0) FROM construction_addendum WHERE construction_id = cr.id) as total_addendum_price", false)
-                ->select("(SELECT COALESCE(SUM(cp.bobot), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets WHERE ct.construction_id = cr.id AND ct.id_construction_rabs IS NOT NULL AND LOWER(cp.status) = 'approved') as realisasi_rab", false)
-                ->select("(SELECT COALESCE(SUM(cp.bobot), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets WHERE ct.construction_id = cr.id AND ct.id_construction_addendum IS NOT NULL AND LOWER(cp.status) = 'approved') as realisasi_addendum", false)
+                ->select("(SELECT COALESCE(SUM(cp.volume * r.current_unit_price), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets JOIN construction_rabs r ON r.id = ct.id_construction_rabs WHERE ct.construction_id = cr.id AND LOWER(cp.status) = 'approved') as realisasi_rab_price", false)
+                ->select("(SELECT COALESCE(SUM(cp.volume * a.current_unit_price), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets JOIN construction_addendum a ON a.id = ct.id_construction_addendum WHERE ct.construction_id = cr.id AND LOWER(cp.status) = 'approved') as realisasi_addendum_price", false)
                 ->select("(SELECT COUNT(id) FROM construction_attendance WHERE id_construction = cr.id AND DATE(waktu) = '{$today}' AND type = 'masuk') as absen_masuk_count", false)
                 ->select("(SELECT COUNT(id) FROM construction_attendance WHERE id_construction = cr.id AND DATE(waktu) = '{$today}' AND type = 'keluar') as absen_keluar_count", false)
                 ->join('construction_requests cr', 'cr.id = ja.project_id')
@@ -686,16 +688,13 @@ class TukangJobApi extends ResourceController
 
             $formattedData = [];
             foreach ($data as $row) {
-                $realisasiRab = (float) $row['realisasi_rab'];
-                $realisasiAdd = (float) $row['realisasi_addendum'];
+                $realisasiRabPrice = (float) $row['realisasi_rab_price'];
+                $realisasiAddPrice = (float) $row['realisasi_addendum_price'];
 
-                $totalRealisasi = $realisasiRab + $realisasiAdd;
+                $totalRealisasiPrice = $realisasiRabPrice + $realisasiAddPrice;
+                $totalBudget = (float) $row['total_rab_price'] + (float) $row['total_addendum_price'];
 
-                // Jika proyek memiliki addendum (ditandai dengan adanya harga addendum), maka bobot dibagi 2
-                $totalHargaAddendum = (float) $row['total_addendum_price'];
-                $divisor = ($totalHargaAddendum > 0) ? 2 : 1;
-
-                $progressPersen = $totalRealisasi / $divisor;
+                $progressPersen = $totalBudget > 0 ? ($totalRealisasiPrice / $totalBudget) * 100 : 0;
 
                 $masukCount = (int) $row['absen_masuk_count'];
                 $keluarCount = (int) $row['absen_keluar_count'];

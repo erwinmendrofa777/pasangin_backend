@@ -10,3 +10,10 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Syarat
     $routes->get('syarat_ketentuan/edit/(:num)', 'SyaratKetentuanController::edit/$1');
     $routes->post('syarat_ketentuan/update/(:num)', 'SyaratKetentuanController::update/$1');
 });
+
+// API Private (wajib JWT)
+$routes->group('api', ['namespace' => 'App\Modules\SyaratKetentuan\Controllers\Api', 'filter' => 'auth'], static function ($routes) {
+    $routes->get('syarat-ketentuan/(:any)', 'AgreementController::getTermsOfAgreement/$1');
+    $routes->post('construction/agreements/batch', 'AgreementController::constructionAgreementsBatch');
+    $routes->post('renovation/agreements/batch', 'AgreementController::renovationAgreementsBatch');
+});

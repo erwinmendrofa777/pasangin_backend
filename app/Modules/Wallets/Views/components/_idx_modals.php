@@ -8,7 +8,7 @@
 ?>
 
 <!-- Modals diletakkan di luar table untuk menghindari bug DOM HTML -->
-<?php foreach ($tukang as $t): ?>
+<?php foreach (is_array($tukang) ? $tukang : [] as $t): ?>
     <div class="modal fade" id="modalSaldo<?= $t['id'] ?>" tabindex="-1" aria-labelledby="modalSaldoLabel<?= $t['id'] ?>"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

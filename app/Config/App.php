@@ -22,6 +22,7 @@ class App extends BaseConfig
      */
     public string $indexPage = '';
     public string $uriProtocol = 'REQUEST_URI';
+    public string $permittedURIChars = 'a-z 0-9~%.:_-';
     public string $defaultLocale = 'en';
     public bool $negotiateLocale = false;
     public array $supportedLocales = ['en'];

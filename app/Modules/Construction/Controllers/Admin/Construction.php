@@ -561,7 +561,14 @@ class Construction extends BaseController
         }
 
         $constructionId = $this->request->getPost('id');
-        $this->svc->uploadSurvey((int) $constructionId, $this->request->getPost(), $this->request->getFile('survey_file'));
+        
+        $surveyFiles = $this->request->getFileMultiple('survey_files');
+        if ($surveyFiles === null) {
+            $singleFile = $this->request->getFile('survey_files');
+            $surveyFiles = ($singleFile && $singleFile->isValid()) ? [$singleFile] : [];
+        }
+
+        $this->svc->uploadSurvey((int) $constructionId, $this->request->getPost(), $surveyFiles);
 
         // Kirim Notifikasi ke Client
         $details = $this->svc->findConstructionWithDetails((int) $constructionId);

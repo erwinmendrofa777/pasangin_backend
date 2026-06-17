@@ -34,7 +34,8 @@ class DesignRequestModel extends Model
         'status', 
         'start_date',
         'target_date',      
-        'progress_percent', 
+        'progress_percent',
+        'max_revision',
         'created_at', 
         'updated_at',
     ];

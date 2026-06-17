@@ -39,7 +39,27 @@ class DashboardEstimatorService
                 (SELECT COUNT(id) FROM construction_rabs WHERE construction_id = cr.id) as rab_count,
                 (SELECT MIN(is_locked) FROM construction_rabs WHERE construction_id = cr.id) as is_rab_locked,
                 (SELECT COUNT(id) FROM construction_targets WHERE construction_id = cr.id) as target_count,
-                (SELECT COALESCE(SUM(bobot), 0) FROM construction_targets WHERE construction_id = cr.id) as total_bobot_target,
+                COALESCE(
+                    (
+                        (
+                            (SELECT COALESCE(SUM(crab.volume * crab.current_unit_price), 0) 
+                             FROM construction_targets ct 
+                             JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs 
+                             WHERE ct.construction_id = cr.id)
+                            +
+                            (SELECT COALESCE(SUM(ca.volume * ca.current_unit_price), 0) 
+                             FROM construction_targets ct 
+                             JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum 
+                             WHERE ct.construction_id = cr.id)
+                        )
+                        /
+                        NULLIF(
+                            (cr.rab_total + (SELECT COALESCE(SUM(total_price), 0) FROM construction_addendum WHERE construction_id = cr.id)), 
+                            0
+                        )
+                    ) * 100, 
+                    0
+                ) as total_bobot_target,
                 (SELECT COUNT(id) FROM construction_addendum WHERE construction_id = cr.id) as addendum_count
             FROM construction_requests cr
             WHERE cr.status IN ('SURVEY', 'DESIGNING', 'RAB', 'CONSTRUCTION')

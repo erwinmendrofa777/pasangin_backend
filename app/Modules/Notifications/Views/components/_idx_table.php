@@ -1,21 +1,8 @@
 <!-- ===== TABLE CARD: Daftar Notifikasi ===== -->
-<div class="row g-4">
+<div class="row">
     <div class="col-12">
-        <div class="card shadow-sm table-card">
-            <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 py-3 px-4">
-                <div class="search-wrapper">
-                    <span class="search-icon"><i class="fas fa-search"></i></span>
-                    <input type="text" class="form-control" id="searchInput"
-                        placeholder="Ketik untuk mencari notifikasi">
-                </div>
-                <?php if (can('notification_create')): ?>
-                    <a href="<?= base_url('admin/notification/create') ?>" class="btn btn-primary px-4 py-2 fw-bold"
-                        style="border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 92, 92, 0.35); height: 44px; display: flex; align-items: center;">
-                        <i class="fas fa-paper-plane me-2"></i>Kirim Notifikasi Baru
-                    </a>
-                <?php endif; ?>
-            </div>
-            <div class="card-body pt-0">
+        <div class="card table-card">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover" id="table-1">
                         <thead>

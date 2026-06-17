@@ -24,6 +24,12 @@ $routes->get('test-503', function () {
     return view('errors/html/error_503');
 });
 
+// ====================================================================
+// --- ROUTE DOKUMENTASI API SWAGGER ---
+// ====================================================================
+$routes->get('swagger', 'Swagger::index');
+$routes->get('swagger/json', 'Swagger::json');
+
 
 // ====================================================================
 // --- 2. GRUP PANEL ADMIN (WAJIB LOGIN ADMIN) ---
@@ -89,6 +95,16 @@ if (file_exists(APPPATH . 'Modules/Products/Config/Routes.php')) {
     require APPPATH . 'Modules/Products/Config/Routes.php';
 }
 
+// Load Module Routes Satuan
+if (file_exists(APPPATH . 'Modules/Satuan/Config/Routes.php')) {
+    require APPPATH . 'Modules/Satuan/Config/Routes.php';
+}
+
+// Load Module Routes AHSP
+if (file_exists(APPPATH . 'Modules/AHSP/Config/Routes.php')) {
+    require APPPATH . 'Modules/AHSP/Config/Routes.php';
+}
+
 // Load Module Routes Renovation
 if (file_exists(APPPATH . 'Modules/Renovation/Config/Routes.php')) {
     require APPPATH . 'Modules/Renovation/Config/Routes.php';
@@ -142,16 +158,16 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->post('tukang/register', 'TukangAuthController::register');
     $routes->post('tukang/verify', 'TukangAuthController::extractSync');
 
-    //Auth Supplier
+    // Auth Supplier
     $routes->post('supplier/login', 'SupplierAuthController::login');
     $routes->post('supplier/register', 'SupplierAuthController::register');
 
-    //otp register untuk client, tukang, dan supplier
+    // otp register untuk client, tukang, dan supplier
     $routes->post('otp/request', 'AuthController::requestOtp');
     $routes->post('otp/verify', 'AuthController::verifyOtp');
     $routes->post('verify-email', 'AuthController::verifyEmail');
 
-    //client
+    // client
     $routes->post('user/request-otp', 'UserController::requestOtp');
     $routes->post('user/verify-otp', 'UserController::verifyOtp');
     $routes->post('user/activate-account/confirm', 'UserController::confirmActivateAccount');
@@ -161,6 +177,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->get('products/show', 'ProductApi::show');
     $routes->get('products/getBySupplier/(:num)', 'ProductApi::getBySupplier/$1');
     $routes->get('suppliers/regions', 'ProductApi::regions');
+    $routes->get('supplier/public-profile/(:num)', 'SupplierProfileApi::index/$1');
 
     //konten
     $routes->get('content/banners', 'ContentController::banners');
@@ -178,6 +195,11 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->post('forgot-password', 'AuthAPI::requestOtp');
     $routes->post('verify-otp', 'AuthAPI::verifyOtp');
     $routes->post('reset-password', 'AuthAPI::resetPassword');
+    $routes->post('forgot-password-email', 'AuthAPI::requestOtpByEmail');
+    $routes->post('verify-otp-email', 'AuthAPI::verifyOtpByEmail');
+
+    // Unity API
+    $routes->get('unity/construction-rabs/(:num)', 'UnityApi::getRabByConstructionId/$1');
 });
 
 // ====================================================================
@@ -241,6 +263,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
 
     // === MODUL KONSTRUKSI (SINKRON DENGAN ConstructionApi) ===
     $routes->post('construction/submit', 'ConstructionApi::submit');
+    $routes->post('construction/submit-both', 'ConstructionApi::submitConstructionAndDesignRequests');
     $routes->get('construction/project/(:num)', 'ConstructionApi::project/$1');
     $routes->get('construction/detail/(:num)', 'ConstructionApi::detail/$1');
     $routes->get('construction/surveys/(:num)', 'ConstructionApi::surveys/$1');
@@ -271,12 +294,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->delete('construction/material-submissions/(:num)', 'ConstructionApi::deleteMaterialSubmission/$1');
 
     // Fitur syarat ketentuan
-    $routes->get('syarat-ketentuan/(:any)', 'AgreementController::getTermsOfAgreement/$1');
-    $routes->post('construction/agreements/batch', 'AgreementController::constructionAgreementsBatch');
-    $routes->post('renovation/agreements/batch', 'AgreementController::renovationAgreementsBatch');
 
-    // Fitur tentang aplikasi
-    $routes->get('tentang-aplikasi', 'AboutApplicationPasanginControllerApi::getAboutApplicationPasangin');
+    // Fitur tentang aplikasi (dipindah ke Modules/AboutApplication/Config/Routes.php)
 
     //fitur kontrak
     $routes->get('construction/contract/(:num)', 'ContractApi::construction_contract/$1');
@@ -284,6 +303,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
 
     // === MODUL RENOVASI (RenovationApi) ===
     $routes->post('renovation/submit', 'RenovationApi::submit');
+    $routes->post('renovation/submit-both', 'RenovationApi::submitRenovationAndDesignRequests');
     $routes->get('renovation/projects/(:num)', 'RenovationApi::projects/$1');
     $routes->get('renovation/detail/(:num)', 'RenovationApi::detail/$1');
     $routes->get('renovation/surveys/(:num)', 'RenovationApi::surveys/$1');
@@ -315,11 +335,6 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->delete('renovation/material-submissions/(:num)', 'RenovationApi::deleteMaterialSubmission/$1');
 
     //alamat user
-    $routes->post('alamat', 'AlamatUserController::create');
-    $routes->get('alamat', 'AlamatUserController::get');
-    $routes->put('alamat/(:num)', 'AlamatUserController::put/$1');
-    $routes->patch('alamat/(:num)', 'AlamatUserController::patch/$1');
-    $routes->delete('alamat/(:num)', 'AlamatUserController::delete/$1');
 
     // Resource CRUD
     $routes->resource('products', ['controller' => 'ProductApi', 'except' => ['index', 'regions', 'show']]);
@@ -332,7 +347,6 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
 
 
     // Modul Lainnya (Client & Tukang)
-    $routes->get('vouchers', 'VoucherController::index');
     $routes->group('cart', function ($routes) {
         $routes->get('/', 'CartApi::index');
         $routes->post('add', 'CartApi::add');
@@ -364,11 +378,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->post('tukang/submit-progress', 'TukangJobApi::submitProgress');
     $routes->get('tukang/my-targets/(:num)', 'TukangJobApi::getMyTargets/$1');
     $routes->post('tukang/job-submit', 'JobApplicationController::submit');
-    $routes->get('tukang/wallet/(:num)', 'WalletController::getWalletInfo/$1');
-    $routes->get('tukang/withdrawal-requests/(:num)', 'WalletController::getWithdrawalRequests/$1');
-    $routes->post('tukang/withdraw', 'WalletController::requestWithdrawal');
     $routes->get('tukang/application-status/(:num)', 'TukangJobApi::getApplicationStatus/$1');
     $routes->get('tukang/banners', 'TukangContentController::banners');
+    $routes->get('tukang/tips', 'TukangContentController::tips');
+
     $routes->post('tukang/update-ktp', 'TukangAuthController::updateProfileByKtp');
     $routes->get('tukang/progress/(:num)', 'TukangJobApi::getConstructionProgress/$1');
     $routes->post('tukang/progress', 'TukangJobApi::createConstructionProgress');

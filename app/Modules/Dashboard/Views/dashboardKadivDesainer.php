@@ -8,7 +8,7 @@ Dashboard Kepala Divisi Desain
 <style>
   /* ===== KADIV DESIGNER DASHBOARD PREMIUM STYLES ===== */
   .dashboard-container {
-    padding: 24px 0;
+    padding: 0px 0;
     animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
@@ -17,6 +17,7 @@ Dashboard Kepala Divisi Desain
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -43,9 +44,9 @@ Dashboard Kepala Divisi Desain
     position: absolute;
     top: -50px;
     right: -50px;
-    width: 150px;
-    height: 150px;
-    background: linear-gradient(135deg, rgba(255, 92, 92, 0.06), rgba(255, 92, 92, 0.01));
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(244, 67, 54, 0.07), transparent 70%);
     border-radius: 50%;
     pointer-events: none;
   }
@@ -58,9 +59,10 @@ Dashboard Kepala Divisi Desain
   }
 
   .header-left h1 span {
-    background: linear-gradient(135deg, var(--palette-primary), #4e5fe0);
+    background: linear-gradient(135deg, #e53935, #ff7043);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .header-left p {
@@ -70,16 +72,16 @@ Dashboard Kepala Divisi Desain
   }
 
   .role-badge {
-    background: linear-gradient(135deg, rgba(255, 92, 92, 0.1), rgba(255, 92, 92, 0.05));
-    border: 1px solid rgba(255, 92, 92, 0.15);
-    color: var(--palette-primary);
-    padding: 6px 16px;
+    background: linear-gradient(135deg, #e53935, #ff7043);
+    color: #ffffff;
+    padding: 8px 18px;
     border-radius: 30px;
     font-size: 0.8rem;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 14px rgba(229, 57, 53, 0.3);
   }
 
   /* Stats Grid System */
@@ -106,7 +108,7 @@ Dashboard Kepala Divisi Desain
 
   .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(255, 92, 92, 0.08);
+    box-shadow: 0 12px 30px rgba(229, 57, 53, 0.10);
   }
 
   .stat-card::after {
@@ -150,66 +152,18 @@ Dashboard Kepala Divisi Desain
 
   /* Card Gradients */
   .icon-active-proj {
-    background: linear-gradient(135deg, var(--palette-primary), #4e5fe0);
-    box-shadow: 0 8px 20px rgba(255, 92, 92, 0.25);
+    background: linear-gradient(135deg, #e53935, #ff7043);
+    box-shadow: 0 8px 20px rgba(229, 57, 53, 0.28);
   }
 
   .icon-pending {
-    background: linear-gradient(135deg, #ffa426, #f88f01);
-    box-shadow: 0 8px 20px rgba(255, 164, 38, 0.25);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.28);
   }
 
   .icon-approved {
-    background: linear-gradient(135deg, #1cc88a, #13855c);
-    box-shadow: 0 8px 20px rgba(28, 200, 138, 0.25);
-  }
-
-  /* Task Cards Styles */
-  .task-scroll-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  .task-scroll-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 10px;
-  }
-  .task-scroll-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
-  }
-  .task-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.25);
-  }
-
-  .task-card {
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    border: 1px solid #edf2f7;
-    background: #ffffff;
-    position: relative;
-  }
-
-  .task-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
-    border-color: #e2e8f0;
-  }
-
-  .btn-minimal {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    border-radius: 50%;
-    transition: all 0.2s;
-    color: var(--palette-primary);
-  }
-
-  .task-card:hover .btn-minimal {
-    background: var(--palette-primary);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25) !important;
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28);
   }
 
   /* Management Cards Styles */
@@ -266,7 +220,7 @@ Dashboard Kepala Divisi Desain
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #ffffff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 
   /* Charts Grid System */
@@ -317,8 +271,106 @@ Dashboard Kepala Divisi Desain
     max-height: 320px;
   }
 
+  /* Workload Radar Chart specific container */
+  .workload-chart-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Premium scrollbar for review queue container */
+  .review-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+  }
+  .review-scroll-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  .review-scroll-container::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+  }
+  .review-scroll-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    border: 1px solid #f8fafc;
+  }
+  .review-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--palette-primary);
+  }
+
+  /* Premium Card items for Awaiting Reviews */
+  .review-queue-card {
+    background: #ffffff;
+    border: 1px solid #eef0fb;
+    border-left: 4px solid #f59e0b;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .review-queue-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.25);
+  }
+
+  .btn-review-outline {
+    border-color: #cbd5e1;
+    color: #475569;
+    background-color: #ffffff;
+    transition: all 0.25s ease;
+  }
+
+  .btn-review-outline:hover {
+    background-color: #f8fafc;
+    color: var(--palette-primary);
+    border-color: var(--palette-primary);
+  }
+
+  .btn-review-primary {
+    background: linear-gradient(135deg, #e53935, #ff7043);
+    border: none;
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.15);
+    transition: all 0.25s ease;
+    color: #ffffff;
+  }
+
+  .btn-review-primary:hover {
+    background: linear-gradient(135deg, #d32f2f, #f4511e);
+    box-shadow: 0 6px 14px rgba(229, 57, 53, 0.25);
+    transform: translateY(-1px);
+    color: #ffffff;
+  }
+
+  /* Compact Circular Preview Button */
+  .btn-preview-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #f8fafc;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 0.78rem;
+    border: 1px solid #e2e8f0;
+    text-decoration: none !important;
+  }
+
+  .btn-preview-circle:hover {
+    background-color: #e2e8f0;
+    color: var(--palette-primary);
+    transform: scale(1.08);
+  }
+
   /* Responsive styling */
   @media (max-width: 992px) {
+
     .manage-grid,
     .analysis-grid,
     .charts-row {
@@ -333,12 +385,15 @@ Dashboard Kepala Divisi Desain
       padding: 20px;
       gap: 12px;
     }
+
     .welcome-header .role-badge {
       margin-top: 4px;
     }
+
     .header-left h1 {
       font-size: 1.5rem;
     }
+
     .header-left p {
       font-size: 0.85rem;
     }
@@ -348,38 +403,48 @@ Dashboard Kepala Divisi Desain
     .dashboard-container {
       padding: 12px 0;
     }
+
     .welcome-header {
       padding: 16px;
       border-left-width: 4px;
     }
+
     .header-left h1 {
       font-size: 1.3rem;
     }
+
     .chart-card,
     .premium-card {
       padding: 16px;
     }
+
     .chart-title-wrapper,
     .premium-card-title {
       margin-bottom: 16px;
       padding-bottom: 10px;
     }
+
     .chart-card h4,
     .premium-card-title h4 {
       font-size: 0.9rem;
     }
+
     .stat-card {
       padding: 16px;
     }
+
     .stat-value {
       font-size: 1.5rem;
     }
+
     .stat-icon {
       width: 44px;
       height: 44px;
       font-size: 1.1rem;
     }
-    .manage-grid, .analysis-grid {
+
+    .manage-grid,
+    .analysis-grid {
       gap: 16px;
       margin-bottom: 20px;
     }
@@ -390,29 +455,25 @@ Dashboard Kepala Divisi Desain
 <?= $this->section('content') ?>
 <div class="dashboard-container">
 
-  <!-- 1. Header Sambutan -->
-  <div class="welcome-header">
-    <div class="header-left">
-      <h1>Selamat Datang, <span><?= esc(session()->get('full_name') ?? 'Kadiv Desainer') ?>!</span></h1>
-      <p>Ruang kerja pengawasan tim desainer, monitoring beban kerja studio, dan pelacakan tugas pribadi Anda.</p>
-    </div>
-    <div>
-      <div class="role-badge">
-        <i class="fas fa-crown"></i>
-        Kepala Divisi Desain
-      </div>
-    </div>
-  </div>
+  <!-- 1. Ringkasan Statistik KPI -->
+  <?= $this->include('App\Modules\Dashboard\Views\components\_kd_stats_cards') ?>
 
-  <?= $this->include('App\Modules\Dashboard\Views\components\_kd_my_tasks') ?>
-
+  <!-- 2. Grafik Analisis Proyek -->
   <?= $this->include('App\Modules\Dashboard\Views\components\_kd_analysis_charts') ?>
 
-  <?= $this->include('App\Modules\Dashboard\Views\components\_kd_workload_critical') ?>
+  <!-- 3. Distribusi Beban Kerja (col-8) & Antrean Tinjauan Desain (col-4) -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-lg-8">
+      <?= $this->include('App\Modules\Dashboard\Views\components\_kd_workload') ?>
+    </div>
+    <div class="col-12 col-lg-4">
+      <?= $this->include('App\Modules\Dashboard\Views\components\_kd_review_queue') ?>
+    </div>
+  </div>
 
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
-  <?= $this->include('App\Modules\Dashboard\Views\components\_kd_scripts') ?>
+<?= $this->include('App\Modules\Dashboard\Views\components\_kd_scripts') ?>
 <?= $this->endSection() ?>

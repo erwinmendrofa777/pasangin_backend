@@ -15,7 +15,9 @@ class ConstructionRabMaterialsModel extends Model
 
     protected $allowedFields = [
         'rab_id',
-        'product_id'
+        'ahsp_bahan_id',
+        'product_id',
+        'selected'
     ];
 
     // Dates

@@ -10,141 +10,50 @@ Manajemen Konten
 
 <?= $this->section('style') ?>
 <style>
-    /* ===== PAGE HEADER ===== */
-    .page-header-card {
-        border: none;
-        border-radius: 20px;
-        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 100%);
-        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.25);
-        overflow: hidden;
-        position: relative;
-        padding: 28px 32px;
-        margin-bottom: 24px;
+    /* ===== HEADER CARD ===== */
+    .header-card {
+        border: 1px solid rgba(255, 92, 92, 0.08) !important;
+        border-left: 4px solid var(--palette-primary) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 36px rgba(255, 92, 92, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        background: #fff !important;
     }
 
-    .page-header-card::before {
-        content: '';
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 200px;
-        height: 200px;
-        background: rgba(255, 255, 255, 0.07);
-        border-radius: 50%;
-    }
-
-    .page-header-card::after {
-        content: '';
-        position: absolute;
-        bottom: -70px;
-        left: -30px;
-        width: 250px;
-        height: 250px;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 50%;
-    }
-
-    .page-header-card h4 {
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0 0 4px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .page-header-card p {
-        color: rgba(255, 255, 255, 0.75);
-        margin: 0;
-        font-size: 0.88rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .btn-add-tips {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1.5px solid rgba(255, 255, 255, 0.4);
-        color: #fff;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.88rem;
-        padding: 9px 20px;
-        transition: all 0.2s;
-        backdrop-filter: blur(5px);
-        position: relative;
-        z-index: 1;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-add-tips:hover {
-        background: rgba(255, 255, 255, 0.35);
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    /* ===== STATS ROW ===== */
-    .stat-mini-card {
-        border: none;
-        border-radius: 16px;
-        padding: 18px 20px;
-        box-shadow: 0 4px 16px rgba(255, 92, 92, 0.08);
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .stat-mini-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
-
-    .stat-mini-card .stat-val {
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1;
-        color: #2d3748;
-    }
-
-    .stat-mini-card .stat-lbl {
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #8e94a9;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        margin-top: 2px;
-    }
-
-    /* ===== TABLE CARD ===== */
-    .table-card {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(255, 92, 92, 0.08);
-    }
-
-    .table-card .card-header {
-        background: transparent;
-        border-bottom: 1px solid #f0f4fa;
-        padding: 20px 28px;
-        border-radius: 20px 20px 0 0;
-    }
-
-    .table-card .card-body {
-        padding: 0;
-    }
-
-    /* ===== SEARCH INPUT ===== */
+    /* ===== PREMIUM CUSTOM SEARCH ===== */
     .search-wrapper {
         position: relative;
+        display: inline-block;
+    }
+
+    .search-input {
+        display: block !important;
+        width: 100% !important;
+        height: 40px !important;
+        border-radius: 10px !important;
+        font-size: 0.82rem !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        color: #334155 !important;
+        font-weight: 600 !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01) !important;
+        outline: none !important;
+    }
+
+    .search-input:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        background: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    .search-input:focus {
+        border-color: var(--palette-primary) !important;
+        background-color: #fff !important;
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.12), 0 6px 16px rgba(255, 92, 92, 0.06) !important;
+        transform: translateY(-1px);
+        color: #0f172a !important;
     }
 
     .search-wrapper .search-icon {
@@ -152,59 +61,119 @@ Manajemen Konten
         left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #adb5bd;
+        color: #94a3b8;
         font-size: 0.85rem;
         pointer-events: none;
         z-index: 5;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    .search-wrapper input {
-        padding-left: 40px !important;
-        border-radius: 10px !important;
-        border: 1.5px solid #e9ecef;
-        font-size: 0.85rem;
-        height: 38px;
-        transition: all 0.2s;
+    .search-input:focus ~ .search-icon,
+    .search-input:hover ~ .search-icon {
+        color: var(--palette-primary) !important;
+        transform: translateY(-50%) scale(1.15) rotate(15deg) !important;
     }
 
-    .search-wrapper input:focus {
-        border-color: var(--palette-primary);
-        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12);
-        outline: none;
+    .search-input::placeholder {
+        color: #94a3b8;
+        opacity: 0.8;
+    }
+
+    /* ===== PRIMARY BUTTON SHADOW OVERRIDE ===== */
+    .btn-primary {
+        background-color: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.25) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--palette-primary-hover) !important;
+        border-color: var(--palette-primary-hover) !important;
+        box-shadow: 0 6px 16px rgba(255, 92, 92, 0.4) !important;
+    }
+
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary:active:focus,
+    .btn-primary.active,
+    .btn-primary:focus:active,
+    .btn-primary.disabled:focus {
+        background-color: var(--palette-primary-hover) !important;
+        border-color: var(--palette-primary-hover) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 92, 92, 0.3) !important;
+    }
+
+
+    /* ===== TABLE CARD ===== */
+    .table-card {
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01) !important;
+        overflow: hidden !important;
+        background: #fff !important;
+    }
+
+    .table-card .card-body {
+        padding: 0 !important;
     }
 
     /* ===== TABLE ===== */
     #table-1 {
+        margin-top: 0px !important;
         margin-bottom: 0 !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
     }
 
     #table-1 thead tr {
-        background: #fff5f5;
+        background: var(--palette-primary) !important;
     }
 
     #table-1 thead th {
-        color: var(--palette-primary);
-        font-size: 0.72rem;
-        font-weight: 800;
+        color: rgba(255, 255, 255, 0.92) !important;
+        font-size: 0.75rem;
+        font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #ffdddd;
-        padding: 14px 16px;
+        border-bottom: none !important;
+        border-top: none;
+        padding: 14px 12px;
+        white-space: nowrap;
     }
 
-    #table-1 tbody td {
-        padding: 14px 16px;
-        vertical-align: middle;
-        font-size: 0.875rem;
-        border-bottom: 1px solid #f8f9fa;
+    #table-1 thead th:first-child {
+        border-top-left-radius: 16px !important;
     }
 
-    #table-1 tbody tr:last-child td {
-        border-bottom: none;
+    #table-1 thead th:last-child {
+        border-top-right-radius: 16px !important;
+    }
+
+    #table-1 tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 16px !important;
+    }
+
+    #table-1 tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 16px !important;
+    }
+
+    #table-1 tbody tr {
+        transition: background 0.15s ease;
     }
 
     #table-1 tbody tr:hover {
-        background: #fffafa;
+        background: #fffafa !important;
+    }
+
+    #table-1 tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-color: #f0f4fa;
+        font-size: 0.88rem;
+        color: #343a40;
     }
 
     /* ===== TIPS IMAGE ===== */
@@ -213,7 +182,16 @@ Manajemen Konten
         height: 65px;
         border-radius: 10px;
         object-fit: cover;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 2px solid #ffdddd;
+        transition: all 0.2s ease-in-out;
+        cursor: zoom-in;
+    }
+
+    .tips-img:hover {
+        transform: scale(1.05);
+        border-color: var(--palette-primary);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.25);
     }
 
     /* ===== TITLE + EXCERPT ===== */
@@ -287,31 +265,31 @@ Manajemen Konten
 
     .btn-action-detail {
         background: var(--palette-primary);
-        color: var(--palette-primary);
+        color: #fff;
     }
 
     .btn-action-detail:hover {
-        background: var(--palette-primary);
+        background: var(--palette-primary-hover);
         color: #fff;
     }
 
     .btn-action-edit {
         background: #f76707;
-        color: #f76707;
+        color: #fff;
     }
 
     .btn-action-edit:hover {
-        background: #f76707;
+        background: #d35400;
         color: #fff;
     }
 
     .btn-action-delete {
         background: #e03131;
-        color: #e03131;
+        color: #fff;
     }
 
     .btn-action-delete:hover {
-        background: #e03131;
+        background: #bd2130;
         color: #fff;
     }
 
@@ -332,9 +310,17 @@ Manajemen Konten
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: var(--palette-primary);
+        color: var(--palette-primary) !important;
+        display: flex;
         align-items: center;
         justify-content: center;
+        background: transparent;
+    }
+
+    .dataTables_paginate .page-item.disabled .page-link {
+        color: #98a6ad !important;
+        opacity: 0.5;
+        background: transparent !important;
     }
 
     .dataTables_paginate .page-item.active .page-link {
@@ -345,7 +331,7 @@ Manajemen Konten
         box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
-    .dataTables_paginate .page-item:not(.active) .page-link:hover {
+    .dataTables_paginate .page-item:not(.active):not(.disabled) .page-link:hover {
         background: #ffe5e5 !important;
         border-color: #ffe5e5 !important;
         color: var(--palette-primary) !important;
@@ -363,10 +349,46 @@ Manajemen Konten
         color: #d0d4f5;
         margin-bottom: 16px;
     }
+
+    @media (max-width: 768px) {
+        .search-wrapper {
+            width: 100% !important;
+        }
+
+        .dt-footer {
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px;
+            padding: 16px !important;
+        }
+
+        .dataTables_paginate {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+
+        .dataTables_paginate .pagination {
+            justify-content: center !important;
+            margin: 0 !important;
+        }
+
+        .dataTables_info {
+            text-align: center !important;
+            width: 100% !important;
+        }
+
+        #table-1 th,
+        #table-1 td {
+            white-space: nowrap;
+        }
+    }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?= $this->include('App\Modules\Tips\Views\components\_header_card') ?>
 <?= $this->include('App\Modules\Tips\Views\components\_idx_content') ?>
 <?= $this->endSection() ?>
 

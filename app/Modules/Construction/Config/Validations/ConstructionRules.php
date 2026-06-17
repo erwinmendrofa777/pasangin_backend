@@ -115,7 +115,7 @@ trait ConstructionRules
         'id'            => 'required|numeric',
         'user_admin_id' => 'required|numeric',
         'survey_title'  => 'required|min_length[3]',
-        'survey_file'   => 'uploaded[survey_file]|max_size[survey_file,51200]|ext_in[survey_file,pdf,jpg,jpeg,png,webp,mp4,mov,avi,webm,mkv]',
+        'survey_files'  => 'uploaded[survey_files]|max_size[survey_files,51200]|ext_in[survey_files,pdf,jpg,jpeg,png,webp,mp4,mov,avi,webm,mkv]',
     ];
 
     public array $constructionSurveyUpload_errors = [
@@ -131,7 +131,7 @@ trait ConstructionRules
             'required'   => 'Judul survey wajib diisi.',
             'min_length' => 'Judul survey minimal 3 karakter.',
         ],
-        'survey_file' => [
+        'survey_files' => [
             'uploaded' => 'File survey wajib diunggah.',
             'max_size' => 'Ukuran file survey maksimal 50MB.',
             'ext_in'   => 'Format file survey harus berupa PDF, Gambar (JPG, JPEG, PNG, WEBP), atau Video (MP4, MOV, AVI, WEBM, MKV).',
@@ -169,7 +169,7 @@ trait ConstructionRules
     public array $constructionProgressAdd = [
         'construction_id' => 'required|numeric',
         'target_id'       => 'required|numeric',
-        'progress_percent'=> 'required|numeric|greater_than_equal_to[0]|less_than_equal_to[100]',
+        'volume'          => 'required|numeric|greater_than_equal_to[0]',
         'description'     => 'required|min_length[5]',
         'photo'           => 'uploaded[photo]|is_image[photo]|max_size[photo,2048]',
     ];
@@ -184,11 +184,10 @@ trait ConstructionRules
             'required' => 'Target pekerjaan wajib dipilih.',
             'numeric'  => 'ID Target harus berupa angka.',
         ],
-        'progress_percent' => [
-            'required'              => 'Persentase progres wajib diisi.',
-            'numeric'               => 'Persentase progres harus berupa angka.',
-            'greater_than_equal_to' => 'Persentase minimal 0%.',
-            'less_than_equal_to'    => 'Persentase maksimal 100%.',
+        'volume' => [
+            'required'              => 'Volume progres wajib diisi.',
+            'numeric'               => 'Volume progres harus berupa angka.',
+            'greater_than_equal_to' => 'Volume minimal 0.',
         ],
         'description' => [
             'required'   => 'Deskripsi wajib diisi.',

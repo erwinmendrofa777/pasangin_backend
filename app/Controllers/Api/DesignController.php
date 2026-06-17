@@ -38,14 +38,11 @@ class DesignController extends ResourceController
             'land_area' => $this->request->getPost('land_area'),
             'building_area' => $this->request->getPost('building_area'),
             'design_concept' => $this->request->getPost('design_concept'),
-            'survey_date' => $this->request->getPost('survey_date'),
             'location_address' => $this->request->getPost('location_address'),
             'latitude' => $this->request->getPost('latitude'),
             'longitude' => $this->request->getPost('longitude'),
             'voucher_code' => $this->request->getPost('voucher_code'),
-            'survey_fee' => $this->request->getPost('survey_cost'),
             'discount_amount' => $this->request->getPost('discount_amount'),
-            'total_payment' => $this->request->getPost('total_payment'),
             'status' => 'PENDING',
         ];
 
@@ -341,14 +338,27 @@ class DesignController extends ResourceController
     public function progress($id = null)
     {
         $progress = $this->db->table('project_designs pd')
-            ->select('pd.*, dt.task_name')
+            ->select('pd.*, dt.task_name, dr.max_revision')
             ->join('design_targets dt', 'dt.id = pd.design_targets_id', 'left')
+            ->join('design_requests dr', 'dr.id = dt.design_request_id', 'left')
             ->where('pd.design_targets_id', $id)
             ->orderBy('pd.created_at', 'DESC')
             ->get()->getResultArray();
 
         foreach ($progress as &$item) {
             $item['file_url'] = base_url('uploads/design_results/' . $item['file']);
+
+            // Decode JSON array image_revision_note dan bangun URL tiap gambar
+            $revImgUrls = [];
+            if (!empty($item['image_revision_note'])) {
+                $decoded = json_decode($item['image_revision_note'], true);
+                if (is_array($decoded)) {
+                    foreach ($decoded as $imgFile) {
+                        $revImgUrls[] = base_url('uploads/design_results/revision_comment/' . $imgFile);
+                    }
+                }
+            }
+            $item['image_revision_note_urls'] = $revImgUrls;
         }
 
         if ($progress) {
@@ -385,9 +395,51 @@ class DesignController extends ResourceController
             'status' => $this->request->getPost('status') ?? $this->request->getJSON(true)['status'],
         ];
 
+        // Handle upload multiple gambar untuk image_revision_note
+        $uploadedFiles = $this->request->getFileMultiple('image_revision_note');
+        if ($uploadedFiles) {
+            $uploadPath = FCPATH . 'uploads/design_results/revision_comment/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            $fileNames = [];
+            foreach ($uploadedFiles as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $newName = $file->getRandomName();
+                    $file->move($uploadPath, $newName);
+                    $fileNames[] = $newName;
+                }
+            }
+
+            if (!empty($fileNames)) {
+                $data['image_revision_note'] = json_encode($fileNames);
+            }
+        }
+
         $update = $this->db->table('project_designs')->update($data, ['id' => $id]);
 
         if ($update) {
+            // Jika status diupdate menjadi APPROVED, otomatis ubah status target menjadi DONE
+            if (isset($data['status']) && $data['status'] === 'APPROVED') {
+                $design = $this->db->table('project_designs')->where('id', $id)->get()->getRowArray();
+                if ($design && !empty($design['design_targets_id'])) {
+                    $this->db->table('design_targets')
+                        ->where('id', $design['design_targets_id'])
+                        ->update(['status' => 'DONE']);
+
+                    // Tolak semua revisi PENDING lain dalam target yang sama
+                    $this->db->table('project_designs')
+                        ->where('design_targets_id', $design['design_targets_id'])
+                        ->where('id !=', $id)
+                        ->where('status', 'PENDING')
+                        ->update([
+                            'status' => 'REJECTED',
+                            'revision_note' => 'Revisi lain telah disetujui'
+                        ]);
+                }
+            }
+
             return $this->respond([
                 'status' => true,
                 'message' => 'Progress desain berhasil diperbarui',

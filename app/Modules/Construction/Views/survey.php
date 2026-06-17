@@ -43,11 +43,11 @@
                     </div>
 
                     <div class="form-group mb-4">
-                        <label class="survey-label">File Laporan</label>
+                        <label class="survey-label">File Laporan (Bisa Lebih dari Satu)</label>
                         <div class="file-upload-box">
                             <span class="file-label" id="surveyFileNameDisplay">Pilih atau seret file...</span>
-                            <input type="file" name="survey_file" id="surveyFileInput"
-                                accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.webm,.mkv" required>
+                            <input type="file" name="survey_files[]" id="surveyFileInput"
+                                accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.webm,.mkv" multiple required>
                             <i class="fas fa-paperclip"></i>
                         </div>
                         <div class="form-text mt-1" style="font-size:0.73rem;">
@@ -86,45 +86,26 @@
                 <?php else: ?>
                     <div class="d-flex flex-column gap-3">
                         <?php foreach ($survey_list as $srv): 
-                            $file = $srv['survey_file'] ?? '';
-                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                            $isPdf = ($ext === 'pdf');
-                            $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv']);
-                            $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
-                            $fileUrl = !empty($file) ? base_url('uploads/construction/survey/' . $file) : '';
+                            $files = [];
+                            if (!empty($srv['survey_file'])) {
+                                $decoded = json_decode($srv['survey_file'], true);
+                                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                    $files = $decoded;
+                                } else {
+                                    $files = [$srv['survey_file']];
+                                }
+                            }
                             ?>
-                            <div class="card border-0 shadow-sm mb-0" style="border-radius:12px;">
-                                <div class="card-body p-2 p-md-4">
+                            <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+                                <div class="card-body p-3 p-md-4">
                                     <div class="row align-items-center g-3">
 
-                                        <!-- Info Kiri: Ikon + Judul + Catatan -->
+                                        <!-- Info Kiri: Ikon Survey + Judul + Catatan -->
                                         <div class="col-12 col-md-5 d-flex gap-3">
-                                            <?php if ($isPdf): ?>
-                                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center"
-                                                    style="width:48px; height:48px; background:#fff5f5; border-radius:10px; color:#dc3545; font-size:1.25rem; flex-shrink:0; border: 1px solid #ffcccc;">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </div>
-                                            <?php elseif ($isVideo): ?>
-                                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center position-relative"
-                                                    style="width:48px; height:48px; background:#fff9f0; border-radius:10px; color:#ffc107; font-size:1.25rem; flex-shrink:0; border: 1px solid #ffeeba; cursor:pointer;"
-                                                    onclick="$('#glb-survey-video-<?= $srv['id'] ?>').click();">
-                                                    <i class="fas fa-file-video"></i>
-                                                    <span class="position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%);">
-                                                        <i class="fas fa-play-circle text-warning bg-white rounded-circle" style="font-size:10px;"></i>
-                                                    </span>
-                                                </div>
-                                            <?php elseif ($isImage): ?>
-                                                <div style="width:48px; height:48px; display:inline-block; overflow:hidden; border: 1px solid #e4e9f0; cursor:pointer;" 
-                                                    class="flex-shrink-0 rounded"
-                                                    onclick="$('#glb-survey-img-<?= $srv['id'] ?>').click();">
-                                                    <img src="<?= $fileUrl ?>" style="width:100%; height:100%; object-fit:cover;">
-                                                </div>
-                                            <?php else: ?>
-                                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center"
-                                                    style="width:48px; height:48px; background:linear-gradient(135deg,#ffe5e5,#d5dfff); border-radius:10px; color:var(--palette-primary); font-size:1.25rem; flex-shrink:0;">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </div>
-                                            <?php endif; ?>
+                                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center"
+                                                style="width:48px; height:48px; background:linear-gradient(135deg, #e0f2fe, #bae6fd); border-radius:10px; color:#0284c7; font-size:1.25rem; flex-shrink:0; border: 1px solid #bae6fd;">
+                                                <i class="fas fa-map-marked-alt"></i>
+                                            </div>
                                             <div style="min-width:0;">
                                                 <h6 class="font-weight-bold text-dark text-wrap mb-1"
                                                     style="font-size:0.95rem; line-height:1.3;">
@@ -151,72 +132,120 @@
                                                     <?= esc(strlen($srv['admin_name'] ?? 'Sistem') > 15 ? substr($srv['admin_name'] ?? 'Sistem', 0, 15) . '...' : ($srv['admin_name'] ?? 'Sistem')) ?>
                                                 </div>
                                                 <div>
-                                                    <i
-                                                        class="fas fa-calendar-alt mr-2"></i><?= date('d M Y', strtotime($srv['created_at'])) ?>
+                                                    <i class="fas fa-calendar-alt mr-2"></i><?= date('d M Y', strtotime($srv['created_at'])) ?>
                                                 </div>
                                                 <div>
-                                                    <i
-                                                        class="fas fa-clock mr-2"></i><?= date('H:i', strtotime($srv['created_at'])) ?>
-                                                    WIB
+                                                    <i class="fas fa-clock mr-2"></i><?= date('H:i', strtotime($srv['created_at'])) ?> WIB
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Aksi: Download + Hapus -->
+                                        <!-- Aksi: Hapus Laporan -->
                                         <div class="col-12 col-md-3 text-md-end pt-3 pt-md-0 survey-divider-y">
                                             <div class="d-flex justify-content-start justify-content-md-end gap-2">
-                                                <?php if (!empty($srv['survey_file'])): ?>
-                                                    <?php if ($isPdf): ?>
-                                                        <a href="<?= $fileUrl ?>" target="_blank" class="btn btn-sm btn-outline-danger"
-                                                            style="border-radius:8px;" title="Lihat PDF">
-                                                            <i class="fas fa-file-pdf"></i>
-                                                        </a>
-                                                    <?php elseif ($isVideo): ?>
-                                                        <!-- Hidden video player container for native playbacks -->
-                                                        <div style="display:none;" id="video-survey-<?= $srv['id'] ?>">
-                                                            <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
-                                                                <video src="<?= $fileUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
-                                                                <div class="text-white mt-2 text-start px-2">
-                                                                    <h6 class="mb-1 fw-bold text-white"><?= esc($srv['survey_title']) ?></h6>
-                                                                    <small class="text-muted">Diunggah oleh: <?= esc($srv['admin_name'] ?? 'Sistem') ?></small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <a href="#video-survey-<?= $srv['id'] ?>" class="glightbox btn btn-sm btn-outline-warning" 
-                                                           id="glb-survey-video-<?= $srv['id'] ?>"
-                                                           data-gallery="survey-gallery"
-                                                           data-slide-class="glightbox-video-slide"
-                                                           data-type="inline"
-                                                           style="border-radius:8px;">
-                                                            <i class="fas fa-play"></i>
-                                                        </a>
-                                                    <?php else: ?>
-                                                        <a href="<?= $fileUrl ?>" id="glb-survey-img-<?= $srv['id'] ?>" class="glightbox btn btn-sm btn-outline-info" 
-                                                           data-gallery="survey-gallery"
-                                                           data-title="<?= esc($srv['survey_title']) ?>"
-                                                           data-description="Diunggah oleh: <?= esc($srv['admin_name'] ?? 'Sistem') ?>"
-                                                           style="border-radius:8px;">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                    <?php endif; ?>
-                                                <?php else: ?>
-                                                    <button class="btn btn-sm btn-light text-muted" style="border-radius:8px;"
-                                                        disabled title="Tidak ada file">
-                                                        <i class="fas fa-file-excel"></i>
-                                                    </button>
-                                                <?php endif; ?>
-
                                                 <a href="<?= base_url('admin/construction/delete-survey/' . $srv['id'] . '/' . $construction['id']) ?>"
                                                     class="btn btn-sm btn-outline-danger ladda-button" data-style="zoom-in"
                                                     style="border-radius:8px;"
                                                     onclick="if(confirm('Apakah Anda yakin ingin menghapus laporan survey ini?')) { Ladda.create(this).start(); return true; } return false;"
                                                     title="Hapus Laporan">
-                                                    <span class="ladda-label"><i class="fas fa-trash-alt"></i></span>
+                                                    <span class="ladda-label"><i class="fas fa-trash-alt mr-1"></i>Hapus</span>
                                                 </a>
                                             </div>
                                         </div>
 
                                     </div>
+
+                                    <!-- Lampiran Files (Grid List) -->
+                                    <?php if (!empty($files)): ?>
+                                        <div class="survey-attachments-box">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="text-muted fw-bold" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">
+                                                    <i class="fas fa-paperclip mr-1 text-primary"></i> Lampiran (<?= count($files) ?>)
+                                                </span>
+                                            </div>
+                                            <div class="survey-file-grid">
+                                                <?php foreach ($files as $idx => $f): 
+                                                    $fileExt = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+                                                    $fUrl = base_url('uploads/construction/survey/' . $f);
+                                                    $isPdf = ($fileExt === 'pdf');
+                                                    $isVideo = in_array($fileExt, ['mp4', 'mov', 'avi', 'webm', 'mkv']);
+                                                    $isImage = in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                                                    $shortName = strlen($f) > 22 ? substr($f, 0, 12) . '...' . substr($f, -6) : $f;
+                                                ?>
+                                                    <!-- File Item Card -->
+                                                    <div class="survey-file-card">
+                                                        <!-- Thumbnail / Icon -->
+                                                        <?php if ($isImage): ?>
+                                                            <div class="file-icon-wrapper file-icon-image cursor-pointer" 
+                                                                 onclick="$('#glb-survey-img-<?= $srv['id'] ?>-<?= $idx ?>').click();">
+                                                                <img src="<?= $fUrl ?>">
+                                                            </div>
+                                                        <?php elseif ($isPdf): ?>
+                                                            <div class="file-icon-wrapper file-icon-pdf">
+                                                                <i class="fas fa-file-pdf"></i>
+                                                            </div>
+                                                        <?php elseif ($isVideo): ?>
+                                                            <div class="file-icon-wrapper file-icon-video cursor-pointer" 
+                                                                 onclick="$('#glb-survey-vid-<?= $srv['id'] ?>-<?= $idx ?>').click();">
+                                                                <i class="fas fa-file-video"></i>
+                                                            </div>
+                                                        <?php else: ?>
+                                                            <div class="file-icon-wrapper file-icon-other">
+                                                                <i class="fas fa-file-alt"></i>
+                                                            </div>
+                                                        <?php endif; ?>
+
+                                                        <!-- File Info -->
+                                                        <div class="file-info">
+                                                            <div class="file-name" title="<?= esc($f) ?>"><?= esc($shortName) ?></div>
+                                                            <div class="file-meta"><?= esc($fileExt ?: 'FILE') ?></div>
+                                                        </div>
+
+                                                        <!-- File Actions -->
+                                                        <div class="file-actions">
+                                                            <?php if ($isImage): ?>
+                                                                <a href="<?= $fUrl ?>" id="glb-survey-img-<?= $srv['id'] ?>-<?= $idx ?>" class="glightbox btn btn-outline-info btn-file-action" 
+                                                                   data-gallery="survey-gallery-<?= $srv['id'] ?>"
+                                                                   data-title="<?= esc($srv['survey_title']) ?>"
+                                                                   data-description="Berkas: <?= esc($f) ?> | Diunggah oleh: <?= esc($srv['admin_name'] ?? 'Sistem') ?>"
+                                                                   title="Lihat Gambar">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            <?php elseif ($isPdf): ?>
+                                                                <a href="<?= $fUrl ?>" target="_blank" class="btn btn-outline-danger btn-file-action"
+                                                                   title="Buka PDF">
+                                                                    <i class="fas fa-external-link-alt"></i>
+                                                                </a>
+                                                            <?php elseif ($isVideo): ?>
+                                                                <div style="display:none;" id="video-survey-<?= $srv['id'] ?>-<?= $idx ?>">
+                                                                    <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
+                                                                        <video src="<?= $fUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
+                                                                        <div class="text-white mt-2 text-start px-2">
+                                                                            <h6 class="mb-1 fw-bold text-white"><?= esc($srv['survey_title']) ?></h6>
+                                                                            <small class="text-muted">Berkas: <?= esc($f) ?> | Diunggah oleh: <?= esc($srv['admin_name'] ?? 'Sistem') ?></small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <a href="#video-survey-<?= $srv['id'] ?>-<?= $idx ?>" class="glightbox btn btn-outline-warning btn-file-action" 
+                                                                   id="glb-survey-vid-<?= $srv['id'] ?>-<?= $idx ?>"
+                                                                   data-gallery="survey-gallery-<?= $srv['id'] ?>"
+                                                                   data-slide-class="glightbox-video-slide"
+                                                                   data-type="inline"
+                                                                   title="Putar Video">
+                                                                    <i class="fas fa-play"></i>
+                                                                </a>
+                                                            <?php endif; ?>
+                                                            
+                                                            <a href="<?= $fUrl ?>" download class="btn btn-outline-secondary btn-file-action" 
+                                                               title="Unduh File">
+                                                                <i class="fas fa-download"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
 
                                     <!-- Feedback Klien Full Width -->
                                     <?php if (!empty($srv['comment'])): ?>

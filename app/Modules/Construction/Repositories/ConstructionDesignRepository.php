@@ -37,13 +37,12 @@ class ConstructionDesignRepository implements ConstructionDesignRepositoryInterf
             ->orderBy('created_at', 'desc')
             ->findAll();
 
-        // 3. Ambil semua desain APPROVED dari project_designs jika design_requests_id ada
+        // 3. Ambil semua desain dari project_designs jika design_requests_id ada
         if ($designRequestsId) {
             $approvedDesigns = $db->table('project_designs pd')
                 ->select('pd.id, pd.user_admin_id, pd.design_name as title, pd.file, pd.revision_note as comment, pd.created_at, ua.full_name as admin_name, pd.design_request_id as design_requests_id')
                 ->join('user_admin ua', 'ua.id = pd.user_admin_id', 'left')
                 ->where('pd.design_request_id', $designRequestsId)
-                ->where('pd.status', 'APPROVED')
                 ->orderBy('pd.created_at', 'desc')
                 ->get()
                 ->getResultArray();

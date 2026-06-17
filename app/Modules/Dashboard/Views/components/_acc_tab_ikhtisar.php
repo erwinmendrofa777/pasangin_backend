@@ -2,6 +2,10 @@
 <!-- TAB 1: IKHTISAR KEUANGAN -->
 <!-- ============================================== -->
 <div id="tab-ikhtisar" class="tab-pane active">
+
+  <!-- KPI Cards (hanya di tab Ikhtisar) -->
+  <?= $this->include('App\Modules\Dashboard\Views\components\_acc_kpi_cards') ?>
+
   <div class="row">
     <!-- Arus Kas Bulanan -->
     <div class="col-12 col-xl-8 mb-4">

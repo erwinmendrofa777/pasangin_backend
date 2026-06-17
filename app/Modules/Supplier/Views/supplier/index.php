@@ -11,126 +11,197 @@ Manajemen Supplier
 <?= $this->section('style') ?>
 <style>
     /* ===== HEADER CARD ===== */
-    .page-header-card {
-        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover) 60%, var(--palette-primary-hover) 100%);
-        border: none;
-        border-radius: 16px;
-        position: relative;
-        overflow: hidden;
+    .header-card {
+        border: 1px solid rgba(255, 92, 92, 0.08) !important;
+        border-left: 4px solid var(--palette-primary) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 36px rgba(255, 92, 92, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        background: #fff !important;
     }
 
-    .page-header-card::before {
-        content: '';
-        position: absolute;
-        top: -60px;
-        right: -60px;
-        width: 200px;
-        height: 200px;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 50%;
-    }
-
-    .page-header-card::after {
-        content: '';
-        position: absolute;
-        bottom: -80px;
-        left: -30px;
-        width: 260px;
-        height: 260px;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 50%;
-    }
-
-    /* ===== STAT PILLS ===== */
-    .stat-pill {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 50px;
-        padding: 6px 16px;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.82rem;
-        color: #fff;
-        font-weight: 600;
-        backdrop-filter: blur(4px);
-    }
-
-    .stat-pill .stat-num {
-        background: rgba(255, 255, 255, 0.25);
-        border-radius: 50px;
-        padding: 1px 10px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        font-weight: 700;
-    }
-
-    /* ===== SEARCH INPUT ===== */
+    /* ===== PREMIUM CUSTOM DROPDOWN & SEARCH ===== */
+    .filter-wrapper,
     .search-wrapper {
         position: relative;
+        display: inline-block;
     }
 
+    /* Common Hover & Focus transitions */
+    .dropdown-trigger,
+    .search-input {
+        display: block !important;
+        width: 100% !important;
+        height: 40px !important;
+        border-radius: 10px !important;
+        font-size: 0.82rem !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        color: #334155 !important;
+        font-weight: 600 !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01) !important;
+        outline: none !important;
+    }
+
+    .dropdown-trigger:hover,
+    .search-input:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        background: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    .dropdown-trigger:focus,
+    .dropdown-trigger.open,
+    .search-input:focus {
+        border-color: var(--palette-primary) !important;
+        background-color: #fff !important;
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.12), 0 6px 16px rgba(255, 92, 92, 0.06) !important;
+        transform: translateY(-1px);
+        color: #0f172a !important;
+    }
+
+    /* Icons animation */
+    .filter-wrapper .filter-icon,
     .search-wrapper .search-icon {
         position: absolute;
-        left: 16px;
+        left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #adb5bd;
-        font-size: 0.95rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
         pointer-events: none;
         z-index: 5;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    .search-wrapper input {
-        padding-left: 44px !important;
-        border-radius: 12px !important;
-        border: 1.5px solid #dee2e6;
+    .dropdown-trigger.open .arrow-icon {
+        transform: rotate(180deg);
+        color: var(--palette-primary) !important;
+    }
+
+    .dropdown-trigger.open ~ .filter-icon,
+    .dropdown-trigger:focus ~ .filter-icon,
+    .dropdown-trigger:hover ~ .filter-icon {
+        color: var(--palette-primary) !important;
+        transform: translateY(-50%) scale(1.15) rotate(-10deg) !important;
+    }
+
+    .search-input:focus ~ .search-icon,
+    .search-input:hover ~ .search-icon {
+        color: var(--palette-primary) !important;
+        transform: translateY(-50%) scale(1.15) rotate(15deg) !important;
+    }
+
+    /* Custom Dropdown Options Menu */
+    .dropdown-menu-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        margin-top: 8px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+        border: 1px solid #e2e8f0 !important;
+        padding: 6px 0 !important;
+        z-index: 1000;
+        display: block !important;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .dropdown-menu-list.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .dropdown-item-custom {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none !important;
         transition: all 0.2s ease;
-        font-size: 0.88rem;
-        height: 42px;
+        border-radius: 10px;
+        margin: 2px 6px;
     }
 
-    .search-wrapper input:focus {
-        border-color: var(--palette-primary);
-        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
+    .dropdown-item-custom:hover {
+        background: #fff5f5;
+        color: var(--palette-primary);
+        transform: translateX(4px);
     }
 
-    .search-wrapper input::placeholder {
-        color: #adb5bd;
+    .dropdown-item-custom.active {
+        background: rgba(255, 92, 92, 0.08);
+        color: var(--palette-primary);
+    }
+
+    .search-input::placeholder {
+        color: #94a3b8;
         opacity: 0.8;
     }
 
     /* ===== TABLE CARD ===== */
     .table-card {
-        border: none;
-        border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01) !important;
+        overflow: hidden !important;
+        background: #fff !important;
     }
 
     .table-card .card-body {
-        padding: 0;
+        padding: 0 !important;
     }
 
     /* ===== TABLE ===== */
     #table-1 {
+        margin-top: 0px !important;
         margin-bottom: 0 !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
     }
 
     #table-1 thead tr {
-        background: #fff5f5;
+        background: var(--palette-primary) !important;
     }
 
     #table-1 thead th {
-        color: var(--palette-primary);
+        color: rgba(255, 255, 255, 0.92) !important;
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border-bottom: 2px solid #ffdddd;
+        border-bottom: none !important;
         border-top: none;
         padding: 14px 12px;
         white-space: nowrap;
+    }
+
+    #table-1 thead th:first-child {
+        border-top-left-radius: 16px !important;
+    }
+
+    #table-1 thead th:last-child {
+        border-top-right-radius: 16px !important;
+    }
+
+    #table-1 tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 16px !important;
+    }
+
+    #table-1 tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 16px !important;
     }
 
     #table-1 tbody tr {
@@ -158,6 +229,14 @@ Manajemen Supplier
         object-position: center;
         border: 2px solid #ffdddd;
         box-shadow: 0 2px 8px rgba(255, 92, 92, 0.12);
+        transition: all 0.2s ease-in-out;
+        cursor: zoom-in;
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.08);
+        border-color: var(--palette-primary);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.24);
     }
 
     /* ===== BADGES ===== */
@@ -214,27 +293,63 @@ Manajemen Supplier
     .btn-action:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
     }
 
     .btn-action-detail {
-        background: var(--palette-primary);
-        color: #fff;
+        background: #ff4d4d !important;
+        color: #fff !important;
+        box-shadow: 0 2px 6px rgba(255, 77, 77, 0.15) !important;
+    }
+
+    .btn-action-detail i {
+        color: #fff !important;
     }
 
     .btn-action-detail:hover {
-        background: var(--palette-primary);
-        color: #fff;
+        background: #ff3333 !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(255, 77, 77, 0.35) !important;
     }
 
     .btn-action-edit {
-        background: #fd7e14;
-        color: #fff;
+        background: #ff9f43 !important;
+        color: #fff !important;
+        box-shadow: 0 2px 6px rgba(255, 159, 67, 0.15) !important;
+    }
+
+    .btn-action-edit i {
+        color: #fff !important;
     }
 
     .btn-action-edit:hover {
-        background: #fd7e14;
-        color: #fff;
+        background: #ff8f23 !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(255, 159, 67, 0.35) !important;
+    }
+
+    /* ===== PRIMARY BUTTON SHADOW OVERRIDE ===== */
+    .btn-primary {
+        background-color: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.25) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--palette-primary-hover) !important;
+        border-color: var(--palette-primary-hover) !important;
+        box-shadow: 0 6px 16px rgba(255, 92, 92, 0.4) !important;
+    }
+
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary:active:focus,
+    .btn-primary.active,
+    .btn-primary:focus:active,
+    .btn-primary.disabled:focus {
+        background-color: var(--palette-primary-hover) !important;
+        border-color: var(--palette-primary-hover) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 92, 92, 0.3) !important;
     }
 
     /* ===== FOOTER DATATABLE ===== */
@@ -254,9 +369,17 @@ Manajemen Supplier
         font-size: 0.82rem !important;
         margin: 0 3px;
         border: 1px solid transparent;
-        color: var(--palette-primary);
+        color: var(--palette-primary) !important;
+        display: flex;
         align-items: center;
         justify-content: center;
+        background: transparent;
+    }
+
+    .dataTables_paginate .page-item.disabled .page-link {
+        color: #98a6ad !important;
+        opacity: 0.5;
+        background: transparent !important;
     }
 
     .dataTables_paginate .page-item.active .page-link {
@@ -267,7 +390,7 @@ Manajemen Supplier
         box-shadow: 0 2px 6px rgba(255, 92, 92, 0.3);
     }
 
-    .dataTables_paginate .page-item:not(.active) .page-link:hover {
+    .dataTables_paginate .page-item:not(.active):not(.disabled) .page-link:hover {
         background: #ffe5e5 !important;
         border-color: #ffe5e5 !important;
         color: var(--palette-primary) !important;
@@ -281,16 +404,6 @@ Manajemen Supplier
     }
 
     @media (max-width: 768px) {
-        .page-header-card {
-            border-radius: 12px;
-        }
-
-        .page-header-card>.d-flex {
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 12px;
-        }
-
         .table-card-header {
             flex-direction: column;
             align-items: flex-start !important;
@@ -298,19 +411,32 @@ Manajemen Supplier
             padding: 16px !important;
         }
 
-        .header-actions {
-            width: 100% !important;
-        }
-
         .search-wrapper {
             width: 100% !important;
-            max-width: 100% !important;
         }
 
         .dt-footer {
-            flex-direction: column;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             gap: 12px;
             padding: 16px !important;
+        }
+
+        .dataTables_paginate {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+
+        .dataTables_paginate .pagination {
+            justify-content: center !important;
+            margin: 0 !important;
+        }
+
+        .dataTables_info {
+            text-align: center !important;
+            width: 100% !important;
         }
 
         #table-1 th,
@@ -322,6 +448,7 @@ Manajemen Supplier
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?= $this->include('App\Modules\Supplier\Views\supplier\components\_header_card') ?>
 <?= $this->include('App\Modules\Supplier\Views\supplier\components\_idx_table') ?>
 <?= $this->endSection() ?>
 

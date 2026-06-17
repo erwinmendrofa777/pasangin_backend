@@ -2,24 +2,33 @@
 <!-- TAB 2: REALISASI PROYEK -->
 <!-- ============================================== -->
 <div id="tab-proyek" class="tab-pane">
-  <!-- Ringkasan Anggaran Proyek Khusus -->
-  <div class="row g-3 mb-4">
-    <div class="col-12 col-md-4">
-      <div class="premium-card mb-0 p-3 text-center border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="text-muted fw-bold" style="font-size: 0.75rem; text-transform: uppercase;">Total Nilai Kontrak</div>
-        <div class="fw-bold text-indigo mt-1" style="font-size: 1.25rem;">Rp <?= number_format($accountingStats['kpis']['total_project_budget'], 0, ',', '.') ?></div>
+  <!-- Ringkasan Anggaran Proyek -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-sm-6 col-xl-4">
+      <div class="stat-card card-indigo h-100 mb-0">
+        <div class="stat-info">
+          <div class="stat-label">Total Nilai Kontrak</div>
+          <div class="stat-value"><?= number_format($accountingStats['kpis']['total_project_budget'], 0, ',', '.') ?></div>
+        </div>
+        <div class="stat-icon-wrapper"><i class="fas fa-file-contract"></i></div>
       </div>
     </div>
-    <div class="col-12 col-md-4">
-      <div class="premium-card mb-0 p-3 text-center border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="text-muted fw-bold" style="font-size: 0.75rem; text-transform: uppercase;">Total Realisasi Biaya</div>
-        <div class="fw-bold text-emerald mt-1" style="font-size: 1.25rem;">Rp <?= number_format($accountingStats['kpis']['total_project_realization'], 0, ',', '.') ?></div>
+    <div class="col-12 col-sm-6 col-xl-4">
+      <div class="stat-card card-emerald h-100 mb-0">
+        <div class="stat-info">
+          <div class="stat-label">Total Realisasi Biaya</div>
+          <div class="stat-value"><?= number_format($accountingStats['kpis']['total_project_realization'], 0, ',', '.') ?></div>
+        </div>
+        <div class="stat-icon-wrapper"><i class="fas fa-check-circle"></i></div>
       </div>
     </div>
-    <div class="col-12 col-md-4">
-      <div class="premium-card mb-0 p-3 text-center border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="text-muted fw-bold" style="font-size: 0.75rem; text-transform: uppercase;">Total Selisih Anggaran</div>
-        <div class="fw-bold text-dark mt-1" style="font-size: 1.25rem;">Rp <?= number_format($accountingStats['kpis']['total_project_difference'], 0, ',', '.') ?></div>
+    <div class="col-12 col-sm-6 col-xl-4">
+      <div class="stat-card card-primary h-100 mb-0">
+        <div class="stat-info">
+          <div class="stat-label">Total Selisih Anggaran</div>
+          <div class="stat-value"><?= number_format($accountingStats['kpis']['total_project_difference'], 0, ',', '.') ?></div>
+        </div>
+        <div class="stat-icon-wrapper"><i class="fas fa-balance-scale"></i></div>
       </div>
     </div>
   </div>

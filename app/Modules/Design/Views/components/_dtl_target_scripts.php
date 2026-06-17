@@ -18,7 +18,15 @@
             }
         }
 
-        startInput.addEventListener('change', calculateDays);
-        targetInput.addEventListener('change', calculateDays);
+        if (startInput && targetInput) {
+            startInput.addEventListener('change', calculateDays);
+            targetInput.addEventListener('change', calculateDays);
+        }
+
+        // Initialize Bootstrap 5 Tooltips for Gantt Bars
+        if (typeof bootstrap !== 'undefined') {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        }
     });
 </script>

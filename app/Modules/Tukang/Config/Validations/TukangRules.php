@@ -96,7 +96,7 @@ trait TukangRules
      * Aturan validasi untuk update status mitra
      */
     public array $tukangUpdateStatus = [
-        'status' => 'required|in_list[Aktif,Nonaktif,Berkas Diproses,Ditolak,Suspended]',
+        'status' => 'required|in_list[Aktif,Nonaktif,Berkas Diproses,Ditolak,Suspended,Proses Test,Proses Aktivasi,Siap Kerja]',
     ];
 
     public array $tukangUpdateStatus_errors = [

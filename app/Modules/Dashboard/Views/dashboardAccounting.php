@@ -116,11 +116,14 @@ Dashboard Accounting
     border: 1px solid #f1f5f9;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .stat-info {
+    flex: 1;
+    min-width: 0;
   }
   .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.03);
   }
   .stat-card::before {
     content: '';
@@ -131,10 +134,19 @@ Dashboard Accounting
     width: 4px;
     background: #e2e8f0;
   }
-  .stat-card.card-primary::before { background: var(--palette-primary); }
-  .stat-card.card-indigo::before { background: #6366f1; }
-  .stat-card.card-amber::before { background: #f59e0b; }
-  .stat-card.card-emerald::before { background: #10b981; }
+  .stat-card.card-primary::before  { background: var(--palette-primary); }
+  .stat-card.card-indigo::before   { background: #6366f1; }
+  .stat-card.card-amber::before    { background: #f59e0b; }
+  .stat-card.card-emerald::before  { background: #10b981; }
+  .stat-card.card-slate::before    { background: #475569; }
+  .stat-card.card-purple::before   { background: #7c3aed; }
+
+  .stat-card.card-primary:hover  { box-shadow: 0 12px 25px rgba(255, 92, 92, 0.08) !important; border-color: rgba(255, 92, 92, 0.2); }
+  .stat-card.card-indigo:hover   { box-shadow: 0 12px 25px rgba(99, 102, 241, 0.08) !important; border-color: rgba(99, 102, 241, 0.2); }
+  .stat-card.card-amber:hover    { box-shadow: 0 12px 25px rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.2); }
+  .stat-card.card-emerald:hover  { box-shadow: 0 12px 25px rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.2); }
+  .stat-card.card-slate:hover    { box-shadow: 0 12px 25px rgba(71, 85, 105, 0.08) !important; border-color: rgba(71, 85, 105, 0.2); }
+  .stat-card.card-purple:hover   { box-shadow: 0 12px 25px rgba(124, 58, 237, 0.08) !important; border-color: rgba(124, 58, 237, 0.2); }
 
   .stat-label {
     font-size: 0.75rem;
@@ -158,11 +170,82 @@ Dashboard Accounting
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
+    transition: all 0.3s ease;
   }
-  .card-primary .stat-icon-wrapper { background: rgba(255, 92, 92, 0.1); color: var(--palette-primary); }
-  .card-indigo .stat-icon-wrapper { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
-  .card-amber .stat-icon-wrapper { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-  .card-emerald .stat-icon-wrapper { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+  .card-primary .stat-icon-wrapper  { background: rgba(255, 92, 92, 0.1); color: var(--palette-primary); }
+  .card-indigo .stat-icon-wrapper   { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+  .card-amber .stat-icon-wrapper    { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  .card-emerald .stat-icon-wrapper  { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+  .card-slate .stat-icon-wrapper    { background: rgba(71, 85, 105, 0.1); color: #475569; }
+  .card-purple .stat-icon-wrapper   { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
+
+  .card-primary:hover .stat-icon-wrapper  { background: var(--palette-primary); color: #ffffff; }
+  .card-indigo:hover .stat-icon-wrapper   { background: #6366f1; color: #ffffff; }
+  .card-amber:hover .stat-icon-wrapper    { background: #f59e0b; color: #ffffff; }
+  .card-emerald:hover .stat-icon-wrapper  { background: #10b981; color: #ffffff; }
+  .card-slate:hover .stat-icon-wrapper    { background: #475569; color: #ffffff; }
+  .card-purple:hover .stat-icon-wrapper   { background: #7c3aed; color: #ffffff; }
+
+  /* --- SUMMARY STAT ITEMS (Tab Secondary Stats - compact, distinct dari KPI cards) --- */
+  .summary-stat {
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid transparent;
+    transition: transform 0.25s ease;
+  }
+  .summary-stat:hover {
+    transform: translateY(-2px);
+  }
+  .summary-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .summary-stat-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+  .summary-stat-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  /* Variants */
+  .summary-stat.ss-slate  { background: rgba(71, 85, 105, 0.07);  border-color: rgba(71, 85, 105, 0.12); }
+  .summary-stat.ss-emerald{ background: rgba(16, 185, 129, 0.07); border-color: rgba(16, 185, 129, 0.12); }
+  .summary-stat.ss-red    { background: rgba(255, 92, 92, 0.07);  border-color: rgba(255, 92, 92, 0.12); }
+  .summary-stat.ss-purple { background: rgba(111, 66, 193, 0.07); border-color: rgba(111, 66, 193, 0.12); }
+  .summary-stat.ss-indigo { background: rgba(99, 102, 241, 0.07); border-color: rgba(99, 102, 241, 0.12); }
+
+  .summary-stat.ss-slate   .summary-stat-icon  { background: rgba(71, 85, 105, 0.15);  color: #475569; }
+  .summary-stat.ss-emerald .summary-stat-icon  { background: rgba(16, 185, 129, 0.15); color: #059669; }
+  .summary-stat.ss-red     .summary-stat-icon  { background: rgba(255, 92, 92, 0.15);  color: var(--palette-primary); }
+  .summary-stat.ss-purple  .summary-stat-icon  { background: rgba(111, 66, 193, 0.15); color: #6f42c1; }
+  .summary-stat.ss-indigo  .summary-stat-icon  { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+
+  .summary-stat.ss-slate   .summary-stat-label { color: #475569; }
+  .summary-stat.ss-emerald .summary-stat-label { color: #059669; }
+  .summary-stat.ss-red     .summary-stat-label { color: var(--palette-primary); }
+  .summary-stat.ss-purple  .summary-stat-label { color: #6f42c1; }
+  .summary-stat.ss-indigo  .summary-stat-label { color: #6366f1; }
+
+  .summary-stat.ss-slate   .summary-stat-value { color: #1e293b; }
+  .summary-stat.ss-emerald .summary-stat-value { color: #065f46; }
+  .summary-stat.ss-red     .summary-stat-value { color: var(--palette-primary); }
+  .summary-stat.ss-purple  .summary-stat-value { color: #4c1d95; }
+  .summary-stat.ss-indigo  .summary-stat-value { color: #3730a3; }
 
   /* --- PREMIUM CONTAINERS (Charts & Tables) --- */
   .premium-card {
@@ -338,7 +421,6 @@ Dashboard Accounting
     </button>
   </div>
 
-  <?= $this->include('App\Modules\Dashboard\Views\components\_acc_kpi_cards') ?>
 
   <?= $this->include('App\Modules\Dashboard\Views\components\_acc_tab_ikhtisar') ?>
 

@@ -263,9 +263,9 @@ class RenovationApi extends BaseController
         $designs = $designRepo->findByRequestId((int) $projectId);
 
         foreach ($designs as &$item) {
-            $item['image_url'] = !empty($item['file_url']) 
-                ? (!empty($item['design_requests_id']) 
-                    ? base_url('uploads/design_results/' . $item['file_url']) 
+            $item['image_url'] = !empty($item['file_url'])
+                ? (!empty($item['design_requests_id'])
+                    ? base_url('uploads/design_results/' . $item['file_url'])
                     : base_url('uploads/designs/' . $item['file_url']))
                 : null;
         }
@@ -364,6 +364,7 @@ class RenovationApi extends BaseController
 
             $progressList[] = [
                 'id_tukang' => $grp['id_tukang'] ?? '-',
+                'id_target' => $p['target_id'] ?? '-',
                 'foto_tukang' => $grp['foto_tukang'],
                 'nama_tukang' => $grp['nama_tukang'],
                 'spesialis_tukang' => $grp['spesialis_tukang'],
@@ -1180,7 +1181,7 @@ class RenovationApi extends BaseController
             $validationMessages['photo'] = [
                 'max_size' => 'Ukuran foto tidak boleh melebihi 5MB.',
                 'is_image' => 'File yang diunggah harus berupa gambar.',
-                'mime_in'  => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
+                'mime_in' => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
             ];
         }
 
@@ -1311,7 +1312,7 @@ class RenovationApi extends BaseController
             $validationMessages['photo'] = [
                 'max_size' => 'Ukuran foto tidak boleh melebihi 5MB.',
                 'is_image' => 'File yang diunggah harus berupa gambar.',
-                'mime_in'  => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
+                'mime_in' => 'Format foto tidak valid. Gunakan JPG, PNG, atau WebP.'
             ];
         }
 
@@ -1396,5 +1397,279 @@ class RenovationApi extends BaseController
         }
 
         return $this->fail('Gagal menghapus data pengajuan.');
+    }
+
+    public function submitRenovationAndDesignRequests()
+    {
+        // 1. Validasi gambar renovasi dan berkas desain
+        $validationRules = [
+            'images' => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
+            'design_files' => 'uploaded[design_files]|max_size[design_files,10240]|mime_in[design_files,application/pdf,image/jpg,image/jpeg,image/png,image/webp]'
+        ];
+
+        $validationMessages = [
+            'images' => [
+                'uploaded' => 'Setidaknya satu gambar renovasi harus diunggah.',
+                'max_size' => 'Ukuran salah satu gambar renovasi melebihi 5MB.',
+                'mime_in' => 'Format salah satu gambar renovasi tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ],
+            'design_files' => [
+                'uploaded' => 'Setidaknya satu berkas desain harus diunggah.',
+                'max_size' => 'Ukuran salah satu berkas desain melebihi 10MB.',
+                'mime_in' => 'Format salah satu berkas desain tidak valid. Gunakan PDF, JPG, PNG, atau WebP.'
+            ]
+        ];
+
+        if (!$this->validate($validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Ambil dan proses gambar renovasi
+        $images = $this->request->getFileMultiple('images');
+        if ($images === null) {
+            $singleImage = $this->request->getFile('images');
+            $images = ($singleImage && $singleImage->isValid()) ? [$singleImage] : [];
+        }
+
+        if (count($images) > 5) {
+            return $this->failValidationErrors('Anda hanya boleh mengunggah maksimal 5 gambar renovasi.');
+        }
+
+        $uploadedFileNames = [];
+        $uploadPath = FCPATH . 'uploads/renovation/';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        foreach ($images as $img) {
+            if ($img->isValid() && !$img->hasMoved()) {
+                $newName = $img->getRandomName();
+                $img->move($uploadPath, $newName);
+                $uploadedFileNames[] = $newName;
+            }
+        }
+
+        if (empty($uploadedFileNames)) {
+            return $this->failValidationErrors('Gagal mengunggah gambar renovasi.');
+        }
+
+        // Ambil dan proses berkas-berkas desain klien
+        $designFiles = $this->request->getFileMultiple('design_files');
+        if ($designFiles === null) {
+            $singleDesign = $this->request->getFile('design_files');
+            $designFiles = ($singleDesign && $singleDesign->isValid()) ? [$singleDesign] : [];
+        }
+
+        if (count($designFiles) > 5) {
+            // Hapus file gambar renovasi yang terlanjur diunggah
+            foreach ($uploadedFileNames as $fileName) {
+                if (file_exists($uploadPath . $fileName)) {
+                    unlink($uploadPath . $fileName);
+                }
+            }
+            return $this->failValidationErrors('Anda hanya boleh mengunggah maksimal 5 berkas desain.');
+        }
+
+        $uploadedDesignFileNames = [];
+        $designUploadPath = FCPATH . 'uploads/design_results/';
+        if (!is_dir($designUploadPath)) {
+            mkdir($designUploadPath, 0777, true);
+        }
+
+        foreach ($designFiles as $designFile) {
+            if ($designFile->isValid() && !$designFile->hasMoved()) {
+                $newName = $designFile->getRandomName();
+                $designFile->move($designUploadPath, $newName);
+                $uploadedDesignFileNames[] = $newName;
+            }
+        }
+
+        if (empty($uploadedDesignFileNames)) {
+            // Hapus file gambar renovasi yang terlanjur diunggah
+            foreach ($uploadedFileNames as $fileName) {
+                if (file_exists($uploadPath . $fileName)) {
+                    unlink($uploadPath . $fileName);
+                }
+            }
+            return $this->failValidationErrors('Gagal mengunggah berkas desain.');
+        }
+
+        // 2. Mulai transaksi database
+        $this->db->transStart();
+
+        try {
+            // A. Simpan data Desain (Design Request)
+            $designData = [
+                'user_id' => $this->request->getPost('user_id'),
+                'full_name' => $this->request->getPost('full_name'),
+                'phone_number' => $this->request->getPost('phone_number'),
+                'land_area' => $this->request->getPost('land_area'),
+                'building_area' => $this->request->getPost('building_area'),
+                'design_concept' => $this->request->getPost('design_concept'),
+                'location_address' => $this->request->getPost('location_address') ?: $this->request->getPost('address'),
+                'latitude' => $this->request->getPost('latitude'),
+                'longitude' => $this->request->getPost('longitude'),
+                'voucher_code' => $this->request->getPost('design_voucher_code') ?: $this->request->getPost('voucher_code'),
+                'discount_amount' => $this->request->getPost('design_discount_amount') ?: $this->request->getPost('discount_amount') ?: 0,
+                'status' => 'PENDING',
+            ];
+
+            $designModel = new \App\Modules\Design\Models\DesignRequestModel();
+            if (!$designModel->insert($designData)) {
+                throw new \RuntimeException('Gagal menyimpan data desain ke database.');
+            }
+            $designRequestId = $designModel->getInsertID();
+
+            // Simpan setiap berkas desain hasil upload klien ke design_targets dan project_designs (1 target = 1 desain)
+            $firstDesignFile = '';
+            $firstDesignName = '';
+
+            foreach ($uploadedDesignFileNames as $index => $fileName) {
+                $num = $index + 1;
+
+                // Memproses nama target (task_names[] / task_name)
+                $taskNamesPost = $this->request->getPost('task_names') ?: $this->request->getPost('task_name');
+                if (is_array($taskNamesPost)) {
+                    $currentTaskName = isset($taskNamesPost[$index]) ? $taskNamesPost[$index] : (($this->request->getPost('task_name') ?: 'Desain Pengaju') . ($index > 0 ? ' ' . $num : ''));
+                } else {
+                    $currentTaskName = ($this->request->getPost('task_name') ?: 'Desain Pengaju') . ($index > 0 ? ' ' . $num : '');
+                }
+
+                // Memproses nama desain (design_names[] / design_name)
+                $designNamesPost = $this->request->getPost('design_names') ?: $this->request->getPost('design_name');
+                if (is_array($designNamesPost)) {
+                    $currentDesignName = isset($designNamesPost[$index]) ? $designNamesPost[$index] : (($this->request->getPost('design_name') ?: 'Desain Klien') . ($index > 0 ? ' ' . $num : ''));
+                } else {
+                    $currentDesignName = ($this->request->getPost('design_name') ?: 'Desain Klien') . ($index > 0 ? ' ' . $num : '');
+                }
+
+                // A1. Simpan target desain untuk berkas ini
+                $targetData = [
+                    'design_request_id' => $designRequestId,
+                    'user_admin_id' => null,
+                    'task_name' => $currentTaskName,
+                    'start_week' => $this->request->getPost('start_week') ?: 1,
+                    'end_week' => $this->request->getPost('end_week') ?: 4,
+                    'keterangan' => $this->request->getPost('keterangan') ?: 'Pengajuan desain diunggah secara manual oleh klien.',
+                    'status' => 'PENDING',
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                if (!$this->db->table('design_targets')->insert($targetData)) {
+                    throw new \RuntimeException("Gagal menyimpan target desain ke-{$num} ke database.");
+                }
+                $targetId = $this->db->insertID();
+
+                // A2. Simpan berkas ke project_designs (revisi 1 untuk target baru ini)
+                $projectDesignData = [
+                    'user_admin_id' => null,
+                    'design_request_id' => $designRequestId,
+                    'design_targets_id' => $targetId,
+                    'revision_number' => 1,
+                    'design_name' => $currentDesignName,
+                    'file' => $fileName,
+                    'status' => 'PENDING',
+                    'revision_note' => null,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                if (!$this->db->table('project_designs')->insert($projectDesignData)) {
+                    throw new \RuntimeException("Gagal menyimpan berkas desain ke-{$num} ke database.");
+                }
+
+                if ($index === 0) {
+                    $firstDesignFile = $fileName;
+                    $firstDesignName = $currentDesignName;
+                }
+            }
+
+            // B. Simpan data Renovasi (Renovation Request)
+            $renovationData = [
+                'user_id' => $this->request->getPost('user_id'),
+                'full_name' => $this->request->getPost('full_name'),
+                'phone' => $this->request->getPost('phone_number'),
+                'renovation_type' => $this->request->getPost('renovation_type'),
+                'description' => $this->request->getPost('description'),
+                'address' => $this->request->getPost('address') ?: $this->request->getPost('location_address'),
+                'latitude' => $this->request->getPost('latitude'),
+                'longitude' => $this->request->getPost('longitude'),
+                'voucher_code' => $this->request->getPost('renovation_voucher_code') ?: $this->request->getPost('voucher_code'),
+                'discount_amount' => $this->request->getPost('renovation_discount_amount') ?: $this->request->getPost('discount_amount') ?: 0,
+                'status' => 'PENDING',
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            foreach ($uploadedFileNames as $index => $fileName) {
+                $renovationData['gambar' . ($index + 1)] = $fileName;
+            }
+
+            $renovationId = $this->model->insert($renovationData);
+            if (!$renovationId) {
+                throw new \RuntimeException('Gagal menyimpan data renovasi ke database.');
+            }
+
+            // C. Simpan Relasi di renovation_designs (Menunjuk ke berkas desain pertama klien)
+            // Kolom berkas pada renovation_designs bernama `file_url`
+            $renovationDesignData = [
+                'request_id' => $renovationId,
+                'user_admin_id' => null,
+                'design_requests_id' => $designRequestId,
+                'title' => $firstDesignName,
+                'file_url' => $firstDesignFile,
+                'comment' => 'Desain dipilih oleh pelanggan saat pengajuan renovasi.',
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            if (!$this->db->table('renovation_designs')->insert($renovationDesignData)) {
+                throw new \RuntimeException('Gagal menyimpan relasi renovasi dan desain ke database.');
+            }
+
+            // D. Kirim notifikasi ke Admin
+            $this->notifService->sendToPermission(
+                'design_detail',
+                'Pengajuan Desain Baru',
+                "Pelanggan atas nama {$designData['full_name']} telah mengajukan desain baru beserta berkas desain. Silakan cek detail."
+            );
+
+            $this->notifService->sendToPermission(
+                'renovation_detail',
+                'Permohonan Renovasi Baru',
+                "Pelanggan atas nama {$renovationData['full_name']} telah mengirim permohonan renovasi baru. Silakan cek detail."
+            );
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \RuntimeException('Transaksi database gagal diselesaikan.');
+            }
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Permohonan renovasi dan desain berhasil dikirim secara bersamaan',
+                'data' => [
+                    'renovation_id' => $renovationId,
+                    'design_requests_id' => $designRequestId
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+
+            // Hapus file gambar renovasi yang sudah diunggah jika transaksi gagal
+            foreach ($uploadedFileNames as $fileName) {
+                if (file_exists($uploadPath . $fileName)) {
+                    unlink($uploadPath . $fileName);
+                }
+            }
+
+            // Hapus semua file desain yang sudah diunggah jika transaksi gagal
+            foreach ($uploadedDesignFileNames as $fileName) {
+                if (file_exists($designUploadPath . $fileName)) {
+                    unlink($designUploadPath . $fileName);
+                }
+            }
+
+            return $this->fail('Gagal memproses permohonan: ' . $e->getMessage());
+        }
     }
 }

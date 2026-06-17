@@ -73,7 +73,7 @@ $db = \Config\Database::connect();
 $progressData = [];
 if ($constructionId) {
     $progressData = $db->table('construction_progress')
-        ->select('id_construction_targets, SUM(bobot) as total_progress')
+        ->select('id_construction_targets, SUM(volume) as total_progress')
         ->where('construction_id', $constructionId)
         ->where('status', 'APPROVED')
         ->groupBy('id_construction_targets')
@@ -109,9 +109,9 @@ $totalSelisihHargaAddendumAll = 0;
                     <th class="left fw-bold" rowspan="2" style="width:36px;">NO</th>
                     <th class="left fw-bold text-center" rowspan="2" style="min-width:320px;">URAIAN PEKERJAAN</th>
                     <th rowspan="2" class="px-2 fw-bold" style="min-width:150px;">JUMLAH HARGA</th>
-                    <th rowspan="2" class="px-2 fw-bold" style="width:60px;">BOBOT (%)</th>
-                    <th rowspan="2" class="px-2 fw-bold" style="width:60px;">BOBOT REALISASI (%)</th>
-                    <th rowspan="2" class="px-2 fw-bold" style="width:60px;">SELISIH BOBOT (%)</th>
+                    <th rowspan="2" class="px-2 fw-bold" style="width:120px;">VOLUME</th>
+                    <th rowspan="2" class="px-2 fw-bold" style="width:120px;">REALISASI VOLUME</th>
+                    <th rowspan="2" class="px-2 fw-bold" style="width:120px;">SELISIH VOLUME</th>
                     <th rowspan="2" class="px-2 fw-bold" style="width:250px;">JUMLAH HARGA REALISASI</th>
                     <th rowspan="2" class="px-2 fw-bold" style="width:250px;">SELISIH JUMLAH HARGA</th>
                     <?php for ($i = 1; $i <= $numWeeks; $i++): ?>
@@ -151,26 +151,25 @@ $totalSelisihHargaAddendumAll = 0;
                             $endWeek = (int) ($tgt['end_week'] ?? 0);
                             $idJobApps = $tgt['id_job_applications'] ?? '';
 
-                            // Kalkulasi Bobot
-                            $bobot = $totalHarga > 0 ? ($total / $totalHarga) * 100 : 0;
+                            // Kalkulasi Volume
+                            $volume = (float) ($item['volume'] ?? 0);
+                            $unit = $item['unit'] ?? '';
                             $realisasi = $targetId ? ($progressByTargetId[$targetId] ?? 0) : 0;
-                            $selisih = $bobot - $realisasi;
+                            $selisih = $volume - $realisasi;
 
                             // Kalkulasi Harga
-                            $hargaRealisasi = ($realisasi / 100) * $totalHarga;
+                            $hargaRealisasi = $realisasi * (float) ($item['current_unit_price'] ?? 0);
                             $hargaSelisih = $total - $hargaRealisasi;
 
                             $indent = $subgroup !== '' ? '28px' : '14px';
 
                             // Update total keseluruhan
-                            $totalRealisasiAll += $realisasi;
-                            $totalSelisihAll += $selisih;
                             $totalHargaRealisasiAll += $hargaRealisasi;
                             $totalSelisihHargaAll += $hargaSelisih;
                             ?>
                             <tr class="item-row text-center" data-rab-id="<?= $rabItemId ?>" data-group="<?= esc($grpName) ?>"
                                 data-subgroup="<?= esc($sgName) ?>" data-activity="<?= esc($actName) ?>"
-                                data-bobot="<?= number_format($bobot, 2, '.', '') ?>" data-job-apps="<?= esc($idJobApps) ?>"
+                                data-volume="<?= number_format($volume, 2, '.', '') ?>" data-job-apps="<?= esc($idJobApps) ?>"
                                 onclick="selectRow(this)">
                                 <td class="num" style="color:#adb5bd;"><?= $idx + 1 ?></td>
                                 <td class="text-start" style="padding-left:<?= $indent ?>;">
@@ -180,10 +179,10 @@ $totalSelisihHargaAddendumAll = 0;
                                     <?php endif; ?>
                                 </td>
                                 <td>Rp <?= number_format($total) ?></td>
-                                <td class="num"><?= number_format($bobot, 2) ?>%</td>
-                                <td class="num text-success"><?= number_format($realisasi, 2) ?>%</td>
+                                <td class="num"><?= number_format($volume, 2) ?></td>
+                                <td class="num text-success"><?= number_format($realisasi, 2) ?></td>
                                 <td class="num <?= $selisih > 0 ? 'text-danger' : 'text-success' ?>">
-                                    <?= number_format($selisih, 2) ?>%
+                                    <?= number_format($selisih, 2) ?>
                                 </td>
                                 <td>Rp <?= number_format($hargaRealisasi) ?></td>
                                 <td class="<?= $hargaSelisih > 0 ? 'text-danger' : 'text-success' ?>">Rp
@@ -209,11 +208,9 @@ $totalSelisihHargaAddendumAll = 0;
                     <td colspan="2" class="text-end fw-bold" style="font-size:12px;font-weight:500;padding-left:14px;">
                         TOTAL</td>
                     <td class="text-center">Rp <?= number_format($totalHarga) ?></td>
-                    <td class="num fw-bold" style="font-weight:bold;"><?= number_format($totalBobot, 2) ?>%</td>
-                    <td class="num fw-bold text-success"><?= number_format($totalRealisasiAll, 2) ?>%</td>
-                    <td class="num fw-bold <?= $totalSelisihAll > 0 ? 'text-danger' : 'text-success' ?>">
-                        <?= number_format($totalSelisihAll, 2) ?>%
-                    </td>
+                    <td class="num fw-bold" style="font-weight:bold;">-</td>
+                    <td class="num fw-bold text-success">-</td>
+                    <td class="num fw-bold text-success">-</td>
                     <td class="text-center">Rp <?= number_format($totalHargaRealisasiAll) ?></td>
                     <td class="text-center <?= $totalSelisihHargaAll > 0 ? 'text-danger' : 'text-success' ?>">Rp
                         <?= number_format($totalSelisihHargaAll) ?>
@@ -234,9 +231,9 @@ $totalSelisihHargaAddendumAll = 0;
                         <th class="left fw-bold text-center" rowspan="2" style="min-width:320px;">URAIAN PEKERJAAN ADDENDUM
                         </th>
                         <th rowspan="2" class="px-2 fw-bold" style="min-width:150px;">JUMLAH HARGA</th>
-                        <th rowspan="2" class="px-2 fw-bold" style="width:60px;">BOBOT (%)</th>
-                        <th rowspan="2" class="px-2 fw-bold" style="width:60px;">BOBOT REALISASI (%)</th>
-                        <th rowspan="2" class="px-2 fw-bold" style="width:60px;">SELISIH BOBOT (%)</th>
+                        <th rowspan="2" class="px-2 fw-bold" style="width:120px;">VOLUME</th>
+                        <th rowspan="2" class="px-2 fw-bold" style="width:120px;">REALISASI VOLUME</th>
+                        <th rowspan="2" class="px-2 fw-bold" style="width:120px;">SELISIH VOLUME</th>
                         <th rowspan="2" class="px-2 fw-bold" style="width:250px;">JUMLAH HARGA REALISASI</th>
                         <th rowspan="2" class="px-2 fw-bold" style="width:250px;">SELISIH JUMLAH HARGA</th>
                         <?php for ($i = 1; $i <= $numWeeks; $i++): ?>
@@ -276,35 +273,34 @@ $totalSelisihHargaAddendumAll = 0;
                                 $endWeek = (int) ($tgt['end_week'] ?? 0);
                                 $idJobApps = $tgt['id_job_applications'] ?? '';
 
-                                // Kalkulasi Bobot
-                                $bobot = $totalHargaAddendum > 0 ? ($total / $totalHargaAddendum) * 100 : 0;
+                                // Kalkulasi Volume
+                                $volume = (float) ($item['volume'] ?? 0);
+                                $unit = $item['unit'] ?? '';
                                 $realisasi = $targetId ? ($progressByTargetId[$targetId] ?? 0) : 0;
-                                $selisih = $bobot - $realisasi;
+                                $selisih = $volume - $realisasi;
 
                                 // Kalkulasi Harga
-                                $hargaRealisasi = ($realisasi / 100) * $totalHargaAddendum;
+                                $hargaRealisasi = $realisasi * (float) ($item['current_unit_price'] ?? 0);
                                 $hargaSelisih = $total - $hargaRealisasi;
 
                                 $indent = $subgroup !== '' ? '28px' : '14px';
 
                                 // Update total keseluruhan
-                                $totalRealisasiAddendumAll += $realisasi;
-                                $totalSelisihAddendumAll += $selisih;
                                 $totalHargaRealisasiAddendumAll += $hargaRealisasi;
                                 $totalSelisihHargaAddendumAll += $hargaSelisih;
                                 ?>
                                 <tr class="item-row text-center" data-rab-id="" data-addendum-id="<?= $addId ?>"
                                     data-group="<?= esc($grpName) ?>" data-subgroup="<?= esc($sgName) ?>"
                                     data-activity="[ADDENDUM] <?= esc($actName) ?>"
-                                    data-bobot="<?= number_format($bobot, 2, '.', '') ?>" data-job-apps="<?= esc($idJobApps) ?>"
+                                    data-volume="<?= number_format($volume, 2, '.', '') ?>" data-job-apps="<?= esc($idJobApps) ?>"
                                     onclick="selectRow(this)">
                                     <td class="num" style="color:#adb5bd;"><?= $idx + 1 ?></td>
                                     <td class="text-start" style="padding-left:<?= $indent ?>;"><?= esc($actName) ?></td>
                                     <td>Rp <?= number_format($total) ?></td>
-                                    <td class="num"><?= number_format($bobot, 2) ?>%</td>
-                                    <td class="num text-success"><?= number_format($realisasi, 2) ?>%</td>
+                                    <td class="num"><?= number_format($volume, 2) ?></td>
+                                    <td class="num text-success"><?= number_format($realisasi, 2) ?></td>
                                     <td class="num <?= $selisih > 0 ? 'text-danger' : 'text-success' ?>">
-                                        <?= number_format($selisih, 2) ?>%
+                                        <?= number_format($selisih, 2) ?>
                                     </td>
                                     <td>Rp <?= number_format($hargaRealisasi) ?></td>
                                     <td class="<?= $hargaSelisih > 0 ? 'text-danger' : 'text-success' ?>">Rp
@@ -330,11 +326,9 @@ $totalSelisihHargaAddendumAll = 0;
                         <td colspan="2" class="text-end fw-bold" style="font-size:12px;font-weight:500;padding-left:14px;">
                             TOTAL ADDENDUM</td>
                         <td class="text-center">Rp <?= number_format($totalHargaAddendum) ?></td>
-                        <td class="num fw-bold" style="font-weight:bold;">100.00%</td>
-                        <td class="num fw-bold text-success"><?= number_format($totalRealisasiAddendumAll, 2) ?>%</td>
-                        <td class="num fw-bold <?= $totalSelisihAddendumAll > 0 ? 'text-danger' : 'text-success' ?>">
-                            <?= number_format($totalSelisihAddendumAll, 2) ?>%
-                        </td>
+                        <td class="num fw-bold" style="font-weight:bold;">-</td>
+                        <td class="num fw-bold text-success">-</td>
+                        <td class="num fw-bold text-success">-</td>
                         <td class="text-center">Rp <?= number_format($totalHargaRealisasiAddendumAll) ?></td>
                         <td class="text-center <?= $totalSelisihHargaAddendumAll > 0 ? 'text-danger' : 'text-success' ?>">Rp
                             <?= number_format($totalSelisihHargaAddendumAll) ?>
@@ -398,7 +392,7 @@ $totalSelisihHargaAddendumAll = 0;
 
                 <!-- Row 2: Target Config -->
                 <div class="row g-2 align-items-end">
-                    <div class="col-4">
+                    <div class="col-6">
                         <label class="form-label mb-1"
                             style="font-size:0.72rem; font-weight:600; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">
                             <i class="fas fa-hard-hat mr-1 text-primary" style="font-size:0.7rem;"></i>Tukang
@@ -409,17 +403,8 @@ $totalSelisihHargaAddendumAll = 0;
                             <option value="">Pilih Tukang</option>
                             <?php foreach ($applicants ?? [] as $app): ?>
                                 <option value="<?= $app['id'] ?>"><?= esc($app['tukang_name']) ?></option>
-                            <?php endforeach; ?>
+                             <?php endforeach; ?>
                         </select>
-                    </div>
-                    <div class="col-2">
-                        <label class="form-label mb-1"
-                            style="font-size:0.72rem; font-weight:600; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">
-                            <i class="fas fa-percentage mr-1 text-primary" style="font-size:0.7rem;"></i>Bobot
-                        </label>
-                        <input type="number" class="form-control form-control-sm" name="bobot"
-                            id="inp-bobot-<?= $constructionId ?>" step="0.01" min="0" max="100" placeholder="0.00"
-                            style="border-radius:8px; border:1.5px solid #e5e7eb;">
                     </div>
                     <div class="col-2">
                         <label class="form-label mb-1"

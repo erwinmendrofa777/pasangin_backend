@@ -1,31 +1,6 @@
 <div class="row">
     <div class="col-12">
         <div class="card table-card">
-            <div class="d-flex justify-content-between align-items-center px-4 py-3 card-header-flex"
-                style="border-bottom: 1px solid #f0f4fa;">
-                <div>
-                    <h6 class="mb-0 fw-bold text-primary"
-                        style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase;">
-                        <i class="fas fa-store me-2"></i>Banner Supplier
-                    </h6>
-                    <p class="text-muted small mb-0 mt-1">Kelola pengajuan banner promosi dari mitra supplier.</p>
-                </div>
-                <div class="d-flex gap-3 flex-wrap flex-grow-1 justify-content-end align-items-center">
-                    <div class="search-wrapper" style="width: 280px; min-width: 200px;">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="form-control" id="searchInput"
-                            placeholder="Cari supplier atau promo...">
-                    </div>
-                    <?php if (can('banner_supplier_create')): ?>
-                        <a href="<?= base_url('admin/banner-supplier/add') ?>"
-                            class="btn btn-primary d-flex align-items-center gap-2 px-3 btn-add"
-                            style="border-radius: 12px; font-weight: 600; height: 42px;">
-                            <i class="fas fa-plus"></i> Tambah Banner
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover" id="table-1" style="width:100%">

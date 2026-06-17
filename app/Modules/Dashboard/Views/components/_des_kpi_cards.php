@@ -34,10 +34,10 @@
   </div>
 
   <!-- Card Grand Total -->
-  <div class="stat-card" style="background: #fafbff; border-color: rgba(255, 92, 92, 0.2);">
+  <div class="stat-card" style="background: #fafbff; border-color: rgba(229, 57, 53, 0.25);">
     <div class="stat-info">
       <h3>Akumulasi Proyek</h3>
-      <div class="stat-value" style="color: var(--palette-primary);"><?= number_format($desainerStats['totals']['grand_total']) ?></div>
+      <div class="stat-value" style="color: #e53935;"><?= number_format($desainerStats['totals']['grand_total']) ?></div>
     </div>
     <div class="stat-icon icon-grand">
       <i class="fas fa-folder-open"></i>

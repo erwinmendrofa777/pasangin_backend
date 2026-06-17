@@ -37,6 +37,14 @@
 
         $('[data-toggle="tooltip"]').tooltip();
 
+        /* ===== Custom Search ===== */
+        $('#searchInput').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+        $('#searchInput').on('search', function () {
+            if (this.value === '') table.search('').draw();
+        });
+
         <?php if (session()->getFlashdata('success')): ?>
             iziToast.success({
                 timeout: 5000,

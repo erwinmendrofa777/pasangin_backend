@@ -3,23 +3,25 @@
     <div class="chat-list-header d-flex justify-content-between align-items-center">
         <h6 class="m-0 fw-bold text-dark" style="font-size: 1rem;">Obrolan Aktif</h6>
         <div class="d-flex align-items-center" style="gap: 5px;">
-            <?php 
-                $totalUnread = 0;
-                if (!empty($conversations)) {
-                    foreach ($conversations as $c) {
-                        $totalUnread += intval($c['unread_by_admin_count'] ?? 0);
-                    }
+            <?php
+            $totalUnread = 0;
+            if (!empty($conversations)) {
+                foreach ($conversations as $c) {
+                    $totalUnread += intval($c['unread_by_admin_count'] ?? 0);
                 }
+            }
             ?>
-            <span id="total-unread-badge" class="badge px-2 py-1 text-danger" style="font-size: 0.72rem; border-radius: 12px; background-color: #fee2e2; font-weight: 600; <?= $totalUnread > 0 ? '' : 'display: none;' ?>">
+            <span id="total-unread-badge" class="badge px-2 py-1 text-danger"
+                style="font-size: 0.72rem; border-radius: 12px; background-color: #fee2e2; font-weight: 600; <?= $totalUnread > 0 ? '' : 'display: none;' ?>">
                 <?= $totalUnread ?> Belum Dibaca
             </span>
-            <span class="badge px-2 py-1 text-primary" style="font-size: 0.72rem; border-radius: 12px; background-color: #e0e7ff; font-weight: 600;">
+            <span class="badge px-2 py-1"
+                style="font-size: 0.72rem; border-radius: 12px; background-color: rgba(255, 92, 92, 0.08); color: var(--palette-primary); border: 1px solid rgba(255, 92, 92, 0.15); font-weight: 600;">
                 <?= count($conversations ?? []) ?> Percakapan
             </span>
         </div>
     </div>
-    
+
     <!-- Search & Filter Tab Area -->
     <div class="chat-search-filter-wrapper">
         <div class="search-input-wrapper">
@@ -31,101 +33,117 @@
             <button class="btn btn-filter active" data-filter="all">Semua</button>
             <button class="btn btn-filter" data-filter="client">Klien</button>
             <button class="btn btn-filter" data-filter="tukang">Tukang</button>
+            <button class="btn btn-filter" data-filter="supplier">Monitoring</button>
         </div>
-        <?php if (can('super_admin_override') || count($allowedCategories ?? []) > 1) : ?>
-        <div class="filter-pills-cat">
-            <button class="btn btn-filter-cat active" data-filter-cat="all">Semua Dept</button>
-            <?php if (can('super_admin_override') || in_array('technical', $allowedCategories ?? [])) : ?>
-                <button class="btn btn-filter-cat" data-filter-cat="technical">Technical</button>
-            <?php endif; ?>
-            <?php if (can('super_admin_override') || in_array('accounting', $allowedCategories ?? [])) : ?>
-                <button class="btn btn-filter-cat" data-filter-cat="accounting">Accounting</button>
-            <?php endif; ?>
-            <?php if (can('super_admin_override') || in_array('general', $allowedCategories ?? [])) : ?>
-                <button class="btn btn-filter-cat" data-filter-cat="general">General</button>
-            <?php endif; ?>
-        </div>
+        <?php if (can('super_admin_override') || count($allowedCategories ?? []) > 1): ?>
+            <div class="category-select-wrapper mt-2">
+                <select id="chat-category-select" class="form-select form-select-sm"
+                    style="font-size: 0.75rem; font-weight: 600; color: #475569; border-radius: 10px; border: 1px solid #e2e8f0; padding: 8px 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); background-color: #ffffff; cursor: pointer; transition: all 0.2s ease;">
+                    <option value="all">Semua Departemen</option>
+                    <?php if (can('super_admin_override') || in_array('technical', $allowedCategories ?? [])): ?>
+                        <option value="technical">Technical</option>
+                    <?php endif; ?>
+                    <?php if (can('super_admin_override') || in_array('accounting', $allowedCategories ?? [])): ?>
+                        <option value="accounting">Accounting</option>
+                    <?php endif; ?>
+                    <?php if (can('super_admin_override') || in_array('general', $allowedCategories ?? [])): ?>
+                        <option value="general">General</option>
+                    <?php endif; ?>
+                </select>
+            </div>
         <?php endif; ?>
     </div>
-    
+
     <!-- List Users -->
     <div id="chat-list">
         <ul class="list-unstyled mb-0">
-            <?php if (!empty($conversations)) : ?>
-                <?php foreach ($conversations as $convo) : ?>
-                    <?php 
-                        $isTukang = ($convo['client_type'] === 'tukang');
-                        $badgeClass = $isTukang ? 'badge-tukang' : 'badge-klien';
-                        $badgeText = $isTukang ? 'Tukang' : 'Klien';
-                        
-                        // Format waktu pesan terakhir secara rapi
-                        $timeStr = '';
-                        if (!empty($convo['last_message_at'])) {
-                            $timeStr = date('H:i', strtotime($convo['last_message_at']));
-                            if (date('Y-m-d', strtotime($convo['last_message_at'])) !== date('Y-m-d')) {
-                                $timeStr = date('d M', strtotime($convo['last_message_at']));
-                            }
-                        }
-                        
-                        $lastMsg = esc($convo['last_message_preview'] ?? 'Belum ada riwayat pesan');
+            <?php if (!empty($conversations)): ?>
+                <?php foreach ($conversations as $convo): ?>
+                    <?php
+                    $isTukang = ($convo['client_type'] === 'tukang');
+                    $badgeClass = $isTukang ? 'badge-tukang' : 'badge-klien';
+                    $badgeText = $isTukang ? 'Tukang' : 'Klien';
 
-                        // Determine category badge class & text
-                        $cat = $convo['category'] ?? 'general';
-                        if ($cat === 'technical') {
-                            $catBadgeClass = 'badge-tech';
-                            $catText = 'Technical';
-                        } elseif ($cat === 'accounting') {
-                            $catBadgeClass = 'badge-acct';
-                            $catText = 'Accounting';
-                        } else {
-                            $catBadgeClass = 'badge-gen';
-                            $catText = 'General';
+                    // Format waktu pesan terakhir secara rapi
+                    $timeStr = '';
+                    if (!empty($convo['last_message_at'])) {
+                        $timeStr = date('H:i', strtotime($convo['last_message_at']));
+                        if (date('Y-m-d', strtotime($convo['last_message_at'])) !== date('Y-m-d')) {
+                            $timeStr = date('d M', strtotime($convo['last_message_at']));
                         }
+                    }
+
+                    $lastMsg = esc($convo['last_message_preview'] ?? 'Belum ada riwayat pesan');
+
+                    // Determine category badge class & text
+                    $cat = $convo['category'] ?? 'general';
+                    if ($cat === 'technical') {
+                        $catBadgeClass = 'badge-tech';
+                        $catText = 'Technical';
+                    } elseif ($cat === 'accounting') {
+                        $catBadgeClass = 'badge-acct';
+                        $catText = 'Accounting';
+                    } else {
+                        $catBadgeClass = 'badge-gen';
+                        $catText = 'General';
+                    }
                     ?>
-                    <?php 
-                        // Menentukan foto profil asli jika ada
-                        $avatarUrl = '';
-                        if (!empty($convo['client_avatar'])) {
-                            if ($isTukang) {
-                                $avatarUrl = base_url('uploads/tukang/' . $convo['client_avatar']);
+                    <?php
+                    // Menentukan foto profil asli jika ada
+                    $avatarUrl = '';
+                    if (!empty($convo['client_avatar'])) {
+                        if ($isTukang) {
+                            $avatarUrl = base_url('uploads/tukang/' . $convo['client_avatar']);
+                        } else {
+                            if (strpos($convo['client_avatar'], 'http') === 0) {
+                                $avatarUrl = $convo['client_avatar'];
                             } else {
-                                if (strpos($convo['client_avatar'], 'http') === 0) {
-                                    $avatarUrl = $convo['client_avatar'];
-                                } else {
-                                    $avatarUrl = base_url('uploads/profile/' . $convo['client_avatar']);
-                                }
+                                $avatarUrl = base_url('uploads/profile/' . $convo['client_avatar']);
                             }
-                        } else {
-                            $avatarUrl = "https://ui-avatars.com/api/?name=" . urlencode($convo['client_name'] ?? 'User') . "&background=random&color=fff";
                         }
+                    } else {
+                        $avatarUrl = "https://ui-avatars.com/api/?name=" . urlencode($convo['client_name'] ?? 'User') . "&background=random&color=fff";
+                    }
                     ?>
-                    <li class="d-flex chat-list-user p-3 align-items-center border-bottom" 
-                         data-id="<?= $convo['id'] ?>" 
-                         data-name="<?= esc($convo['client_name']) ?>"
-                         data-type="<?= esc($convo['client_type']) ?>"
-                         data-avatar="<?= esc($convo['client_avatar'] ?? '') ?>"
-                         data-status="<?= esc($convo['status'] ?? 'open') ?>"
-                         data-title="<?= esc($convo['title'] ?? 'Obrolan') ?>"
-                         data-category="<?= esc($cat) ?>">
-                        <img class="me-3 rounded-circle border shadow-sm" width="48" height="48" 
-                             src="<?= $avatarUrl ?>" alt="avatar">
+                    <li class="d-flex chat-list-user p-3 align-items-center border-bottom" data-id="<?= $convo['id'] ?>"
+                        data-name="<?= esc($convo['client_name']) ?>" data-type="<?= esc($convo['client_type']) ?>"
+                        data-avatar="<?= esc($convo['client_avatar'] ?? '') ?>"
+                        data-status="<?= esc($convo['status'] ?? 'open') ?>"
+                        data-title="<?= esc($convo['title'] ?? 'Obrolan') ?>" data-category="<?= esc($cat) ?>"
+                        data-supplier-id="<?= $convo['supplier_id'] ?? '' ?>"
+                        data-supplier-name="<?= esc($convo['supplier_name'] ?? '') ?>">
+                        <img class="me-3 rounded-circle border shadow-sm" width="48" height="48" src="<?= $avatarUrl ?>"
+                            alt="avatar">
                         <div class="flex-grow-1" style="overflow: hidden;">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h6 class="mt-0 mb-0 fw-bold text-truncate text-dark chat-client-name" style="font-size: 0.92rem; max-width: 65%;">
+                                <h6 class="mt-0 mb-0 fw-bold text-truncate text-dark chat-client-name"
+                                    style="font-size: 0.92rem; max-width: 65%;">
                                     <?= esc($convo['client_name']) ?>
-                                    <?php if (($convo['status'] ?? 'open') === 'closed') : ?>
+                                    <?php if (($convo['status'] ?? 'open') === 'closed'): ?>
                                         <i class="fas fa-lock text-danger ms-1" style="font-size: 0.75rem;" title="Tertutup"></i>
                                     <?php endif; ?>
                                 </h6>
-                                <span class="text-small text-muted chat-item-time" style="font-size: 0.72rem; font-weight: 500;"><?= $timeStr ?></span>
+                                <span class="text-small text-muted chat-item-time"
+                                    style="font-size: 0.72rem; font-weight: 500;"><?= $timeStr ?></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <p class="text-small text-muted text-truncate mb-0 chat-item-preview" style="max-width: 70%; font-size: 0.8rem;"><?= $lastMsg ?></p>
+                                <p class="text-small text-muted text-truncate mb-0 chat-item-preview"
+                                    style="max-width: 70%; font-size: 0.8rem;"><?= $lastMsg ?></p>
                                 <div class="d-flex align-items-center" style="gap: 4px;">
                                     <?php $unreadCount = intval($convo['unread_by_admin_count'] ?? 0); ?>
                                     <span class="unread-badge me-2" id="unread-badge-<?= $convo['id'] ?>" <?= $unreadCount > 0 ? '' : 'style="display: none;"' ?>><?= $unreadCount ?></span>
-                                    <span class="badge <?= $catBadgeClass ?> px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;"><?= $catText ?></span>
-                                    <span class="badge <?= $badgeClass ?> px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;"><?= $badgeText ?></span>
+                                    <span class="badge <?= $catBadgeClass ?> px-2 py-1 text-uppercase"
+                                        style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;"><?= $catText ?></span>
+                                    <?php if (!empty($convo['supplier_id'])): ?>
+                                        <span class="badge px-2 py-1 text-uppercase"
+                                            style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px; background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">Monitored</span>
+                                    <?php else: ?>
+                                        <span class="badge px-2 py-1 text-uppercase"
+                                            style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px; background-color: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3;">CS
+                                            Active</span>
+                                        <span class="badge <?= $badgeClass ?> px-2 py-1 text-uppercase"
+                                            style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;"><?= $badgeText ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

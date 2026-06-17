@@ -143,7 +143,7 @@ class NotificationService
      * Kirim notifikasi ke semua Admin yang memiliki permission tertentu.
      * Sangat berguna agar notifikasi lebih tepat sasaran (misal: hanya bagian Banner yang dapat notif banner).
      */
-    public function sendToPermission(string $permission, string $title, string $message, $imageFile = null, array $extra = []): array
+    public function sendToPermission(string $permission, string $title, string $message, $imageFile = null, array $extra = [], ?string $topic = null): array
     {
         $imageUrl = null;
 
@@ -174,7 +174,7 @@ class NotificationService
 
         $mergedExtra = array_merge(['notification_id' => (string) $notifId], $extra);
 
-        return sendFCMToMultiple($tokens, $title, $message, $mergedExtra, $imageUrl);
+        return sendFCMToMultiple($tokens, $title, $message, $mergedExtra, $imageUrl, $topic);
     }
 
     /**
@@ -253,12 +253,12 @@ class NotificationService
     /**
      * Kirim notifikasi ke semua perangkat milik satu Supplier berdasarkan ID.
      */
-    public function notifySupplier(int $supplierId, string $title, string $body, array $extra = [], ?string $imageUrl = null): bool
+    public function notifySupplier(int $supplierId, string $title, string $body, array $extra = [], ?string $imageUrl = null, ?string $topic = null): bool
     {
         $tokensData = $this->fcmTokenRepository->getTokens($supplierId, 'supplier');
         if (!empty($tokensData)) {
             $tokens = array_column($tokensData, 'fcm_token');
-            $res = sendFCMToMultiple($tokens, $title, $body, $extra, $imageUrl);
+            $res = sendFCMToMultiple($tokens, $title, $body, $extra, $imageUrl, $topic);
             return $res['success'] > 0;
         }
         return false;
@@ -267,12 +267,12 @@ class NotificationService
     /**
      * Kirim notifikasi ke semua perangkat milik satu Admin berdasarkan ID.
      */
-    public function notifyAdmin(int $adminId, string $title, string $body, array $extra = [], ?string $imageUrl = null): bool
+    public function notifyAdmin(int $adminId, string $title, string $body, array $extra = [], ?string $imageUrl = null, ?string $topic = null): bool
     {
         $tokensData = $this->fcmTokenRepository->getTokens($adminId, 'admin');
         if (!empty($tokensData)) {
             $tokens = array_column($tokensData, 'fcm_token');
-            $res = sendFCMToMultiple($tokens, $title, $body, $extra, $imageUrl);
+            $res = sendFCMToMultiple($tokens, $title, $body, $extra, $imageUrl, $topic);
             return $res['success'] > 0;
         }
         return false;

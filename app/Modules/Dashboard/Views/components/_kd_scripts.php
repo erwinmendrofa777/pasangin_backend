@@ -9,52 +9,8 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    // 1. CHART PROPORSI PROYEK (Doughnut Chart)
-    const ctxProporsi = document.getElementById('proporsiChart').getContext('2d');
-    new Chart(ctxProporsi, {
-      type: 'doughnut',
-      data: {
-        labels: ['Desain', 'Konstruksi', 'Renovasi'],
-        datasets: [{
-          data: [
-            <?= (int) ($kadivStats['overview']['active_projects_breakdown']['design'] ?? 0) ?>,
-            <?= (int) ($kadivStats['overview']['active_projects_breakdown']['construction'] ?? 0) ?>,
-            <?= (int) ($kadivStats['overview']['active_projects_breakdown']['renovation'] ?? 0) ?>
-          ],
-          backgroundColor: [
-            'var(--palette-primary)', // Violet
-            '#1cc88a', // Emerald Green
-            '#fc544b'  // Coral Red
-          ],
-          borderWidth: 4,
-          borderColor: '#ffffff',
-          hoverOffset: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '72%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              padding: 20,
-              font: { family: 'Inter, sans-serif', size: 12, weight: '600' }
-            }
-          },
-          tooltip: {
-            padding: 12,
-            cornerRadius: 8,
-            titleFont: { family: 'Inter', size: 13, weight: 'bold' },
-            bodyFont: { family: 'Inter', size: 12 }
-          }
-        }
-      }
-    });
 
-    // 2. CHART BEBAN KERJA STAF (Bar Chart)
+    // 1. CHART BEBAN KERJA STAF (Bar Chart)
     <?php
     $labels = [];
     $activeTasks = [];
@@ -65,62 +21,66 @@
         $completedDesigns[] = (int) $row['completed_designs'];
     }
     ?>
-    const ctxBeban = document.getElementById('bebanKerjaChart').getContext('2d');
-    new Chart(ctxBeban, {
-      type: 'bar',
+    const canvasBeban = document.getElementById('bebanKerjaChart');
+    if (!canvasBeban) return;
+    const ctxBeban = canvasBeban.getContext('2d');
+    
+    // Destroy previous Chart instance if it exists to prevent overlap
+    if (window.bebanKerjaChartInstance) {
+      window.bebanKerjaChartInstance.destroy();
+    }
+    
+    window.bebanKerjaChartInstance = new Chart(ctxBeban, {
+      type: 'radar',
       data: {
         labels: <?= json_encode($labels) ?>,
         datasets: [
           {
-            label: 'Tugas Aktif (Pending & On Progress)',
+            label: 'Tugas Kerja Aktif',
             data: <?= json_encode($activeTasks) ?>,
-            backgroundColor: '#fc544b', // Coral Red (burden)
-            borderColor: '#e0483f',
-            borderWidth: 1,
-            borderRadius: 8,
-            barPercentage: 0.6,
-            categoryPercentage: 0.6
-          },
-          {
-            label: 'Desain Disetujui (Approved)',
-            data: <?= json_encode($completedDesigns) ?>,
-            backgroundColor: '#1cc88a', // Emerald Green (performance)
-            borderColor: '#15a873',
-            borderWidth: 1,
-            borderRadius: 8,
-            barPercentage: 0.6,
-            categoryPercentage: 0.6
+            backgroundColor: 'rgba(239, 68, 68, 0.24)', // Premium translucent red
+            borderColor: '#ef4444',
+            borderWidth: 2,
+            pointBackgroundColor: '#ef4444',
+            pointBorderColor: '#fff',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#ef4444',
+            tension: 0 // Straight lines for precise data representation
           }
         ]
       },
       options: {
-        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          x: {
-            beginAtZero: true,
+          r: {
+            angleLines: {
+              color: '#e2e8f0',
+              lineWidth: 1
+            },
+            grid: {
+              color: '#e2e8f0',
+              circular: true // Clean modern circular rings instead of polygons
+            },
+            suggestedMin: 0,
             ticks: {
               stepSize: 1,
-              font: { family: 'Inter, sans-serif', size: 11 }
+              backdropColor: 'transparent',
+              color: '#94a3b8',
+              font: { family: 'Inter, sans-serif', size: 9, weight: '500' }
             },
-            grid: { color: '#f1f5f9' }
-          },
-          y: {
-            ticks: {
-              font: { family: 'Inter, sans-serif', size: 11, weight: '600' }
-            },
-            grid: { display: false }
+            pointLabels: {
+              padding: 10, // Avoid label clipping, expand chart canvas
+              font: { family: 'Inter, sans-serif', size: 11, weight: '700' },
+              color: '#475569'
+            }
           }
         },
         plugins: {
           legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              usePointStyle: true,
-              font: { family: 'Inter, sans-serif', size: 11, weight: '600' }
-            }
+            display: false // Only one dataset, legend is redundant and hidden for maximum size
           },
           tooltip: {
             padding: 12,
@@ -130,54 +90,36 @@
       }
     });
 
-    // 3. CHART TREN KINERJA (Line Chart)
-    <?php
-    $trendLabels = [];
-    $activeProjectsData = [];
-    $pendingRequestsData = [];
-    $approvedDesignsData = [];
+    // 2. CHART TOTAL PENGAJUAN PROYEK DESAIN (Bar Chart dengan Filter Dinamis)
+    const rawSubmissionData = <?= json_encode($kadivStats['submission_trends'] ?? []) ?>;
 
-    foreach ($kadivStats['historical_trends'] as $t) {
-        $trendLabels[] = $t['label'];
-        $activeProjectsData[] = $t['active_projects'];
-        $pendingRequestsData[] = $t['pending_requests'];
-        $approvedDesignsData[] = $t['approved_designs'];
+    // Filter default: 3 Bulan Terakhir
+    let defaultMonths = 3;
+    let initialSlice = rawSubmissionData.slice(-defaultMonths);
+
+    const canvasPengajuan = document.getElementById('pengajuanProyekChart');
+    if (!canvasPengajuan) return;
+    const ctxPengajuan = canvasPengajuan.getContext('2d');
+    
+    // Destroy previous Chart instance if it exists to prevent overlap
+    if (window.pengajuanProyekChartInstance) {
+      window.pengajuanProyekChartInstance.destroy();
     }
-    ?>
-    const ctxTren = document.getElementById('trenKinerjaChart').getContext('2d');
-    new Chart(ctxTren, {
-      type: 'line',
+    
+    window.pengajuanProyekChartInstance = new Chart(ctxPengajuan, {
+      type: 'bar',
       data: {
-        labels: <?= json_encode($trendLabels) ?>,
-        datasets: [
-          {
-            label: 'Total Proyek Aktif',
-            data: <?= json_encode($activeProjectsData) ?>,
-            borderColor: 'var(--palette-primary)',
-            backgroundColor: 'rgba(255, 92, 92, 0.05)',
-            fill: true,
-            tension: 0.3,
-            borderWidth: 3
-          },
-          {
-            label: 'Antrean Desain Baru',
-            data: <?= json_encode($pendingRequestsData) ?>,
-            borderColor: '#fc544b',
-            backgroundColor: 'rgba(252, 84, 75, 0.05)',
-            fill: true,
-            tension: 0.3,
-            borderWidth: 3
-          },
-          {
-            label: 'Desain Selesai',
-            data: <?= json_encode($approvedDesignsData) ?>,
-            borderColor: '#1cc88a',
-            backgroundColor: 'rgba(28, 200, 138, 0.05)',
-            fill: true,
-            tension: 0.3,
-            borderWidth: 3
-          }
-        ]
+        labels: initialSlice.map(item => item.label),
+        datasets: [{
+          label: 'Total Pengajuan Proyek Desain',
+          data: initialSlice.map(item => item.count),
+          backgroundColor: 'rgba(229, 57, 53, 0.85)', // Premium Primary Red
+          borderColor: '#e53935',
+          borderWidth: 1.5,
+          borderRadius: 6,
+          barPercentage: 0.35,
+          categoryPercentage: 0.5
+        }]
       },
       options: {
         responsive: true,
@@ -200,12 +142,7 @@
         },
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              usePointStyle: true,
-              padding: 15,
-              font: { family: 'Inter, sans-serif', size: 11, weight: '600' }
-            }
+            display: false
           },
           tooltip: {
             padding: 12,
@@ -213,6 +150,32 @@
           }
         }
       }
+    });
+
+    // Event Listener untuk Tombol Filter (3, 6, 12 Bulan)
+    document.querySelectorAll('.filter-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        // Ubah status kelas aktif
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+
+        // Dapatkan jumlah bulan filter
+        const months = parseInt(this.getAttribute('data-months'));
+        const newSlice = rawSubmissionData.slice(-months);
+        
+        // Sesuaikan lebar bar secara dinamis agar visualnya seimbang
+        let barPercentage = 0.35;
+        if (months === 6) barPercentage = 0.45;
+        if (months === 12) barPercentage = 0.55;
+        
+        // Update data chart
+        if (window.pengajuanProyekChartInstance) {
+          window.pengajuanProyekChartInstance.data.labels = newSlice.map(item => item.label);
+          window.pengajuanProyekChartInstance.data.datasets[0].data = newSlice.map(item => item.count);
+          window.pengajuanProyekChartInstance.data.datasets[0].barPercentage = barPercentage;
+          window.pengajuanProyekChartInstance.update();
+        }
+      });
     });
 
   });

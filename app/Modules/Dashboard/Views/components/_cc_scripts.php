@@ -17,7 +17,7 @@
     const ctxApp = document.getElementById('targetAppChart').getContext('2d');
     const catLabels = chartData.target_app.labels;
     const catValues = chartData.target_app.data;
-    const colorPalette = ['#4e73df', '#1cc88a'];
+    const colorPalette = ['#e53935', '#10b981'];
 
     const totalSum = catValues.reduce((a, b) => a + b, 0);
 
@@ -99,23 +99,23 @@
           {
             label: 'Banners',
             data: chartData.monthly_trend.banners,
-            borderColor: '#4e73df',
-            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+            borderColor: '#e53935',
+            backgroundColor: 'rgba(229, 57, 53, 0.05)',
             fill: true,
             tension: 0.3,
             borderWidth: 3,
-            pointBackgroundColor: '#4e73df',
+            pointBackgroundColor: '#e53935',
             pointHoverRadius: 7
           },
           {
             label: 'Tips',
             data: chartData.monthly_trend.tips,
-            borderColor: '#1cc88a',
-            backgroundColor: 'rgba(28, 200, 138, 0.05)',
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.05)',
             fill: true,
             tension: 0.3,
             borderWidth: 3,
-            pointBackgroundColor: '#1cc88a',
+            pointBackgroundColor: '#10b981',
             pointHoverRadius: 7
           }
         ]

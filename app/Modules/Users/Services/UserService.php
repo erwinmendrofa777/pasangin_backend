@@ -54,6 +54,14 @@ class UserService
     }
 
     /**
+     * Ambil semua client dengan hitungan pesanan & proyek.
+     */
+    public function getAllClientsWithCounts(): array
+    {
+        return $this->userRepository->findAllClientsWithCounts();
+    }
+
+    /**
      * Ambil satu user berdasarkan ID.
      * Melempar RuntimeException jika tidak ditemukan, sehingga Controller
      * tidak perlu menulis logika pengecekan sendiri.

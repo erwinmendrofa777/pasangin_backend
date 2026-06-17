@@ -1,24 +1,5 @@
 <!-- ===== TABLE CARD: DAFTAR PERMINTAAN DESAIN ===== -->
 <div class="card table-card">
-
-    <!-- Card Header: Search -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 table-card-header"
-        style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
-        <h6 class="mb-0 fw-bold text-primary d-flex align-items-center"
-            style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-paint-brush me-2"></i>Daftar Permintaan Desain
-        </h6>
-        <div class="d-flex align-items-center gap-2">
-            <a href="<?= base_url('admin/design/export-pdf') ?>" class="btn-export-pdf" target="_blank">
-                <i class="fas fa-file-pdf"></i> Export Laporan
-            </a>
-            <div class="search-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, telepon, konsep...">
-            </div>
-        </div>
-    </div>
-
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover" id="table-1" style="width:100%">

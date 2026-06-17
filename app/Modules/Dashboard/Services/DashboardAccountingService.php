@@ -237,24 +237,22 @@ class DashboardAccountingService
                 continue;
             }
             
-            $progressRAB = $this->db->table('construction_progress cp')
+            $realizationRAB = $this->db->table('construction_progress cp')
                 ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
+                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs')
                 ->where('cp.construction_id', $cId)
                 ->where('cp.status', 'APPROVED')
-                ->where('ct.id_construction_rabs IS NOT NULL')
-                ->selectSum('cp.bobot')
-                ->get()->getRowArray()['bobot'] ?? 0;
+                ->select('SUM(cp.volume * cr.current_unit_price) as realization')
+                ->get()->getRowArray()['realization'] ?? 0;
                 
-            $progressAddendum = $this->db->table('construction_progress cp')
+            $realizationAddendum = $this->db->table('construction_progress cp')
                 ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
+                ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum')
                 ->where('cp.construction_id', $cId)
                 ->where('cp.status', 'APPROVED')
-                ->where('ct.id_construction_addendum IS NOT NULL')
-                ->selectSum('cp.bobot')
-                ->get()->getRowArray()['bobot'] ?? 0;
+                ->select('SUM(cp.volume * ca.current_unit_price) as realization')
+                ->get()->getRowArray()['realization'] ?? 0;
                 
-            $realizationRAB = ($progressRAB / 100) * $totalRAB;
-            $realizationAddendum = ($progressAddendum / 100) * $totalAddendum;
             $realization = $realizationRAB + $realizationAddendum;
             
             $difference = $totalBudget - $realization;

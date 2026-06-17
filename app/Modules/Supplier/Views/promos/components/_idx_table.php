@@ -1,43 +1,8 @@
-<!-- HEADER SECTION -->
-<div class="card page-header-card mb-2 shadow-sm">
-    <div class="card-body p-4 position-relative" style="z-index: 1;">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h4 class="text-primary mb-2 fw-bold">Manajemen Promo</h4>
-                <p class="text-muted mb-0 small">Kelola berbagai penawaran diskon dan kode promo khusus dari supplier.
-                </p>
-            </div>
-            <div class="col-md-6 d-flex flex-wrap justify-content-md-end gap-2 mt-3 mt-md-0">
-                <div class="stat-pill shadow-sm">
-                    <span>Total Promo</span>
-                    <span class="stat-num"><?= number_format($stats['total']) ?></span>
-                </div>
-                <div class="stat-pill shadow-sm">
-                    <span>Aktif</span>
-                    <span class="stat-num"><?= number_format($stats['active']) ?></span>
-                </div>
-                <div class="stat-pill shadow-sm">
-                    <span>Non-Aktif</span>
-                    <span class="stat-num"><?= number_format($stats['inactive']) ?></span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row g-4">
+<div class="row">
     <div class="col-12">
-
-        <!-- TABLE CARD -->
-        <div class="card shadow-sm table-card">
-            <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 py-3 px-4">
-                <div class="search-wrapper">
-                    <span class="search-icon"><i class="fas fa-search"></i></span>
-                    <input type="text" class="form-control" id="searchInput" placeholder="Ketik untuk mencari promo...">
-                </div>
-                <!-- Tombol tambah jika diperlukan di masa depan -->
-            </div>
-            <div class="card-body pt-0">
+        <div class="card table-card">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover" id="table-1">
                         <thead>
@@ -103,10 +68,9 @@
                                     <td class="text-center">
                                         <?php if (can('promo')): ?>
                                             <a href="<?= base_url('admin/promo/detail/' . $row['id']) ?>"
-                                                class="btn btn-outline-primary btn-sm"
-                                                style="border-radius: 8px; padding: 6px 12px;" data-toggle="tooltip"
+                                                class="btn-action btn-action-detail" data-toggle="tooltip"
                                                 title="Lihat Detail">
-                                                <i class="fas fa-eye me-1"></i> Detail
+                                                <i class="fas fa-eye"></i>
                                             </a>
                                         <?php else: ?>
                                             <span class="badge badge-light"><i class="fas fa-lock"></i> No Access</span>

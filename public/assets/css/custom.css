@@ -48,14 +48,27 @@ h1, h2, h3, h4, h5, h6, .text-dark {
   color: var(--palette-primary) !important;
 }
 
-.btn-primary, .btn-primary:focus, .btn-primary:active {
+.btn-primary {
   background-color: var(--palette-primary) !important;
   border-color: var(--palette-primary) !important;
+  box-shadow: 0 4px 10px rgba(255, 92, 92, 0.25) !important;
 }
 
 .btn-primary:hover {
   background-color: var(--palette-primary-hover) !important;
   border-color: var(--palette-primary-hover) !important;
+  box-shadow: 0 6px 16px rgba(255, 92, 92, 0.4) !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:active:focus,
+.btn-primary.active,
+.btn-primary:focus:active,
+.btn-primary.disabled:focus {
+  background-color: var(--palette-primary-hover) !important;
+  border-color: var(--palette-primary-hover) !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 92, 92, 0.3) !important;
 }
 
 .badge-primary {

@@ -83,6 +83,22 @@ class RoleService
                         'products_status' => 'Ubah Status Produk'
                     ]
                 ],
+                'satuan' => [
+                    'label' => 'Akses Menu Satuan',
+                    'actions' => [
+                        'satuan_create' => 'Tambah Satuan',
+                        'satuan_edit' => 'Edit Satuan',
+                        'satuan_delete' => 'Hapus Satuan'
+                    ]
+                ],
+                'ahsp' => [
+                    'label' => 'Akses Menu AHSP',
+                    'actions' => [
+                        'ahsp_create' => 'Tambah AHSP',
+                        'ahsp_edit' => 'Edit AHSP',
+                        'ahsp_delete' => 'Hapus AHSP'
+                    ]
+                ],
                 'orders' => [
                     'label' => 'Akses Menu Order',
                     'actions' => [

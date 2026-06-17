@@ -15,7 +15,7 @@ class ConstructionProgressModel extends Model
         'id_construction_targets',
         'construction_id',
         'week_number',
-        'bobot',
+        'volume',
         'description',
         'status',
         'photo_url'

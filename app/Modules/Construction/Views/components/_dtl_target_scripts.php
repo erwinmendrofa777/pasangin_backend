@@ -11,7 +11,6 @@
         var group = tr.getAttribute('data-group');
         var subgroup = tr.getAttribute('data-subgroup');
         var activity = tr.getAttribute('data-activity');
-        var bobot = tr.getAttribute('data-bobot');
         var jobApps = tr.getAttribute('data-job-apps');
         var cid = <?= json_encode($construction['id'] ?? '') ?>;
 
@@ -26,12 +25,10 @@
         var inpGroup = document.getElementById('inp-group-' + cid);
         var inpSubgroup = document.getElementById('inp-subgroup-' + cid);
         var inpName = document.getElementById('inp-name-' + cid);
-        var inpBobot = document.getElementById('inp-bobot-' + cid);
         var inpTukang = document.getElementById('inp-tukang-' + cid);
         if (inpGroup) inpGroup.value = group;
         if (inpSubgroup) inpSubgroup.value = subgroup;
         if (inpName) inpName.value = activity;
-        if (inpBobot) inpBobot.value = bobot;
         if (inpTukang) {
             inpTukang.value = jobApps || '';
         }

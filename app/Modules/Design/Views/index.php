@@ -13,8 +13,7 @@ Kelola Permintaan Desain
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<?= $this->include('App\Modules\Design\Views\components\_idx_stats_cards') ?>
-<?= $this->include('App\Modules\Design\Views\components\_idx_task_slider') ?>
+<?= $this->include('App\Modules\Design\Views\components\_header_card') ?>
 <?= $this->include('App\Modules\Design\Views\components\_idx_table') ?>
 <?= $this->endSection() ?>
 

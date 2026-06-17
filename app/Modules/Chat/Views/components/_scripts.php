@@ -55,6 +55,8 @@ $(document).ready(function() {
             }
             if (type === 'tukang') {
                 return `<?= base_url('uploads/tukang') ?>/` + avatar;
+            } else if (type === 'supplier') {
+                return `<?= base_url('uploads/supplier') ?>/` + avatar;
             } else {
                 return `<?= base_url('uploads/profile') ?>/` + avatar;
             }
@@ -174,9 +176,19 @@ $(document).ready(function() {
             const name = (item.attr('data-name') || '').toLowerCase();
             const type = item.attr('data-type'); // 'client' atau 'tukang'
             const category = item.attr('data-category') || 'general';
+            const supplierId = item.attr('data-supplier-id') || '';
             
             const matchesSearch = name.includes(searchQuery);
-            const matchesFilter = (activeFilter === 'all' || type === activeFilter);
+            
+            let matchesFilter = false;
+            if (activeFilter === 'all') {
+                matchesFilter = true;
+            } else if (activeFilter === 'supplier') {
+                matchesFilter = (supplierId !== '');
+            } else {
+                matchesFilter = (type === activeFilter && supplierId === '');
+            }
+            
             const matchesCatFilter = (activeCatFilter === 'all' || category === activeCatFilter);
             
             if (matchesSearch && matchesFilter && matchesCatFilter) {
@@ -230,7 +242,9 @@ $(document).ready(function() {
                         
                         response.data.forEach(function(msg) {
                             const is_admin = (msg.sender_type === 'admin');
-                            const alignClass = is_admin ? 'pasangin-chat-right' : 'pasangin-chat-left';
+                            const is_supplier = (msg.sender_type === 'supplier');
+                            const is_right = (is_admin || is_supplier);
+                            const alignClass = is_right ? 'pasangin-chat-right' : 'pasangin-chat-left';
                             
                             // Logika Pengelompokan Tanggal
                             const msgDateStr = msg.created_at.split(' ')[0]; // YYYY-MM-DD
@@ -244,7 +258,7 @@ $(document).ready(function() {
                             }
                             
                             const avatarChar = is_admin ? 'AD' : (activeClientName ? activeClientName.substring(0, 2).toUpperCase() : 'CL');
-                            const avatarColor = is_admin ? '6366f1' : 'f59e0b';
+                            const avatarColor = is_admin ? 'ff5c5c' : 'f59e0b';
 
                             const formattedTime = formatTime(msg.created_at);
                             const formattedBody = formatMessageBody(msg.body);
@@ -253,9 +267,9 @@ $(document).ready(function() {
                             let tickHtml = '';
                             if (is_admin) {
                                 if (msg.is_read_by_client == 1) {
-                                    tickHtml = `<i class="fas fa-check-double ms-1" style="color: #a5b4fc; font-size: 10px;" title="Dibaca oleh client"></i>`;
+                                    tickHtml = `<i class="fas fa-check-double ms-1" style="color: #38bdf8; font-size: 10px;" title="Dibaca oleh client"></i>`;
                                 } else {
-                                    tickHtml = `<i class="fas fa-check ms-1" style="color: #c7d2fe; font-size: 10px;" title="Terkirim"></i>`;
+                                    tickHtml = `<i class="fas fa-check ms-1" style="color: #94a3b8; font-size: 10px;" title="Terkirim"></i>`;
                                 }
                             }
 
@@ -306,18 +320,21 @@ $(document).ready(function() {
                             }
 
                             let bubbleAvatarUrl = "";
-                            if (is_admin) {
-                                bubbleAvatarUrl = "https://ui-avatars.com/api/?name=AD&background=6366f1&color=fff";
+                            if (msg.sender_type === 'admin') {
+                                bubbleAvatarUrl = "<?= base_url() ?>/" + msg.sender_avatar;
                             } else {
-                                bubbleAvatarUrl = getAvatarUrl(activeClientAvatar, activeClientRole, activeClientName);
+                                bubbleAvatarUrl = getAvatarUrl(msg.sender_avatar, msg.sender_type, msg.sender_name);
                             }
+
+                            const senderNameHtml = `<div class="chat-sender-name fw-bold" style="font-size: 0.72rem; color: #64748b; margin-bottom: 3px; font-weight: 600;">${escapeHtml(msg.sender_name)}</div>`;
 
                             chatHtml += `
                                 <div class="pasangin-chat-item ${alignClass}">
-                                    <div class="pasangin-chat-avatar">
+                                    <div class="pasangin-chat-avatar" title="${escapeHtml(msg.sender_name)}">
                                         <img src="${bubbleAvatarUrl}" alt="avatar">
                                     </div>
                                     <div class="pasangin-chat-item-body">
+                                        ${senderNameHtml}
                                         <div class="pasangin-chat-text">${contentHtml}</div>
                                         <small class="pasangin-chat-time">${formattedTime} ${tickHtml}</small>
                                     </div>
@@ -328,7 +345,12 @@ $(document).ready(function() {
                         $('#chat-messages').html('<div class="text-center my-auto text-muted">Belum ada riwayat pesan.</div>');
                     }
                     scrollToBottom();
+                } else {
+                    $('#chat-messages').html('<div class="text-center my-auto text-danger">Gagal memuat pesan.</div>');
                 }
+            },
+            error: function() {
+                $('#chat-messages').html('<div class="text-center my-auto text-danger">Terjadi kesalahan koneksi. Silakan coba lagi.</div>');
             }
         });
     }
@@ -342,6 +364,7 @@ $(document).ready(function() {
         const clientRole = $(this).data('type');
         const clientAvatar = $(this).data('avatar') || '';
         const clientStatus = $(this).data('status') || 'open';
+        const supplierId = $(this).attr('data-supplier-id') || '';
 
         activeConversationId = conversationId;
         activeClientName = clientName;
@@ -364,18 +387,27 @@ $(document).ready(function() {
 
         // Update Info Header Chat
         $('#chat-with-name').text(clientName);
-        $('#chat-with-role').text(clientRole === 'tukang' ? 'Tukang' : 'Klien');
         
-        // Atur badge warna role
-        if (clientRole === 'tukang') {
-            $('#chat-with-role').removeClass('bg-info').addClass('bg-warning text-dark');
+        // Atur badge warna role dan tulisan
+        if (supplierId) {
+            $('#chat-with-role').text('Pemantauan').removeClass('bg-warning text-dark bg-info text-white').addClass('bg-secondary text-white');
+        } else if (clientRole === 'tukang') {
+            $('#chat-with-role').text('Tukang').removeClass('bg-info bg-secondary text-white').addClass('bg-warning text-dark');
         } else {
-            $('#chat-with-role').removeClass('bg-warning text-dark').addClass('bg-info text-white');
+            $('#chat-with-role').text('Klien').removeClass('bg-warning text-dark bg-secondary').addClass('bg-info text-white');
         }
 
         // Set avatar di header chat
-        const avatarUrl = getAvatarUrl(activeClientAvatar, activeClientRole, clientName);
-        $('#active-chat-avatar').html(`<img src="${avatarUrl}" class="rounded-circle border shadow-sm" width="40" height="40" alt="avatar">`);
+        if (supplierId) {
+            $('#active-chat-avatar').html(`
+                <div class="rounded-circle border shadow-sm d-flex align-items-center justify-content-center bg-light text-secondary" style="width: 40px; height: 40px;">
+                    <i class="fas fa-eye" style="font-size: 1.1rem;"></i>
+                </div>
+            `);
+        } else {
+            const avatarUrl = getAvatarUrl(activeClientAvatar, activeClientRole, clientName);
+            $('#active-chat-avatar').html(`<img src="${avatarUrl}" class="rounded-circle border shadow-sm" width="40" height="40" alt="avatar">`);
+        }
 
         // Update detail keluhan rincian text
         const clientTitle = $(this).attr('data-title') || 'Obrolan';
@@ -407,36 +439,52 @@ $(document).ready(function() {
     });
 
     function updateChatStatusUI(status) {
-        if (status === 'closed') {
-            // Ubah badge di header: Merah (bg-danger / text-danger)
-            $('#chat-status-action-wrapper').html(`
-                <span class="badge px-3 py-2 text-danger me-2 d-flex align-items-center" style="font-weight: 600; font-size: 0.75rem; background-color: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 30px;">
-                    <span class="me-2 d-inline-block" style="width: 7px; height: 7px; border-radius: 50%; background-color: #ef4444;"></span> 
-                    Closed
-                </span>
-                <button type="button" class="btn btn-sm btn-success text-white px-3" id="btn-toggle-chat-status" data-status="open" style="border-radius: 30px; font-weight: 600; font-size: 0.75rem;">
-                    <i class="fas fa-lock-open me-1"></i> Buka Kembali
-                </button>
-            `);
-            
-            // Sembunyikan form input, tampilkan banner closed notice
+        const activeItem = $(`.chat-list-user[data-id="${activeConversationId}"]`);
+        const isMonitored = (activeItem.length > 0 && activeItem.attr('data-supplier-id'));
+
+        if (isMonitored) {
+            $('#chat-status-action-wrapper').html('');
+            $('#btn-toggle-report').hide();
+            $('#header-chat-box').css('background-color', '#f8fafc');
             $('#message-form').hide();
-            $('#chat-closed-notice').show();
-        } else {
-            // Status open: Hijau (bg-success / text-success)
-            $('#chat-status-action-wrapper').html(`
-                <span class="badge px-3 py-2 text-success me-2 d-flex align-items-center" style="font-weight: 600; font-size: 0.75rem; background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 30px;">
-                    <span class="me-2 d-inline-block" style="width: 7px; height: 7px; border-radius: 50%; background-color: #10b981;"></span> 
-                    Open
-                </span>
-                <button type="button" class="btn btn-sm btn-outline-danger px-3" id="btn-toggle-chat-status" data-status="closed" style="border-radius: 30px; font-weight: 600; font-size: 0.75rem;">
-                    <i class="fas fa-lock me-1"></i> Tutup Obrolan
-                </button>
-            `);
-            
-            // Tampilkan form input, sembunyikan banner closed notice
             $('#chat-closed-notice').hide();
-            $('#message-form').show();
+            $('#chat-readonly-notice').show();
+        } else {
+            $('#btn-toggle-report').show();
+            $('#header-chat-box').css('background-color', '#ffffff');
+            $('#chat-readonly-notice').hide();
+            
+            if (status === 'closed') {
+                // Ubah badge di header: Merah (bg-danger / text-danger)
+                $('#chat-status-action-wrapper').html(`
+                    <span class="badge px-3 py-2 text-danger me-2 d-flex align-items-center" style="font-weight: 600; font-size: 0.75rem; background-color: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 30px;">
+                        <span class="me-2 d-inline-block" style="width: 7px; height: 7px; border-radius: 50%; background-color: #ef4444;"></span> 
+                        Closed
+                    </span>
+                    <button type="button" class="btn btn-sm btn-success text-white px-3" id="btn-toggle-chat-status" data-status="open" style="border-radius: 30px; font-weight: 600; font-size: 0.75rem;">
+                        <i class="fas fa-lock-open me-1"></i> Buka Kembali
+                    </button>
+                `);
+                
+                // Sembunyikan form input, tampilkan banner closed notice
+                $('#message-form').hide();
+                $('#chat-closed-notice').show();
+            } else {
+                // Status open: Hijau (bg-success / text-success)
+                $('#chat-status-action-wrapper').html(`
+                    <span class="badge px-3 py-2 text-success me-2 d-flex align-items-center" style="font-weight: 600; font-size: 0.75rem; background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 30px;">
+                        <span class="me-2 d-inline-block" style="width: 7px; height: 7px; border-radius: 50%; background-color: #10b981;"></span> 
+                        Open
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline-danger px-3" id="btn-toggle-chat-status" data-status="closed" style="border-radius: 30px; font-weight: 600; font-size: 0.75rem;">
+                        <i class="fas fa-lock me-1"></i> Tutup Obrolan
+                    </button>
+                `);
+                
+                // Tampilkan form input, sembunyikan banner closed notice
+                $('#chat-closed-notice').hide();
+                $('#message-form').show();
+            }
         }
     }
 
@@ -613,7 +661,7 @@ $(document).ready(function() {
         // 3. Sisipkan balon chat baru dengan status sending (Optimistic UI)
         const tempId = 'temp-' + Date.now();
         const avatarChar = 'AD';
-        const avatarColor = '6366f1';
+        const avatarColor = 'ff5c5c';
         
         const now = new Date();
         const formattedTime = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
@@ -753,7 +801,7 @@ $(document).ready(function() {
                 if (response.status === true) {
                     // Update balon chat menjadi "Sukses Terkirim" (centang satu abu-abu)
                     bubble.css('opacity', '1');
-                    indicator.html(`<i class="fas fa-check ms-1" style="color: #c7d2fe; font-size: 10px;" title="Terkirim"></i>`);
+                    indicator.html(`<i class="fas fa-check ms-1" style="color: #94a3b8; font-size: 10px;" title="Terkirim"></i>`);
                     
                     // Reload daftar sidebar agar urutan dan info ter-update secara akurat dari DB
                     loadConversations();
@@ -810,11 +858,9 @@ $(document).ready(function() {
         filterConversations();
     });
 
-    // Filter Kategori Departemen (Semua Dept / Technical / Accounting / General)
-    $('body').on('click', '.btn-filter-cat', function() {
-        $('.btn-filter-cat').removeClass('active');
-        $(this).addClass('active');
-        activeCatFilter = $(this).attr('data-filter-cat');
+    // Filter Kategori Departemen (Semua Dept / Technical / Accounting / General via Dropdown)
+    $('body').on('change', '#chat-category-select', function() {
+        activeCatFilter = $(this).val();
         filterConversations();
     });
 
@@ -891,6 +937,16 @@ $(document).ready(function() {
                     catText = 'Accounting';
                 }
                 
+                let badgeHtml = '';
+                if (convo.supplier_id) {
+                    badgeHtml = `<span class="badge px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px; background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;">Monitored</span>`;
+                } else {
+                    badgeHtml = `
+                        <span class="badge px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px; background-color: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3;">CS Active</span>
+                        <span class="badge ${badgeClass} px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;">${badgeText}</span>
+                    `;
+                }
+
                 const itemHtml = `
                     <li class="d-flex chat-list-user p-3 align-items-center border-bottom ${activeClass}" 
                          data-id="${convo.id}" 
@@ -899,7 +955,9 @@ $(document).ready(function() {
                          data-avatar="${clientAvatarEsc}"
                          data-status="${escapeHtml(convo.status || 'open')}"
                          data-title="${escapeHtml(convo.title || 'Obrolan')}"
-                         data-category="${escapeHtml(cat)}">
+                         data-category="${escapeHtml(cat)}"
+                         data-supplier-id="${escapeHtml(convo.supplier_id || '')}"
+                         data-supplier-name="${escapeHtml(convo.supplier_name || '')}">
                         <img class="me-3 rounded-circle border shadow-sm" width="48" height="48" 
                              src="${avatarUrl}" alt="avatar">
                         <div class="flex-grow-1" style="overflow: hidden;">
@@ -915,7 +973,7 @@ $(document).ready(function() {
                                 <div class="d-flex align-items-center" style="gap: 4px;">
                                     <span class="unread-badge me-2" id="unread-badge-${convo.id}" ${badgeDisplayStyle}>${unreadCount}</span>
                                     <span class="badge ${catBadgeClass} px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;">${catText}</span>
-                                    <span class="badge ${badgeClass} px-2 py-1 text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.5px; border-radius: 4px;">${badgeText}</span>
+                                    ${badgeHtml}
                                 </div>
                             </div>
                         </div>

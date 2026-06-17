@@ -20,9 +20,9 @@
             statsData.totals.renovation
           ],
           backgroundColor: [
-            'var(--palette-primary)', // Violet
-            '#1cc88a', // Emerald Green
-            '#fc544b'  // Coral Red
+            '#e53935', // Red (Desain)
+            '#10b981', // Emerald (Konstruksi)
+            '#f59e0b'  // Amber (Renovasi)
           ],
           borderWidth: 4,
           borderColor: '#ffffff',
@@ -74,8 +74,8 @@
         datasets: [{
           label: 'Jumlah Proyek',
           data: designValues,
-          backgroundColor: createHorizontalGradient(ctxDesign, 'rgba(255, 92, 92, 1)', 'rgba(255, 92, 92, 0.25)'),
-          borderColor: 'var(--palette-primary)',
+          backgroundColor: createHorizontalGradient(ctxDesign, 'rgba(229, 57, 53, 1)', 'rgba(255, 112, 67, 0.35)'),
+          borderColor: '#e53935',
           borderWidth: 1.5,
           borderRadius: 6,
           borderSkipped: false
@@ -120,8 +120,8 @@
         datasets: [{
           label: 'Jumlah Proyek',
           data: constructionValues,
-          backgroundColor: createHorizontalGradient(ctxConstruction, 'rgba(28, 200, 138, 1)', 'rgba(28, 200, 138, 0.25)'),
-          borderColor: '#1cc88a',
+          backgroundColor: createHorizontalGradient(ctxConstruction, 'rgba(16, 185, 129, 1)', 'rgba(5, 150, 105, 0.35)'),
+          borderColor: '#10b981',
           borderWidth: 1.5,
           borderRadius: 6,
           borderSkipped: false
@@ -166,8 +166,8 @@
         datasets: [{
           label: 'Jumlah Proyek',
           data: renovationValues,
-          backgroundColor: createHorizontalGradient(ctxRenovation, 'rgba(252, 84, 75, 1)', 'rgba(252, 84, 75, 0.25)'),
-          borderColor: '#fc544b',
+          backgroundColor: createHorizontalGradient(ctxRenovation, 'rgba(245, 158, 11, 1)', 'rgba(217, 119, 6, 0.35)'),
+          borderColor: '#f59e0b',
           borderWidth: 1.5,
           borderRadius: 6,
           borderSkipped: false

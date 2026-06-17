@@ -55,12 +55,17 @@ class ChatController extends BaseController
             // Update query: Gunakan IFNULL / COALESCE untuk mengambil nama dari tabel users atau tukang
             $data['conversations'] = $conversationModel->select('
                     conversations.*, 
-                    IF(conversations.client_type = "tukang", tukang.name, users.full_name) as client_name,
+                    IF(conversations.supplier_id IS NOT NULL, 
+                       CONCAT(IF(conversations.client_type = "tukang", tukang.name, users.full_name), " ↔ ", suppliers.name),
+                       IF(conversations.client_type = "tukang", tukang.name, users.full_name)
+                    ) as client_name,
                     IF(conversations.client_type = "tukang", tukang.profile_photo, users.avatar) as client_avatar,
+                    suppliers.name as supplier_name,
                     COALESCE(conversations.last_message_at, conversations.created_at) as sort_time
-                ')
+                ', false)
                 ->join('users', 'users.id = conversations.client_id AND conversations.client_type = "client"', 'left')
                 ->join('tukang', 'tukang.id = conversations.client_id AND conversations.client_type = "tukang"', 'left')
+                ->join('suppliers', 'suppliers.id = conversations.supplier_id', 'left')
                 ->whereIn('conversations.category', $allowedCategories)
                 ->orderBy('sort_time', 'DESC')
                 ->findAll();
@@ -114,7 +119,30 @@ class ChatController extends BaseController
             // Reset unread by admin count
             $conversationModel->update($conversationId, ['unread_by_admin_count' => 0]);
 
-            $messages = $messageModel->where('conversation_id', $conversationId)->orderBy('created_at', 'ASC')->findAll();
+            $db = \Config\Database::connect();
+            $messages = $db->table('messages m')
+                ->select('
+                    m.*,
+                    CASE 
+                        WHEN m.sender_type = "admin" THEN "Admin Pasangin"
+                        WHEN m.sender_type = "supplier" THEN s.name
+                        WHEN m.sender_type = "tukang" THEN t.name
+                        ELSE u.full_name
+                    END as sender_name,
+                    CASE 
+                        WHEN m.sender_type = "admin" THEN "assets/img/avatar/avatar-5.png"
+                        WHEN m.sender_type = "supplier" THEN s.logo_url
+                        WHEN m.sender_type = "tukang" THEN t.profile_photo
+                        ELSE u.avatar
+                    END as sender_avatar
+                ', false)
+                ->join('users u', 'u.id = m.sender_id AND m.sender_type = "client"', 'left')
+                ->join('tukang t', 't.id = m.sender_id AND m.sender_type = "tukang"', 'left')
+                ->join('suppliers s', 's.id = m.sender_id AND m.sender_type = "supplier"', 'left')
+                ->where('m.conversation_id', $conversationId)
+                ->orderBy('m.created_at', 'ASC')
+                ->get()
+                ->getResultArray();
             return $this->response->setJSON(['status' => true, 'data' => $messages]);
         } catch (Exception $e) {
             return $this->response->setJSON([
@@ -146,12 +174,17 @@ class ChatController extends BaseController
             } else {
                 $conversations = $conversationModel->select('
                         conversations.*, 
-                        IF(conversations.client_type = "tukang", tukang.name, users.full_name) as client_name,
+                        IF(conversations.supplier_id IS NOT NULL, 
+                           CONCAT(IF(conversations.client_type = "tukang", tukang.name, users.full_name), " ↔ ", suppliers.name),
+                           IF(conversations.client_type = "tukang", tukang.name, users.full_name)
+                        ) as client_name,
                         IF(conversations.client_type = "tukang", tukang.profile_photo, users.avatar) as client_avatar,
+                        suppliers.name as supplier_name,
                         COALESCE(conversations.last_message_at, conversations.created_at) as sort_time
-                    ')
+                    ', false)
                     ->join('users', 'users.id = conversations.client_id AND conversations.client_type = "client"', 'left')
                     ->join('tukang', 'tukang.id = conversations.client_id AND conversations.client_type = "tukang"', 'left')
+                    ->join('suppliers', 'suppliers.id = conversations.supplier_id', 'left')
                     ->whereIn('conversations.category', $allowedCategories)
                     ->orderBy('sort_time', 'DESC')
                     ->findAll();
@@ -210,6 +243,16 @@ class ChatController extends BaseController
                 'csrf_name' => csrf_token(),
                 'csrf_hash' => csrf_hash()
             ])->setStatusCode(404);
+        }
+
+        // Block admin from sending messages in supplier chat (read-only monitoring)
+        if (!empty($conversation['supplier_id'])) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => 'Anda tidak dapat mengirim pesan pada obrolan supplier.',
+                'csrf_name' => csrf_token(),
+                'csrf_hash' => csrf_hash()
+            ])->setStatusCode(403);
         }
 
         if (!$this->_hasAccessToConversation($conversation)) {
@@ -340,9 +383,9 @@ class ChatController extends BaseController
             ];
 
             if ($conversation['client_type'] === 'tukang') {
-                $notificationService->notifyTukang($conversation['client_id'], $title, $body, $extra, null, 'chat');
+                $notificationService->notifyTukang($conversation['client_id'], $title, $body, $extra, null, 'chat-customer-service');
             } else {
-                $notificationService->notifyClient($conversation['client_id'], $title, $body, $extra, null, 'chat');
+                $notificationService->notifyClient($conversation['client_id'], $title, $body, $extra, null, 'chat-customer-service');
             }
 
         } catch (Exception $e) {
@@ -383,6 +426,16 @@ class ChatController extends BaseController
                     'csrf_name' => csrf_token(),
                     'csrf_hash' => csrf_hash()
                 ])->setStatusCode(404);
+            }
+
+            // Block admin from changing status of supplier chat (read-only monitoring)
+            if (!empty($conversation['supplier_id'])) {
+                return $this->response->setJSON([
+                    'status' => false,
+                    'message' => 'Anda tidak dapat mengubah status pada obrolan supplier.',
+                    'csrf_name' => csrf_token(),
+                    'csrf_hash' => csrf_hash()
+                ])->setStatusCode(403);
             }
 
             if (!$this->_hasAccessToConversation($conversation)) {

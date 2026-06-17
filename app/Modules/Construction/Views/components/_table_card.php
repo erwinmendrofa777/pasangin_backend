@@ -1,26 +1,8 @@
 <!-- TABLE SECTION -->
-<div class="card shadow-sm table-card">
-    <!-- Card Header: Search -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center px-4 py-3 gap-3"
-        style="border-bottom: 1px solid #f0f4fa;">
-        <h6 class="mb-0 fw-bold text-primary"
-            style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-list me-2"></i>Daftar Proyek Konstruksi
-        </h6>
-        <div class="d-flex align-items-center gap-2">
-            <a href="<?= base_url('admin/construction/export-pdf') ?>" class="btn-export-pdf" target="_blank">
-                <i class="fas fa-file-pdf"></i> Export Laporan
-            </a>
-            <div class="search-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput"
-                    placeholder="Cari pelanggan, lokasi, atau status...">
-            </div>
-        </div>
-    </div>
-    <div class="card-body p-4">
+<div class="card table-card">
+    <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover" id="table-1">
+            <table class="table table-hover" id="table-1" style="width:100%">
                 <thead class="text-center">
                     <tr>
                         <th class="text-center" style="width: 50px;">No</th>

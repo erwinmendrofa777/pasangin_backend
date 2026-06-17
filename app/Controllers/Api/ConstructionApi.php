@@ -81,7 +81,7 @@ class ConstructionApi extends BaseController
         $uploadedFileNames = [];
 
         // Pastikan folder tujuan ada, jika tidak, buat folder tersebut
-        $uploadPath = 'uploads/construction/';
+        $uploadPath = FCPATH . 'uploads/construction/';
         if (!is_dir($uploadPath)) {
             mkdir($uploadPath, 0777, true);
         }
@@ -151,6 +151,273 @@ class ConstructionApi extends BaseController
             } else {
                 return $this->fail('Gagal memperbarui data di database. Pastikan kolom gambar1-5 ada di allowedFields model.');
             }
+        }
+    }
+
+    public function submitConstructionAndDesignRequests()
+    {
+        // 1. Validasi gambar konstruksi dan berkas desain
+        $validationRules = [
+            'images' => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
+        ];
+
+        $validationMessages = [
+            'images' => [
+                'uploaded' => 'Setidaknya satu gambar konstruksi harus diunggah.',
+                'max_size' => 'Ukuran salah satu gambar konstruksi melebihi 5MB.',
+                'mime_in' => 'Format salah satu gambar konstruksi tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ]
+        ];
+
+        if (!$this->validate($validationRules, $validationMessages)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Ambil dan proses gambar konstruksi
+        $images = $this->request->getFileMultiple('images');
+        if ($images === null) {
+            $singleImage = $this->request->getFile('images');
+            $images = ($singleImage && $singleImage->isValid()) ? [$singleImage] : [];
+        }
+
+        if (count($images) > 5) {
+            return $this->failValidationErrors('Anda hanya boleh mengunggah maksimal 5 gambar konstruksi.');
+        }
+
+        $uploadedFileNames = [];
+        $uploadPath = FCPATH . 'uploads/construction/';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        foreach ($images as $img) {
+            if ($img->isValid() && !$img->hasMoved()) {
+                $newName = $img->getRandomName();
+                $img->move($uploadPath, $newName);
+                $uploadedFileNames[] = $newName;
+            }
+        }
+
+        if (empty($uploadedFileNames)) {
+            return $this->failValidationErrors('Gagal mengunggah gambar konstruksi.');
+        }
+
+        // Ambil dan proses berkas-berkas desain klien
+        $designFiles = $this->request->getFileMultiple('design_files');
+        if ($designFiles === null) {
+            $singleDesign = $this->request->getFile('design_files');
+            $designFiles = ($singleDesign && $singleDesign->isValid()) ? [$singleDesign] : [];
+        }
+
+        if (count($designFiles) > 5) {
+            // Hapus file gambar konstruksi yang terlanjur diunggah
+            foreach ($uploadedFileNames as $fileName) {
+                if (file_exists($uploadPath . $fileName)) {
+                    unlink($uploadPath . $fileName);
+                }
+            }
+            return $this->failValidationErrors('Anda hanya boleh mengunggah maksimal 5 berkas desain.');
+        }
+
+        $uploadedDesignFileNames = [];
+        $designUploadPath = FCPATH . 'uploads/design_results/';
+        if (!is_dir($designUploadPath)) {
+            mkdir($designUploadPath, 0777, true);
+        }
+
+        foreach ($designFiles as $designFile) {
+            if ($designFile->isValid() && !$designFile->hasMoved()) {
+                $newName = $designFile->getRandomName();
+                $designFile->move($designUploadPath, $newName);
+                $uploadedDesignFileNames[] = $newName;
+            }
+        }
+
+        if (empty($uploadedDesignFileNames)) {
+            // Hapus file gambar konstruksi yang terlanjur diunggah
+            foreach ($uploadedFileNames as $fileName) {
+                if (file_exists($uploadPath . $fileName)) {
+                    unlink($uploadPath . $fileName);
+                }
+            }
+            return $this->failValidationErrors('Gagal mengunggah berkas desain.');
+        }
+
+        // 2. Mulai transaksi database
+        $this->db->transStart();
+
+        try {
+            // A. Simpan data Desain (Design Request)
+            $designData = [
+                'user_id' => $this->request->getPost('user_id'),
+                'full_name' => $this->request->getPost('full_name'),
+                'phone_number' => $this->request->getPost('phone_number'),
+                'land_area' => $this->request->getPost('land_area'),
+                'building_area' => $this->request->getPost('building_area'),
+                'design_concept' => $this->request->getPost('design_concept'),
+                'location_address' => $this->request->getPost('location_address') ?: $this->request->getPost('address'),
+                'latitude' => $this->request->getPost('latitude'),
+                'longitude' => $this->request->getPost('longitude'),
+                'voucher_code' => $this->request->getPost('design_voucher_code') ?: $this->request->getPost('voucher_code'),
+                'discount_amount' => $this->request->getPost('design_discount_amount') ?: $this->request->getPost('discount_amount') ?: 0,
+                'status' => 'PENDING',
+            ];
+
+            $designModel = new \App\Modules\Design\Models\DesignRequestModel();
+            if (!$designModel->insert($designData)) {
+                throw new \RuntimeException('Gagal menyimpan data desain ke database.');
+            }
+            $designRequestId = $designModel->getInsertID();
+
+            // Simpan setiap berkas desain hasil upload klien ke design_targets dan project_designs (1 target = 1 desain)
+            $firstDesignFile = '';
+            $firstDesignName = '';
+
+            foreach ($uploadedDesignFileNames as $index => $fileName) {
+                $num = $index + 1;
+
+                // Memproses nama target (task_names[] / task_name)
+                $taskNamesPost = $this->request->getPost('task_names') ?: $this->request->getPost('task_name');
+                if (is_array($taskNamesPost)) {
+                    $currentTaskName = isset($taskNamesPost[$index]) ? $taskNamesPost[$index] : (($this->request->getPost('task_name') ?: 'Desain Pengaju') . ($index > 0 ? ' ' . $num : ''));
+                } else {
+                    $currentTaskName = ($this->request->getPost('task_name') ?: 'Desain Pengaju') . ($index > 0 ? ' ' . $num : '');
+                }
+
+                // Memproses nama desain (design_names[] / design_name)
+                $designNamesPost = $this->request->getPost('design_names') ?: $this->request->getPost('design_name');
+                if (is_array($designNamesPost)) {
+                    $currentDesignName = isset($designNamesPost[$index]) ? $designNamesPost[$index] : (($this->request->getPost('design_name') ?: 'Desain Klien') . ($index > 0 ? ' ' . $num : ''));
+                } else {
+                    $currentDesignName = ($this->request->getPost('design_name') ?: 'Desain Klien') . ($index > 0 ? ' ' . $num : '');
+                }
+
+                // A1. Simpan target desain untuk berkas ini
+                $targetData = [
+                    'design_request_id' => $designRequestId,
+                    'user_admin_id' => null,
+                    'task_name' => $currentTaskName,
+                    'start_week' => $this->request->getPost('start_week') ?: 1,
+                    'end_week' => $this->request->getPost('end_week') ?: 4,
+                    'keterangan' => $this->request->getPost('keterangan') ?: 'Pengajuan desain diunggah secara manual oleh klien.',
+                    'status' => 'PENDING',
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                if (!$this->db->table('design_targets')->insert($targetData)) {
+                    throw new \RuntimeException("Gagal menyimpan target desain ke-{$num} ke database.");
+                }
+                $targetId = $this->db->insertID();
+
+                // A2. Simpan berkas ke project_designs (revisi 1 untuk target baru ini)
+                $projectDesignData = [
+                    'user_admin_id' => null,
+                    'design_request_id' => $designRequestId,
+                    'design_targets_id' => $targetId,
+                    'revision_number' => 1,
+                    'design_name' => $currentDesignName,
+                    'file' => $fileName,
+                    'status' => 'PENDING',
+                    'revision_note' => null,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                if (!$this->db->table('project_designs')->insert($projectDesignData)) {
+                    throw new \RuntimeException("Gagal menyimpan berkas desain ke-{$num} ke database.");
+                }
+
+                if ($index === 0) {
+                    $firstDesignFile = $fileName;
+                    $firstDesignName = $currentDesignName;
+                }
+            }
+
+            // B. Simpan data Konstruksi (Construction Request)
+            $constructionData = [
+                'user_id' => $this->request->getPost('user_id'),
+                'full_name' => $this->request->getPost('full_name'),
+                'phone' => $this->request->getPost('phone_number'),
+                'land_area' => $this->request->getPost('land_area'),
+                'building_area' => $this->request->getPost('building_area'),
+                'address' => $this->request->getPost('address') ?: $this->request->getPost('location_address'),
+                'latitude' => $this->request->getPost('latitude'),
+                'longitude' => $this->request->getPost('longitude'),
+                'voucher_code' => $this->request->getPost('construction_voucher_code') ?: $this->request->getPost('voucher_code'),
+                'discount_amount' => $this->request->getPost('construction_discount_amount') ?: $this->request->getPost('discount_amount') ?: 0,
+                'status' => 'PENDING',
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            foreach ($uploadedFileNames as $index => $fileName) {
+                $constructionData['gambar' . ($index + 1)] = $fileName;
+            }
+
+            if (!$this->db->table('construction_requests')->insert($constructionData)) {
+                throw new \RuntimeException('Gagal menyimpan data konstruksi ke database.');
+            }
+            $constructionId = $this->db->insertID();
+
+            // C. Simpan Relasi di construction_designs (Menunjuk ke berkas desain pertama klien)
+            $constructionDesignData = [
+                'construction_id' => $constructionId,
+                'user_admin_id' => null,
+                'design_requests_id' => $designRequestId,
+                'title' => $firstDesignName,
+                'file' => $firstDesignFile,
+                'comment' => 'Desain dipilih oleh pelanggan saat pengajuan konstruksi.',
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            if (!$this->db->table('construction_designs')->insert($constructionDesignData)) {
+                throw new \RuntimeException('Gagal menyimpan relasi konstruksi dan desain ke database.');
+            }
+
+            // D. Kirim notifikasi ke Admin
+            $this->notifService->sendToPermission(
+                'design_detail',
+                'Pengajuan Desain Baru',
+                "Pelanggan atas nama {$designData['full_name']} telah mengajukan desain baru beserta berkas desain. Silakan cek detail."
+            );
+
+            $this->notifService->sendToPermission(
+                'construction_detail',
+                'Permohonan Konstruksi Baru',
+                "Pelanggan atas nama {$constructionData['full_name']} telah mengirim permohonan konstruksi baru. Silakan cek detail."
+            );
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \RuntimeException('Transaksi database gagal diselesaikan.');
+            }
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Permohonan konstruksi dan desain berhasil dikirim secara bersamaan',
+                'data' => [
+                    'construction_id' => $constructionId,
+                    'design_requests_id' => $designRequestId
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+
+            // Hapus file gambar konstruksi yang sudah diunggah jika transaksi gagal
+            foreach ($uploadedFileNames as $fileName) {
+                if (file_exists($uploadPath . $fileName)) {
+                    unlink($uploadPath . $fileName);
+                }
+            }
+
+            // Hapus semua file desain yang sudah diunggah jika transaksi gagal
+            foreach ($uploadedDesignFileNames as $fileName) {
+                if (file_exists($designUploadPath . $fileName)) {
+                    unlink($designUploadPath . $fileName);
+                }
+            }
+
+            return $this->fail('Gagal memproses permohonan: ' . $e->getMessage());
         }
     }
 
@@ -238,7 +505,22 @@ class ConstructionApi extends BaseController
         $surveys = $this->db->table('construction_surveys')->where('construction_id', $projectId)->orderBy('created_at', 'DESC')->get()->getResultArray();
 
         foreach ($surveys as &$item) {
-            $item['image_url'] = !empty($item['survey_file']) ? base_url('uploads/construction/survey/' . $item['survey_file']) : null;
+            $fileRaw = $item['survey_file'] ?? '';
+            $files = [];
+            if (!empty($fileRaw)) {
+                $decoded = json_decode($fileRaw, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $files = $decoded;
+                } else {
+                    $files = [$fileRaw];
+                }
+            }
+            
+            $item['survey_files'] = array_map(function($f) {
+                return base_url('uploads/construction/survey/' . $f);
+            }, $files);
+
+            $item['image_url'] = !empty($files) ? base_url('uploads/construction/survey/' . $files[0]) : null;
         }
 
         if ($surveys) {
@@ -269,9 +551,9 @@ class ConstructionApi extends BaseController
         $designs = $designRepo->findByConstructionId((int) $projectId);
 
         foreach ($designs as &$item) {
-            $item['image_url'] = !empty($item['file']) 
-                ? (!empty($item['design_requests_id']) 
-                    ? base_url('uploads/design_results/' . $item['file']) 
+            $item['image_url'] = !empty($item['file'])
+                ? (!empty($item['design_requests_id'])
+                    ? base_url('uploads/design_results/' . $item['file'])
                     : base_url('uploads/construction/designs/' . $item['file']))
                 : null;
         }
@@ -302,14 +584,15 @@ class ConstructionApi extends BaseController
 
         $progressListRaw = $this->db->table('construction_progress cp')
             ->select('
-                cp.id as progress_id, cp.bobot as progress_bobot, cp.photo_url as progress_photo, cp.created_at as progress_date, cp.status as progress_status,
-                ct.id as target_id, ct.bobot as target_bobot,
-                cr.group_name as rab_group, cr.sub_group_name as rab_subgroup, cr.activity_name as rab_activity,
+                cp.id as progress_id, cp.volume as progress_bobot, cp.photo_url as progress_photo, cp.created_at as progress_date, cp.status as progress_status,
+                ct.id as target_id, COALESCE(cr.volume, ca.volume) as target_bobot,
+                COALESCE(cr.group_name, ca.group_name) as rab_group, COALESCE(cr.sub_group_name, ca.sub_group_name) as rab_subgroup, COALESCE(cr.activity_name, ca.activity_name) as rab_activity,
                 ja.tukang_name, ja.specialization, t.profile_photo, ja.tukang_id as id_tukang,
                 tr.id as rating_id, tr.skill_score, tr.behavior_score, tr.comment as rating_comment, tr.created_at as rating_created_at
             ')
             ->join('construction_targets ct', 'ct.id = cp.id_construction_targets', 'inner')
             ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
+            ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
             ->join('job_applications ja', 'ja.id = ct.id_job_applications', 'left')
             ->join('tukang t', 't.id = ja.tukang_id', 'left')
             ->join('tukang_rating tr', "tr.target_id = ct.id AND tr.id_tukang = t.id AND tr.project_type = 'construction'", 'left')
@@ -473,10 +756,7 @@ class ConstructionApi extends BaseController
                 u.full_name, 
                 cr.start_date, 
                 cr.address,
-                (SELECT count(id) FROM construction_targets WHERE construction_id = cr.id) as total_target,
-                (SELECT SUM(cp.bobot) FROM construction_progress cp 
-                 JOIN construction_targets ct ON ct.id = cp.id_construction_targets 
-                 WHERE ct.construction_id = cr.id AND LOWER(cp.status) = \'approved\') as total_realisasi
+                (SELECT count(id) FROM construction_targets WHERE construction_id = cr.id) as total_target
             ')
             ->join('users u', 'u.id = cr.user_id', 'left')
             ->where('cr.user_id', $user_id)
@@ -486,6 +766,42 @@ class ConstructionApi extends BaseController
         $today = new \DateTime();
 
         foreach ($projects as &$item) {
+            $cId = $item['construction_id'];
+
+            // Hitung total anggaran (RAB + Addendum)
+            $totalRAB = $this->db->table('construction_rabs')
+                ->where('construction_id', $cId)
+                ->selectSum('total_price')
+                ->get()->getRowArray()['total_price'] ?? 0;
+                
+            $totalAddendum = $this->db->table('construction_addendum')
+                ->where('construction_id', $cId)
+                ->selectSum('total_price')
+                ->get()->getRowArray()['total_price'] ?? 0;
+                
+            $totalBudget = $totalRAB + $totalAddendum;
+
+            // Hitung total realisasi harga (volume disetujui * harga satuan)
+            $realizationRAB = $this->db->table('construction_progress cp')
+                ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
+                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs')
+                ->where('cp.construction_id', $cId)
+                ->where('cp.status', 'APPROVED')
+                ->select('SUM(cp.volume * cr.current_unit_price) as realization')
+                ->get()->getRowArray()['realization'] ?? 0;
+
+            $realizationAddendum = $this->db->table('construction_progress cp')
+                ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
+                ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum')
+                ->where('cp.construction_id', $cId)
+                ->where('cp.status', 'APPROVED')
+                ->select('SUM(cp.volume * ca.current_unit_price) as realization')
+                ->get()->getRowArray()['realization'] ?? 0;
+
+            $totalRealization = $realizationRAB + $realizationAddendum;
+
+            $item['total_realisasi'] = $totalBudget > 0 ? ($totalRealization / $totalBudget) * 100 : 0;
+
             $item['currentweek'] = 0;
             if (!empty($item['start_date'])) {
                 $start = new \DateTime($item['start_date']);
@@ -572,28 +888,34 @@ class ConstructionApi extends BaseController
             return $this->fail('Project ID tidak boleh kosong.');
         }
 
-        $rabData = $this->db->table('construction_rabs')->where('construction_id', $projectId)->orderBy('created_at', 'DESC')->get()->getResultArray();
 
-        $rabIds = array_column($rabData, 'id');
-        $materials = [];
-        if (!empty($rabIds)) {
-            $materials = $this->db->table('construction_rab_materials crm')
-                ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.photo as product_photo')
-                ->join('products p', 'p.id = crm.product_id', 'left')
-                ->whereIn('crm.rab_id', $rabIds)
-                ->get()->getResultArray();
-        }
+        try {
+            $rabData = $this->db->table('construction_rabs')->where('construction_id', $projectId)->orderBy('created_at', 'DESC')->get()->getResultArray();
 
-        foreach ($rabData as &$rab) {
-            $rab['image_url'] = !empty($rab['file']) ? base_url('uploads/construction/rab/' . $rab['file']) : null;
-
-            $rabMaterials = array_values(array_filter($materials, function ($material) use ($rab) {
-                return $material['rab_id'] == $rab['id'];
-            }));
-            foreach ($rabMaterials as &$material) {
-                $material['product_image_url'] = !empty($material['product_photo']) ? base_url('uploads/products/' . $material['product_photo']) : null;
+            $rabIds = array_column($rabData, 'id');
+            $materials = [];
+            if (!empty($rabIds)) {
+                $materials = $this->db->table('construction_rab_materials crm')
+                    ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.photo as product_photo')
+                    ->join('products p', 'p.id = crm.product_id', 'left')
+                    ->whereIn('crm.rab_id', $rabIds)
+                    ->get()->getResultArray();
             }
-            $rab['materials'] = $rabMaterials;
+
+            foreach ($rabData as &$rab) {
+                $rab['image_url'] = !empty($rab['file']) ? base_url('uploads/construction/rab/' . $rab['file']) : null;
+
+                $rabMaterials = array_values(array_filter($materials, function ($material) use ($rab) {
+                    return $material['rab_id'] == $rab['id'];
+                }));
+                foreach ($rabMaterials as &$material) {
+                    $material['product_total'] = (float) $material['product_price'] * (float) $rab['volume'];
+                    $material['product_image_url'] = !empty($material['product_photo']) ? base_url('uploads/products/' . $material['product_photo']) : null;
+                }
+                $rab['materials'] = $rabMaterials;
+            }
+        } catch (\Throwable $th) {
+            return $this->fail('Gagal mendapatkan data RAB dengan error : ' . $th->getMessage());
         }
 
         if ($rabData) {
@@ -797,14 +1119,14 @@ class ConstructionApi extends BaseController
         }
 
         $data = $this->db->table('construction_targets ct')
-            ->select("crab.group_name, 
-        crab.sub_group_name, 
-        crab.activity_name, 
+            ->select("COALESCE(crab.group_name, ca.group_name) as group_name, 
+        COALESCE(crab.sub_group_name, ca.sub_group_name) as sub_group_name, 
+        COALESCE(crab.activity_name, ca.activity_name) as activity_name, 
         creq.id as construction_id, 
         NULL as renovation_id, 
         ct.start_week, 
         ct.end_week, 
-        ct.bobot, 
+        COALESCE(crab.volume, ca.volume) as bobot, 
         ct.status as target_status, 
         creq.status as construction_status, 
         creq.start_date, 
@@ -813,9 +1135,10 @@ class ConstructionApi extends BaseController
         (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_count, 
         (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'rejected') as rejected_count, 
         (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_count, 
-        (SELECT SUM(bobot) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_weight, 
-        (SELECT SUM(bobot) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_weight", false)
-            ->join('construction_rabs crab', 'crab.id = ct.id_construction_rabs')
+        (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_weight, 
+        (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_weight", false)
+            ->join('construction_rabs crab', 'crab.id = ct.id_construction_rabs', 'left')
+            ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
             ->join('construction_requests creq', 'creq.id = ct.construction_id')
             ->join('users u', 'u.id = creq.user_id')
             ->where('u.id', $userId)

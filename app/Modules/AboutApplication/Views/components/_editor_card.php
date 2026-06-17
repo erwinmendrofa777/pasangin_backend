@@ -1,11 +1,6 @@
 <div class="row justify-content-center">
     <div class="col-12 col-lg-9">
         <div class="card form-card">
-            <div class="card-header d-flex align-items-center">
-                <h4 class="mb-0 fw-800 text-primary" style="font-size: 1.1rem;">
-                    <i class="fas fa-info-circle me-2"></i>Tentang Aplikasi Pasangin
-                </h4>
-            </div>
             <div class="card-body">
                 <form action="<?= base_url('admin/about_application/update') ?>" method="post" id="about-form">
                     <?= csrf_field() ?>

@@ -10,5 +10,5 @@ Health
  [x] Base url has been set
 
 System Settings
- [x] Get val and set val
+ [ ] Get val and set val
 

@@ -1,27 +1,5 @@
 <!-- ===== TABLE CARD ===== -->
 <div class="card table-card">
-
-    <!-- Card Header -->
-    <div class="d-flex justify-content-between align-items-center px-4 py-3" style="border-bottom: 1px solid #f0f4fa;">
-        <h6 class="mb-0 fw-bold text-primary"
-            style="font-size:0.85rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-ticket-alt me-2"></i>Daftar Voucher
-        </h6>
-        <div class="d-flex gap-3">
-            <div class="search-wrapper" style="width: 280px;">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari kode atau nama voucher...">
-            </div>
-            <?php if (can('vouchers_create')): ?>
-                <a href="<?= base_url('admin/vouchers/create') ?>"
-                    class="btn btn-primary d-flex align-items-center gap-2 px-3"
-                    style="border-radius: 12px; font-weight: 600;">
-                    <i class="fas fa-plus"></i> Tambah Voucher
-                </a>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover" id="table-1" style="width:100%">

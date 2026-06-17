@@ -188,6 +188,7 @@ class DesignRequestService
             dr.design_concept, 
             dr.full_name as client_name,
             dr.start_date as request_start_date,
+            ua.full_name as designer_name,
             COUNT(pd.id) as total_designs,
             SUM(CASE WHEN pd.status = 'APPROVED' THEN 1 ELSE 0 END) as approved_designs,
             SUM(CASE WHEN pd.status = 'PENDING' THEN 1 ELSE 0 END) as pending_designs,
@@ -195,6 +196,7 @@ class DesignRequestService
         ");
         $builder->join('design_requests dr', 'dr.id = design_targets.design_request_id', 'left');
         $builder->join('project_designs pd', 'pd.design_targets_id = design_targets.id', 'left');
+        $builder->join('user_admin ua', 'ua.id = design_targets.user_admin_id', 'left');
             
         if ($adminId !== null) {
             $builder->where('design_targets.user_admin_id', $adminId);
@@ -240,10 +242,11 @@ class DesignRequestService
         }
 
         $this->requestRepository->update($id, [
-            'start_date' => $data['start_date'],
-            'target_date' => $data['target_date'],
+            'start_date'       => $data['start_date'],
+            'target_date'      => $data['target_date'],
             'progress_percent' => $data['progress_percent'],
-            'status' => $data['status'],
+            'status'           => $data['status'],
+            'max_revision'     => isset($data['max_revision']) ? (int) $data['max_revision'] : null,
         ]);
     }
 
@@ -392,6 +395,16 @@ class DesignRequestService
             'Revisi lain telah disetujui'
         );
 
+        // Otomatis ubah status target menjadi DONE
+        if (!empty($design['design_targets_id'])) {
+            $this->targetRepository->update((int) $design['design_targets_id'], [
+                'status' => 'DONE'
+            ]);
+
+            // Periksa jika seluruh target sudah selesai untuk mengubah status permohonan menjadi COMPLETED
+            $this->checkAndUpdateDesignRequestStatus((int) $design['design_request_id']);
+        }
+
         return [
             'design_request_id' => (int) $design['design_request_id'],
             'revision_number' => (int) $design['revision_number'],
@@ -457,6 +470,9 @@ class DesignRequestService
         }
 
         $this->targetRepository->delete($targetId);
+
+        // Periksa jika seluruh target yang tersisa sudah selesai untuk mengubah status permohonan menjadi COMPLETED
+        $this->checkAndUpdateDesignRequestStatus($designRequestId);
     }
 
     /**
@@ -477,6 +493,9 @@ class DesignRequestService
             'keterangan' => $postData['keterangan'] ?? null,
             'status' => $postData['status'] ?: 'PENDING',
         ]);
+
+        // Periksa jika seluruh target sudah selesai untuk mengubah status permohonan menjadi COMPLETED
+        $this->checkAndUpdateDesignRequestStatus((int) $target['design_request_id']);
 
         return (int) $target['design_request_id'];
     }
@@ -518,6 +537,74 @@ class DesignRequestService
         return (int) $invoice['design_request_id'];
     }
 
+    /**
+     * Ambil seluruh target desain untuk Kanban dari proyek yang aktif (belum COMPLETED/CANCELLED).
+     */
+    public function getDesignerTasksForKanban(?int $adminId = null): array
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('design_targets');
+        
+        $builder->select("
+            design_targets.*, 
+            dr.design_concept, 
+            dr.full_name as client_name,
+            dr.start_date as request_start_date,
+            dr.target_date as request_target_date,
+            dr.status as request_status,
+            ua.full_name as designer_name,
+            COUNT(pd.id) as total_designs,
+            SUM(CASE WHEN pd.status = 'APPROVED' THEN 1 ELSE 0 END) as approved_designs,
+            SUM(CASE WHEN pd.status = 'PENDING' THEN 1 ELSE 0 END) as pending_designs,
+            SUM(CASE WHEN pd.status = 'REJECTED' THEN 1 ELSE 0 END) as rejected_designs
+        ");
+        $builder->join('design_requests dr', 'dr.id = design_targets.design_request_id', 'left');
+        $builder->join('project_designs pd', 'pd.design_targets_id = design_targets.id', 'left');
+        $builder->join('user_admin ua', 'ua.id = design_targets.user_admin_id', 'left');
+            
+        if ($adminId !== null) {
+            $builder->where('design_targets.user_admin_id', $adminId);
+        }
+        
+        $builder->whereNotIn('dr.status', ['COMPLETED', 'CANCELLED']);
+        
+        $builder->groupBy('design_targets.id');
+        $builder->orderBy("design_targets.created_at", "DESC");
+        
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Update status target saja.
+     */
+    public function updateTargetStatus(int $targetId, string $status): void
+    {
+        $target = $this->targetRepository->findById($targetId);
+        if (!$target) {
+            throw new RuntimeException('Target tidak ditemukan.');
+        }
+        $this->targetRepository->update($targetId, [
+            'status' => $status
+        ]);
+
+        // Periksa jika seluruh target sudah selesai untuk mengubah status permohonan menjadi COMPLETED
+        $this->checkAndUpdateDesignRequestStatus((int) $target['design_request_id']);
+    }
+
+    /**
+     * Update desainer pelaksana target saja.
+     */
+    public function updateTargetDesigner(int $targetId, ?int $designerId): void
+    {
+        $target = $this->targetRepository->findById($targetId);
+        if (!$target) {
+            throw new RuntimeException('Target tidak ditemukan.');
+        }
+        $this->targetRepository->update($targetId, [
+            'user_admin_id' => $designerId ?: null
+        ]);
+    }
+
     // =========================================================================
     // PRIVATE HELPERS
     // =========================================================================
@@ -552,6 +639,33 @@ class DesignRequestService
 
         if (is_file($filePath)) {
             unlink($filePath);
+        }
+    }
+
+    /**
+     * Memeriksa apakah seluruh target pengerjaan desain berstatus DONE.
+     * Jika ya, maka status permohonan desain (design_requests) diubah menjadi COMPLETED.
+     */
+    public function checkAndUpdateDesignRequestStatus(int $designRequestId): void
+    {
+        $targets = $this->targetRepository->findByDesignRequestId($designRequestId);
+        
+        $allDone = true;
+        if (empty($targets)) {
+            $allDone = false;
+        } else {
+            foreach ($targets as $t) {
+                if (($t['status'] ?? '') !== 'DONE') {
+                    $allDone = false;
+                    break;
+                }
+            }
+        }
+
+        if ($allDone) {
+            $this->requestRepository->update($designRequestId, [
+                'status' => 'COMPLETED'
+            ]);
         }
     }
 }

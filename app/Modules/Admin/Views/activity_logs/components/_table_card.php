@@ -1,35 +1,48 @@
-<!-- Main Content -->
-<div class="card main-table-card">
-    <div class="card-body p-0">
+<div class="card table-card">
+    <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-custom w-100" id="activityTable">
+            <table class="table table-hover" id="table-1" style="width:100%">
                 <thead>
                     <tr>
-                        <th class="text-center" width="5">No</th>
-                        <th>Waktu Kejadian</th>
-                        <th>Nama & Role</th>
-                        <th class="text-center">Aksi</th>
-                        <th>Modul</th>
-                        <th>Deskripsi Aktivitas</th>
+                        <th class="text-center" style="width: 5%">No</th>
+                        <th style="width: 18%">Waktu Kejadian</th>
+                        <th style="width: 22%">Nama & Role</th>
+                        <th class="text-center" style="width: 15%">Aksi</th>
+                        <th style="width: 15%">Modul</th>
+                        <th style="width: 25%">Deskripsi Aktivitas</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $no = 1;
-                    foreach ($logs as $log): ?>
-                        <tr>
-                            <td class="text-center text-muted fw-bold"><?= $no++ ?></td>
+                    <?php foreach ($logs as $key => $log): ?>
+                        <tr class="align-middle">
+                            <td class="text-center">
+                                <span class="fw-semibold text-muted" style="font-size: 0.82rem;"><?= $key + 1 ?></span>
+                            </td>
                             <td class="time-cell">
                                 <span class="d-none"><?= strtotime($log['created_at']) ?></span>
                                 <span class="date"><?= date('d M Y', strtotime($log['created_at'])) ?></span>
-                                <span class="time small"><i
-                                        class="far fa-clock me-1"></i><?= date('H:i:s', strtotime($log['created_at'])) ?></span>
+                                <span class="time small">
+                                    <i class="far fa-clock me-1"></i><?= date('H:i:s', strtotime($log['created_at'])) ?>
+                                </span>
                             </td>
                             <td>
                                 <div class="admin-profile">
                                     <div class="avatar-circle">
                                         <?php
-                                        $nameParts = explode(' ', $log['admin_name'] ?? 'Admin');
-                                        echo strtoupper(substr($nameParts[0], 0, 1) . (isset($nameParts[1]) ? substr($nameParts[1], 0, 1) : ''));
+                                        $adminName = $log['admin_name'] ?? 'System';
+                                        $nameParts = array_filter(explode(' ', trim($adminName)));
+                                        $initials = '';
+                                        if (!empty($nameParts)) {
+                                            $first = array_shift($nameParts);
+                                            $initials .= substr($first, 0, 1);
+                                            if (!empty($nameParts)) {
+                                                $second = array_shift($nameParts);
+                                                $initials .= substr($second, 0, 1);
+                                            }
+                                        } else {
+                                            $initials = 'S';
+                                        }
+                                        echo strtoupper(esc($initials));
                                         ?>
                                     </div>
                                     <div class="admin-info">
@@ -40,7 +53,7 @@
                             </td>
                             <td class="text-center">
                                 <?php
-                                $action = strtolower($log['action']);
+                                $action = strtolower($log['action'] ?? '');
                                 $badgeClass = 'action-default';
                                 $icon = 'info-circle';
 
@@ -72,14 +85,16 @@
                                 }
                                 ?>
                                 <span class="action-badge <?= $badgeClass ?>">
-                                    <i class="fas fa-<?= $icon ?>"></i> <?= esc(strtoupper($log['action'])) ?>
+                                    <i class="fas fa-<?= $icon ?>"></i> <?= esc(strtoupper($log['action'] ?? 'UNKNOWN')) ?>
                                 </span>
                             </td>
                             <td>
-                                <span class="module-badge"><?= strtoupper(esc($log['module'])) ?></span>
+                                <span class="module-badge"><?= strtoupper(esc($log['module'] ?? '-')) ?></span>
                             </td>
-                            <td class="text-muted" style="max-width: 300px;">
-                                <div class="small fw-600"><?= esc($log['description']) ?></div>
+                            <td>
+                                <div class="small fw-semibold text-wrap" style="color: #475569; max-width: 320px; word-break: break-word;">
+                                    <?= esc($log['description'] ?? '-') ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

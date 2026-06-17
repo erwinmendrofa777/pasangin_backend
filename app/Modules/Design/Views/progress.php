@@ -172,8 +172,43 @@
                                         <!-- Catatan (jika REJECTED/APPROVED) -->
                                         <?php if (!empty($d['revision_note'])): ?>
                                             <div class="mt-2 px-2 py-1 rounded" style="background:rgba(0,0,0,.04);font-size:12px;">
-                                                <i class="fas fa-sticky-note text-muted me-1"></i>
+                                                <i class="fas fa-sticky-note text-muted me-1"></i> catatan revisi : 
                                                 <?= esc($d['revision_note']) ?>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <!-- Gambar Catatan Revisi (image_revision_note) -->
+                                        <?php
+                                        $revImages = [];
+                                        if (!empty($d['image_revision_note'])) {
+                                            $decoded = json_decode($d['image_revision_note'], true);
+                                            if (is_array($decoded)) {
+                                                $revImages = $decoded;
+                                            }
+                                        }
+                                        ?>
+                                        <?php if (!empty($revImages)): ?>
+                                            <div class="mt-2">
+                                                <div class="d-flex align-items-center gap-1 mb-1" style="font-size:11px; color:#6c757d;">
+                                                    <i class="fas fa-images"></i>
+                                                    <span>Lampiran Gambar (<?= count($revImages) ?>)</span>
+                                                </div>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <?php foreach ($revImages as $idx => $imgFile): ?>
+                                                        <?php $imgUrl = base_url('uploads/design_results/revision_comment/' . $imgFile); ?>
+                                                        <a href="<?= $imgUrl ?>"
+                                                            class="glightbox"
+                                                            data-gallery="rev-note-gallery-<?= $d['id'] ?>"
+                                                            data-title="Catatan Gambar <?= $idx + 1 ?> — Rev. <?= $revNum ?>"
+                                                            title="Lihat gambar catatan">
+                                                            <img src="<?= $imgUrl ?>"
+                                                                alt="Catatan gambar <?= $idx + 1 ?>"
+                                                                style="width:56px; height:56px; object-fit:cover; border-radius:6px; border:2px solid #dee2e6; cursor:zoom-in; transition:.15s;"
+                                                                onmouseover="this.style.borderColor='#0d6efd';"
+                                                                onmouseout="this.style.borderColor='#dee2e6';">
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
                                             </div>
                                         <?php endif; ?>
 

@@ -42,15 +42,9 @@ class DesignRequests extends BaseController
             return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat desain.');
         }
 
-        // Cek apakah user yang login adalah desainer
-        $isAdminDesigner = in_array(strtolower(session()->get('role') ?? ''), ['kepala divisi desain', 'drafter', 'arsitek']);
-        $adminId = $isAdminDesigner ? (int) session()->get('user_id') : null;
-
         return view('App\Modules\Design\Views\index', [
             'title' => 'Permohonan Desain',
             'requests' => $this->designService->getAllRequests(),
-            'workStats' => $this->designService->getDesignerWorkStats($adminId),
-            'designerTasks' => $this->designService->getDesignerTasks($adminId),
         ]);
     }
 
@@ -106,8 +100,21 @@ class DesignRequests extends BaseController
     // -------------------------------------------------------------------------
     public function show($id)
     {
-        if (!can('design_detail')) {
+        if (!can('design_detail') && !in_array(strtolower(session()->get('role') ?? ''), ['drafter', 'arsitek'])) {
             return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat desain.');
+        }
+
+        // Security check for drafter & arsitek
+        $role = strtolower(session()->get('role') ?? '');
+        if (in_array($role, ['drafter', 'arsitek'])) {
+            $db = \Config\Database::connect();
+            $hasTarget = $db->table('design_targets')
+                ->where('design_request_id', $id)
+                ->where('user_admin_id', session()->get('user_id'))
+                ->countAllResults() > 0;
+            if (!$hasTarget) {
+                return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses ke proyek ini.');
+            }
         }
 
         try {
@@ -250,12 +257,23 @@ class DesignRequests extends BaseController
     // -------------------------------------------------------------------------
     public function addDesignResult($id)
     {
-        if (!can('design_desain')) {
+        if (!can('design_desain') && !in_array(strtolower(session()->get('role') ?? ''), ['drafter', 'arsitek'])) {
             return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk menambah hasil desain.');
         }
 
         if (!$this->validate('designResultAdd')) {
-            return redirect()->to('/admin/design/show/' . $id)->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        // Security check for drafter & arsitek
+        $role = strtolower(session()->get('role') ?? '');
+        if (in_array($role, ['drafter', 'arsitek'])) {
+            $targetId = (int) $this->request->getPost('design_targets_id');
+            $db = \Config\Database::connect();
+            $target = $db->table('design_targets')->where('id', $targetId)->get()->getRowArray();
+            if (!$target || $target['user_admin_id'] != session()->get('user_id')) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menambah hasil desain pada tugas ini.');
+            }
         }
 
         try {
@@ -274,6 +292,15 @@ class DesignRequests extends BaseController
             }
 
             log_admin_activity('create', 'Design Requests', 'Tambah Hasil Desain Proyek ' . $id);
+            
+            $redirectTo = $this->request->getPost('redirect_to');
+            if ($redirectTo === 'managerial') {
+                if (in_array($role, ['drafter', 'arsitek'])) {
+                    return redirect()->to('/admin/design/tugas')->with('success', 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!');
+                }
+                return redirect()->to('/admin/design/managerial')->with('success', 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!');
+            }
+            
             return redirect()->to('/admin/design/show/' . $id)->with('success', 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!');
         } catch (RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -285,8 +312,18 @@ class DesignRequests extends BaseController
     // -------------------------------------------------------------------------
     public function deleteDesign($id)
     {
-        if (!can('design_desain')) {
+        if (!can('design_desain') && !in_array(strtolower(session()->get('role') ?? ''), ['drafter', 'arsitek'])) {
             return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk menghapus desain.');
+        }
+
+        // Security check for drafter & arsitek
+        $role = strtolower(session()->get('role') ?? '');
+        if (in_array($role, ['drafter', 'arsitek'])) {
+            $db = \Config\Database::connect();
+            $design = $db->table('project_designs')->where('id', $id)->get()->getRowArray();
+            if (!$design || $design['user_admin_id'] != session()->get('user_id')) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus file desain ini.');
+            }
         }
 
         try {
@@ -304,6 +341,9 @@ class DesignRequests extends BaseController
     public function approveDesign($id)
     {
         if (!can('design_desain')) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses.']);
+            }
             return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk mengubah desain.');
         }
 
@@ -319,9 +359,15 @@ class DesignRequests extends BaseController
             }
 
             log_admin_activity('update', 'Design Requests', 'Approve Desain Proyek ' . $id);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => true, 'message' => 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-approve!']);
+            }
             return redirect()->to('/admin/design/show/' . $result['design_request_id'] . '#progress')
                 ->with('success', 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-approve!');
         } catch (RuntimeException $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+            }
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -332,6 +378,9 @@ class DesignRequests extends BaseController
     public function rejectDesign($id)
     {
         if (!can('design_desain')) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses.']);
+            }
             return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk mengubah desain.');
         }
 
@@ -347,9 +396,15 @@ class DesignRequests extends BaseController
             }
 
             log_admin_activity('update', 'Design Requests', 'Reject Desain Proyek ' . $id);
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => true, 'message' => 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-reject.']);
+            }
             return redirect()->to('/admin/design/show/' . $result['design_request_id'] . '#progress')
                 ->with('success', 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-reject.');
         } catch (RuntimeException $e) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+            }
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -369,7 +424,7 @@ class DesignRequests extends BaseController
 
         log_admin_activity('create', 'Design Requests', 'Tambah Target Proyek ' . $id);
         $this->designService->createTarget((int) $id, $this->request->getPost());
-        return redirect()->to('/admin/design/show/' . $id . '#progress')->with('success', 'Target berhasil ditambahkan!');
+        return redirect()->to('/admin/design/show/' . $id . '#target')->with('success', 'Target berhasil ditambahkan!');
     }
 
     // -------------------------------------------------------------------------
@@ -384,7 +439,7 @@ class DesignRequests extends BaseController
         try {
             $this->designService->deleteTarget((int) $targetId, (int) $designId);
             log_admin_activity('delete', 'Design Requests', 'Hapus Target Proyek ' . $designId);
-            return redirect()->to('/admin/design/show/' . $designId . '#progress')->with('success', 'Target berhasil dihapus.');
+            return redirect()->to('/admin/design/show/' . $designId . '#target')->with('success', 'Target berhasil dihapus.');
         } catch (RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -405,7 +460,7 @@ class DesignRequests extends BaseController
                 $this->request->getPost()
             );
             log_admin_activity('update', 'Design Requests', 'Update Progress Target Proyek ' . $designRequestId);
-            return redirect()->to('/admin/design/show/' . $designRequestId . '#progress')
+            return redirect()->to('/admin/design/show/' . $designRequestId . '#target')
                 ->with('success', 'Progress target berhasil diupdate!');
         } catch (RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -458,6 +513,210 @@ class DesignRequests extends BaseController
             return redirect()->to('/admin/design/show/' . $designRequestId)->with('success', 'Tagihan berhasil dihapus.');
         } catch (RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function managerial()
+    {
+        if (!can('design') || strtolower(session()->get('role') ?? '') !== 'kepala divisi desain') {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat managerial tugas.');
+        }
+
+        $userAdminRepo = new \App\Modules\Admin\Repositories\UserAdminRepository();
+        $allDesigners = $userAdminRepo->findAllOrderedByIdDesc();
+        $designers = array_filter($allDesigners, function($user) {
+            $role = strtolower($user['role'] ?? '');
+            return in_array($role, ['kepala divisi desain', 'arsitek', 'drafter']);
+        });
+
+        $db = \Config\Database::connect();
+        $pendingDesigns = $db->table('project_designs')
+            ->select('project_designs.*, ua.full_name as admin_name')
+            ->join('user_admin ua', 'ua.id = project_designs.user_admin_id', 'left')
+            ->where('project_designs.status', 'PENDING')
+            ->orderBy('project_designs.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $pendingDesignsByTarget = [];
+        foreach ($pendingDesigns as $pd) {
+            $pendingDesignsByTarget[$pd['design_targets_id']][] = $pd;
+        }
+
+        return view('App\Modules\Design\Views\managerial', [
+            'title' => 'Managerial Tugas',
+            'designerTasks' => $this->designService->getDesignerTasksForKanban(null),
+            'designers' => $designers,
+            'pendingDesignsByTarget' => $pendingDesignsByTarget,
+        ]);
+    }
+
+    public function tugas()
+    {
+        $role = strtolower(session()->get('role') ?? '');
+        if (!in_array($role, ['drafter', 'arsitek'])) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk melihat tugas.');
+        }
+
+        $userId = session()->get('user_id');
+
+        $userAdminRepo = new \App\Modules\Admin\Repositories\UserAdminRepository();
+        $allDesigners = $userAdminRepo->findAllOrderedByIdDesc();
+        $designers = array_filter($allDesigners, function($user) {
+            $role = strtolower($user['role'] ?? '');
+            return in_array($role, ['kepala divisi desain', 'arsitek', 'drafter']);
+        });
+
+        $db = \Config\Database::connect();
+        $pendingDesigns = $db->table('project_designs')
+            ->select('project_designs.*, ua.full_name as admin_name')
+            ->join('user_admin ua', 'ua.id = project_designs.user_admin_id', 'left')
+            ->where('project_designs.status', 'PENDING')
+            ->where('project_designs.user_admin_id', $userId)
+            ->orderBy('project_designs.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $pendingDesignsByTarget = [];
+        foreach ($pendingDesigns as $pd) {
+            $pendingDesignsByTarget[$pd['design_targets_id']][] = $pd;
+        }
+
+        return view('App\Modules\Design\Views\tugas', [
+            'title' => 'Tugas Saya',
+            'designerTasks' => $this->designService->getDesignerTasksForKanban($userId),
+            'designers' => $designers,
+            'pendingDesignsByTarget' => $pendingDesignsByTarget,
+        ]);
+    }
+
+    public function updateTargetStatusAjax()
+    {
+        $role = strtolower(session()->get('role') ?? '');
+        if (!can('design_progress') && !in_array($role, ['drafter', 'arsitek'])) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses untuk mengubah progress target.']);
+        }
+
+        $targetId = (int) $this->request->getPost('target_id');
+        $status = $this->request->getPost('status');
+
+        if (empty($targetId) || empty($status)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Parameter tidak lengkap.']);
+        }
+
+        // Security check for drafter & arsitek
+        if (in_array($role, ['drafter', 'arsitek'])) {
+            $db = \Config\Database::connect();
+            $target = $db->table('design_targets')->where('id', $targetId)->get()->getRowArray();
+            if (!$target || $target['user_admin_id'] != session()->get('user_id')) {
+                return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses ke tugas ini.']);
+            }
+
+            // Block marking as DONE directly if task has designs (must go through approval)
+            if ($status === 'DONE') {
+                $hasDesigns = $db->table('project_designs')->where('design_targets_id', $targetId)->countAllResults() > 0;
+                if ($hasDesigns) {
+                    return $this->response->setJSON(['status' => false, 'message' => 'Tugas dengan berkas desain harus disetujui oleh Kepala Divisi Desain.']);
+                }
+            }
+        }
+
+        try {
+            $this->designService->updateTargetStatus($targetId, $status);
+            log_admin_activity('update', 'Design Requests', 'Update Status Target Proyek via AJAX ' . $targetId);
+            return $this->response->setJSON(['status' => true, 'message' => 'Status target berhasil diperbarui!']);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function updateTargetDesignerAjax()
+    {
+        $role = strtolower(session()->get('role') ?? '');
+        $isSuperAdmin = in_array('super_admin_override', session()->get('permissions') ?? []);
+        if ($role !== 'kepala divisi desain' && !$isSuperAdmin) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Hanya Kepala Divisi Desain yang dapat mengubah desainer tugas.']);
+        }
+
+        $targetId = (int) $this->request->getPost('target_id');
+        $designerId = $this->request->getPost('user_admin_id');
+
+        if (empty($targetId)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Parameter tidak lengkap.']);
+        }
+
+        try {
+            $this->designService->updateTargetDesigner($targetId, $designerId ? (int) $designerId : null);
+            log_admin_activity('update', 'Design Requests', 'Update Desainer Target Proyek via AJAX ' . $targetId);
+            return $this->response->setJSON(['status' => true, 'message' => 'Desainer target berhasil diperbarui!']);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getTargetDesignsAjax()
+    {
+        $role = strtolower(session()->get('role') ?? '');
+        if (!can('design') && !in_array($role, ['drafter', 'arsitek'])) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses.']);
+        }
+
+        $targetId = (int) $this->request->getPost('target_id');
+
+        if (empty($targetId)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Parameter tidak lengkap.']);
+        }
+
+        // Security check for drafter & arsitek
+        if (in_array($role, ['drafter', 'arsitek'])) {
+            $db = \Config\Database::connect();
+            $target = $db->table('design_targets')->where('id', $targetId)->get()->getRowArray();
+            if (!$target || $target['user_admin_id'] != session()->get('user_id')) {
+                return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses ke tugas ini.']);
+            }
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $designs = $db->table('project_designs pd')
+                ->select('pd.*, ua.full_name as admin_name')
+                ->join('user_admin ua', 'ua.id = pd.user_admin_id', 'left')
+                ->where('pd.design_targets_id', $targetId)
+                ->orderBy('pd.revision_number', 'DESC')
+                ->get()
+                ->getResultArray();
+
+            return $this->response->setJSON(['status' => true, 'data' => $designs]);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function updateTargetKeteranganAjax()
+    {
+        $role = strtolower(session()->get('role') ?? '');
+        $isSuperAdmin = in_array('super_admin_override', session()->get('permissions') ?? []);
+        if ($role !== 'kepala divisi desain' && !$isSuperAdmin) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Hanya Kepala Divisi Desain yang dapat mengubah keterangan target.']);
+        }
+
+        $targetId = (int) $this->request->getPost('target_id');
+        $keterangan = $this->request->getPost('keterangan');
+
+        if (empty($targetId)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Parameter tidak lengkap.']);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $db->table('design_targets')
+                ->where('id', $targetId)
+                ->update(['keterangan' => $keterangan ?: null]);
+
+            log_admin_activity('update', 'Design Requests', 'Update Keterangan Target Proyek via AJAX ' . $targetId);
+            return $this->response->setJSON(['status' => true, 'message' => 'Keterangan target berhasil diperbarui!']);
+        } catch (RuntimeException $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
         }
     }
 }

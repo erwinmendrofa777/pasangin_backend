@@ -90,7 +90,10 @@ class TukangRatingController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $input = $this->request->getPost() ?? $this->request->getJSON(true);
+        $contentType = $this->request->getHeaderLine('Content-Type');
+        $input = (stripos($contentType, 'application/json') !== false)
+            ? ($this->request->getJSON(true) ?? [])
+            : $this->request->getPost();
         $data = [
             'id_tukang' => $input['id_tukang'],
             'target_id' => $input['target_id'],
@@ -178,7 +181,10 @@ class TukangRatingController extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $input = $this->request->getPost() ?? $this->request->getJSON(true);
+        $contentType = $this->request->getHeaderLine('Content-Type');
+        $input = (stripos($contentType, 'application/json') !== false)
+            ? ($this->request->getJSON(true) ?? [])
+            : $this->request->getPost();
         $data = [
             'id_tukang' => $input['id_tukang'],
             'target_id' => $input['target_id'],

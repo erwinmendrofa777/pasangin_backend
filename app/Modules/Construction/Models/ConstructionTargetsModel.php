@@ -20,7 +20,6 @@ class ConstructionTargetsModel extends Model
         'construction_id',
         'start_week',
         'end_week',
-        'bobot',
         'status'
     ];
 

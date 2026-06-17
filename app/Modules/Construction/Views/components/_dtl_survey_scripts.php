@@ -3,12 +3,19 @@
         const surveyInput = document.getElementById('surveyFileInput');
         if (surveyInput) {
             surveyInput.addEventListener('change', function (e) {
-                const fileName = e.target.files[0] ? e.target.files[0].name : 'Pilih atau seret file...';
+                const files = e.target.files;
                 const display = document.getElementById('surveyFileNameDisplay');
                 if (display) {
-                    display.textContent = fileName;
-                    display.style.color = e.target.files[0] ? '#34395e' : '#6c757d';
-                    display.style.fontWeight = e.target.files[0] ? '600' : '400';
+                    if (files && files.length > 0) {
+                        const fileNames = Array.from(files).map(f => f.name).join(', ');
+                        display.textContent = files.length === 1 ? fileNames : `${files.length} file terpilih: ${fileNames}`;
+                        display.style.color = '#34395e';
+                        display.style.fontWeight = '600';
+                    } else {
+                        display.textContent = 'Pilih atau seret file...';
+                        display.style.color = '#6c757d';
+                        display.style.fontWeight = '400';
+                    }
                 }
             });
         }

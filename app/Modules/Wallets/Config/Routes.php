@@ -11,3 +11,9 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Wallet
     $routes->post('admin-balance/withdraw', 'AdminBalance::withdraw');
     $routes->post('admin-balance/sync', 'AdminBalance::sync');
 });
+
+$routes->group('api', ['filter' => 'auth', 'namespace' => 'App\Modules\Wallets\Controllers\Api'], static function ($routes) {
+    $routes->get('tukang/wallet/(:num)', 'WalletController::getWalletInfo/$1');
+    $routes->get('tukang/withdrawal-requests/(:num)', 'WalletController::getWithdrawalRequests/$1');
+    $routes->post('tukang/withdraw', 'WalletController::requestWithdrawal');
+});

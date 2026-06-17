@@ -21,17 +21,34 @@ echo $this->section('style');
         font-family: 'Outfit', sans-serif;
     }
     
+    /* Scoped brand color overrides for primary text, links, and outlines */
+    .chat-section-wrapper .text-primary {
+        color: var(--palette-primary) !important;
+    }
+    .chat-section-wrapper .btn-outline-primary {
+        color: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
+        background-color: transparent !important;
+    }
+    .chat-section-wrapper .btn-outline-primary:hover,
+    .chat-section-wrapper .btn-outline-primary:focus,
+    .chat-section-wrapper .btn-outline-primary:active {
+        background-color: var(--palette-primary) !important;
+        color: #ffffff !important;
+        border-color: var(--palette-primary) !important;
+    }
+    
     /* Container Utama Chat */
     .chat-card-container {
         border-radius: 20px !important;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.04), 0 5px 15px rgba(0, 0, 0, 0.01) !important;
-        border: 1px solid rgba(99, 102, 241, 0.08) !important;
+        box-shadow: 0 20px 50px rgba(255, 92, 92, 0.04), 0 5px 15px rgba(0, 0, 0, 0.01) !important;
+        border: 1px solid rgba(255, 92, 92, 0.08) !important;
         background: #fff;
         transition: all 0.3s ease;
     }
     .chat-card-container:hover {
-        box-shadow: 0 25px 60px rgba(99, 102, 241, 0.08), 0 8px 20px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 25px 60px rgba(255, 92, 92, 0.08), 0 8px 20px rgba(0, 0, 0, 0.02) !important;
     }
 
     .pasangin-chat-box { 
@@ -78,8 +95,8 @@ echo $this->section('style');
     
     .search-input-wrapper:focus-within {
         background: #fff !important;
-        border-color: #6366f1 !important;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08) !important;
+        border-color: var(--palette-primary) !important;
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.08) !important;
     }
     
     .search-input-wrapper .search-icon {
@@ -128,41 +145,45 @@ echo $this->section('style');
     
     .filter-pills {
         display: flex;
-        gap: 6px;
+        background-color: #f1f5f9;
+        border-radius: 12px;
+        padding: 4px;
+        gap: 2px;
         margin-top: 12px;
+        width: 100%;
     }
     
     .btn-filter {
+        flex: 1;
         border: none !important;
-        background: #f8fafc !important;
+        background: transparent !important;
         color: #64748b !important;
-        font-size: 0.75rem !important;
+        font-size: 0.72rem !important;
         font-weight: 600 !important;
-        padding: 8px 16px !important;
-        border-radius: 10px !important;
-        transition: all 0.25s ease !important;
+        padding: 8px 4px !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease !important;
         box-shadow: none !important;
+        text-align: center;
     }
     
     .btn-filter:hover {
-        background: #f1f5f9 !important;
-        color: #334155 !important;
+        background: rgba(0, 0, 0, 0.03) !important;
+        color: #1e293b !important;
     }
     
     .btn-filter.active,
     .btn-filter.active:focus,
     .btn-filter.active:active,
     .btn-filter.active:hover {
-        background: #6366f1 !important;
+        background: var(--palette-primary) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+        box-shadow: 0 2px 8px rgba(255, 92, 92, 0.2) !important;
     }
  
     .btn-filter:focus {
         outline: none !important;
-        background: #e2e8f0 !important;
-        color: #334155 !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+        box-shadow: none !important;
     }
  
     #chat-list {
@@ -184,12 +205,12 @@ echo $this->section('style');
     }
  
     .chat-list-user.active { 
-        background-color: rgba(99, 102, 241, 0.05) !important; 
-        border-left-color: #6366f1;
+        background-color: rgba(255, 92, 92, 0.05) !important; 
+        border-left-color: var(--palette-primary);
     }
  
     .chat-list-user.active .chat-client-name {
-        color: #6366f1 !important;
+        color: var(--palette-primary) !important;
     }
     
     /* Badge styling */
@@ -206,9 +227,9 @@ echo $this->section('style');
     }
 
     .badge-tech {
-        background-color: #e0e7ff;
-        color: #4f46e5;
-        border: 1px solid #c7d2fe;
+        background-color: #f5f3ff;
+        color: #8b5cf6;
+        border: 1px solid #ddd6fe;
     }
     
     .badge-acct {
@@ -251,9 +272,9 @@ echo $this->section('style');
     .btn-filter-cat.active:focus,
     .btn-filter-cat.active:active,
     .btn-filter-cat.active:hover {
-        background: #4f46e5 !important;
+        background: var(--palette-primary-hover, #ff3b3b) !important;
         color: #ffffff !important;
-        box-shadow: 0 3px 8px rgba(79, 70, 229, 0.2) !important;
+        box-shadow: 0 3px 8px rgba(255, 92, 92, 0.2) !important;
     }
 
     /* Header Chat Aktif */
@@ -375,8 +396,8 @@ echo $this->section('style');
     }
     .chat-media-preview-container:hover .play-button-overlay i {
         transform: scale(1.1);
-        background: #6366f1;
-        box-shadow: 0 6px 14px rgba(99, 102, 241, 0.4);
+        background: var(--palette-primary);
+        box-shadow: 0 6px 14px rgba(255, 92, 92, 0.4);
     }
 
     /* Lightbox overlay untuk melihat gambar ukuran penuh */
@@ -516,17 +537,17 @@ echo $this->section('style');
     /* Style Chat Kanan (Admin) */
     .pasangin-chat-item.pasangin-chat-right { justify-content: flex-end; }
     .pasangin-chat-item.pasangin-chat-right .pasangin-chat-text { 
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover, #ff3b3b) 100%); 
         color: #fff; 
         border-radius: 16px 16px 4px 16px; 
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.12);
     }
     .pasangin-chat-item.pasangin-chat-right.pasangin-chat-item-failed .pasangin-chat-text {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
     }
     .pasangin-chat-item.pasangin-chat-right .pasangin-chat-avatar { 
-        margin-left: 12px; 
+        margin-right: 12px; 
         order: 2; 
         margin-top: 2px; /* Margin kecil agar sejajar baris pertama teks */
     }
@@ -535,7 +556,7 @@ echo $this->section('style');
         align-items: flex-end; 
     }
     .pasangin-chat-item.pasangin-chat-right .pasangin-chat-time { 
-        color: #a5b4fc; 
+        color: rgba(255, 255, 255, 0.8); 
         justify-content: flex-end;
     }
 
@@ -632,8 +653,8 @@ echo $this->section('style');
 
     .input-wrapper:focus-within {
         background: #fff;
-        border-color: #6366f1;
-        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+        border-color: var(--palette-primary);
+        box-shadow: 0 4px 16px rgba(255, 92, 92, 0.08);
     }
 
     .input-wrapper input { 
@@ -653,25 +674,25 @@ echo $this->section('style');
         align-items: center; 
         justify-content: center; 
         transition: all 0.3s ease; 
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover, #ff3b3b) 100%);
         border: none;
         color: #fff;
-        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.3);
     }
 
     .btn-send:hover {
         transform: scale(1.05);
-        box-shadow: 0 6px 14px rgba(99, 102, 241, 0.4);
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        box-shadow: 0 6px 14px rgba(255, 92, 92, 0.4);
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover, #ff3b3b) 100%) !important;
         color: #fff !important;
     }
 
     .btn-send:focus,
     .btn-send:active {
         outline: none !important;
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-primary-hover, #ff3b3b) 100%) !important;
         color: #fff !important;
-        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3) !important;
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.3) !important;
     }
 
     /* Loading Spinner */
@@ -696,8 +717,8 @@ echo $this->section('style');
     /* Scrollbar Premium */
     .pasangin-chat-content::-webkit-scrollbar { width: 5px; }
     .pasangin-chat-content::-webkit-scrollbar-track { background: transparent; }
-    .pasangin-chat-content::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
-    .pasangin-chat-content::-webkit-scrollbar-thumb:hover { background: #a5b4fc; }
+    .pasangin-chat-content::-webkit-scrollbar-thumb { background: rgba(255, 92, 92, 0.4); border-radius: 10px; }
+    .pasangin-chat-content::-webkit-scrollbar-thumb:hover { background: rgba(255, 92, 92, 0.6); }
     
     .chat-list-container::-webkit-scrollbar { width: 4px; }
     .chat-list-container::-webkit-scrollbar-track { background: transparent; }
@@ -710,7 +731,7 @@ echo $this->section('style');
     /* Firefox premium scrollbar support */
     .pasangin-chat-content {
         scrollbar-width: thin;
-        scrollbar-color: #c7d2fe transparent;
+        scrollbar-color: rgba(255, 92, 92, 0.4) transparent;
     }
     .chat-list-container, #chat-list {
         scrollbar-width: thin;
@@ -734,7 +755,7 @@ echo $this->section('style');
     }
     #attachment-btn:hover {
         background: #e2e8f0;
-        color: #6366f1;
+        color: var(--palette-primary);
     }
     
     /* Attachment Preview Container */
@@ -771,8 +792,8 @@ echo $this->section('style');
         margin-left: 0 !important;
         margin-right: 0 !important;
         margin-top: 0 !important;
-        border: 1px solid rgba(99, 102, 241, 0.08) !important;
-        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.04), 0 5px 15px rgba(0, 0, 0, 0.01) !important;
+        border: 1px solid rgba(255, 92, 92, 0.08) !important;
+        box-shadow: 0 20px 50px rgba(255, 92, 92, 0.04), 0 5px 15px rgba(0, 0, 0, 0.01) !important;
         background: #fff;
         padding: 16px 25px !important;
     }

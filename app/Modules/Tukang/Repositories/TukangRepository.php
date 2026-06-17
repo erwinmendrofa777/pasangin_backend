@@ -30,12 +30,17 @@ class TukangRepository implements TukangRepositoryInterface
 
     public function findAllWithRatings(): array
     {
-        return $this->model
-            ->select('tukang.*, COALESCE(ROUND(AVG(tukang_rating.skill_score), 1), 0) as skill_score, COALESCE(ROUND(AVG(tukang_rating.behavior_score), 1), 0) as behavior_score, COALESCE(tukang.rata_rata_rating, 0) as rata_rata_rating')
-            ->join('tukang_rating', 'tukang.id = tukang_rating.id_tukang', 'left')
-            ->groupBy('tukang.id')
+        return $this->model->db
+            ->table('tukang')
+            ->select([
+                'tukang.*',
+                'COALESCE((SELECT ROUND(AVG(skill_score), 1) FROM tukang_rating WHERE tukang_rating.id_tukang = tukang.id), 0) as skill_score',
+                'COALESCE((SELECT ROUND(AVG(behavior_score), 1) FROM tukang_rating WHERE tukang_rating.id_tukang = tukang.id), 0) as behavior_score',
+                'COALESCE(tukang.rata_rata_rating, 0) as rata_rata_rating',
+            ])
             ->orderBy('tukang.id', 'DESC')
-            ->findAll();
+            ->get()
+            ->getResultArray();
     }
 
     public function countAll(): int
@@ -60,9 +65,11 @@ class TukangRepository implements TukangRepositoryInterface
 
     public function findAllOrderedByName(): array
     {
-        return $this->model
+        $result = $this->model
             ->orderBy('name', 'ASC')
             ->findAll();
+
+        return is_array($result) ? $result : [];
     }
 
     public function save(array $data): bool

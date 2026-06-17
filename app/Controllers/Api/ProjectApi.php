@@ -54,7 +54,7 @@ class ProjectApi extends ResourceController
 
         // Validasi sederhana (bisa dikembangkan)
         if (empty($data['full_name']) || empty($data['phone_number'])) {
-            return $this->failValidationError('Nama dan nomor telepon wajib diisi.');
+            return $this->failValidationErrors('Nama dan nomor telepon wajib diisi.');
         }
 
         try {

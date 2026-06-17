@@ -19,6 +19,7 @@ use App\Modules\Construction\Repositories\ConstructionRabMaterialsRepository;
 use App\Modules\Construction\Repositories\ConstructionAttendanceRepository;
 use App\Modules\Admin\Repositories\UserAdminRepository;
 use App\Modules\Construction\Repositories\ConstructionMaterialSubmissionRepository;
+use App\Modules\Satuan\Models\SatuanModel;
 
 use App\Modules\Construction\Repositories\Contracts\ConstructionRepositoryInterface;
 use App\Modules\Products\Repositories\Contracts\ProductRepositoryInterface;
@@ -80,7 +81,6 @@ class ConstructionService
         $this->targetRepository = new ConstructionTargetsRepository();
         $this->progressRepository = new ConstructionProgressRepository();
         $this->rabRepository = new ConstructionRabsRepository();
-        $this->addendum = new ConstructionAddendumRepository();
         $this->addendumRepository = new ConstructionAddendumRepository();
         $this->designRepository = new ConstructionDesignRepository();
         $this->surveyRepository = new ConstructionSurveyRepository();
@@ -167,7 +167,7 @@ class ConstructionService
             return [
                 'id' => $p['id'],
                 'target_id' => $p['id_construction_targets'],
-                'bobot' => $p['bobot'],
+                'volume' => $p['volume'],
                 'keterangan' => $p['keterangan'],
                 'status' => $p['status'],
                 'photo' => $p['photo'],
@@ -192,11 +192,17 @@ class ConstructionService
             'addendum_list' => $this->addendumRepository->findByConstructionId($id),
             'addendum' => $this->addendumRepository->findByConstructionId($id),
             'all_products' => $this->productRepository->findAllWithSupplier(),
+            'ahsp_list' => (function() {
+                $ahspRepo = new \App\Modules\AHSP\Repositories\AHSPRepository();
+                $list = $ahspRepo->findAllOrderedByIdDesc();
+                return array_map(fn($item) => $ahspRepo->findWithChildren($item['id']), $list);
+            })(),
             'applicants' => $this->applicationRepository->findByProjectIdAndType($id, 'CONSTRUCTION'),
             'target_list' => $this->targetRepository->findByConstructionId($id),
             'attendance_list' => $this->attendanceRepository->findByConstructionId($id),
             'admin_users' => $this->userAdminRepository->findAllOrderedByIdDesc(),
             'material_submissions' => $this->materialSubmissionRepository->findByConstructionId($id),
+            'satuan_options' => (new SatuanModel())->orderBy('nama_satuan', 'ASC')->findAll(),
         ];
     }
 
@@ -243,20 +249,24 @@ class ConstructionService
         $this->constructionRepository->update($id, ['status' => strtoupper($status)]);
     }
 
-    public function uploadSurvey(int $constructionId, array $data, $file = null): void
+    public function uploadSurvey(int $constructionId, array $data, array $files = []): void
     {
+        $uploadedFiles = [];
+        foreach ($files as $file) {
+            if ($file && $file->isValid() && !$file->hasMoved()) {
+                $newName = $file->getRandomName();
+                $file->move(FCPATH . self::PATH_SURVEY, $newName);
+                $uploadedFiles[] = $newName;
+            }
+        }
+
         $payload = [
             'construction_id' => $constructionId,
             'user_admin_id' => $data['user_admin_id'] ?? null,
             'survey_title' => $data['survey_title'],
             'survey_notes' => $data['survey_notes'],
+            'survey_file' => !empty($uploadedFiles) ? json_encode($uploadedFiles) : null,
         ];
-
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move(FCPATH . self::PATH_SURVEY, $newName);
-            $payload['survey_file'] = $newName;
-        }
 
         $this->surveyRepository->save($payload);
         $this->updateStatus($constructionId, 'DESIGNING');
@@ -293,7 +303,7 @@ class ConstructionService
             'sub_group_name' => $data['section_group'],
             'section_group' => $data['section_group'],
             'section_name' => $data['section_group'],
-            'activity_name' => $data['task_name'],
+            'ahsp_id' => $data['ahsp_id'],
             'volume' => $vol,
             'unit' => $data['unit'],
             'current_unit_price' => $price,
@@ -456,7 +466,6 @@ class ConstructionService
             'id_job_applications' => $data['id_job_applications'] ?: null,
             'start_week' => $data['start_week'],
             'end_week' => $data['end_week'],
-            'bobot' => $data['bobot'],
         ];
 
         if ($rabId) {
@@ -472,6 +481,52 @@ class ConstructionService
             $this->targetRepository->insert($row);
             return 'Target ditambahkan!';
         }
+    }
+
+    public function getTargetView(int $id): array
+    {
+        return [
+            'construction' => $this->constructionRepository->findById($id),
+            'rab'          => $this->rabRepository->findByConstructionId($id),
+            'target_list'  => $this->targetRepository->findByConstructionId($id),
+            'applicants'   => $this->applicationRepository->findApprovedByProjectIdAndType($id, 'CONSTRUCTION'),
+        ];
+    }
+
+    public function addTarget(array $data): void
+    {
+        $this->targetRepository->insert([
+            'construction_id'          => $data['construction_id'],
+            'id_job_applications'      => $data['id_job_applications'] ?? null,
+            'id_construction_rabs'     => $data['rab_id'] ?? null,
+            'id_construction_addendum' => $data['addendum_id'] ?? null,
+            'start_week'               => $data['start_week'] ?? 1,
+            'end_week'                 => $data['end_week'] ?? 1,
+            'status'                   => $data['status'] ?? 'Pending',
+        ]);
+    }
+
+    public function updateTargetStatus(int $id, string $status): void
+    {
+        $this->targetRepository->update($id, ['status' => $status]);
+    }
+
+    public function deleteTarget(int $id): void
+    {
+        $this->targetRepository->delete($id);
+    }
+
+    public function getRabApiData(int $constructionId): array
+    {
+        $raw = $this->rabRepository->findByConstructionId($constructionId);
+
+        foreach ($raw as &$item) {
+            $item['item_name']     = $item['activity_name'];
+            $item['current_price'] = $item['current_unit_price'];
+            $item['materials']     = $this->rabMaterialsRepository->findByRabId($item['id']);
+        }
+
+        return $raw;
     }
 
     public function createInvoice(array $data): void
@@ -511,7 +566,7 @@ class ConstructionService
         $payload = [
             'construction_id' => $constructionId,
             'id_construction_targets' => $data['target_id'],
-            'bobot' => $data['progress_percent'],
+            'volume' => $data['volume'],
             'description' => $data['description'],
             'status' => 'PENDING',
         ];
@@ -549,8 +604,40 @@ class ConstructionService
                 // Tapi saat ini kita biarkan dulu sesuai permintaan user.
             }
 
-            $allApproved = $this->progressRepository->sumBobotByConstructionId($constructionId);
-            if (round($allApproved, 2) >= 100.00) {
+            // Hitung total anggaran (RAB + Addendum)
+            $db = \Config\Database::connect();
+            $totalRAB = $db->table('construction_rabs')
+                ->where('construction_id', $constructionId)
+                ->selectSum('total_price')
+                ->get()->getRowArray()['total_price'] ?? 0;
+                
+            $totalAddendum = $db->table('construction_addendum')
+                ->where('construction_id', $constructionId)
+                ->selectSum('total_price')
+                ->get()->getRowArray()['total_price'] ?? 0;
+                
+            $totalBudget = $totalRAB + $totalAddendum;
+
+            // Hitung total realisasi harga (volume disetujui * harga satuan)
+            $realizationRAB = $db->table('construction_progress cp')
+                ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
+                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs')
+                ->where('cp.construction_id', $constructionId)
+                ->where('cp.status', 'APPROVED')
+                ->select('SUM(cp.volume * cr.current_unit_price) as realization')
+                ->get()->getRowArray()['realization'] ?? 0;
+
+            $realizationAddendum = $db->table('construction_progress cp')
+                ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
+                ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum')
+                ->where('cp.construction_id', $constructionId)
+                ->where('cp.status', 'APPROVED')
+                ->select('SUM(cp.volume * ca.current_unit_price) as realization')
+                ->get()->getRowArray()['realization'] ?? 0;
+
+            $totalRealization = $realizationRAB + $realizationAddendum;
+
+            if ($totalBudget > 0 && $totalRealization >= $totalBudget) {
                 $this->constructionRepository->update($constructionId, ['status' => 'COMPLETED']);
             }
         }

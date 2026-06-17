@@ -38,7 +38,9 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Constr
     $routes->get('construction/delete_rab_row/(:num)', 'RabController::delete_rab_row/$1');
     $routes->get('construction/get_rab_materials/(:num)', 'RabController::get_rab_materials/$1');
     $routes->post('construction/add_rab_material', 'RabController::add_rab_material');
+    $routes->post('construction/select_rab_material', 'RabController::select_rab_material');
     $routes->get('construction/delete_rab_material/(:num)', 'RabController::delete_rab_material/$1');
+    $routes->get('construction/recalculate_rab_price/(:num)', 'RabController::recalculate_rab_price/$1');
     $routes->get('construction/lock_rab/(:num)', 'RabController::lock_rab/$1');
     $routes->get('construction/unlock_rab/(:num)', 'RabController::unlock_rab/$1');
     $routes->get('construction/download-rab-template/(:num)', 'RabController::download_rab_template/$1');

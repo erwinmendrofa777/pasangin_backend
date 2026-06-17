@@ -255,7 +255,7 @@
 
 <!-- ── Materials Modal ── -->
 <div class="modal fade modal-rab" id="modalRabMaterials" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
 
             <div class="modal-header">
@@ -264,26 +264,30 @@
             </div>
 
             <div class="modal-body">
+                <div class="row">
+                    <!-- Kolom Kiri: Form Tambahkan Opsi Produk -->
+                    <div class="col-md-5 mb-4 mb-md-0">
+                        <div class="add-product-card">
+                            <label>Tambahkan Opsi Produk</label>
+                            <select id="selectProductRab" class="form-select select2" style="width:100%">
+                                <option value="">— Pilih Produk —</option>
+                                <?php foreach ($all_products as $p): ?>
+                                    <option value="<?= $p['id'] ?>">
+                                        <?= esc($p['name']) ?> — Rp <?= number_format($p['price'], 0, ',', '.') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button class="btn-adm btn-adm-primary w-100 mt-3" onclick="submitProductToRabMaterial()">
+                                <i class="fas fa-plus"></i> Tambah Bahan
+                            </button>
+                        </div>
+                    </div>
 
-                <!-- Material List -->
-                <div id="rabMaterialList" class="mb-4"></div>
-
-                <!-- Add Product -->
-                <div class="add-product-card">
-                    <label>Tambahkan Opsi Produk</label>
-                    <select id="selectProductRab" class="form-select select2" style="width:100%">
-                        <option value="">— Pilih Produk —</option>
-                        <?php foreach ($all_products as $p): ?>
-                            <option value="<?= $p['id'] ?>">
-                                <?= esc($p['name']) ?> — Rp <?= number_format($p['price'], 0, ',', '.') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button class="btn-adm btn-adm-primary w-100 mt-3" onclick="submitProductToRabMaterial()">
-                        <i class="fas fa-plus"></i> Tambah Bahan
-                    </button>
+                    <!-- Kolom Kanan: List Material -->
+                    <div class="col-md-7">
+                        <div id="rabMaterialList"></div>
+                    </div>
                 </div>
-
             </div>
         </div>
     </div>

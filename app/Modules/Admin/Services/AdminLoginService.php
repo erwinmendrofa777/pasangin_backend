@@ -56,6 +56,7 @@ class AdminLoginService
             'full_name'   => $user['full_name'] ?? 'Admin',
             'email'       => $user['email'],
             'role'        => $user['role'],
+            'photo'       => $user['photo'] ?? null,
             'permissions' => $permissions,
             'isLoggedIn'  => true
         ];

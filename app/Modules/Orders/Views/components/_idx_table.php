@@ -1,20 +1,6 @@
 <!-- ===== TABLE CARD: Daftar Pesanan ===== -->
 <div class="card table-card">
 
-    <!-- Card Header: Search -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 table-card-header"
-        style="border-bottom: 1px solid #f0f4fa; background: #fff; gap: 16px;">
-        <h6 class="mb-0 fw-bold text-primary d-flex align-items-center"
-            style="font-size:0.9rem; letter-spacing:0.4px; text-transform:uppercase;">
-            <i class="fas fa-list me-2"></i>Daftar Pesanan
-        </h6>
-        <div class="d-flex flex-column flex-sm-row gap-2 header-actions">
-            <div class="search-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari ID, nama penerima...">
-            </div>
-        </div>
-    </div>
 
     <div class="card-body">
         <div class="table-responsive">

@@ -5,7 +5,7 @@
             "language": {
                 "search": "Cari:",
                 "lengthMenu": "Tampilkan _MENU_ data per halaman",
-                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "info": "Menampilkan _START_ - _END_ dari _TOTAL_ data",
                 "paginate": {
                     "first": "Pertama",
                     "last": "Terakhir",
@@ -18,21 +18,68 @@
             "columnDefs": [{
                 "sortable": false,
                 "targets": [3, 4, 5]
-            }
-            ],
+            }],
             "pageLength": 10,
             "searching": true,
             "ordering": true,
             "info": true,
             "autoWidth": false,
             "responsive": true,
-            "dom": 'rt<"dt-footer d-flex justify-content-between align-items-center"ip>', // Matches users/index.php design
+            "dom": 'r<"table-responsive"t><"dt-footer d-flex justify-content-between align-items-center"ip>', // Matches users/index.php design
             "drawCallback": function (settings) {
                 // Re-initialize tooltips after table redraw
                 $('[data-toggle="tooltip"]').tooltip();
             }
         });
 
+        /* ===== Custom Dropdown Status ===== */
+        var dropdownTrigger = $('#dropdownStatusTrigger');
+        var dropdownMenu = $('#dropdownStatusMenu');
+
+        dropdownTrigger.on('click', function (e) {
+            e.stopPropagation();
+            $(this).toggleClass('open');
+            dropdownMenu.toggleClass('show');
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.custom-dropdown').length) {
+                dropdownTrigger.removeClass('open');
+                dropdownMenu.removeClass('show');
+            }
+        });
+
+        var statusLabels = {
+            'pending': 'Menunggu',
+            'survey': 'Survey',
+            'designing': 'Desain',
+            'rab': 'RAB',
+            'construction': 'Konstruksi',
+            'completed': 'Selesai',
+            'cancelled': 'Batal'
+        };
+
+        $('.dropdown-item-custom').on('click', function (e) {
+            e.preventDefault();
+            $('.dropdown-item-custom').removeClass('active');
+            $(this).addClass('active');
+
+            var val = $(this).data('value');
+            var text = $(this).text().trim();
+            $('#selectedStatusText').text(text);
+
+            dropdownTrigger.removeClass('open');
+            dropdownMenu.removeClass('show');
+
+            if (val === 'all') {
+                table.column(4).search('').draw();
+            } else {
+                var searchVal = statusLabels[val] || '';
+                table.column(4).search(searchVal).draw();
+            }
+        });
+
+        /* ===== Custom Search ===== */
         $('#searchInput').on('keyup', function () {
             table.search(this.value).draw();
         });

@@ -33,7 +33,7 @@ class RabController extends BaseController
         $group = $this->request->getPost('group_name') ?: 'PEKERJAAN';
         $section = $this->request->getPost('section_group');
 
-        $taskName = $this->request->getPost('task_name');
+        $ahspId = $this->request->getPost('ahsp_id');
         $volume = (float) ($this->request->getPost('volume') ?? 0);
         $unit = $this->request->getPost('unit');
         $price = (float) ($this->request->getPost('price') ?? 0);
@@ -59,7 +59,7 @@ class RabController extends BaseController
             'sub_group_name' => $section,
             'section_group' => $section,
             'section_name' => $section,
-            'activity_name' => $taskName,
+            'ahsp_id' => $ahspId,
             'volume' => $volume,
             'unit' => $unit,
             'current_unit_price' => $price,
@@ -150,22 +150,98 @@ class RabController extends BaseController
      */
     public function get_rab_materials($rabId)
     {
-        $materials = $this->db->table('construction_rab_materials')
-            ->select('construction_rab_materials.id, products.name as material_name, products.price')
-            ->join('products', 'products.id = construction_rab_materials.product_id')
-            ->where('rab_id', $rabId)
+        $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+        if (!$rab) {
+            return $this->response->setJSON([]);
+        }
+
+        $ahspId = $rab['ahsp_id'];
+
+        // Ambil data bahan wajib dari AHSP
+        $requiredBahan = $this->db->table('ahsp_bahan')
+            ->where('ahsp_id', $ahspId)
+            ->orderBy('id', 'ASC')
             ->get()->getResultArray();
 
-        return $this->response->setJSON($materials);
+        // Ambil SEMUA pilihan produk rekomendasi untuk rab_id ini
+        $recommendations = $this->db->table('construction_rab_materials')
+            ->select('
+                construction_rab_materials.*, 
+                products.name as product_name, 
+                products.price as product_price, 
+                products.unit as product_unit, 
+                products.stock as product_stock, 
+                products.photo as product_photo, 
+                products.description as product_description,
+                products.min_order as product_min_order,
+                products.weight as product_weight,
+                products.rata_rata_rating as product_rating,
+                products.total_ulasan as product_total_reviews,
+                suppliers.name as supplier_name,
+                suppliers.city as supplier_city,
+                suppliers.phone as supplier_phone,
+                suppliers.contact_person as supplier_contact,
+                suppliers.rata_rata_rating as supplier_rating,
+                suppliers.total_ulasan as supplier_total_reviews
+            ')
+            ->join('products', 'products.id = construction_rab_materials.product_id')
+            ->join('suppliers', 'suppliers.id = products.supplier_id', 'left')
+            ->where('construction_rab_materials.rab_id', $rabId)
+            ->get()->getResultArray();
+
+        // Group recommendations by ahsp_bahan_id
+        $groupedRecs = [];
+        foreach ($recommendations as $rec) {
+            $groupedRecs[$rec['ahsp_bahan_id']][] = [
+                'id' => $rec['id'], // row ID dari construction_rab_materials
+                'product_id' => $rec['product_id'],
+                'product_name' => $rec['product_name'],
+                'product_price' => (float)$rec['product_price'],
+                'product_unit' => $rec['product_unit'],
+                'product_stock' => $rec['product_stock'],
+                'product_photo' => $rec['product_photo'],
+                'product_description' => $rec['product_description'],
+                'product_min_order' => (int)($rec['product_min_order'] ?? 1),
+                'product_weight' => (float)($rec['product_weight'] ?? 0),
+                'product_rating' => (float)($rec['product_rating'] ?? 0),
+                'product_total_reviews' => (int)($rec['product_total_reviews'] ?? 0),
+                'supplier_name' => $rec['supplier_name'],
+                'supplier_city' => $rec['supplier_city'],
+                'supplier_phone' => $rec['supplier_phone'],
+                'supplier_contact' => $rec['supplier_contact'],
+                'supplier_rating' => (float)($rec['supplier_rating'] ?? 0),
+                'supplier_total_reviews' => (int)($rec['supplier_total_reviews'] ?? 0),
+                'selected' => (int)$rec['selected'] === 1
+            ];
+        }
+
+        $result = [];
+        foreach ($requiredBahan as $rb) {
+            $result[] = [
+                'ahsp_bahan_id' => $rb['id'],
+                'kode' => $rb['kode'],
+                'uraian' => $rb['uraian'],
+                'satuan' => $rb['satuan'],
+                'koefisien' => (float) $rb['koefisien'],
+                'recommendations' => $groupedRecs[$rb['id']] ?? []
+            ];
+        }
+
+        return $this->response->setJSON($result);
     }
 
     /**
-     * 5. TAMBAH PILIHAN MATERIAL
+     * 5. TAMBAH PILIHAN MATERIAL (Rekomendasi dari Admin)
      */
     public function add_rab_material()
     {
         $rabId = $this->request->getPost('rab_id');
+        $ahspBahanId = $this->request->getPost('ahsp_bahan_id');
         $productId = $this->request->getPost('product_id');
+
+        if (empty($productId)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Pilih produk terlebih dahulu!']);
+        }
 
         // Cek lock  
         $existing = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
@@ -174,13 +250,98 @@ class RabController extends BaseController
         }
 
         try {
+            // Cek apakah produk ini sudah direkomendasikan untuk bahan ini
+            $duplicate = $this->db->table('construction_rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('ahsp_bahan_id', $ahspBahanId)
+                ->where('product_id', $productId)
+                ->get()->getRowArray();
+
+            if ($duplicate) {
+                return $this->response->setJSON(['status' => false, 'message' => 'Produk ini sudah ada dalam daftar rekomendasi!']);
+            }
+
+            // Cek apakah sudah ada rekomendasi untuk bahan ini
+            $anyRecs = $this->db->table('construction_rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('ahsp_bahan_id', $ahspBahanId)
+                ->get()->getRowArray();
+
+            // Jika belum ada rekomendasi, default selected = 1. Jika sudah ada, default selected = 0.
+            $selectedVal = $anyRecs ? 0 : 1;
+
             $this->db->table('construction_rab_materials')->insert([
                 'rab_id' => $rabId,
+                'ahsp_bahan_id' => $ahspBahanId,
                 'product_id' => $productId,
+                'selected' => $selectedVal,
                 'created_at' => date('Y-m-d H:i:s')
             ]);
 
-            return $this->response->setJSON(['status' => true, 'message' => 'Material ditambahkan  .']);
+            // Hitung ulang harga
+            $newUnitPrice = $this->recalculateRabRowPrice($rabId);
+
+            return $this->response->setJSON([
+                'status' => true, 
+                'message' => 'Rekomendasi produk ditambahkan.',
+                'new_unit_price' => $newUnitPrice,
+                'formatted_new_unit_price' => number_format($newUnitPrice, 0, ',', '.')
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * TOGGLE PILIHAN PRODUK (DIPILIH CLIENT/ADMIN)
+     */
+    public function select_rab_material()
+    {
+        $id = $this->request->getPost('id'); // ID dari row construction_rab_materials
+        
+        try {
+            $rec = $this->db->table('construction_rab_materials')->where('id', $id)->get()->getRowArray();
+            if (!$rec) {
+                return $this->response->setJSON(['status' => false, 'message' => 'Rekomendasi tidak ditemukan.']);
+            }
+
+            $rabId = $rec['rab_id'];
+            $ahspBahanId = $rec['ahsp_bahan_id'];
+
+            // Cek lock
+            $existing = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+            if ($existing && $existing['is_locked'] == 1) {
+                return $this->response->setJSON(['status' => false, 'message' => 'RAB terkunci!']);
+            }
+
+            $this->db->transStart();
+
+            // Set semua rekomendasi untuk ahsp_bahan_id ini menjadi selected = 0
+            $this->db->table('construction_rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('ahsp_bahan_id', $ahspBahanId)
+                ->update(['selected' => 0]);
+
+            // Set yang terpilih menjadi selected = 1
+            $this->db->table('construction_rab_materials')
+                ->where('id', $id)
+                ->update(['selected' => 1]);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \RuntimeException("Gagal memperbarui status pilihan.");
+            }
+
+            // Hitung ulang harga
+            $newUnitPrice = $this->recalculateRabRowPrice($rabId);
+
+            return $this->response->setJSON([
+                'status' => true, 
+                'message' => 'Pilihan produk diperbarui.',
+                'new_unit_price' => $newUnitPrice,
+                'formatted_new_unit_price' => number_format($newUnitPrice, 0, ',', '.')
+            ]);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
         }
@@ -192,10 +353,143 @@ class RabController extends BaseController
     public function delete_rab_material($id)
     {
         try {
-            $this->db->table('construction_rab_materials')->where('id', $id)->delete();
-            return $this->response->setJSON(['status' => true, 'message' => 'Material dihapus  .']);
+            $material = $this->db->table('construction_rab_materials')->where('id', $id)->get()->getRowArray();
+            if ($material) {
+                $rabId = $material['rab_id'];
+                
+                // Cari tahu apakah data yang dihapus ini tadinya selected = 1
+                $wasSelected = (int)$material['selected'] === 1;
+                $ahspBahanId = $material['ahsp_bahan_id'];
+
+                $this->db->table('construction_rab_materials')->where('id', $id)->delete();
+                
+                // Jika yang dihapus tadinya selected = 1, coba set salah satu rekomendasi sisa menjadi selected = 1
+                if ($wasSelected) {
+                    $nextBest = $this->db->table('construction_rab_materials')
+                        ->where('rab_id', $rabId)
+                        ->where('ahsp_bahan_id', $ahspBahanId)
+                        ->orderBy('id', 'ASC')
+                        ->get()->getRowArray();
+
+                    if ($nextBest) {
+                        $this->db->table('construction_rab_materials')
+                            ->where('id', $nextBest['id'])
+                            ->update(['selected' => 1]);
+                    }
+                }
+                
+                $newUnitPrice = $this->recalculateRabRowPrice($rabId);
+                return $this->response->setJSON([
+                    'status' => true, 
+                    'message' => 'Rekomendasi produk dihapus.',
+                    'new_unit_price' => $newUnitPrice,
+                    'formatted_new_unit_price' => number_format($newUnitPrice, 0, ',', '.')
+                ]);
+            }
+            return $this->response->setJSON(['status' => false, 'message' => 'Material tidak ditemukan.']);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * HELPER: HITUNG ULANG HARGA SATUAN BARIS RAB
+     */
+    private function recalculateRabRowPrice($rabId)
+    {
+        $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+        if (!$rab) {
+            return 0;
+        }
+
+        $ahspId = $rab['ahsp_id'];
+
+        // 1. Hitung total tenaga kerja dari ahsp_tenaga_kerja
+        $laborSum = $this->db->table('ahsp_tenaga_kerja')
+            ->select('SUM(harga_satuan * koefisien) AS total')
+            ->where('ahsp_id', $ahspId)
+            ->get()->getRowArray();
+        $totalTenaga = (float) ($laborSum['total'] ?? 0);
+
+        // 2. Hitung total bahan
+        $requiredBahan = $this->db->table('ahsp_bahan')->where('ahsp_id', $ahspId)->get()->getResultArray();
+        
+        $allProducts = $this->db->table('products')->select('id, name, price')->get()->getResultArray();
+        
+        // Ambil produk terpilih (yang selected = 1) untuk rab_id ini
+        $selectedMaterials = $this->db->table('construction_rab_materials')
+            ->where('rab_id', $rabId)
+            ->where('selected', 1)
+            ->get()->getResultArray();
+        
+        $selectedMap = [];
+        foreach ($selectedMaterials as $sm) {
+            $selectedMap[$sm['ahsp_bahan_id']] = $sm['product_id'];
+        }
+        
+        $productMap = [];
+        foreach ($allProducts as $p) {
+            $productMap[$p['id']] = $p;
+        }
+
+        $totalBahan = 0;
+        foreach ($requiredBahan as $rb) {
+            $koef = (float) ($rb['koefisien'] ?? 0);
+            
+            if (isset($selectedMap[$rb['id']])) {
+                $selProdId = $selectedMap[$rb['id']];
+                if (isset($productMap[$selProdId])) {
+                    $totalBahan += $koef * (float) $productMap[$selProdId]['price'];
+                }
+            } else {
+                // Fallback pencarian produk otomatis berdasarkan nama
+                $bahanUraianClean = strtolower(trim($rb['uraian'] ?? ''));
+                $matchedProductPrice = 0;
+                
+                foreach ($allProducts as $p) {
+                    $pNameClean = strtolower(trim($p['name'] ?? ''));
+                    if ($pNameClean === $bahanUraianClean || strpos($pNameClean, $bahanUraianClean) !== false || strpos($bahanUraianClean, $pNameClean) !== false) {
+                        $matchedProductPrice = (float) $p['price'];
+                        break;
+                    }
+                }
+                
+                $totalBahan += $koef * $matchedProductPrice;
+            }
+        }
+
+        $newUnitPrice = $totalTenaga + $totalBahan;
+        $totalPrice = (float) ($rab['volume'] ?? 0) * $newUnitPrice;
+
+        // Update ke database
+        $this->db->table('construction_rabs')
+            ->where('id', $rabId)
+            ->update([
+                'current_unit_price' => $newUnitPrice,
+                'total_price' => $totalPrice,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        return $newUnitPrice;
+    }
+
+    /**
+     * ENDPOINT: HITUNG ULANG HARGA SATUAN BARIS RAB DARI FRONTEND
+     */
+    public function recalculate_rab_price($rabId)
+    {
+        try {
+            $newUnitPrice = $this->recalculateRabRowPrice($rabId);
+            return $this->response->setJSON([
+                'status' => true,
+                'new_unit_price' => $newUnitPrice,
+                'formatted_new_unit_price' => number_format($newUnitPrice, 0, ',', '.')
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 
@@ -218,7 +512,7 @@ class RabController extends BaseController
             $roman = $row['roman_number'] ?: 'I';
             $group = $row['group_name'] ?: 'PEKERJAAN';
             $section = $row['section_group'];
-            $taskName = $row['task_name'];
+            $ahspId = $row['ahsp_id'];
             $volume = (float) ($row['volume'] ?? 0);
             $unit = $row['unit'];
             $price = (float) ($row['price'] ?? 0);
@@ -233,7 +527,7 @@ class RabController extends BaseController
                 'sub_group_name' => $section,
                 'section_group' => $section,
                 'section_name' => $section,
-                'activity_name' => $taskName,
+                'ahsp_id' => $ahspId,
                 'volume' => $volume,
                 'unit' => $unit,
                 'current_unit_price' => $price,
@@ -615,6 +909,26 @@ class RabController extends BaseController
                 if (!empty($volume) || !empty($price)) {
                     $totalPrice = $volume * $price;
 
+                    // Cari AHSP yang uraian nya cocok dengan $colB (case-insensitive)
+                    $ahspRow = $this->db->table('ahsp')
+                        ->where('LOWER(TRIM(uraian))', strtolower(trim($colB)))
+                        ->get()->getRowArray();
+
+                    if ($ahspRow) {
+                        $ahspId = $ahspRow['id'];
+                    } else {
+                        // Jika tidak ada yang cocok, buat AHSP baru otomatis
+                        $randomCode = 'AUTO-' . strtoupper(substr(md5($colB . time()), 0, 8));
+                        $this->db->table('ahsp')->insert([
+                            'kode' => $randomCode,
+                            'uraian' => $colB,
+                            'satuan' => $colD ?: 'unit',
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ]);
+                        $ahspId = $this->db->insertID();
+                    }
+
                     $dataToInsert[] = [
                         'construction_id' => $constructionId,
                         'roman_number' => $currentRoman,
@@ -622,7 +936,7 @@ class RabController extends BaseController
                         'sub_group_name' => $currentSectionGroup,
                         'section_group' => $currentSectionGroup,
                         'section_name' => $currentSectionGroup,
-                        'activity_name' => $colB,
+                        'ahsp_id' => $ahspId,
                         'volume' => $volume,
                         'unit' => $colD ?: 'unit',
                         'current_unit_price' => $price,

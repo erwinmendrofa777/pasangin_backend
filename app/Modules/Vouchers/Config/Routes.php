@@ -8,3 +8,7 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Vouche
     $routes->get('vouchers/update-status/(:num)/(:num)', 'Voucher::updateStatus/$1/$2');
     $routes->resource('vouchers', ['controller' => 'Voucher']);
 });
+
+$routes->group('api', ['filter' => 'auth', 'namespace' => 'App\Modules\Vouchers\Controllers\Api'], static function ($routes) {
+    $routes->get('vouchers', 'VoucherController::index');
+});

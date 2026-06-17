@@ -47,7 +47,13 @@ class AdminController extends BaseController
 
         // Validasi menggunakan grup 'adminSave' dari Config/Validation.php
         $dataToValidate = $this->request->getPost();
-        $dataToValidate['photo'] = $this->request->getFile('photo');
+        
+        $photo = $this->request->getFile('photo');
+        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $dataToValidate['photo'] = 'uploaded_file';
+        } else {
+            $dataToValidate['photo'] = null;
+        }
 
         if (!$this->validateData($dataToValidate, 'adminSave')) {
             $errors = implode('<br>', $this->validator->getErrors());
@@ -93,7 +99,13 @@ class AdminController extends BaseController
         // Validasi menggunakan grup 'adminUpdate'
         $dataToValidate = $this->request->getPost();
         $dataToValidate['id'] = $id; // Untuk placeholder {id} di rule is_unique
-        $dataToValidate['photo'] = $this->request->getFile('photo');
+        
+        $photo = $this->request->getFile('photo');
+        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $dataToValidate['photo'] = 'uploaded_file';
+        } else {
+            $dataToValidate['photo'] = null;
+        }
 
         if (!$this->validateData($dataToValidate, 'adminUpdate')) {
             $errors = implode('<br>', $this->validator->getErrors());
@@ -102,6 +114,14 @@ class AdminController extends BaseController
 
         try {
             $this->svc->updateAdmin((int) $id, $this->request->getPost(), $this->request->getFile('photo'));
+
+            // Jika admin yang diedit adalah diri sendiri, perbarui session photo
+            if ((int) $id === (int) session()->get('user_id')) {
+                $updatedAdmin = $this->svc->findOrFail((int) $id);
+                if ($updatedAdmin) {
+                    session()->set('photo', $updatedAdmin['photo'] ?? null);
+                }
+            }
 
             log_admin_activity('update', 'Admin Users', 'Mengubah data Admin dengan ID: ' . $id);
 
