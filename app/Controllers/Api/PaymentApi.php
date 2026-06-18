@@ -100,7 +100,7 @@ class PaymentApi extends BaseController
 
         // Jika voucherCode tidak dari URL segment, coba ambil dari request
         if (empty($voucherCode)) {
-            $voucherCode = $this->request->getVar('voucher_code');
+            $voucherCode = $this->request->getGet('voucher_code') ?? $this->request->getPost('voucher_code');
         }
 
         if (!empty($voucherCode)) {
@@ -137,7 +137,7 @@ class PaymentApi extends BaseController
         $grossAmount = (int) ($invoice['amount'] ?? 0);
 
         if (empty($voucherCode)) {
-            $voucherCode = $this->request->getVar('voucher_code');
+            $voucherCode = $this->request->getGet('voucher_code') ?? $this->request->getPost('voucher_code');
         }
 
         if (!empty($voucherCode)) {
@@ -173,7 +173,7 @@ class PaymentApi extends BaseController
         $grossAmount = (int) ($invoice['amount'] ?? 0);
 
         if (empty($voucherCode)) {
-            $voucherCode = $this->request->getVar('voucher_code');
+            $voucherCode = $this->request->getGet('voucher_code') ?? $this->request->getPost('voucher_code');
         }
 
         if (!empty($voucherCode)) {
@@ -435,6 +435,18 @@ class PaymentApi extends BaseController
                                     }
                                 }
                             }
+
+                            // =========================================================================
+                        }
+
+                        // =========================================================================
+                        // 4. OTOMATIS BUAT PESANAN MATERIAL KONSTRUKSI (Self-healing / Run jika status PAID)
+                        // =========================================================================
+                        if ($tableName == 'construction_invoices') {
+                            $rabId = $dataObj['rab_id'] ?? null;
+                            if ($rabId) {
+                                $this->_createOrdersForRab((int) $dataObj['id'], $rabId, $dataObj['user_id'] ?? null, $dataObj['construction_id'] ?? null);
+                            }
                         }
                     }
                 }
@@ -520,6 +532,183 @@ class PaymentApi extends BaseController
         // PPN 11% dihitung dari nilai biaya metode pembayaran
         $totalFee = $baseFee * 1.11;
         return round($totalFee, 2);
+    }
+
+    /**
+     * OTOMATIS MEMBUAT PESANAN KE PRODUK AHSP_BAHAN DI RAB_MATERIAL YANG TERPILIH
+     * Dipanggil saat tagihan konstruksi (construction_invoices) berstatus PAID.
+     */
+    private function _createOrdersForRab($invoiceId, $rabId, $userId, $constructionId)
+    {
+        try {
+            // 1. Cek duplikasi agar tidak membuat order ganda untuk invoice_id yang sama
+            $existingOrder = $this->db->table('orders')
+                ->where('construction_invoice_id', $invoiceId)
+                ->get()
+                ->getRow();
+            if ($existingOrder) {
+                log_message('info', "Pemesanan material untuk invoice_id {$invoiceId} sudah pernah dibuat.");
+                return;
+            }
+
+            // 2. Ambil data RAB
+            $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+            if (!$rab) {
+                log_message('error', "Gagal membuat pesanan material: RAB ID {$rabId} tidak ditemukan.");
+                return;
+            }
+
+            $volume = (float) ($rab['volume'] ?? 0);
+            if ($volume <= 0) {
+                log_message('info', "Volume RAB ID {$rabId} adalah 0, skip pembuatan pesanan.");
+                return;
+            }
+
+            // 3. Ambil produk material terpilih untuk rab_id ini
+            $selectedMaterials = $this->db->table('construction_rab_materials crm')
+                ->select('crm.*, p.name as product_name, p.price as product_price, p.supplier_id, p.stock as product_stock')
+                ->join('products p', 'p.id = crm.product_id')
+                ->where('crm.rab_id', $rabId)
+                ->where('crm.selected', 1)
+                ->get()
+                ->getResultArray();
+
+            if (empty($selectedMaterials)) {
+                log_message('info', "Tidak ada material terpilih (selected = 1) untuk rab_id {$rabId}.");
+                return;
+            }
+
+            // 4. Ambil data construction_requests untuk info pengiriman
+            $construction = $this->db->table('construction_requests')->where('id', $constructionId)->get()->getRowArray();
+            $recipientName = $construction['full_name'] ?? 'Pelanggan';
+            $recipientPhone = $construction['phone'] ?? '08123456789';
+            $shippingAddress = $construction['address'] ?? 'Alamat Konstruksi';
+            $latitude = $construction['latitude'] ?? null;
+            $longitude = $construction['longitude'] ?? null;
+
+            // 5. Kelompokkan item berdasarkan supplier_id
+            $itemsBySupplier = [];
+            foreach ($selectedMaterials as $sm) {
+                // Ambil koefisien dari ahsp_bahan
+                $bahan = $this->db->table('ahsp_bahan')->where('id', $sm['ahsp_bahan_id'])->get()->getRowArray();
+                $koef = $bahan ? (float) ($bahan['koefisien'] ?? 0) : 0.0;
+
+                $quantity = (int) ceil($koef * $volume);
+                if ($quantity <= 0) {
+                    continue;
+                }
+
+                $supplierId = $sm['supplier_id'];
+                $itemsBySupplier[$supplierId][] = [
+                    'product_id' => $sm['product_id'],
+                    'product_name' => $sm['product_name'],
+                    'quantity' => $quantity,
+                    'price' => (float) $sm['product_price']
+                ];
+            }
+
+            if (empty($itemsBySupplier)) {
+                log_message('info', "Kuantitas produk material untuk rab_id {$rabId} bernilai 0 setelah kalkulasi.");
+                return;
+            }
+
+            // 6. Hitung total grand amount untuk transaksi
+            $grandTotalAmount = 0;
+            foreach ($itemsBySupplier as $supplierId => $items) {
+                foreach ($items as $item) {
+                    $grandTotalAmount += $item['price'] * $item['quantity'];
+                }
+            }
+
+            // 7. Mulai Transaksi Database
+            $this->db->transStart();
+
+            // Buat transaksi utama
+            $transactionIdUnique = 'TRX-CONST-RAB-' . $rabId . '-' . time() . '-' . rand(10, 99);
+            $this->db->table('transactions')->insert([
+                'transaction_id' => $transactionIdUnique,
+                'user_id' => $userId,
+                'total_amount' => $grandTotalAmount,
+                'status' => 'PAID',
+                'payment_method' => 'MIDTRANS',
+                'order_count' => count($itemsBySupplier),
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Buat order untuk masing-masing supplier
+            $orderIndex = 0;
+            foreach ($itemsBySupplier as $supplierId => $items) {
+                $orderIndex++;
+                $orderIdUnique = 'PASANGIN-CONST-' . time() . '-' . $userId . '-' . $orderIndex;
+
+                $oTotalPrice = 0;
+                foreach ($items as $item) {
+                    $oTotalPrice += $item['price'] * $item['quantity'];
+                }
+
+                $this->db->table('orders')->insert([
+                    'order_id' => $orderIdUnique,
+                    'user_id' => $userId,
+                    'construction_invoice_id' => $invoiceId,
+                    'recipient_name' => $recipientName,
+                    'recipient_phone' => $recipientPhone,
+                    'total_price' => $oTotalPrice,
+                    'shipping_fee' => 0.00,
+                    'app_fee' => 0.00,
+                    'tax_amount' => 0.00,
+                    'status' => 'PAID',
+                    'shipping_address' => $shippingAddress,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'voucher_code' => null,
+                    'discount_amount' => 0.00,
+                    'transaction_id' => $transactionIdUnique,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+
+                $dbOrderId = $this->db->insertID();
+
+                // Insert ke order_items & kurangi stok
+                foreach ($items as $item) {
+                    $this->db->table('order_items')->insert([
+                        'order_id' => $dbOrderId,
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+
+                    // Kurangi stok produk
+                    $this->db->table('products')
+                        ->set('stock', 'stock - ' . (int) $item['quantity'], false)
+                        ->where('id', $item['product_id'])
+                        ->update();
+                }
+
+                // Kirim notifikasi ke Supplier
+                if ($supplierId) {
+                    $this->notifService->sendPersonal(
+                        'supplier',
+                        (int) $supplierId,
+                        'Pesanan Baru',
+                        'Anda mendapatkan pesanan baru dari pekerjaan konstruksi! Silakan cek notifikasi pesanan Anda.'
+                    );
+                }
+            }
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                $dbError = $this->db->error();
+                log_message('error', "Gagal memproses pembuatan pesanan material untuk invoiceId {$invoiceId} di database. DB Error: [" . ($dbError['code'] ?? '') . "] " . ($dbError['message'] ?? ''));
+            } else {
+                log_message('info', "Berhasil membuat pesanan material otomatis untuk invoiceId {$invoiceId}.");
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error saat membuat pesanan material otomatis: ' . $e->getMessage());
+        }
     }
 }
 

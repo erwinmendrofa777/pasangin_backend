@@ -10,4 +10,10 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Tukang
     $routes->get('tukang/delete/(:num)', 'Tukang::delete/$1');
     $routes->post('tukang/update-status', 'Tukang::update_status');
     $routes->post('tukang/update-verify', 'Tukang::update_verify');
+
+    // Tukang Skill
+    $routes->get('tukang-skill', 'TukangSkill::index');
+    $routes->post('tukang-skill/store', 'TukangSkill::store');
+    $routes->post('tukang-skill/update', 'TukangSkill::update');
+    $routes->get('tukang-skill/delete/(:num)', 'TukangSkill::delete/$1');
 });

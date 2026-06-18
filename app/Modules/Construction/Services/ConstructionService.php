@@ -165,25 +165,52 @@ class ConstructionService
             $targetKey = trim(($groupName ? $groupName . ' – ' : '') . $itemName) ?: 'Tanpa Target';
 
             return [
-                'id' => $p['id'],
-                'target_id' => $p['id_construction_targets'],
-                'volume' => $p['volume'],
+                'id'         => $p['id'],
+                'target_id'  => $p['id_construction_targets'],
+                'volume'     => $p['volume'],
+                'week_number' => $p['week_number'],
                 'keterangan' => $p['keterangan'],
-                'status' => $p['status'],
-                'photo' => $p['photo'],
+                'status'     => $p['status'],
+                'photo'      => $p['photo'],
                 'created_at' => $p['created_at'],
-                'item_name' => $itemName,
+                'item_name'  => $itemName,
                 'group_name' => $groupName,
                 'target_key' => $targetKey,
             ];
         }, $progressList);
+
+        $jobsList = $this->jobRepository->findAllByConstructionId($id);
+        $jobsByTarget = [];
+        foreach ($jobsList as $j) {
+            if (!empty($j['construction_target_id'])) {
+                $jobsByTarget[$j['construction_target_id']] = $j;
+            }
+        }
+
+        $db = \Config\Database::connect();
+        $applicants = $db->table('job_applications ja')
+            ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name')
+            ->join('tukang', 'tukang.id = ja.tukang_id', 'left')
+            ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
+            ->where('ja.project_id', $id)
+            ->where('ja.project_type', 'CONSTRUCTION')
+            ->orderBy('ja.created_at', 'DESC')
+            ->get()->getResultArray();
+
+        $applicantsByTarget = [];
+        foreach ($applicants as $app) {
+            if (!empty($app['construction_target_id'])) {
+                $applicantsByTarget[$app['construction_target_id']][] = $app;
+            }
+        }
 
         return [
             'construction' => $construction,
             'progress' => $progressMapped,
             'progress_list' => $progressMapped,
             'invoice_list' => $this->invoiceRepository->findByConstructionId($id),
-            'job_info' => $this->jobRepository->findByConstructionId($id),
+            'job_info' => null, // Hapus data lowongan lama (global)
+            'jobs_by_target' => $jobsByTarget,
             'design_list' => $this->designRepository->findByConstructionId($id),
             'survey_list' => $this->surveyRepository->findByConstructionId($id),
             'rab_list' => $this->rabRepository->findByConstructionId($id),
@@ -197,7 +224,8 @@ class ConstructionService
                 $list = $ahspRepo->findAllOrderedByIdDesc();
                 return array_map(fn($item) => $ahspRepo->findWithChildren($item['id']), $list);
             })(),
-            'applicants' => $this->applicationRepository->findByProjectIdAndType($id, 'CONSTRUCTION'),
+            'applicants' => $applicants,
+            'applicants_by_target' => $applicantsByTarget,
             'target_list' => $this->targetRepository->findByConstructionId($id),
             'attendance_list' => $this->attendanceRepository->findByConstructionId($id),
             'admin_users' => $this->userAdminRepository->findAllOrderedByIdDesc(),
@@ -327,11 +355,88 @@ class ConstructionService
     {
         $this->rabRepository->lockByConstructionId($id);
         $this->constructionRepository->update($id, ['status' => 'CONSTRUCTION']);
+
+        $db = \Config\Database::connect();
+        
+        // Hitung ulang total RAB
+        $rabRow = $db->query(
+            "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM construction_rabs WHERE construction_id = ?",
+            [$id]
+        )->getRowArray();
+        
+        $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
+        
+        // Update rab_total di requests
+        $this->constructionRepository->update($id, ['rab_total' => $rabTotal]);
+
+        // Hapus tagihan grand total lama jika ada
+        $db->table('construction_invoices')
+            ->where('construction_id', $id)
+            ->where('description', 'Tagihan Seluruh Pekerjaan RAB')
+            ->delete();
+
+        $proj = $db->table('construction_requests')->where('id', $id)->get()->getRowArray();
+        $userId = $proj ? ($proj['user_id'] ?? null) : null;
+        
+        if ($userId) {
+            $rabs = $db->table('construction_rabs')
+                ->select('construction_rabs.*, ahsp.uraian as activity_name')
+                ->join('ahsp', 'ahsp.id = construction_rabs.ahsp_id', 'left')
+                ->where('construction_id', $id)
+                ->get()->getResultArray();
+
+            foreach ($rabs as $rab) {
+                $desc = trim(($rab['sub_group_name'] ? $rab['sub_group_name'] . ' — ' : '') . ($rab['activity_name'] ?: 'Pekerjaan'));
+                $amount = (float) $rab['total_price'];
+
+                $existingInvoice = $db->table('construction_invoices')
+                    ->where('construction_id', $id)
+                    ->where('rab_id', $rab['id'])
+                    ->get()->getRowArray();
+
+                if (!$existingInvoice) {
+                    $existingInvoice = $db->table('construction_invoices')
+                        ->where('construction_id', $id)
+                        ->where('rab_id', null)
+                        ->where('description', $desc)
+                        ->get()->getRowArray();
+                }
+
+                if ($existingInvoice) {
+                    if ($existingInvoice['status'] !== 'PAID') {
+                        $db->table('construction_invoices')
+                            ->where('id', $existingInvoice['id'])
+                            ->update([
+                                'amount' => $amount,
+                                'rab_id' => $rab['id'],
+                                'description' => $desc
+                            ]);
+                    }
+                } else {
+                    $db->table('construction_invoices')->insert([
+                        'construction_id' => $id,
+                        'rab_id' => $rab['id'],
+                        'order_id' => 'INV-CONST-' . time() . '-' . rand(100, 999),
+                        'user_id' => $userId,
+                        'amount' => $amount,
+                        'description' => $desc,
+                        'due_date' => date('Y-m-d', strtotime('+7 days')),
+                        'status' => 'UNPAID',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+        }
     }
 
     public function unlockRab(int $id): void
     {
         $this->rabRepository->unlockByConstructionId($id);
+        
+        $db = \Config\Database::connect();
+        $db->table('construction_requests')
+            ->where('id', $id)
+            ->update(['rab_total' => 0]);
     }
 
     public function deleteRabRow(int $id): void
@@ -485,11 +590,40 @@ class ConstructionService
 
     public function getTargetView(int $id): array
     {
+        $jobsList = $this->jobRepository->findAllByConstructionId($id);
+        $jobsByTarget = [];
+        foreach ($jobsList as $j) {
+            if (!empty($j['construction_target_id'])) {
+                $jobsByTarget[$j['construction_target_id']] = $j;
+            }
+        }
+
+        $db = \Config\Database::connect();
+        $applicants = $db->table('job_applications ja')
+            ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name')
+            ->join('tukang', 'tukang.id = ja.tukang_id', 'left')
+            ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
+            ->where('ja.project_id', $id)
+            ->where('ja.project_type', 'CONSTRUCTION')
+            ->orderBy('ja.created_at', 'DESC')
+            ->get()->getResultArray();
+
+        $applicantsByTarget = [];
+        foreach ($applicants as $app) {
+            if (!empty($app['construction_target_id'])) {
+                $applicantsByTarget[$app['construction_target_id']][] = $app;
+            }
+        }
+
         return [
-            'construction' => $this->constructionRepository->findById($id),
-            'rab'          => $this->rabRepository->findByConstructionId($id),
-            'target_list'  => $this->targetRepository->findByConstructionId($id),
-            'applicants'   => $this->applicationRepository->findApprovedByProjectIdAndType($id, 'CONSTRUCTION'),
+            'construction'        => $this->constructionRepository->findById($id),
+            'rab'                 => $this->rabRepository->findByConstructionId($id),
+            'addendum'            => $this->addendumRepository->findByConstructionId($id),
+            'target_list'         => $this->targetRepository->findByConstructionId($id),
+            'applicants'          => $applicants,
+            'applicants_by_target' => $applicantsByTarget,
+            'jobs_by_target'      => $jobsByTarget,
+            'job_info'            => null,
         ];
     }
 
@@ -546,12 +680,13 @@ class ConstructionService
 
         $this->invoiceRepository->save([
             'construction_id' => $constructionId,
-            'invoice_number' => 'INV-CONST-' . time(),
+            'rab_id' => !empty($data['rab_id']) ? (int) $data['rab_id'] : null,
+            'order_id' => 'INV-CONST-' . time(),
             'user_id' => $userId,
             'amount' => $data['amount'],
             'description' => $data['description'],
             'due_date' => $data['due_date'] ?: null,
-            'status' => 'PENDING',
+            'status' => 'UNPAID',
         ]);
     }
 
@@ -654,21 +789,29 @@ class ConstructionService
     public function updateJobInfo(array $data): void
     {
         $constructionId = (int) $data['id'];
+        $targetId = !empty($data['construction_target_id']) ? (int) $data['construction_target_id'] : null;
         $request = $this->constructionRepository->findById($constructionId);
 
         $row = [
             'construction_id' => $constructionId,
+            'construction_target_id' => $targetId,
             'detail_pekerjaan' => $data['detail_pekerjaan'],
             'detail_lokasi' => $data['detail_lokasi'],
-            'tempat_tinggal' => $data['tempat_tinggal'],
             'tanggal_mulai' => $data['tanggal_mulai'],
             'tanggal_akhir' => $data['tanggal_akhir'],
-            'upah_per_hari' => $data['upah_per_hari'],
+            'upah' => $data['upah'],
             'latitude' => $request['latitude'] ?? '0',
             'longitude' => $request['longitude'] ?? '0',
         ];
 
-        $existingJob = $this->jobRepository->findByConstructionId($constructionId);
+        $existingJob = null;
+        if ($targetId) {
+            $existingJob = $this->jobRepository->findByTargetId($targetId);
+        } else {
+            // fallback / global job info where target ID is null
+            $existingJob = $this->jobRepository->findGlobalByConstructionId($constructionId);
+        }
+
         if ($existingJob) {
             $this->jobRepository->update($existingJob['id'], $row);
         } else {

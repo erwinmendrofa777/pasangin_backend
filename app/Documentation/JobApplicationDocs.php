@@ -26,7 +26,9 @@ class JobApplicationDocs
                     new OA\Property(property: "phone", type: "string", example: "081298765432", description: "Nomor telepon aktif"),
                     new OA\Property(property: "dob", type: "string", example: "1990-05-15", description: "Tanggal lahir (YYYY-MM-DD)"),
                     new OA\Property(property: "address", type: "string", example: "Kec. Sukasari, Bandung", description: "Alamat domisili"),
-                    new OA\Property(property: "specialization", type: "string", example: "Tukang Kayu & Plafon", description: "Keahlian spesifik tukang")
+                    new OA\Property(property: "specialization", type: "string", example: "Tukang Kayu & Plafon", description: "Keahlian spesifik tukang"),
+                    new OA\Property(property: "construction_job_id", type: "integer", example: 12, description: "ID Lowongan konstruksi target (Opsional, atau gunakan job_id)"),
+                    new OA\Property(property: "job_id", type: "integer", example: 12, description: "ID Lowongan target (Alternatif dari construction_job_id)")
                 ]
             )
         ),

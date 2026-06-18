@@ -702,7 +702,7 @@ class Construction extends BaseController
             }
 
             log_admin_activity('update_status', 'Construction', 'Update Status Progres ' . $constructionId);
-            return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#progress'))->with('success', 'Status laporan progress berhasil diperbarui!');
+            return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#target'))->with('success', 'Status laporan progress berhasil diperbarui!');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -719,6 +719,7 @@ class Construction extends BaseController
 
         $id = $this->request->getPost('id');
         $status = $this->request->getPost('status');
+        $targetId = $this->request->getPost('construction_target_id');
 
         $applicant = $this->svc->updateApplicantStatus((int) $id, $status);
 
@@ -730,7 +731,9 @@ class Construction extends BaseController
             $this->notifService->sendPersonal('tukang', (int) $applicant['tukang_id'], $title, $message);
         }
         log_admin_activity('update_status', 'Construction', 'Update Status Pelamar ' . $id);
-        return redirect()->back()->with('success', 'Status pelamar berhasil diperbarui!');
+        return redirect()->back()
+            ->with('success', 'Status pelamar berhasil diperbarui!')
+            ->with('open_target_job_modal', $targetId);
     }
 
     public function update_job_info()
@@ -748,7 +751,7 @@ class Construction extends BaseController
         $this->notifService->sendBulk('tukang', $title, $message);
 
         log_admin_activity('update', 'Construction', 'Update Info Pekerjaan ' . $post['id']);
-        return redirect()->to(base_url('admin/construction/detail/' . $post['id'] . '#info-pekerjaan'))->with('success', 'Info Pekerjaan & Lokasi disinkronkan dan notifikasi dikirim ke seluruh tukang!');
+        return redirect()->to(base_url('admin/construction/detail/' . $post['id'] . '#target'))->with('success', 'Lowongan berhasil dipublikasikan! Notifikasi dikirim ke seluruh tukang.');
     }
 
     // -------------------------------------------------------------------------

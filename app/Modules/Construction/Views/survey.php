@@ -1,7 +1,7 @@
 <div class="row g-4 mt-1">
 
     <!-- ========== FORM TAMBAH SURVEY ========== -->
-    <div class="col-md-4 d-flex flex-column">
+    <div class="col-md-4 d-flex flex-column mt-0">
         <div class="card survey-card-form h-100">
             <div class="card-header">
                 <h6 class="mb-0 text-white" style="font-weight:700; font-size:0.9rem;">
@@ -65,7 +65,7 @@
     </div>
 
     <!-- ========== RIWAYAT SURVEY ========== -->
-    <div class="col-md-8 d-flex flex-column">
+    <div class="col-md-8 d-flex flex-column mt-0">
         <div class="card survey-card-history h-100">
             <div class="card-header">
                 <h6 class="mb-0 text-white" style="font-weight:700; font-size:0.9rem;">

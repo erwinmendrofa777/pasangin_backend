@@ -5,7 +5,6 @@
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_loker_styles') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_material_styles') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_pembayaran_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_progress_styles') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_rab_styles') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_survey_styles') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_target_styles') ?>
@@ -529,10 +528,6 @@
                                             class="fas fa-bullseye"></i> Target</a></li>
                             <?php endif; ?>
 
-                            <?php if (can('construction_progress')): ?>
-                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#progress"><i
-                                            class="fas fa-chart-line"></i> Progress</a></li>
-                            <?php endif; ?>
 
                             <?php if (can('construction_pembayaran')): ?>
                                 <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#payment"><i
@@ -549,10 +544,7 @@
                                         href="#material"><i class="fas fa-box-open"></i> Pengajuan Material</a></li>
                             <?php endif; ?>
 
-                            <?php if (can('construction_lowongan') || can('construction_pelamar')): ?>
-                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#info-pekerjaan"><i
-                                            class="fas fa-tools"></i> Lowongan</a></li>
-                            <?php endif; ?>
+
 
                         </ul>
                     </div>
@@ -567,7 +559,7 @@
 
             <!-- ------------ -->
             <!-- tab 1 detail -->
-            <div class="tab-pane fade show active px-0" id="detail" role="tabpanel">
+            <div class="tab-pane fade show active py-0" id="detail" role="tabpanel">
                 <?php
                 // Status Configuration for Construction
                 $conStatus = $construction['status'] ?? 'PENDING';
@@ -596,12 +588,12 @@
 
                 <div class="row g-4 align-items-start mt-1">
                     <!-- Left: Profile & Project Details -->
-                    <div class="col-12 col-md-7 mb-4">
+                    <div class="col-12 col-md-7 mb-4 mt-2">
                         <?= $this->include('App\Modules\Construction\Views\components\_profile_info') ?>
                     </div>
 
                     <!-- Right: Workflow Status Controller -->
-                    <div class="col-12 col-md-5 mb-4">
+                    <div class="col-12 col-md-5 mb-4 mt-2">
                         <?= $this->include('App\Modules\Construction\Views\components\_status_manager') ?>
                     </div>
                 </div>
@@ -664,23 +656,9 @@
                 </div>
             <?php endif; ?>
 
-            <!-- -------------- -->
-            <!-- tab 9 progress -->
-            <!-- -------------- -->
-            <?php if (can('construction_progress')): ?>
-                <div class="tab-pane fade" id="progress" role="tabpanel">
-                    <?= $this->include('App\Modules\Construction\Views\progress') ?>
-                </div>
-            <?php endif; ?>
 
-            <!-- -------------------- -->
-            <!-- tab 10 info pekerjaan -->
-            <!-- -------------------- -->
-            <?php if (can('construction_lowongan') || can('construction_pelamar')): ?>
-                <div class="tab-pane fade" id="info-pekerjaan" role="tabpanel">
-                    <?= $this->include('App\Modules\Construction\Views\loker') ?>
-                </div>
-            <?php endif; ?>
+
+
 
             <!-- -------------------- -->
             <!-- tab 11 absensi -->
@@ -709,7 +687,6 @@
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_addendum_scripts') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_material_scripts') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_pembayaran_scripts') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_progress_scripts') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_rab_scripts') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_survey_scripts') ?>
 <?= $this->include('App\Modules\Construction\Views\components\_dtl_target_scripts') ?>

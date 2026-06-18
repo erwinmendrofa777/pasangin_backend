@@ -16,6 +16,7 @@ class ConstructionInvoicesModel extends Model
     protected $allowedFields = [
         'voucher_code',
         'construction_id',
+        'rab_id',
         'user_id',
         'description',
         'amount',

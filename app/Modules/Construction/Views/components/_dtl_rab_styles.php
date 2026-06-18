@@ -11,6 +11,14 @@
         overflow: hidden;
     }
 
+    .header-card {
+        border: 1px solid rgba(255, 92, 92, 0.08) !important;
+        border-left: 4px solid var(--palette-primary) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 36px rgba(255, 92, 92, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        background: #fff !important;
+    }
+
     /* ── Panel Header ── */
     .rab-panel-header {
         display: flex;

@@ -1,4 +1,4 @@
-<div class="row mt-3 g-3">
+<div class="row mt-1 g-3">
 
     <!-- ══════ PANEL UPLOAD ══════ -->
     <div class="col-lg-4 align-self-start">
@@ -29,11 +29,11 @@
                     <label class="desain-label">Admin Perancang</label>
                     <select name="user_admin_id" class="form-control desain-input" required>
                         <option value="">— Pilih Admin —</option>
-                        <?php 
+                        <?php
                         $currentUserId = session()->get('user_id');
-                        foreach ($admin_users ?? [] as $au): 
+                        foreach ($admin_users ?? [] as $au):
                             $selected = ($au['id'] == $currentUserId) ? 'selected' : '';
-                        ?>
+                            ?>
                             <option value="<?= $au['id'] ?>" <?= $selected ?>>
                                 <?= esc($au['full_name'] ?? $au['username'] ?? 'Admin ' . $au['id']) ?>
                             </option>
@@ -45,7 +45,8 @@
                     <label class="desain-label">File Desain (Gambar/PDF/Video)</label>
                     <div class="position-relative">
                         <input type="file" name="design_2d" class="form-control desain-input"
-                            accept=".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mov,.avi,.webm,.mkv" required style="padding-right:40px;">
+                            accept=".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mov,.avi,.webm,.mkv" required
+                            style="padding-right:40px;">
                         <i class="fas fa-paperclip text-muted position-absolute"
                             style="right:14px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
                     </div>
@@ -83,8 +84,8 @@
                     $isPdf = ($ext === 'pdf');
                     $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv']);
                     $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
-                    $fileUrl = !empty($d['design_requests_id']) 
-                        ? base_url('uploads/design_results/' . $d['file']) 
+                    $fileUrl = !empty($d['design_requests_id'])
+                        ? base_url('uploads/design_results/' . $d['file'])
                         : base_url('uploads/construction/designs/' . $d['file']);
                     ?>
                     <div class="col-6 col-md-4 col-xl-4">
@@ -96,18 +97,18 @@
                                     <i class="fas fa-file-pdf text-danger" style="font-size:2.8rem;"></i>
                                 </div>
                             <?php elseif ($isVideo): ?>
-                                <div class="desain-pdf-placeholder position-relative" 
-                                     style="background:#fff9f0 !important; cursor:pointer;"
-                                     onclick="$('#glb-video-<?= $d['id'] ?>').click();">
+                                <div class="desain-pdf-placeholder position-relative"
+                                    style="background:#fff9f0 !important; cursor:pointer;"
+                                    onclick="$('#glb-video-<?= $d['id'] ?>').click();">
                                     <i class="fas fa-file-video text-warning" style="font-size:2.8rem;"></i>
                                     <span class="position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%);">
-                                        <i class="fas fa-play-circle text-warning bg-white rounded-circle" style="font-size:16px;"></i>
+                                        <i class="fas fa-play-circle text-warning bg-white rounded-circle"
+                                            style="font-size:16px;"></i>
                                     </span>
                                 </div>
                             <?php else: ?>
                                 <img src="<?= $fileUrl ?>" class="desain-thumb" alt="<?= esc($d['title'] ?? '') ?>"
-                                     style="cursor:pointer;"
-                                     onclick="$('#glb-img-<?= $d['id'] ?>').click();">
+                                    style="cursor:pointer;" onclick="$('#glb-img-<?= $d['id'] ?>').click();">
                             <?php endif; ?>
 
                             <!-- Hover overlay -->
@@ -119,27 +120,27 @@
                                 <?php elseif ($isVideo): ?>
                                     <!-- Hidden video player container for native playbacks -->
                                     <div style="display:none;" id="video-design-<?= $d['id'] ?>">
-                                        <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
-                                            <video src="<?= $fileUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
+                                        <div class="p-3 text-center"
+                                            style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
+                                            <video src="<?= $fileUrl ?>" controls
+                                                style="width:100%; max-height:60vh; border-radius:8px; display:block;"
+                                                preload="metadata" playsinline></video>
                                             <div class="text-white mt-2 text-start px-2">
                                                 <h6 class="mb-1 fw-bold text-white"><?= esc($d['title'] ?? 'Tanpa Judul') ?></h6>
-                                                <small class="text-muted">Diunggah oleh: <?= esc($d['admin_name'] ?? 'Sistem') ?></small>
+                                                <small class="text-muted">Diunggah oleh:
+                                                    <?= esc($d['admin_name'] ?? 'Sistem') ?></small>
                                             </div>
                                         </div>
                                     </div>
-                                    <a href="#video-design-<?= $d['id'] ?>" class="glightbox desain-overlay-btn" 
-                                       id="glb-video-<?= $d['id'] ?>"
-                                       data-gallery="design-gallery"
-                                       data-slide-class="glightbox-video-slide"
-                                       data-type="inline">
+                                    <a href="#video-design-<?= $d['id'] ?>" class="glightbox desain-overlay-btn"
+                                        id="glb-video-<?= $d['id'] ?>" data-gallery="design-gallery"
+                                        data-slide-class="glightbox-video-slide" data-type="inline">
                                         <i class="fas fa-play text-warning"></i>
                                     </a>
                                 <?php else: ?>
-                                    <a href="<?= $fileUrl ?>" class="glightbox desain-overlay-btn" 
-                                       id="glb-img-<?= $d['id'] ?>"
-                                       data-gallery="design-gallery"
-                                       data-title="<?= esc($d['title'] ?? 'Tanpa Judul') ?>"
-                                       data-description="Diunggah oleh: <?= esc($d['admin_name'] ?? 'Sistem') ?>">
+                                    <a href="<?= $fileUrl ?>" class="glightbox desain-overlay-btn" id="glb-img-<?= $d['id'] ?>"
+                                        data-gallery="design-gallery" data-title="<?= esc($d['title'] ?? 'Tanpa Judul') ?>"
+                                        data-description="Diunggah oleh: <?= esc($d['admin_name'] ?? 'Sistem') ?>">
                                         <i class="fas fa-eye text-primary"></i>
                                     </a>
                                 <?php endif; ?>
@@ -192,15 +193,13 @@
                                         <i class="fas fa-file-pdf mr-1"></i>Lihat PDF
                                     </a>
                                 <?php elseif ($isVideo): ?>
-                                    <a href="javascript:void(0);" 
-                                        onclick="$('#glb-video-<?= $d['id'] ?>').click();"
+                                    <a href="javascript:void(0);" onclick="$('#glb-video-<?= $d['id'] ?>').click();"
                                         class="btn btn-sm btn-outline-warning flex-grow-1"
                                         style="border-radius:8px; font-size:0.78rem;">
                                         <i class="fas fa-play mr-1"></i>Putar
                                     </a>
                                 <?php else: ?>
-                                    <a href="javascript:void(0);" 
-                                        onclick="$('#glb-img-<?= $d['id'] ?>').click();"
+                                    <a href="javascript:void(0);" onclick="$('#glb-img-<?= $d['id'] ?>').click();"
                                         class="btn btn-sm btn-outline-info flex-grow-1"
                                         style="border-radius:8px; font-size:0.78rem;">
                                         <i class="fas fa-eye mr-1"></i>Lihat

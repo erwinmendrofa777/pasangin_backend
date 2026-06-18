@@ -1070,6 +1070,13 @@
                     <span>Tukang</span></a>
                 </li>
               <?php endif; ?>
+
+              <?php if (can('tukang')): ?>
+                <li class="<?= ($seg2 == 'tukang-skill') ? 'active' : '' ?>">
+                  <a class="nav-link" href="<?= site_url('admin/tukang-skill') ?>"><i class="fas fa-tools"></i>
+                    <span>Tukang Skill</span></a>
+                </li>
+              <?php endif; ?>
             <?php endif; ?>
 
             <!-- ============ PROYEK ============ -->

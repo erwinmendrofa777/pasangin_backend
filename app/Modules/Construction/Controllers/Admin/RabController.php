@@ -123,25 +123,15 @@ class RabController extends BaseController
      */
     public function lock_rab($constructionId)
     {
-        $this->db->table('construction_rabs')
-            ->where('construction_id', $constructionId)
-            ->update(['is_locked' => 1]);
-
+        $svc = new \App\Modules\Construction\Services\ConstructionService();
+        $svc->lockRab((int) $constructionId);
         return redirect()->back()->with('success', 'RAB Berhasil Dikunci  !');
     }
 
     public function unlock_rab($constructionId)
     {
-        $this->db->table('construction_rabs')
-            ->where('construction_id', $constructionId)
-            ->update(['is_locked' => 0]);
-
-        // Reset rab_total ke 0 saat RAB dibuka kuncinya
-        // agar saat dikunci ulang, nilai dihitung fresh dari baris yang dikirim
-        $this->db->table('construction_requests')
-            ->where('id', $constructionId)
-            ->update(['rab_total' => 0]);
-
+        $svc = new \App\Modules\Construction\Services\ConstructionService();
+        $svc->unlockRab((int) $constructionId);
         return redirect()->back()->with('success', 'Kunci RAB dibuka  !');
     }
 
@@ -501,86 +491,158 @@ class RabController extends BaseController
         $rows = $this->request->getPost('rows') ?: [];
         $shouldLock = $this->request->getPost('lock') === 'true' || $this->request->getPost('lock') === true;
 
-        $this->db->transStart();
+        try {
+            $this->db->transStart();
 
-        $grandTotal = 0;
-        $savedIds = [];
+            $grandTotal = 0;
+            $savedIds = [];
 
-        // Loop and save each row
-        foreach ($rows as $row) {
-            $id = $row['id'] ?? '0';
-            $roman = $row['roman_number'] ?: 'I';
-            $group = $row['group_name'] ?: 'PEKERJAAN';
-            $section = $row['section_group'];
-            $ahspId = $row['ahsp_id'];
-            $volume = (float) ($row['volume'] ?? 0);
-            $unit = $row['unit'];
-            $price = (float) ($row['price'] ?? 0);
-            $totalPrice = $volume * $price;
+            // Loop and save each row
+            foreach ($rows as $row) {
+                $id = $row['id'] ?? '0';
+                $roman = $row['roman_number'] ?: 'I';
+                $group = $row['group_name'] ?: 'PEKERJAAN';
+                $section = $row['section_group'];
+                $ahspId = $row['ahsp_id'];
+                $volume = (float) ($row['volume'] ?? 0);
+                $unit = $row['unit'];
+                $price = (float) ($row['price'] ?? 0);
+                $totalPrice = $volume * $price;
 
-            $grandTotal += $totalPrice;
+                $grandTotal += $totalPrice;
 
-            $data = [
-                'construction_id' => $constructionId,
-                'roman_number' => $roman,
-                'group_name' => $group,
-                'sub_group_name' => $section,
-                'section_group' => $section,
-                'section_name' => $section,
-                'ahsp_id' => $ahspId,
-                'volume' => $volume,
-                'unit' => $unit,
-                'current_unit_price' => $price,
-                'total_price' => $totalPrice,
-                'updated_at' => date('Y-m-d H:i:s')
-            ];
+                $data = [
+                    'construction_id' => $constructionId,
+                    'roman_number' => $roman,
+                    'group_name' => $group,
+                    'sub_group_name' => $section,
+                    'section_group' => $section,
+                    'section_name' => $section,
+                    'ahsp_id' => $ahspId,
+                    'volume' => $volume,
+                    'unit' => $unit,
+                    'current_unit_price' => $price,
+                    'total_price' => $totalPrice,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+
+                if ($shouldLock) {
+                    $data['is_locked'] = 1;
+                }
+
+                if (empty($id) || $id == "0" || $id == 0) {
+                    $data['created_at'] = date('Y-m-d H:i:s');
+                    $this->db->table('construction_rabs')->insert($data);
+                    $newId = $this->db->insertID();
+                    $savedIds[] = $newId;
+                } else {
+                    $this->db->table('construction_rabs')->where('id', $id)->update($data);
+                    $savedIds[] = $id;
+                }
+            }
 
             if ($shouldLock) {
-                $data['is_locked'] = 1;
+                // Lock all rows for this construction
+                $this->db->table('construction_rabs')
+                    ->where('construction_id', $constructionId)
+                    ->update(['is_locked' => 1]);
+
+                // Hitung ulang total dari DB (bukan hanya dari rows yang dikirim)
+                // agar rows yang sudah tersimpan sebelumnya juga ikut dihitung
+                $rabRow = $this->db->query(
+                    "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM construction_rabs WHERE construction_id = ?",
+                    [(int) $constructionId]
+                )->getRowArray();
+                
+                $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
+
+                $this->db->table('construction_requests')
+                    ->where('id', $constructionId)
+                    ->update(['rab_total' => $rabTotal]);
+
+                // Hapus tagihan grand total lama jika ada
+                $this->db->table('construction_invoices')
+                    ->where('construction_id', $constructionId)
+                    ->where('description', 'Tagihan Seluruh Pekerjaan RAB')
+                    ->delete();
+
+                $proj = $this->db->table('construction_requests')->where('id', $constructionId)->get()->getRowArray();
+                $userId = $proj ? ($proj['user_id'] ?? null) : null;
+                
+                if ($userId) {
+                    $rabs = $this->db->table('construction_rabs')
+                        ->select('construction_rabs.*, ahsp.uraian as activity_name')
+                        ->join('ahsp', 'ahsp.id = construction_rabs.ahsp_id', 'left')
+                        ->where('construction_id', $constructionId)
+                        ->get()->getResultArray();
+
+                    foreach ($rabs as $rab) {
+                        $desc = trim(($rab['sub_group_name'] ? $rab['sub_group_name'] . ' — ' : '') . ($rab['activity_name'] ?: 'Pekerjaan'));
+                        $amount = (float) $rab['total_price'];
+
+                        $existingInvoice = $this->db->table('construction_invoices')
+                            ->where('construction_id', $constructionId)
+                            ->where('rab_id', $rab['id'])
+                            ->get()->getRowArray();
+
+                        if (!$existingInvoice) {
+                            $existingInvoice = $this->db->table('construction_invoices')
+                                ->where('construction_id', $constructionId)
+                                ->where('rab_id', null)
+                                ->where('description', $desc)
+                                ->get()->getRowArray();
+                        }
+
+                        if ($existingInvoice) {
+                            if ($existingInvoice['status'] !== 'PAID') {
+                                $this->db->table('construction_invoices')
+                                    ->where('id', $existingInvoice['id'])
+                                    ->update([
+                                        'amount' => $amount,
+                                        'rab_id' => $rab['id'],
+                                        'description' => $desc
+                                    ]);
+                            }
+                        } else {
+                            $this->db->table('construction_invoices')->insert([
+                                'construction_id' => $constructionId,
+                                'rab_id' => $rab['id'],
+                                'order_id' => 'INV-CONST-' . time() . '-' . rand(100, 999),
+                                'user_id' => $userId,
+                                'amount' => $amount,
+                                'description' => $desc,
+                                'due_date' => date('Y-m-d', strtotime('+7 days')),
+                                'status' => 'UNPAID',
+                                'created_at' => date('Y-m-d H:i:s')
+                            ]);
+                        }
+                    }
+                }
             }
 
-            if (empty($id) || $id == "0" || $id == 0) {
-                $data['created_at'] = date('Y-m-d H:i:s');
-                $this->db->table('construction_rabs')->insert($data);
-                $newId = $this->db->insertID();
-                $savedIds[] = $newId;
-            } else {
-                $this->db->table('construction_rabs')->where('id', $id)->update($data);
-                $savedIds[] = $id;
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                $dbError = $this->db->error();
+                $errorMessage = isset($dbError['message']) && !empty($dbError['message']) ? $dbError['message'] : 'Database transaction failed without specific error message.';
+                return $this->response->setJSON([
+                    'status' => false,
+                    'message' => 'Gagal menyimpan data RAB! Detail error: ' . $errorMessage
+                ]);
             }
-        }
 
-        if ($shouldLock) {
-            // Lock all rows for this construction
-            $this->db->table('construction_rabs')
-                ->where('construction_id', $constructionId)
-                ->update(['is_locked' => 1]);
+            return $this->response->setJSON([
+                'status' => true,
+                'message' => $shouldLock ? 'RAB Berhasil Disimpan dan Dikunci!' : 'Draf RAB Berhasil Disimpan!'
+            ]);
 
-            // Hitung ulang total dari DB (bukan hanya dari rows yang dikirim)
-            // agar rows yang sudah tersimpan sebelumnya juga ikut dihitung
-            $rabRow = $this->db->query(
-                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM construction_rabs WHERE construction_id = ?",
-                [(int) $constructionId]
-            )->getRowArray();
-
-            $this->db->table('construction_requests')
-                ->where('id', $constructionId)
-                ->update(['rab_total' => (float) ($rabRow['rab_sum'] ?? 0)]);
-        }
-
-        $this->db->transComplete();
-
-        if ($this->db->transStatus() === false) {
+        } catch (\Throwable $e) {
+            $this->db->transRollback();
             return $this->response->setJSON([
                 'status' => false,
-                'message' => 'Gagal menyimpan data RAB!'
+                'message' => 'Gagal menyimpan data RAB! Exception: ' . $e->getMessage() . ' | File: ' . basename($e->getFile()) . ' | Line: ' . $e->getLine()
             ]);
         }
-
-        return $this->response->setJSON([
-            'status' => true,
-            'message' => $shouldLock ? 'RAB Berhasil Disimpan dan Dikunci!' : 'Draf RAB Berhasil Disimpan!'
-        ]);
     }
 
     /**

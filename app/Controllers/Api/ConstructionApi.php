@@ -515,8 +515,8 @@ class ConstructionApi extends BaseController
                     $files = [$fileRaw];
                 }
             }
-            
-            $item['survey_files'] = array_map(function($f) {
+
+            $item['survey_files'] = array_map(function ($f) {
                 return base_url('uploads/construction/survey/' . $f);
             }, $files);
 
@@ -723,6 +723,101 @@ class ConstructionApi extends BaseController
             $invoice['discount_amount'] = $discountAmount;
             $invoice['gross_amount'] = $grossAmount;
 
+            $rabId = $invoice['rab_id'] ?? null;
+            if ($rabId) {
+                $ahspBahan = [];
+                $ahspTenaga = [];
+
+                // Get RAB details
+                $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+                if ($rab) {
+                    $ahspId = $rab['ahsp_id'];
+                    $volume = (float) ($rab['volume'] ?? 0);
+
+                    // Get Selected materials with product details
+                    $selectedMaterials = $this->db->table('construction_rab_materials crm')
+                        ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit')
+                        ->join('products p', 'p.id = crm.product_id', 'left')
+                        ->where('crm.rab_id', $rabId)
+                        ->where('crm.selected', 1)
+                        ->get()
+                        ->getResultArray();
+
+                    $selectedMap = [];
+                    foreach ($selectedMaterials as $sm) {
+                        $selectedMap[$sm['ahsp_bahan_id']] = [
+                            'name' => $sm['product_name'],
+                            'price' => (float) $sm['product_price'],
+                            'unit' => $sm['product_unit']
+                        ];
+                    }
+
+                    // Get list of materials (ahsp_bahan)
+                    $bahanList = $this->db->table('ahsp_bahan')->where('ahsp_id', $ahspId)->get()->getResultArray();
+                    foreach ($bahanList as $b) {
+                        $selProduct = $selectedMap[$b['id']] ?? null;
+
+                        // Fallback price logic
+                        $hargaSatuan = 0.0;
+                        if ($selProduct) {
+                            $hargaSatuan = $selProduct['price'];
+                        } else {
+                            $bahanUraianClean = strtolower(trim($b['uraian'] ?? ''));
+                            $matchedProduct = $this->db->table('products')
+                                ->where('LOWER(TRIM(name))', $bahanUraianClean)
+                                ->get()->getRowArray();
+                            if ($matchedProduct) {
+                                $hargaSatuan = (float) $matchedProduct['price'];
+                                $selProduct = [
+                                    'name' => $matchedProduct['name'],
+                                    'price' => (float) $matchedProduct['price'],
+                                    'unit' => $matchedProduct['unit']
+                                ];
+                            }
+                        }
+
+                        $koef = (float) ($b['koefisien'] ?? 0);
+                        $jumlahHargaSatuan = $koef * $hargaSatuan;
+                        $hargaTotal = $jumlahHargaSatuan * $volume;
+
+                        $ahspBahan[] = [
+                            'uraian' => $b['uraian'],
+                            'satuan' => $b['satuan'],
+                            'koefisien' => $koef,
+                            'selected_product' => $selProduct,
+                            'jumlah_harga_satuan' => $jumlahHargaSatuan,
+                            'harga_total' => $hargaTotal
+                        ];
+                    }
+
+                    // Get list of workers (ahsp_tenaga_kerja)
+                    $tenagaList = $this->db->table('ahsp_tenaga_kerja')->where('ahsp_id', $ahspId)->get()->getResultArray();
+                    foreach ($tenagaList as $t) {
+                        $koef = (float) ($t['koefisien'] ?? 0);
+                        $hargaSatuan = (float) ($t['harga_satuan'] ?? 0);
+                        $jumlahHargaSatuan = $koef * $hargaSatuan;
+                        $hargaTotal = $jumlahHargaSatuan * $volume;
+
+                        $ahspTenaga[] = [
+                            'uraian' => $t['uraian'],
+                            'satuan' => $t['satuan'],
+                            'koefisien' => $koef,
+                            'harga_satuan' => $hargaSatuan,
+                            'jumlah_harga_satuan' => $jumlahHargaSatuan,
+                            'harga_total' => $hargaTotal
+                        ];
+                    }
+                }
+
+                $invoice['rab_id'] = [
+                    'id' => (int) $rabId,
+                    'ahsp_bahan' => $ahspBahan,
+                    'ahsp_tenaga_kerja' => $ahspTenaga
+                ];
+            } else {
+                $invoice['rab_id'] = null;
+            }
+
             return $invoice;
         }, $invoices);
 
@@ -773,12 +868,12 @@ class ConstructionApi extends BaseController
                 ->where('construction_id', $cId)
                 ->selectSum('total_price')
                 ->get()->getRowArray()['total_price'] ?? 0;
-                
+
             $totalAddendum = $this->db->table('construction_addendum')
                 ->where('construction_id', $cId)
                 ->selectSum('total_price')
                 ->get()->getRowArray()['total_price'] ?? 0;
-                
+
             $totalBudget = $totalRAB + $totalAddendum;
 
             // Hitung total realisasi harga (volume disetujui * harga satuan)
@@ -838,45 +933,170 @@ class ConstructionApi extends BaseController
         $json = $this->request->getJSON(true);
         if (empty($json)) {
             $json = [
+                'id' => $this->request->getVar('id'),
                 'rab_id' => $this->request->getVar('rab_id'),
-                'product_id' => $this->request->getVar('product_id')
+                'product_id' => $this->request->getVar('product_id'),
+                'ahsp_bahan_id' => $this->request->getVar('ahsp_bahan_id')
             ];
         }
 
+        $id = $json['id'] ?? null;
         $rabId = $json['rab_id'] ?? null;
         $productId = $json['product_id'] ?? null;
+        $ahspBahanId = $json['ahsp_bahan_id'] ?? null;
 
-        if (!$rabId || !$productId) {
-            return $this->fail('Parameter rab_id atau product_id tidak ditemukan.');
+        if (!$id && (!$rabId || !$productId)) {
+            return $this->fail('Parameter id rekomendasi atau (rab_id dan product_id) tidak ditemukan.');
         }
 
-        // 1. Ambil info harga produk terbaru dari tabel products
-        $product = $this->db->table('products')->where('id', $productId)->get()->getRowArray();
-        if (!$product)
-            return $this->fail('Produk tidak ditemukan.');
+        if (!$id) {
+            // Cari row rekomendasi di database
+            $query = $this->db->table('construction_rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('product_id', $productId);
+            if ($ahspBahanId) {
+                $query->where('ahsp_bahan_id', $ahspBahanId);
+            }
+            $rec = $query->get()->getRowArray();
+            if (!$rec) {
+                return $this->fail('Pilihan rekomendasi produk tidak ditemukan untuk item ini.');
+            }
+            $id = $rec['id'];
+            $ahspBahanId = $rec['ahsp_bahan_id'];
+        } else {
+            $rec = $this->db->table('construction_rab_materials')->where('id', $id)->get()->getRowArray();
+            if (!$rec) {
+                return $this->fail('Rekomendasi produk tidak ditemukan.');
+            }
+            $rabId = $rec['rab_id'];
+            $ahspBahanId = $rec['ahsp_bahan_id'];
+        }
 
-        // 2. Ambil volume dari item RAB ini
-        $rabItem = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
-        if (!$rabItem)
-            return $this->fail('Item RAB tidak ditemukan.');
+        // Cek lock
+        $existing = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+        if ($existing && $existing['is_locked'] == 1) {
+            return $this->fail('Tidak dapat memperbarui material, RAB sudah dikunci.');
+        }
 
-        // 3. Update tabel construction_rabs
-        $updateData = [
-            'selected_material_id' => $productId,
-            'current_unit_price' => $product['price'],
-            'total_price' => (float) $product['price'] * (float) $rabItem['volume'],
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
+        try {
+            $this->db->transStart();
 
-        if ($this->db->table('construction_rabs')->where('id', $rabId)->update($updateData)) {
+            // Set semua rekomendasi untuk bahan ini ke selected = 0
+            $this->db->table('construction_rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('ahsp_bahan_id', $ahspBahanId)
+                ->update(['selected' => 0]);
+
+            // Set rekomendasi terpilih ke selected = 1
+            $this->db->table('construction_rab_materials')
+                ->where('id', $id)
+                ->update(['selected' => 1]);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->fail('Gagal menyimpan pilihan material.');
+            }
+
+            // Hitung ulang harga baris RAB
+            $newUnitPrice = $this->recalculateRabRowPrice($rabId);
+
+            // Ambil data terbaru baris RAB
+            $updatedRab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+
             return $this->respond([
                 'status' => true,
-                'message' => 'Material berhasil diperbarui!',
-                'data' => $updateData
+                'message' => 'Pilihan produk material berhasil diperbarui!',
+                'data' => [
+                    'rab_id' => (int) $rabId,
+                    'ahsp_bahan_id' => (int) $ahspBahanId,
+                    'selected_product_id' => (int) $rec['product_id'],
+                    'new_unit_price' => (float) $newUnitPrice,
+                    'total_price' => (float) ($updatedRab['total_price'] ?? 0)
+                ]
             ]);
-        } else {
-            return $this->fail('Gagal memperbarui material di database.');
+
+        } catch (\Throwable $th) {
+            return $this->fail('Gagal memperbarui material dengan error: ' . $th->getMessage());
         }
+    }
+
+    private function recalculateRabRowPrice($rabId)
+    {
+        $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+        if (!$rab) {
+            return 0;
+        }
+
+        $ahspId = $rab['ahsp_id'];
+
+        // 1. Hitung total tenaga kerja dari ahsp_tenaga_kerja
+        $laborSum = $this->db->table('ahsp_tenaga_kerja')
+            ->select('SUM(harga_satuan * koefisien) AS total')
+            ->where('ahsp_id', $ahspId)
+            ->get()->getRowArray();
+        $totalTenaga = (float) ($laborSum['total'] ?? 0);
+
+        // 2. Hitung total bahan
+        $requiredBahan = $this->db->table('ahsp_bahan')->where('ahsp_id', $ahspId)->get()->getResultArray();
+        
+        $allProducts = $this->db->table('products')->select('id, name, price')->get()->getResultArray();
+        
+        // Ambil produk terpilih (yang selected = 1) untuk rab_id ini
+        $selectedMaterials = $this->db->table('construction_rab_materials')
+            ->where('rab_id', $rabId)
+            ->where('selected', 1)
+            ->get()->getResultArray();
+        
+        $selectedMap = [];
+        foreach ($selectedMaterials as $sm) {
+            $selectedMap[$sm['ahsp_bahan_id']] = $sm['product_id'];
+        }
+        
+        $productMap = [];
+        foreach ($allProducts as $p) {
+            $productMap[$p['id']] = $p;
+        }
+
+        $totalBahan = 0;
+        foreach ($requiredBahan as $rb) {
+            $koef = (float) ($rb['koefisien'] ?? 0);
+            
+            if (isset($selectedMap[$rb['id']])) {
+                $selProdId = $selectedMap[$rb['id']];
+                if (isset($productMap[$selProdId])) {
+                    $totalBahan += $koef * (float) $productMap[$selProdId]['price'];
+                }
+            } else {
+                // Fallback pencarian produk otomatis berdasarkan nama
+                $bahanUraianClean = strtolower(trim($rb['uraian'] ?? ''));
+                $matchedProductPrice = 0;
+                
+                foreach ($allProducts as $p) {
+                    $pNameClean = strtolower(trim($p['name'] ?? ''));
+                    if ($pNameClean === $bahanUraianClean || strpos($pNameClean, $bahanUraianClean) !== false || strpos($bahanUraianClean, $pNameClean) !== false) {
+                        $matchedProductPrice = (float) $p['price'];
+                        break;
+                    }
+                }
+                
+                $totalBahan += $koef * $matchedProductPrice;
+            }
+        }
+
+        $newUnitPrice = $totalTenaga + $totalBahan;
+        $totalPrice = (float) ($rab['volume'] ?? 0) * $newUnitPrice;
+
+        // Update ke database
+        $this->db->table('construction_rabs')
+            ->where('id', $rabId)
+            ->update([
+                'current_unit_price' => $newUnitPrice,
+                'total_price' => $totalPrice,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        return $newUnitPrice;
     }
 
     // =========================================================================
@@ -888,31 +1108,86 @@ class ConstructionApi extends BaseController
             return $this->fail('Project ID tidak boleh kosong.');
         }
 
+        $romanNumber = $this->request->getGet('roman_number') ?? $this->request->getVar('roman_number');
 
         try {
-            $rabData = $this->db->table('construction_rabs')->where('construction_id', $projectId)->orderBy('created_at', 'DESC')->get()->getResultArray();
-
-            $rabIds = array_column($rabData, 'id');
-            $materials = [];
-            if (!empty($rabIds)) {
-                $materials = $this->db->table('construction_rab_materials crm')
-                    ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.photo as product_photo')
-                    ->join('products p', 'p.id = crm.product_id', 'left')
-                    ->whereIn('crm.rab_id', $rabIds)
-                    ->get()->getResultArray();
+            $query = $this->db->table('construction_rabs')->where('construction_id', $projectId);
+            if (!empty($romanNumber)) {
+                $query->where('LOWER(TRIM(roman_number))', strtolower(trim($romanNumber)));
             }
+            $rabData = $query->orderBy('created_at', 'DESC')->get()->getResultArray();
 
             foreach ($rabData as &$rab) {
                 $rab['image_url'] = !empty($rab['file']) ? base_url('uploads/construction/rab/' . $rab['file']) : null;
 
-                $rabMaterials = array_values(array_filter($materials, function ($material) use ($rab) {
-                    return $material['rab_id'] == $rab['id'];
-                }));
-                foreach ($rabMaterials as &$material) {
-                    $material['product_total'] = (float) $material['product_price'] * (float) $rab['volume'];
-                    $material['product_image_url'] = !empty($material['product_photo']) ? base_url('uploads/products/' . $material['product_photo']) : null;
+                // Ambil info master AHSP
+                $ahspInfo = $this->db->table('ahsp')
+                    ->where('id', $rab['ahsp_id'])
+                    ->get()->getRowArray();
+                
+                if ($ahspInfo) {
+                    $ahspInfo['id'] = (int) $ahspInfo['id'];
+                } else {
+                    $ahspInfo = [
+                        'id' => (int) $rab['ahsp_id'],
+                        'kode' => '',
+                        'uraian' => $rab['activity_name'] ?? '',
+                        'satuan' => $rab['unit'] ?? ''
+                    ];
                 }
-                $rab['materials'] = $rabMaterials;
+
+                // 1. Ambil data ahsp_tenaga_kerja
+                $tenagaKerja = $this->db->table('ahsp_tenaga_kerja')
+                    ->where('ahsp_id', $rab['ahsp_id'])
+                    ->orderBy('id', 'ASC')
+                    ->get()->getResultArray();
+                foreach ($tenagaKerja as &$tk) {
+                    $tk['id'] = (int) $tk['id'];
+                    $tk['ahsp_id'] = (int) $tk['ahsp_id'];
+                    $tk['koefisien'] = (float) $tk['koefisien'];
+                    $tk['harga_satuan'] = (float) $tk['harga_satuan'];
+                }
+                $ahspInfo['tenaga_kerja'] = $tenagaKerja;
+
+                // 2. Ambil data ahsp_bahan
+                $bahanList = $this->db->table('ahsp_bahan')
+                    ->where('ahsp_id', $rab['ahsp_id'])
+                    ->orderBy('id', 'ASC')
+                    ->get()->getResultArray();
+
+                // 3. Ambil data rekomendasi produk untuk rab_id ini
+                $recommendations = $this->db->table('construction_rab_materials crm')
+                    ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.stock as product_stock, p.photo as product_photo, p.description as product_description')
+                    ->join('products p', 'p.id = crm.product_id', 'left')
+                    ->where('crm.rab_id', $rab['id'])
+                    ->get()->getResultArray();
+
+                $recsByBahanId = [];
+                foreach ($recommendations as $rec) {
+                    $recsByBahanId[$rec['ahsp_bahan_id']][] = [
+                        'id' => (int) $rec['id'],
+                        'rab_id' => (int) $rec['rab_id'],
+                        'product_id' => (int) $rec['product_id'],
+                        'ahsp_bahan_id' => (int) $rec['ahsp_bahan_id'],
+                        'selected' => (int) $rec['selected'] === 1,
+                        'product_name' => $rec['product_name'],
+                        'product_price' => (float) $rec['product_price'],
+                        'product_unit' => $rec['product_unit'],
+                        'product_stock' => (int) $rec['product_stock'],
+                        'product_description' => $rec['product_description'],
+                        'product_image_url' => !empty($rec['product_photo']) ? (strpos($rec['product_photo'], 'http') === 0 ? $rec['product_photo'] : base_url('uploads/products/' . $rec['product_photo'])) : null,
+                    ];
+                }
+
+                foreach ($bahanList as &$b) {
+                    $b['id'] = (int) $b['id'];
+                    $b['ahsp_id'] = (int) $b['ahsp_id'];
+                    $b['koefisien'] = (float) $b['koefisien'];
+                    $b['recommendations'] = $recsByBahanId[$b['id']] ?? [];
+                }
+                $ahspInfo['bahan'] = $bahanList;
+
+                $rab['ahsp'] = $ahspInfo;
             }
         } catch (\Throwable $th) {
             return $this->fail('Gagal mendapatkan data RAB dengan error : ' . $th->getMessage());
@@ -1031,13 +1306,9 @@ class ConstructionApi extends BaseController
             return $this->fail($e->getMessage());
         }
 
-        // 2. tugas update is_locked
-        $this->db->table('construction_rabs')
-            ->where('construction_id', $projectId)
-            ->update([
-                'is_locked' => 1,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+        // 2. tugas update is_locked & buat tagihan otomatis per pekerjaan
+        $constructionService = new \App\Modules\Construction\Services\ConstructionService();
+        $constructionService->lockRab((int) $projectId);
 
         // Kirim notifikasi ke Admin  
         $namaKlien = $data['template_kontrak']['nama_klien'] ?? 'Seorang client';
@@ -1121,7 +1392,7 @@ class ConstructionApi extends BaseController
         $data = $this->db->table('construction_targets ct')
             ->select("COALESCE(crab.group_name, ca.group_name) as group_name, 
         COALESCE(crab.sub_group_name, ca.sub_group_name) as sub_group_name, 
-        COALESCE(crab.activity_name, ca.activity_name) as activity_name, 
+        COALESCE(ahsp.uraian, ca.activity_name) as activity_name, 
         creq.id as construction_id, 
         NULL as renovation_id, 
         ct.start_week, 
@@ -1132,12 +1403,13 @@ class ConstructionApi extends BaseController
         creq.start_date, 
         (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id) as report_count, 
         (SELECT status FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id ORDER BY created_at DESC LIMIT 1) as last_report_status, 
-        (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_count, 
-        (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'rejected') as rejected_count, 
-        (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_count, 
-        (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_weight, 
-        (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_weight", false)
+        (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_count, 
+        (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'REJECTED') as rejected_count, 
+        (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_count, 
+        (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_weight, 
+        (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_weight", false)
             ->join('construction_rabs crab', 'crab.id = ct.id_construction_rabs', 'left')
+            ->join('ahsp', 'ahsp.id = crab.ahsp_id', 'left')
             ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
             ->join('construction_requests creq', 'creq.id = ct.construction_id')
             ->join('users u', 'u.id = creq.user_id')

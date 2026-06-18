@@ -19,6 +19,24 @@ class ConstructionJobsRepository implements ConstructionJobsRepositoryInterface
         return $this->model->where('construction_id', $constructionId)->first() ?: null;
     }
 
+    public function findAllByConstructionId(int $constructionId): array
+    {
+        return $this->model->where('construction_id', $constructionId)->findAll();
+    }
+
+    public function findByTargetId(int $targetId): ?array
+    {
+        return $this->model->where('construction_target_id', $targetId)->first() ?: null;
+    }
+
+    public function findGlobalByConstructionId(int $constructionId): ?array
+    {
+        return $this->model
+            ->where('construction_id', $constructionId)
+            ->where('construction_target_id', null)
+            ->first() ?: null;
+    }
+
     public function update(int $id, array $data): bool
     {
         return (bool) $this->model->update($id, $data);

@@ -27,8 +27,8 @@ $routes->get('test-503', function () {
 // ====================================================================
 // --- ROUTE DOKUMENTASI API SWAGGER ---
 // ====================================================================
-$routes->get('swagger', 'Swagger::index');
-$routes->get('swagger/json', 'Swagger::json');
+$routes->get('swagger', [\App\Controllers\Swagger::class, 'index']);
+$routes->get('swagger/json', [\App\Controllers\Swagger::class, 'json']);
 
 
 // ====================================================================

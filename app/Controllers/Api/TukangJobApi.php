@@ -114,7 +114,7 @@ class TukangJobApi extends ResourceController
                         SELECT 
                             COALESCE(crab.group_name, ca.group_name) as group_name,
                             COALESCE(crab.sub_group_name, ca.sub_group_name) as sub_group_name,
-                            COALESCE(crab.activity_name, ca.activity_name) as activity_name,
+                            COALESCE(ahsp.uraian, ca.activity_name) as activity_name,
                             creq.id as construction_id,
                             null as renovation_id,
                             creq.workday as hari_kerja,
@@ -127,14 +127,15 @@ class TukangJobApi extends ResourceController
                             creq.start_date,
                             (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id) as report_count,
                             (SELECT status FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id ORDER BY created_at DESC LIMIT 1) as last_report_status,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_count,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'rejected') as rejected_count,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_count,
-                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'approved') as approved_weight,
-                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND LOWER(status) = 'pending') as pending_weight
+                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_count,
+                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'REJECTED') as rejected_count,
+                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_count,
+                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_weight,
+                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_weight
                         FROM construction_targets ct
                         JOIN job_applications ja ON ja.id = ct.id_job_applications
                         LEFT JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs
+                        LEFT JOIN ahsp ON ahsp.id = crab.ahsp_id
                         LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                         JOIN construction_requests creq ON creq.id = ct.construction_id
                         WHERE ja.tukang_id = ?
@@ -343,8 +344,9 @@ class TukangJobApi extends ResourceController
 
             // 4. Ambil data target (difilter berdasarkan tukang_id)
             $targetsRaw = $this->db->table('construction_targets t')
-                ->select('t.id, COALESCE(r.activity_name, ca.activity_name) as target_name, t.start_week as startweek, t.end_week as endweek, COALESCE(r.volume, ca.volume) as weight, t.status')
+                ->select('t.id, COALESCE(ahsp.uraian, ca.activity_name) as target_name, t.start_week as startweek, t.end_week as endweek, COALESCE(r.volume, ca.volume) as weight, t.status')
                 ->join('construction_rabs r', 'r.id = t.id_construction_rabs', 'left')
+                ->join('ahsp', 'ahsp.id = r.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = t.id_construction_addendum', 'left')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
                 ->where('ja.tukang_id', $tukangId)

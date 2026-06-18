@@ -93,21 +93,16 @@
             lastGroupName = groupName;
 
             if (currentRoman !== null && roman !== currentRoman) {
-                // Insert add-row button and subtotal row BEFORE this row (which is the start of the new group)
+                // Insert subtotal row BEFORE this row (which is the start of the new group)
+                let subtotalHtml = `<tr class="row-rab-subtotal">
+                    <td colspan="4" class="text-center" style="padding-left: 10px;">`;
                 if (!isLocked) {
-                    const addRowHtml = `<tr class="row-add-row-in-group">
-                        <td colspan="3"></td>
-                        <td colspan="5">
-                            <button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 11px; text-decoration: none; font-weight: 500;" onclick="addNewRabRowAt('${currentRoman}', '${currentGroupName}', this)">
-                                <i class="fas fa-plus-circle me-1"></i> Tambah Baris
-                            </button>
-                        </td>
-                        <td></td>
-                    </tr>`;
-                    row.before(addRowHtml);
+                    subtotalHtml += `<button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 11px; text-decoration: none; font-weight: 500;" onclick="addNewRabRowAt('${currentRoman}', '${currentGroupName}', this)">
+                            <i class="fas fa-plus-circle me-1"></i> Tambah Baris
+                        </button>`;
                 }
-                const subtotalHtml = `<tr class="row-rab-subtotal">
-                    <td colspan="7" class="text-end fw-bold text-uppercase" style="color: #4a5568; padding-right: 15px !important;">
+                subtotalHtml += `</td>
+                    <td colspan="3" class="text-end fw-bold text-uppercase" style="color: #4a5568; padding-right: 15px !important;">
                         SUB TOTAL PEKERJAAN ${currentRoman}
                     </td>
                     <td class="font-monospace text-end text-success fw-bold" style="padding-right: 14px !important; font-size: 12px;">
@@ -126,20 +121,15 @@
 
         // Insert the last subtotal row at the end of the table body
         if (currentRoman !== null) {
+            let subtotalHtml = `<tr class="row-rab-subtotal">
+                <td colspan="4" class="text-center" style="padding-left: 10px;">`;
             if (!isLocked) {
-                const addRowHtml = `<tr class="row-add-row-in-group">
-                    <td colspan="3"></td>
-                    <td colspan="5">
-                        <button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 11px; text-decoration: none; font-weight: 500;" onclick="addNewRabRowAt('${currentRoman}', '${currentGroupName}', this)">
-                            <i class="fas fa-plus-circle me-1"></i> Tambah Baris
-                        </button>
-                    </td>
-                    <td></td>
-                </tr>`;
-                $('#rabBody').append(addRowHtml);
+                subtotalHtml += `<button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 11px; text-decoration: none; font-weight: 500;" onclick="addNewRabRowAt('${currentRoman}', '${currentGroupName}', this)">
+                        <i class="fas fa-plus-circle me-1"></i> Tambah Baris
+                    </button>`;
             }
-            const subtotalHtml = `<tr class="row-rab-subtotal">
-                <td colspan="7" class="text-end fw-bold text-uppercase" style="color: #4a5568; padding-right: 15px !important;">
+            subtotalHtml += `</td>
+                <td colspan="3" class="text-end fw-bold text-uppercase" style="color: #4a5568; padding-right: 15px !important;">
                     SUB TOTAL PEKERJAAN ${currentRoman}
                 </td>
                 <td class="font-monospace text-end text-success fw-bold" style="padding-right: 14px !important; font-size: 12px;">
@@ -200,10 +190,52 @@
         return parseFloat(clean) || 0;
     }
 
+    function romanToInt(roman) {
+        if (!roman) return 0;
+        const lookup = {I:1, V:5, X:10, L:50, C:100, D:500, M:1000};
+        let num = 0;
+        let val = 0;
+        for (let i = roman.length - 1; i >= 0; i--) {
+            let temp = lookup[roman[i].toUpperCase()];
+            if (!temp) continue;
+            if (temp < val) {
+                num -= temp;
+            } else {
+                num += temp;
+            }
+            val = temp;
+        }
+        return num;
+    }
+
+    function intToRoman(num) {
+        if (num <= 0) return 'I';
+        const roman = {
+            M: 1000, CM: 900, D: 500, CD: 400,
+            C: 100, XC: 90, L: 50, XL: 40,
+            X: 10, IX: 9, V: 5, IV: 4, I: 1
+        };
+        let str = '';
+        for (let i in roman) {
+            let q = Math.floor(num / roman[i]);
+            num -= q * roman[i];
+            str += i.repeat(q);
+        }
+        return str;
+    }
+
     /* ── Add New Row ── */
     function addNewRabRow() {
+        let nextRoman = 'I';
+        const lastRomanInput = $('#rabBody tr:not(.row-rab-subtotal):not(.row-add-new-group):not(.row-add-row-in-group) .input-rab-roman').last();
+        if (lastRomanInput.length > 0) {
+            const lastRomanVal = (lastRomanInput.val() || 'I').trim().toUpperCase();
+            const lastValInt = romanToInt(lastRomanVal);
+            nextRoman = intToRoman(lastValInt + 1);
+        }
+
         const newRow = `<tr data-id="0">
-            <td><input type="text" class="input-rab-roman input-roman" value="I"></td>
+            <td><input type="text" class="input-rab-roman input-roman" value="${nextRoman}"></td>
             <td><input type="text" class="input-rab-group-name" value="PEKERJAAN"></td>
             <td><input type="text" class="input-rab-section" placeholder="Sub grup..." oninput="calculateGrandTotalRab()"></td>
             <td><input type="text" class="input-rab-task input-rab-task-picker" placeholder="Pilih Pekerjaan (AHSP)..." readonly data-ahsp-id="" data-bs-toggle="modal" data-bs-target="#modalAhspPicker"></td>

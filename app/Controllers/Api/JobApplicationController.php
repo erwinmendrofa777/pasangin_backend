@@ -16,11 +16,11 @@ class JobApplicationController extends ResourceController
 
         $db = \Config\Database::connect();
         try {
-            // Memasukkan data ke tabel job_applications secara lengkap  
             $db->table('job_applications')->insert([
                 'tukang_id' => $data['tukang_id'] ?? null,    // ID Tukang yang melamar
                 'project_id' => $data['project_id'] ?? null,   // ID Proyek yang dilamar
                 'project_type' => $data['project_type'] ?? null, // 'construction' atau 'renovation'
+                'construction_job_id' => $data['construction_job_id'] ?? $data['job_id'] ?? null, // Link ke lowongan target
                 'tukang_name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],

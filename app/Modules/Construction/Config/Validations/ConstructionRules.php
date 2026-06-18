@@ -86,6 +86,7 @@ trait ConstructionRules
     // --- VALIDASI INVOICE ---
     public array $constructionInvoiceCreate = [
         'construction_id' => 'required|numeric',
+        'rab_id'          => 'permit_empty|numeric',
         'description'     => 'required|min_length[3]',
         'amount'          => 'required|numeric',
         'due_date'        => 'required|valid_date',
@@ -95,6 +96,9 @@ trait ConstructionRules
         'construction_id' => [
             'required' => 'ID Konstruksi wajib diisi.',
             'numeric'  => 'ID Konstruksi harus berupa angka.',
+        ],
+        'rab_id' => [
+            'numeric'  => 'ID RAB harus berupa angka.',
         ],
         'description' => [
             'required'   => 'Keterangan tagihan wajib diisi.',

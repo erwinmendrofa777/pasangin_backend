@@ -25,7 +25,7 @@ $totalApplicants = !empty($applicants) ? count($applicants) : 0;
                         <div class="col-md-4 hero-stat-item">
                             <span class="hero-stat-label">Upah Harian</span>
                             <h3 class="hero-stat-value text-white">Rp
-                                <?= number_format($job_info['upah_per_hari'] ?? 0, 0, ',', '.') ?>
+                                <?= number_format($job_info['upah'] ?? 0, 0, ',', '.') ?>
                             </h3>
                         </div>
                     </div>
@@ -63,14 +63,8 @@ $totalApplicants = !empty($applicants) ? count($applicants) : 0;
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-5 bg-light p-4 rounded-lg">
-                            <div class="info-group">
-                                <span class="info-label">Fasilitas Mess</span>
-                                <div class="info-content font-weight-bold">
-                                    <?= esc($job_info['tempat_tinggal'] ?? '-') ?>
-                                </div>
-                            </div>
-                            <div class="info-group mb-0">
+                        <div class="col-md-5 bg-light p-4 rounded-lg d-flex align-items-center">
+                            <div class="info-group mb-0 w-100">
                                 <span class="info-label">Jadwal Mulai - Selesai</span>
                                 <div class="info-content font-weight-bold">
                                     <i class="far fa-calendar-alt text-primary mr-2"></i>
@@ -109,14 +103,7 @@ $totalApplicants = !empty($applicants) ? count($applicants) : 0;
                                     <textarea name="detail_lokasi" class="canvas-input" rows="4"
                                         placeholder="Rumah nomor berapa? Patokan apa?"><?= $job_info['detail_lokasi'] ?? '' ?></textarea>
                                 </div>
-                                <div class="col-md-4 mb-4">
-                                    <label class="canvas-form-label">Mess Tukang</label>
-                                    <select name="tempat_tinggal" class="canvas-input">
-                                        <option value="Ada" <?= (($job_info['tempat_tinggal'] ?? '') == 'Ada') ? 'selected' : '' ?>>Disediakan</option>
-                                        <option value="Tidak Ada" <?= (($job_info['tempat_tinggal'] ?? '') == 'Tidak Ada') ? 'selected' : '' ?>>Tidak Ada</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-4">
+                                <div class="col-md-6 mb-4">
                                     <label class="canvas-form-label">Jadwal Proyek</label>
                                     <div class="d-flex gap-2">
                                         <input type="date" name="tanggal_mulai" class="canvas-input"
@@ -125,10 +112,10 @@ $totalApplicants = !empty($applicants) ? count($applicants) : 0;
                                             value="<?= $job_info['tanggal_akhir'] ?? '' ?>">
                                     </div>
                                 </div>
-                                <div class="col-md-4 mb-4">
+                                <div class="col-md-6 mb-4">
                                     <label class="canvas-form-label">Upah Harian (Rp)</label>
-                                    <input type="number" name="upah_per_hari" class="canvas-input" placeholder="0"
-                                        value="<?= $job_info['upah_per_hari'] ?? '' ?>">
+                                    <input type="number" name="upah" class="canvas-input" placeholder="0"
+                                        value="<?= $job_info['upah'] ?? '' ?>">
                                 </div>
                             </div>
 
