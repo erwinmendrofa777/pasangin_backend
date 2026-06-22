@@ -261,6 +261,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('design/progress/(:num)', 'DesignController::progress/$1');
     $routes->post('design/progress/(:num)', 'DesignController::updateProgress/$1');
     $routes->get('design/invoices/(:num)', 'DesignController::invoices/$1');
+    $routes->post('design/buy-revision', 'DesignController::buyRevisionQuota');
 
     // === MODUL KONSTRUKSI (SINKRON DENGAN ConstructionApi) ===
     $routes->post('construction/submit', 'ConstructionApi::submit');

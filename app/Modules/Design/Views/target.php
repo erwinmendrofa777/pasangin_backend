@@ -377,6 +377,20 @@ $timelineWidth = max(450, $numDays * 70);
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nominal Invoice (Rp) <span class="text-muted" style="font-size: 0.78rem; font-weight: normal;">(Opsional)</span></label>
+                                <input type="number" name="amount" class="form-control" placeholder="Contoh: 1500000" min="1">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label class="form-label">Jatuh Tempo Pembayaran <span class="text-muted" style="font-size: 0.78rem; font-weight: normal;">(Opsional)</span></label>
+                                <input type="date" name="due_date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Batal</button>

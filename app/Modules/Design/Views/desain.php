@@ -358,7 +358,34 @@
 <!-- Modal Upload Desain Baru -->
 <div class="modal fade" id="modalUploadDesign" tabindex="-1" role="dialog" aria-labelledby="modalUploadDesignTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-        <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+        <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden;">
+            <!-- Loading Overlay -->
+            <div id="uploadLoadingOverlay" class="d-none d-flex flex-column align-items-center justify-content-center position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255, 255, 255, 0.95); z-index: 1050; backdrop-filter: blur(5px); transition: all 0.3s ease;">
+                <div class="text-center p-4 w-100" style="max-width: 450px;">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem; border-width: 0.22em;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress mb-2" style="height: 12px; border-radius: 6px; background: #e2e8f0; overflow: hidden;">
+                        <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4 px-1">
+                        <span id="uploadProgressText" class="fw-bold text-primary" style="font-size: 12px;">Mengunggah: 0%</span>
+                        <div class="text-end">
+                            <span id="uploadProgressSpeed" class="text-info fw-bold me-2" style="font-size: 11px;">0 KB/s</span>
+                            <span id="uploadProgressBytes" class="text-muted fw-semibold" style="font-size: 11px;">0 KB / 0 KB</span>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-2 text-dark" style="letter-spacing: 0.5px; font-size: 16px;">Mengunggah Hasil Desain</h5>
+                    <p class="text-muted mb-0 mx-auto" style="font-size: 12px; line-height: 1.6;">
+                        Mohon tunggu sebentar, berkas desain sedang diunggah ke server.<br>
+                        <strong>Jangan menutup atau memuat ulang halaman ini.</strong>
+                    </p>
+                </div>
+            </div>
+
             <div class="modal-header border-bottom py-3 px-4" style="background: #f8fafc; border-top-left-radius: 14px; border-top-right-radius: 14px;">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
@@ -417,7 +444,7 @@
                                         </div>
                                         <h6 class="dropzone-title fw-bold mb-1" style="font-size: 13px; color: #344054;">Tarik & lepaskan file di sini</h6>
                                         <p class="dropzone-subtitle text-muted mb-0" style="font-size: 11px;">atau <span class="text-primary fw-bold" style="text-decoration: underline;">pilih dari komputer</span></p>
-                                        <span class="d-block mt-2 text-muted" style="font-size: 9px;">Format: PDF, Gambar, Video, atau File 3D (Maks. 50MB)</span>
+                                        <span class="d-block mt-2 text-muted" style="font-size: 9px;">Format: PDF, Gambar, Video, atau File 3D (Maks. 250MB)</span>
                                     </div>
                                 </div>
                             </div>

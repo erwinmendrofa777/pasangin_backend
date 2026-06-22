@@ -116,7 +116,7 @@
             }
 
             const visualBlock = isImage 
-                ? `<img src="${thumbUrl}" class="preview-thumb-img" onload="URL.revokeObjectURL('${thumbUrl}')">` 
+                ? `<img src="${thumbUrl}" class="preview-thumb-img" onload="window.URL.revokeObjectURL('${thumbUrl}')">` 
                 : `<i class="${iconClass}" style="font-size: 16px;"></i>`;
 
             const itemHtml = `
@@ -185,6 +185,31 @@
             const form = document.getElementById('uploadDesignForm');
             if (form) form.reset();
             renderUploadPreviews();
+            
+            // Reset overlay and buttons just in case
+            const overlay = document.getElementById('uploadLoadingOverlay');
+            if (overlay) overlay.classList.add('d-none');
+            
+            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-1"></i> Upload Sekarang';
+            }
+            
+            const cancelBtn = form ? form.querySelector('button[data-bs-dismiss="modal"]') : null;
+            if (cancelBtn) cancelBtn.disabled = false;
+
+            const progressSpeed = document.getElementById('uploadProgressSpeed');
+            if (progressSpeed) progressSpeed.innerText = '0 KB/s';
+            const progressBar = document.getElementById('uploadProgressBar');
+            if (progressBar) {
+                progressBar.style.width = '0%';
+                progressBar.setAttribute('aria-valuenow', 0);
+            }
+            const progressText = document.getElementById('uploadProgressText');
+            if (progressText) progressText.innerText = 'Mengunggah: 0%';
+            const progressBytes = document.getElementById('uploadProgressBytes');
+            if (progressBytes) progressBytes.innerText = '0 KB / 0 KB';
         });
     }
 
@@ -209,12 +234,153 @@
                 return;
             }
 
+            // Client-side file size validation (max 250MB per file)
+            const maxSizeBytes = 250 * 1024 * 1024;
+            let fileTooLarge = false;
+            uploadedFiles.forEach(file => {
+                if (file.size > maxSizeBytes) {
+                    fileTooLarge = true;
+                }
+            });
+
+            if (fileTooLarge) {
+                e.preventDefault();
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Validasi Gagal',
+                        message: 'Ukuran file desain maksimal adalah 250MB per file!',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Ukuran file desain maksimal adalah 250MB per file!');
+                }
+                return;
+            }
+
+            e.preventDefault(); // Stop standard form submission
+
             // Sync internal uploadedFiles array back to HTML input files before submission!
             if (designFileInput) {
                 const dt = new DataTransfer();
                 uploadedFiles.forEach(file => dt.items.add(file));
                 designFileInput.files = dt.files;
             }
+
+            // Show loading overlay
+            const overlay = document.getElementById('uploadLoadingOverlay');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressText = document.getElementById('uploadProgressText');
+            const progressSpeed = document.getElementById('uploadProgressSpeed');
+            const progressBytes = document.getElementById('uploadProgressBytes');
+            if (overlay) {
+                overlay.classList.remove('d-none');
+            }
+
+            // Disable buttons to prevent double-submit
+            const submitBtn = uploadForm.querySelector('button[type="submit"]');
+            const cancelBtn = uploadForm.querySelector('button[data-bs-dismiss="modal"]');
+            const modalContent = uploadForm.closest('.modal-content');
+            const closeBtn = modalContent ? modalContent.querySelector('.btn-close') : null;
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Mengunggah...';
+            }
+            if (cancelBtn) cancelBtn.disabled = true;
+            if (closeBtn) closeBtn.setAttribute('style', 'display: none !important;');
+
+            const startTime = Date.now();
+
+            // Submit form via AJAX (XMLHttpRequest)
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', uploadForm.action, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+            // Track upload progress
+            xhr.upload.addEventListener('progress', function (event) {
+                if (event.lengthComputable) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    if (progressBar) {
+                        progressBar.style.width = percentComplete + '%';
+                        progressBar.setAttribute('aria-valuenow', percentComplete);
+                    }
+                    if (progressText) {
+                        progressText.innerText = 'Mengunggah: ' + percentComplete + '%';
+                    }
+                    if (progressBytes) {
+                        progressBytes.innerText = formatBytes(event.loaded) + ' / ' + formatBytes(event.total);
+                    }
+
+                    // Calculate upload speed
+                    const elapsedTime = (Date.now() - startTime) / 1000;
+                    if (elapsedTime > 0) {
+                        const bytesPerSecond = event.loaded / elapsedTime;
+                        if (progressSpeed) {
+                            progressSpeed.innerText = formatBytes(bytesPerSecond) + '/s';
+                        }
+                    }
+                }
+            });
+
+            // Reusable error handler
+            function handleUploadError(msg) {
+                // Hide overlay
+                if (overlay) overlay.classList.add('d-none');
+                
+                // Re-enable buttons
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-1"></i> Upload Sekarang';
+                }
+                if (cancelBtn) cancelBtn.disabled = false;
+                if (closeBtn) closeBtn.removeAttribute('style');
+
+                // Reset progress bar
+                if (progressBar) {
+                    progressBar.style.width = '0%';
+                    progressBar.setAttribute('aria-valuenow', 0);
+                }
+                if (progressText) progressText.innerText = 'Mengunggah: 0%';
+                if (progressBytes) progressBytes.innerText = '0 KB / 0 KB';
+                if (progressSpeed) progressSpeed.innerText = '0 KB/s';
+
+                // Display error message
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Upload Gagal',
+                        message: msg,
+                        position: 'topRight'
+                    });
+                } else {
+                    alert(msg);
+                }
+            }
+
+            // Handle response
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // Redirect to target URL
+                            window.location.href = response.redirect;
+                        } else {
+                            handleUploadError(response.message || 'Gagal mengunggah berkas.');
+                        }
+                    } catch (err) {
+                        handleUploadError('Terjadi kesalahan format respon server.');
+                    }
+                } else {
+                    handleUploadError('Terjadi kesalahan saat menghubungi server (Status: ' + xhr.status + ').');
+                }
+            };
+
+            xhr.onerror = function () {
+                handleUploadError('Koneksi internet terputus atau server tidak merespon.');
+            };
+
+            const formData = new FormData(uploadForm);
+            xhr.send(formData);
         });
     }
 </script>

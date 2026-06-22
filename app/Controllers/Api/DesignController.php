@@ -271,9 +271,9 @@ class DesignController extends ResourceController
             ]);
         }
 
-        // Ambil data design request untuk mendapatkan start_date
+        // Ambil data design request untuk mendapatkan start_date dan max_revision
         $designRequest = $this->db->table('design_requests')
-            ->select('start_date')
+            ->select('start_date, max_revision')
             ->where('id', $designRequestId)
             ->get()->getRowArray();
 
@@ -292,6 +292,21 @@ class DesignController extends ResourceController
             ->where('design_request_id', $designRequestId)
             ->orderBy('id', 'ASC')
             ->get()->getResultArray();
+
+        // Hitung kuota revisi
+        $maxRevision = (int) ($designRequest['max_revision'] ?? 0);
+        $usedRevision = 0;
+        foreach ($targets as $target) {
+            $maxRevRow = $this->db->table('project_designs')
+                ->where('design_targets_id', $target['id'])
+                ->selectMax('revision_number')
+                ->get()->getRowArray();
+            $maxRev = (int) ($maxRevRow['revision_number'] ?? 0);
+            if ($maxRev > 1) {
+                $usedRevision += ($maxRev - 1);
+            }
+        }
+        $remainingRevision = max(0, $maxRevision - $usedRevision);
 
         $result = [];
         foreach ($targets as $target) {
@@ -349,13 +364,31 @@ class DesignController extends ResourceController
                 $targetStartDate = null;
             }
 
+            // Ambil data invoice untuk target ini
+            $invoice = $this->db->table('project_invoices')
+                ->where('design_target_id', $target['id'])
+                ->get()->getRowArray();
+
+            $invoiceData = null;
+            if ($invoice) {
+                $invoiceData = [
+                    'id' => (int) $invoice['id'],
+                    'amount' => $invoice['amount'] !== null ? (float) $invoice['amount'] : null,
+                    'due_date' => $invoice['due_date'],
+                    'payment_status' => $invoice['payment_status'] ?? $invoice['status'] ?? 'UNPAID',
+                    'snap_token' => $invoice['snap_token'],
+                    'payment_url' => $invoice['payment_url'],
+                ];
+            }
+
             $result[] = [
                 'id' => $target['id'],
                 'task_name' => $target['task_name'],
                 'jumlah_revisi' => count($revisionsList),
                 'target_start_date' => $targetStartDate,
                 'status' => $target['status'],
-                'revisions' => $revisionsList
+                'revisions' => $revisionsList,
+                'invoice' => $invoiceData
             ];
         }
 
@@ -363,12 +396,18 @@ class DesignController extends ResourceController
             return $this->respond([
                 'status' => true,
                 'message' => 'Data target desain ditemukan',
+                'max_revision' => $maxRevision,
+                'used_revision' => $usedRevision,
+                'remaining_revision' => $remainingRevision,
                 'data' => $result
             ]);
         } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada target desain untuk permohonan ini',
+                'max_revision' => $maxRevision,
+                'used_revision' => $usedRevision,
+                'remaining_revision' => $remainingRevision,
                 'data' => []
             ]);
         }
@@ -400,16 +439,35 @@ class DesignController extends ResourceController
             $item['image_revision_note_urls'] = $revImgUrls;
         }
 
+        // Ambil data invoice untuk target ini
+        $invoice = $this->db->table('project_invoices')
+            ->where('design_target_id', $id)
+            ->get()->getRowArray();
+
+        $invoiceData = null;
+        if ($invoice) {
+            $invoiceData = [
+                'id' => (int) $invoice['id'],
+                'amount' => $invoice['amount'] !== null ? (float) $invoice['amount'] : null,
+                'due_date' => $invoice['due_date'],
+                'payment_status' => $invoice['payment_status'] ?? $invoice['status'] ?? 'UNPAID',
+                'snap_token' => $invoice['snap_token'],
+                'payment_url' => $invoice['payment_url'],
+            ];
+        }
+
         if ($progress) {
             return $this->respond([
                 'status' => true,
                 'message' => 'Data progress desain ditemukan',
+                'invoice' => $invoiceData,
                 'data' => $progress
             ]);
         } else {
             return $this->respond([
                 'status' => true,
                 'message' => 'Belum ada progress desain untuk permohonan ini',
+                'invoice' => $invoiceData,
                 'data' => []
             ]);
         }
@@ -441,9 +499,50 @@ class DesignController extends ResourceController
         $targetId = (int)$design['design_targets_id'];
         $revNum = (int)$design['revision_number'];
 
+        $status = $this->request->getPost('status') ?? $this->request->getJSON(true)['status'];
+
+        // Cek Kuota Revisi jika klien menolak desain (REJECTED)
+        if ($status === 'REJECTED') {
+            $designRequestId = (int) $design['design_request_id'];
+            $designRequest = $this->db->table('design_requests')
+                ->where('id', $designRequestId)
+                ->get()->getRowArray();
+
+            if ($designRequest) {
+                $maxRevision = (int) ($designRequest['max_revision'] ?? 0);
+
+                $targets = $this->db->table('design_targets')
+                    ->where('design_request_id', $designRequestId)
+                    ->get()->getResultArray();
+
+                $usedRevision = 0;
+                foreach ($targets as $target) {
+                    $maxRevRow = $this->db->table('project_designs')
+                        ->where('design_targets_id', $target['id'])
+                        ->selectMax('revision_number')
+                        ->get()->getRowArray();
+                    $maxRev = (int) ($maxRevRow['revision_number'] ?? 0);
+                    if ($maxRev > 1) {
+                        $usedRevision += ($maxRev - 1);
+                    }
+                }
+
+                if ($usedRevision >= $maxRevision) {
+                    return $this->respond([
+                        'status' => false,
+                        'message' => 'Kuota revisi Anda sudah habis (' . $usedRevision . '/' . $maxRevision . '). Silakan lakukan pembayaran untuk menambah kuota revisi.',
+                        'data' => [
+                            'max_revision' => $maxRevision,
+                            'used_revision' => $usedRevision,
+                        ]
+                    ], 400);
+                }
+            }
+        }
+
         $data = [
             'revision_note' => $this->request->getPost('revision_note') ?? $this->request->getJSON(true)['revision_note'] ?? null,
-            'status' => $this->request->getPost('status') ?? $this->request->getJSON(true)['status'],
+            'status' => $status,
         ];
 
         // Handle upload multiple gambar untuk image_revision_note
@@ -533,7 +632,7 @@ class DesignController extends ResourceController
             ->join('design_targets dt', 'dt.id = project_invoices.design_target_id',             'left')
             ->where('project_invoices.design_request_id', $designRequestId)
             // Tampilkan tagihan target lebih dulu (design_target_id IS NOT NULL), lalu manual
-            ->orderBy('project_invoices.design_target_id IS NULL', 'ASC')
+            ->orderBy('project_invoices.design_target_id IS NULL', 'ASC', false)
             ->orderBy('project_invoices.design_target_id', 'ASC')
             ->orderBy('project_invoices.id', 'ASC')
             ->get()->getResultArray();
@@ -569,5 +668,54 @@ class DesignController extends ResourceController
                 : 'Belum ada invoice untuk permohonan ini',
             'data'    => $formattedInvoices,
         ]);
+    }
+
+    public function buyRevisionQuota()
+    {
+        $designRequestId = $this->request->getPost('design_request_id') ?? $this->request->getJSON(true)['design_request_id'] ?? null;
+        if (empty($designRequestId)) {
+            return $this->fail('Design Request ID wajib dikirim.', 400);
+        }
+
+        $designRequest = $this->db->table('design_requests')->where('id', $designRequestId)->get()->getRowArray();
+        if (!$designRequest) {
+            return $this->failNotFound('Proyek desain tidak ditemukan.');
+        }
+
+        $quantity = (int) ($this->request->getPost('quantity') ?? $this->request->getJSON(true)['quantity'] ?? 1);
+        if ($quantity < 1) {
+            $quantity = 1;
+        }
+
+        // Ambil harga revisi dinamis dari system_settings
+        $settingsModel = new \App\Modules\Admin\Models\SystemSettingModel();
+        $revisionPrice = (float) $settingsModel->getVal('design_revision_price', 100000.00);
+        $totalPrice = $revisionPrice * $quantity;
+
+        // Buat invoice baru
+        $invoiceData = [
+            'design_request_id' => $designRequestId,
+            'description'       => "Tambahan Kuota Revisi ({$quantity}x)",
+            'amount'            => $totalPrice,
+            'due_date'          => date('Y-m-d', strtotime('+1 day')),
+            'status'            => 'UNPAID',
+            'payment_status'    => 'UNPAID',
+            'created_at'        => date('Y-m-d H:i:s'),
+        ];
+
+        if ($this->db->table('project_invoices')->insert($invoiceData)) {
+            $invoiceId = $this->db->insertID();
+            return $this->respond([
+                'status' => true,
+                'message' => 'Invoice pembelian tambahan kuota revisi berhasil dibuat.',
+                'data' => [
+                    'invoice_id' => (int) $invoiceId,
+                    'amount' => $totalPrice,
+                    'quantity' => $quantity,
+                ]
+            ]);
+        }
+
+        return $this->failServerError('Gagal membuat invoice baru.');
     }
 }

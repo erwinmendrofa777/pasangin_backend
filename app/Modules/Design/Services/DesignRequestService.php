@@ -538,12 +538,15 @@ class DesignRequestService
 
         // Otomatis buat tagihan terkait target ini (nominal & jatuh tempo diisi kemudian oleh admin)
         if ($newTargetId) {
+            $amount  = (isset($postData['amount']) && $postData['amount'] !== '') ? $postData['amount'] : null;
+            $dueDate = (isset($postData['due_date']) && $postData['due_date'] !== '') ? $postData['due_date'] : null;
+
             $this->invoiceRepository->insert([
                 'design_request_id' => $designRequestId,
                 'design_target_id'  => $newTargetId,
                 'description'       => $postData['task_name'],
-                'amount'            => null,
-                'due_date'          => null,
+                'amount'            => $amount,
+                'due_date'          => $dueDate,
                 'status'            => 'UNPAID',
             ]);
         }

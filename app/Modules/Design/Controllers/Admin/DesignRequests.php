@@ -257,8 +257,14 @@ class DesignRequests extends BaseController
     // -------------------------------------------------------------------------
     public function addDesignResult($id)
     {
+        $isAjax = $this->request->isAJAX();
+
         if (!can('design_desain') && !in_array(strtolower(session()->get('role') ?? ''), ['drafter', 'arsitek'])) {
-            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk menambah hasil desain.');
+            $msg = 'Anda tidak memiliki akses untuk menambah hasil desain.';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->to('/admin/dashboard')->with('error', $msg);
         }
 
         // Validasi input dinamis
@@ -300,19 +306,23 @@ class DesignRequests extends BaseController
         $has3d = !empty($this->request->getPost('3d_object_name'));
 
         if (!$hasFiles && !$has3d) {
-            return redirect()->back()->withInput()->with('error', 'Wajib mengunggah berkas desain atau mengisi nama objek 3D.');
+            $msg = 'Wajib mengunggah berkas desain atau mengisi nama objek 3D.';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->back()->withInput()->with('error', $msg);
         }
 
         if ($hasMultiple) {
-            $rules['design_files'] = 'max_size[design_files,51200]|ext_in[design_files,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv,obj,fbx,glb,gltf,dwg,rvt]';
+            $rules['design_files'] = 'max_size[design_files,256000]|ext_in[design_files,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv,obj,fbx,glb,gltf,dwg,rvt]';
             $errors['design_files'] = [
-                'max_size' => 'Ukuran file desain maksimal 50MB.',
+                'max_size' => 'Ukuran file desain maksimal 250MB.',
                 'ext_in' => 'Format file desain tidak didukung.',
             ];
         } elseif ($hasSingle) {
-            $rules['design_file'] = 'max_size[design_file,51200]|ext_in[design_file,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv,obj,fbx,glb,gltf,dwg,rvt]';
+            $rules['design_file'] = 'max_size[design_file,256000]|ext_in[design_file,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv,obj,fbx,glb,gltf,dwg,rvt]';
             $errors['design_file'] = [
-                'max_size' => 'Ukuran file desain maksimal 50MB.',
+                'max_size' => 'Ukuran file desain maksimal 250MB.',
                 'ext_in' => 'Format file desain tidak didukung.',
             ];
         }
@@ -325,7 +335,11 @@ class DesignRequests extends BaseController
         }
 
         if (!$this->validate($rules, $errors)) {
-            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+            $msg = implode(' ', $this->validator->getErrors());
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->back()->withInput()->with('error', $msg);
         }
 
         // Security check for drafter & arsitek
@@ -335,7 +349,11 @@ class DesignRequests extends BaseController
             $db = \Config\Database::connect();
             $target = $db->table('design_targets')->where('id', $targetId)->get()->getRowArray();
             if (!$target || $target['user_admin_id'] != session()->get('user_id')) {
-                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menambah hasil desain pada tugas ini.');
+                $msg = 'Anda tidak memiliki akses untuk menambah hasil desain pada tugas ini.';
+                if ($isAjax) {
+                    return $this->response->setJSON(['success' => false, 'message' => $msg]);
+                }
+                return redirect()->back()->with('error', $msg);
             }
         }
 
@@ -364,16 +382,30 @@ class DesignRequests extends BaseController
             log_admin_activity('create', 'Design Requests', 'Tambah Hasil Desain Proyek ' . $id);
             
             $redirectTo = $this->request->getPost('redirect_to');
+            $msg = 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!';
+            
             if ($redirectTo === 'managerial') {
                 if (in_array($role, ['drafter', 'arsitek'])) {
-                    return redirect()->to('/admin/design/tugas')->with('success', 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!');
+                    $targetUrl = base_url('admin/design/tugas');
+                } else {
+                    $targetUrl = base_url('admin/design/managerial');
                 }
-                return redirect()->to('/admin/design/managerial')->with('success', 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!');
+            } else {
+                $targetUrl = base_url('admin/design/show/' . $id);
             }
-            
-            return redirect()->to('/admin/design/show/' . $id)->with('success', 'Hasil desain berhasil diupload (Rev. ' . $nextRev . ')!');
+
+            if ($isAjax) {
+                session()->setFlashdata('success', $msg);
+                return $this->response->setJSON(['success' => true, 'redirect' => $targetUrl]);
+            }
+
+            return redirect()->to($targetUrl)->with('success', $msg);
         } catch (RuntimeException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            $msg = $e->getMessage();
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->back()->with('error', $msg);
         }
     }
 

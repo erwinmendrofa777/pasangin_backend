@@ -20,7 +20,7 @@ trait DesignRules
         'design_targets_id' => 'required|numeric',
         'user_admin_id' => 'required|numeric',
         'design_name' => 'required|min_length[3]',
-        'design_file' => 'uploaded[design_file]|max_size[design_file,51200]|ext_in[design_file,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv]',
+        'design_file' => 'uploaded[design_file]|max_size[design_file,256000]|ext_in[design_file,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv]',
     ];
 
     /**
@@ -30,6 +30,8 @@ trait DesignRules
         'task_name' => 'required|min_length[3]',
         'start_week' => 'required|numeric',
         'end_week' => 'required|numeric',
+        'amount' => 'permit_empty|numeric',
+        'due_date' => 'permit_empty|valid_date',
     ];
 
     /**
@@ -92,7 +94,7 @@ trait DesignRules
         ],
         'design_file' => [
             'uploaded' => 'Anda harus memilih file hasil desain.',
-            'max_size' => 'Ukuran file desain maksimal 50MB.',
+            'max_size' => 'Ukuran file desain maksimal 250MB.',
             'ext_in' => 'Format file desain harus PDF, Gambar (PNG, JPG, JPEG, WEBP), atau Video (MP4, MOV, AVI, WEBM, MKV).',
         ],
     ];
@@ -109,6 +111,12 @@ trait DesignRules
         'end_week' => [
             'required' => 'Hari selesai wajib diisi.',
             'numeric' => 'Hari selesai harus berupa angka.',
+        ],
+        'amount' => [
+            'numeric' => 'Nominal tagihan harus berupa angka.',
+        ],
+        'due_date' => [
+            'valid_date' => 'Format tanggal jatuh tempo tidak valid.',
         ],
     ];
 

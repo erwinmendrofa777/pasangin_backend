@@ -336,6 +336,18 @@ class PaymentApi extends BaseController
                             // Update Status  
                             $this->db->table($tableName)->where($idColumn, $lookupId)->update([$statusColumn => 'PAID']);
 
+                            // Jika pembayaran ini untuk tambahan kuota revisi desain, tambahkan kuota
+                            if ($tableName === 'project_invoices' && strpos($dataObj['description'] ?? '', 'Tambahan Kuota Revisi') !== false) {
+                                $qty = 1;
+                                if (preg_match('/Tambahan Kuota Revisi \((\d+)x\)/', $dataObj['description'] ?? '', $matches)) {
+                                    $qty = (int) $matches[1];
+                                }
+                                $this->db->table('design_requests')
+                                    ->where('id', $dataObj['design_request_id'])
+                                    ->set('max_revision', 'max_revision + ' . $qty, false)
+                                    ->update();
+                            }
+
                             // Update transactions table as well
                             if ($tableName == 'orders') {
                                 $this->db->table('transactions')

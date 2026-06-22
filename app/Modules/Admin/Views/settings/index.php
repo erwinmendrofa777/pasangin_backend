@@ -302,6 +302,21 @@
                     </div>
                 </div>
 
+                <!-- Revisi Desain -->
+                <p class="sett-divider"><i class="fas fa-redo-alt"></i> Revisi Desain</p>
+
+                <div class="form-group">
+                    <label class="form-label" for="design_revision_price">Harga Tambah Kuota Revisi</label>
+                    <div class="input-row">
+                        <span class="adorn">Rp</span>
+                        <input type="number" name="design_revision_price" id="design_revision_price"
+                               min="0"
+                               value="<?= esc($settings['design_revision_price'] ?? 100000) ?>"
+                               placeholder="100000" required>
+                    </div>
+                    <p class="input-hint">Biaya yang dikenakan kepada klien per satu kali penambahan kuota revisi desain.</p>
+                </div>
+
                 <!-- Actions -->
                 <div class="sett-actions">
                     <a href="<?= base_url('admin/dashboard') ?>" class="btn-sett-cancel">

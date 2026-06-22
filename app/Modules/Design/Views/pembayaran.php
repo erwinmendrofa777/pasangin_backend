@@ -292,16 +292,18 @@ $pctBayar     = $totalNominal > 0
                 $originalAmount = (float) ($inv['amount'] ?? 0);
                 $discount       = (int)   ($inv['discount_nominal'] ?? 0);
                 $finalAmount    = max(0, $originalAmount - $discount);
+                $isRevision     = strpos($inv['description'] ?? '', 'Tambahan Kuota Revisi') !== false;
             ?>
             <div class="inv-target-row">
                 <div class="inv-target-header">
 
                     <!-- Nomor / Icon -->
-                    <div class="inv-target-num <?= $isPaid ? 'done' : '' ?>" style="background: linear-gradient(135deg, #64748b, #475569);">
+                    <div class="inv-target-num <?= $isPaid ? 'done' : '' ?>" 
+                         style="<?= $isRevision ? 'background: linear-gradient(135deg, #f59e0b, #d97706);' : 'background: linear-gradient(135deg, #64748b, #475569);' ?>">
                         <?php if ($isPaid): ?>
                             <i class="fas fa-check" style="font-size:.7rem;"></i>
                         <?php else: ?>
-                            <i class="fas fa-receipt" style="font-size:.75rem;"></i>
+                            <i class="fas <?= $isRevision ? 'fa-redo-alt' : 'fa-receipt' ?>" style="font-size:.75rem;"></i>
                         <?php endif; ?>
                     </div>
 
@@ -309,9 +311,15 @@ $pctBayar     = $totalNominal > 0
                     <div class="flex-grow-1">
                         <div class="inv-target-name"><?= esc($inv['description']) ?></div>
                         <div class="d-flex gap-1 mt-1 flex-wrap">
-                            <span class="badge-target-status" style="background:#e0f2fe;color:#0369a1;">
-                                <i class="fas fa-info-circle me-1" style="font-size:.65rem;"></i>Tagihan Tambahan
-                            </span>
+                            <?php if ($isRevision): ?>
+                                <span class="badge-target-status" style="background:#fef3c7;color:#92400e;">
+                                    <i class="fas fa-redo-alt me-1" style="font-size:.65rem;"></i>Kuota Revisi
+                                </span>
+                            <?php else: ?>
+                                <span class="badge-target-status" style="background:#e0f2fe;color:#0369a1;">
+                                    <i class="fas fa-info-circle me-1" style="font-size:.65rem;"></i>Tagihan Tambahan
+                                </span>
+                            <?php endif; ?>
                         </div>
                     </div>
 
