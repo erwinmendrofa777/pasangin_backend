@@ -16,11 +16,11 @@ class ConstructionJobsModel extends Model
     protected $allowedFields = [
         'construction_id',
         'construction_target_id',
-        'detail_pekerjaan',
         'detail_lokasi',
         'tanggal_mulai',
         'tanggal_akhir',
         'upah',
+        'is_open',
         'latitude',
         'longitude'
     ];

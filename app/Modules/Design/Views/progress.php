@@ -52,21 +52,28 @@
 
                 <!-- Isi: Timeline Revisi -->
                 <div class="card-body p-3">
-                    <?php if (empty($targetDesigns)): ?>
+                    <?php
+                    // Kelompokkan data targetDesigns berdasarkan revision_number
+                    $designsByRevision = [];
+                    foreach ($targetDesigns as $d) {
+                        $revNum = $d['revision_number'] ?? 1;
+                        $designsByRevision[$revNum][] = $d;
+                    }
+                    // Urutkan revisi dari terbesar (terbaru) ke terkecil
+                    krsort($designsByRevision);
+                    ?>
+
+                    <?php if (empty($designsByRevision)): ?>
                         <div class="text-center text-muted py-3" style="font-size: 13px;">
                             <i class="fas fa-image me-1" style="opacity:.3;"></i> Belum ada file desain untuk target ini.
                         </div>
                     <?php else: ?>
                         <div class="rev-timeline">
-                            <?php foreach ($targetDesigns as $d):
-                                $revSt = $d['status'] ?? 'PENDING';
+                            <?php foreach ($designsByRevision as $revNum => $filesInRev):
+                                $firstDesign = $filesInRev[0];
+                                $revSt = $firstDesign['status'] ?? 'PENDING';
                                 $dotCls = strtolower($revSt);
                                 $boxCls = ($revSt === 'APPROVED') ? 'approved' : (($revSt === 'REJECTED') ? 'rejected' : '');
-                                $ext = strtolower(pathinfo($d['file'], PATHINFO_EXTENSION));
-                                $isPdf = ($ext === 'pdf');
-                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
-                                $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv']);
-                                $revNum = $d['revision_number'] ?? 1;
                                 ?>
                                 <div class="rev-item">
                                     <div class="rev-dot <?= $dotCls ?>"></div>
@@ -91,19 +98,19 @@
                                             </div>
 
                                             <div class="d-flex align-items-center gap-3">
-                                                <small class="text-muted text-end"><?= date('d M Y, H:i', strtotime($d['created_at'])) ?></small>
+                                                <small class="text-muted text-end"><?= date('d M Y, H:i', strtotime($firstDesign['created_at'])) ?></small>
                                                 
                                                 <?php if ($revSt === 'PENDING'): ?>
                                                     <!-- Tombol Aksi Desktop -->
                                                     <div class="d-none d-md-flex gap-1">
-                                                        <a href="<?= base_url('admin/design/approve-design/' . $d['id']) ?>"
+                                                        <a href="<?= base_url('admin/design/approve-design/' . $firstDesign['id']) ?>"
                                                             class="btn btn-sm btn-success ladda-button" data-style="zoom-in"
                                                             onclick="return confirm('Approve revisi ini? Revisi PENDING lain akan otomatis di-reject.');"
                                                             title="Approve Revisi">
                                                             <span class="ladda-label"><i class="fas fa-check me-1"></i>Approve</span>
                                                         </a>
                                                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                                            data-bs-target="#modalReject<?= $d['id'] ?>" title="Reject Revisi">
+                                                            data-bs-target="#modalReject<?= $firstDesign['id'] ?>" title="Reject Revisi">
                                                             <i class="fas fa-times me-1"></i>Reject
                                                         </button>
                                                     </div>
@@ -111,77 +118,97 @@
                                             </div>
                                         </div>
 
-                                        <!-- Preview file + nama -->
-                                        <div class="d-flex align-items-center gap-3">
-                                            <?php $fileUrl = base_url('uploads/design_results/' . $d['file']); ?>
-                                            <?php if ($isPdf): ?>
-                                                <div class="d-flex align-items-center justify-content-center bg-light flex-shrink-0"
-                                                    style="width:72px;height:72px;border-radius:8px;background:#fff5f5 !important;">
-                                                    <i class="fas fa-file-pdf text-danger" style="font-size:32px;"></i>
-                                                </div>
-                                            <?php elseif ($isVideo): ?>
-                                                <div class="d-flex align-items-center justify-content-center bg-light flex-shrink-0 position-relative"
-                                                    style="width:72px;height:72px;border-radius:8px;background:#fff9f0 !important;">
-                                                    <i class="fas fa-file-video text-warning" style="font-size:32px;"></i>
-                                                    <span class="position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%);">
-                                                        <i class="fas fa-play-circle text-warning bg-white rounded-circle" style="font-size:16px;"></i>
-                                                    </span>
-                                                </div>
-                                            <?php else: ?>
-                                                <img src="<?= $fileUrl ?>"
-                                                    style="width:72px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0;"
-                                                    alt="<?= esc($d['design_name']) ?>">
-                                            <?php endif; ?>
-                                            <div>
-                                                <div class="fw-semibold" style="font-size:13px;"><?= esc($d['design_name']) ?></div>
-                                                <div class="mt-1 d-flex gap-1">
-                                                    <?php if ($isPdf): ?>
-                                                        <a href="<?= $fileUrl ?>" target="_blank"
-                                                            class="btn btn-xs btn-outline-danger" title="Lihat PDF">
-                                                            <i class="fas fa-file-pdf"></i> Lihat PDF
-                                                        </a>
-                                                    <?php elseif ($isVideo): ?>
-                                                        <!-- Hidden video player container for native playbacks -->
-                                                        <div style="display:none;" id="video-progress-<?= $d['id'] ?>">
-                                                            <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
-                                                                <video src="<?= $fileUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
-                                                                <div class="text-white mt-2 text-start px-2">
-                                                                    <h6 class="mb-1 fw-bold text-white"><?= esc($d['design_name']) ?></h6>
-                                                                    <small class="text-muted">Revisi: Rev. <?= $d['revision_number'] ?? 1 ?></small>
-                                                                </div>
-                                                            </div>
+                                        <!-- Preview file + nama (bisa banyak berkas dalam revisi ini) -->
+                                        <div class="d-flex flex-column gap-3 mb-2">
+                                            <?php foreach ($filesInRev as $fileItem):
+                                                $ext = strtolower(pathinfo($fileItem['file'], PATHINFO_EXTENSION));
+                                                $dtype = $fileItem['design_type'] ?? 'general';
+                                                $fileUrl = base_url('uploads/design_results/' . $fileItem['file']);
+                                                ?>
+                                                <div class="d-flex align-items-center gap-3 pb-2" style="border-bottom: 1px solid rgba(0,0,0,0.05); &:last-child { border-bottom: none; }">
+                                                    <?php if ($dtype === 'pdf'): ?>
+                                                        <div class="d-flex align-items-center justify-content-center bg-light flex-shrink-0"
+                                                            style="width:60px;height:60px;border-radius:8px;background:#fff5f5 !important;">
+                                                            <i class="fas fa-file-pdf text-danger" style="font-size:28px;"></i>
                                                         </div>
-                                                        <a href="#video-progress-<?= $d['id'] ?>" class="glightbox btn btn-xs btn-outline-warning" 
-                                                           data-gallery="progress-gallery"
-                                                           data-slide-class="glightbox-video-slide">
-                                                            <i class="fas fa-play"></i> Putar Video
-                                                        </a>
+                                                    <?php elseif ($dtype === 'video'): ?>
+                                                        <div class="d-flex align-items-center justify-content-center bg-light flex-shrink-0 position-relative"
+                                                            style="width:60px;height:60px;border-radius:8px;background:#fff9f0 !important;">
+                                                            <i class="fas fa-file-video text-warning" style="font-size:28px;"></i>
+                                                            <span class="position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%);">
+                                                                <i class="fas fa-play-circle text-warning bg-white rounded-circle" style="font-size:14px;"></i>
+                                                            </span>
+                                                        </div>
+                                                    <?php elseif ($dtype === '3d'): ?>
+                                                        <div class="d-flex align-items-center justify-content-center bg-light flex-shrink-0"
+                                                            style="width:60px;height:60px;border-radius:8px;background:#eef6ff !important;">
+                                                            <i class="fas fa-cubes text-info" style="font-size:28px;"></i>
+                                                        </div>
                                                     <?php else: ?>
-                                                        <a href="<?= $fileUrl ?>" class="glightbox btn btn-xs btn-outline-info" 
-                                                           data-gallery="progress-gallery"
-                                                           data-title="<?= esc($d['design_name']) ?>"
-                                                           data-description="Revisi: Rev. <?= $d['revision_number'] ?? 1 ?>"
-                                                           title="Lihat Gambar">
-                                                            <i class="fas fa-eye"></i> Lihat
-                                                        </a>
+                                                        <img src="<?= $fileUrl ?>"
+                                                            style="width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;"
+                                                            alt="<?= esc($fileItem['design_name']) ?>">
                                                     <?php endif; ?>
+                                                    
+                                                    <div class="flex-grow-1 min-w-0">
+                                                        <div class="fw-semibold text-truncate" style="font-size:13px; color:#34395e;" title="<?= esc($fileItem['design_name']) ?>">
+                                                            <?= esc($fileItem['design_name']) ?>
+                                                        </div>
+                                                        <div class="mt-1 d-flex gap-1">
+                                                            <?php if ($dtype === 'pdf'): ?>
+                                                                <a href="<?= $fileUrl ?>" target="_blank"
+                                                                    class="btn btn-xs btn-outline-danger" title="Lihat PDF">
+                                                                    <i class="fas fa-file-pdf"></i> Lihat PDF
+                                                                </a>
+                                                            <?php elseif ($dtype === 'video'): ?>
+                                                                <div style="display:none;" id="video-progress-<?= $fileItem['id'] ?>">
+                                                                    <div class="p-3 text-center" style="background:#000; border-radius:12px; max-width:800px; margin:0 auto;">
+                                                                        <video src="<?= $fileUrl ?>" controls style="width:100%; max-height:60vh; border-radius:8px; display:block;" preload="metadata" playsinline></video>
+                                                                        <div class="text-white mt-2 text-start px-2">
+                                                                            <h6 class="mb-1 fw-bold text-white"><?= esc($fileItem['design_name']) ?></h6>
+                                                                            <small class="text-muted">Revisi: Rev. <?= $revNum ?></small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <a href="#video-progress-<?= $fileItem['id'] ?>" class="glightbox btn btn-xs btn-outline-warning" 
+                                                                   data-gallery="progress-gallery"
+                                                                   data-slide-class="glightbox-video-slide">
+                                                                    <i class="fas fa-play"></i> Putar Video
+                                                                </a>
+                                                            <?php elseif ($dtype === '3d'): ?>
+                                                                <button type="button" class="btn btn-xs btn-outline-info" title="Salin Nama Objek"
+                                                                        onclick="navigator.clipboard.writeText('<?= esc($fileItem['file']) ?>'); iziToast.success({title: 'Copied', message: 'Nama objek disalin!', position: 'topRight'});"
+                                                                        style="outline: none; border-radius: 4px;">
+                                                                    <i class="far fa-copy"></i> Salin Nama Objek
+                                                                </button>
+                                                            <?php else: ?>
+                                                                <a href="<?= $fileUrl ?>" class="glightbox btn btn-xs btn-outline-info" 
+                                                                   data-gallery="progress-gallery"
+                                                                   data-title="<?= esc($fileItem['design_name']) ?>"
+                                                                   data-description="Revisi: Rev. <?= $revNum ?>"
+                                                                   title="Lihat Gambar">
+                                                                    <i class="fas fa-eye"></i> Lihat
+                                                                </a>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            <?php endforeach; ?>
                                         </div>
 
                                         <!-- Catatan (jika REJECTED/APPROVED) -->
-                                        <?php if (!empty($d['revision_note'])): ?>
+                                        <?php if (!empty($firstDesign['revision_note'])): ?>
                                             <div class="mt-2 px-2 py-1 rounded" style="background:rgba(0,0,0,.04);font-size:12px;">
                                                 <i class="fas fa-sticky-note text-muted me-1"></i> catatan revisi : 
-                                                <?= esc($d['revision_note']) ?>
+                                                <?= esc($firstDesign['revision_note']) ?>
                                             </div>
                                         <?php endif; ?>
 
                                         <!-- Gambar Catatan Revisi (image_revision_note) -->
                                         <?php
                                         $revImages = [];
-                                        if (!empty($d['image_revision_note'])) {
-                                            $decoded = json_decode($d['image_revision_note'], true);
+                                        if (!empty($firstDesign['image_revision_note'])) {
+                                            $decoded = json_decode($firstDesign['image_revision_note'], true);
                                             if (is_array($decoded)) {
                                                 $revImages = $decoded;
                                             }
@@ -198,7 +225,7 @@
                                                         <?php $imgUrl = base_url('uploads/design_results/revision_comment/' . $imgFile); ?>
                                                         <a href="<?= $imgUrl ?>"
                                                             class="glightbox"
-                                                            data-gallery="rev-note-gallery-<?= $d['id'] ?>"
+                                                            data-gallery="rev-note-gallery-<?= $firstDesign['id'] ?>"
                                                             data-title="Catatan Gambar <?= $idx + 1 ?> — Rev. <?= $revNum ?>"
                                                             title="Lihat gambar catatan">
                                                             <img src="<?= $imgUrl ?>"
@@ -215,14 +242,14 @@
                                         <!-- Tombol Aksi Mobile (Hanya tampil di HP, diletakkan paling bawah) -->
                                         <?php if ($revSt === 'PENDING'): ?>
                                             <div class="d-flex d-md-none gap-2 mt-3 pt-2" style="border-top: 1px dashed #dee2e6;">
-                                                <a href="<?= base_url('admin/design/approve-design/' . $d['id']) ?>"
+                                                <a href="<?= base_url('admin/design/approve-design/' . $firstDesign['id']) ?>"
                                                     class="btn btn-sm btn-success flex-fill ladda-button" data-style="zoom-in"
                                                     onclick="return confirm('Approve revisi ini? Revisi PENDING lain akan otomatis di-reject.');"
                                                     title="Approve Revisi">
                                                     <span class="ladda-label"><i class="fas fa-check me-1"></i>Approve</span>
                                                 </a>
                                                 <button type="button" class="btn btn-sm btn-outline-danger flex-fill" data-bs-toggle="modal"
-                                                    data-bs-target="#modalReject<?= $d['id'] ?>" title="Reject Revisi">
+                                                    data-bs-target="#modalReject<?= $firstDesign['id'] ?>" title="Reject Revisi">
                                                     <i class="fas fa-times me-1"></i>Reject
                                                 </button>
                                             </div>
@@ -232,7 +259,7 @@
 
                                 <!-- Modal Reject -->
                                 <?php if ($revSt === 'PENDING'): ?>
-                                    <div class="modal fade" id="modalReject<?= $d['id'] ?>" tabindex="-1" role="dialog">
+                                    <div class="modal fade" id="modalReject<?= $firstDesign['id'] ?>" tabindex="-1" role="dialog">
                                         <div class="modal-dialog modal-dialog-centered" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header bg-danger text-white py-2 px-3">
@@ -241,7 +268,7 @@
                                                     </h6>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <form action="<?= base_url('admin/design/reject-design/' . $d['id']) ?>" method="post">
+                                                <form action="<?= base_url('admin/design/reject-design/' . $firstDesign['id']) ?>" method="post">
                                                     <?= csrf_field() ?>
                                                     <div class="modal-body">
                                                         <div class="mb-3">

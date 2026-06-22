@@ -261,7 +261,70 @@ class DesignRequests extends BaseController
             return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk menambah hasil desain.');
         }
 
-        if (!$this->validate('designResultAdd')) {
+        // Validasi input dinamis
+        $rules = [
+            'design_targets_id' => 'required|numeric',
+            'user_admin_id' => 'required|numeric',
+            'design_name' => 'required|min_length[3]',
+        ];
+        $errors = [
+            'design_targets_id' => [
+                'required' => 'ID target desain wajib diisi.',
+                'numeric' => 'ID target desain harus berupa angka.',
+            ],
+            'user_admin_id' => [
+                'required' => 'Admin (User) wajib dipilih.',
+                'numeric' => 'ID Admin tidak valid.',
+            ],
+            'design_name' => [
+                'required' => 'Nama desain wajib diisi.',
+                'min_length' => 'Nama desain minimal 3 karakter.',
+            ]
+        ];
+
+        // Periksa apakah upload multiple, single, atau nama objek 3D diisi
+        $hasMultiple = false;
+        $hasSingle = false;
+        
+        $filesInput = $this->request->getFileMultiple('design_files');
+        if ($filesInput && isset($filesInput[0]) && $filesInput[0]->isValid()) {
+            $hasMultiple = true;
+        } else {
+            $singleFile = $this->request->getFile('design_file');
+            if ($singleFile && $singleFile->isValid()) {
+                $hasSingle = true;
+            }
+        }
+
+        $hasFiles = ($hasMultiple || $hasSingle);
+        $has3d = !empty($this->request->getPost('3d_object_name'));
+
+        if (!$hasFiles && !$has3d) {
+            return redirect()->back()->withInput()->with('error', 'Wajib mengunggah berkas desain atau mengisi nama objek 3D.');
+        }
+
+        if ($hasMultiple) {
+            $rules['design_files'] = 'max_size[design_files,51200]|ext_in[design_files,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv,obj,fbx,glb,gltf,dwg,rvt]';
+            $errors['design_files'] = [
+                'max_size' => 'Ukuran file desain maksimal 50MB.',
+                'ext_in' => 'Format file desain tidak didukung.',
+            ];
+        } elseif ($hasSingle) {
+            $rules['design_file'] = 'max_size[design_file,51200]|ext_in[design_file,png,jpg,jpeg,webp,pdf,mp4,mov,avi,webm,mkv,obj,fbx,glb,gltf,dwg,rvt]';
+            $errors['design_file'] = [
+                'max_size' => 'Ukuran file desain maksimal 50MB.',
+                'ext_in' => 'Format file desain tidak didukung.',
+            ];
+        }
+
+        if ($has3d) {
+            $rules['3d_object_name'] = 'min_length[2]';
+            $errors['3d_object_name'] = [
+                'min_length' => 'Nama Objek 3D minimal 2 karakter.',
+            ];
+        }
+
+        if (!$this->validate($rules, $errors)) {
             return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
         }
 
@@ -277,10 +340,17 @@ class DesignRequests extends BaseController
         }
 
         try {
+            // Ambil berkas-berkas yang diupload
+            $files = $this->request->getFileMultiple('design_files');
+            if (empty($files) || !isset($files[0]) || !$files[0]->isValid()) {
+                $singleFile = $this->request->getFile('design_file');
+                $files = $singleFile ? [$singleFile] : [];
+            }
+
             $nextRev = $this->designService->addDesignResult(
                 (int) $id,
                 $this->request->getPost(),
-                $this->request->getFile('design_file')
+                $files
             );
 
             // Kirim notifikasi ke klien
@@ -362,7 +432,7 @@ class DesignRequests extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['status' => true, 'message' => 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-approve!']);
             }
-            return redirect()->to('/admin/design/show/' . $result['design_request_id'] . '#progress')
+            return redirect()->to('/admin/design/show/' . $result['design_request_id'] . '#design')
                 ->with('success', 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-approve!');
         } catch (RuntimeException $e) {
             if ($this->request->isAJAX()) {
@@ -399,7 +469,7 @@ class DesignRequests extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON(['status' => true, 'message' => 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-reject.']);
             }
-            return redirect()->to('/admin/design/show/' . $result['design_request_id'] . '#progress')
+            return redirect()->to('/admin/design/show/' . $result['design_request_id'] . '#design')
                 ->with('success', 'Revisi Rev. ' . $result['revision_number'] . ' berhasil di-reject.');
         } catch (RuntimeException $e) {
             if ($this->request->isAJAX()) {
@@ -511,6 +581,35 @@ class DesignRequests extends BaseController
             $designRequestId = $this->designService->deleteInvoice((int) $id);
             log_admin_activity('delete', 'Design Requests', 'Hapus Tagihan Proyek ' . $designRequestId);
             return redirect()->to('/admin/design/show/' . $designRequestId)->with('success', 'Tagihan berhasil dihapus.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 17. UPDATE INVOICE (isi nominal & jatuh tempo tagihan target)
+    // -------------------------------------------------------------------------
+    public function updateInvoice($id)
+    {
+        if (!can('design_pembayaran')) {
+            return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk mengubah tagihan.');
+        }
+
+        if (empty($id)) {
+            return redirect()->back()->with('error', 'ID tagihan tidak ditemukan.');
+        }
+
+        if (!$this->validate([
+            'amount'   => 'required|numeric|greater_than[0]',
+            'due_date' => 'required|valid_date',
+        ])) {
+            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        try {
+            $designRequestId = $this->designService->updateInvoice((int) $id, $this->request->getPost());
+            log_admin_activity('update', 'Design Requests', 'Update Tagihan #' . $id);
+            return redirect()->to('/admin/design/show/' . $designRequestId . '#pembayaran')->with('success', 'Tagihan berhasil diperbarui!');
         } catch (RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

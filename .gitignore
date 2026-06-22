@@ -2,6 +2,8 @@
 /vendor/
 .env
 .env.production
+.git-ftp-config
+.git-ftp-ignore
 .phpunit.result.cache
 *.log
 

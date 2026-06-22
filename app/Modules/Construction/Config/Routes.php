@@ -19,6 +19,7 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Constr
     $routes->post('construction/update_target_status/(:num)/(:alpha)', 'Construction::update_target_status/$1/$2');
     $routes->get('construction/delete-target/(:num)/(:num)', 'Construction::delete_target/$1/$2');
     $routes->post('construction/update-job-info', 'Construction::update_job_info');
+    $routes->post('construction/toggle-job-status/(:num)', 'Construction::toggle_job_status/$1');
     $routes->post('construction/update_applicant_status', 'Construction::update_applicant_status');
     $routes->get('construction/update_progress_status/(:num)/(:alpha)', 'Construction::update_progress_status/$1/$2');
     $routes->get('construction/delete-attendance/(:num)/(:num)', 'Construction::delete_attendance/$1/$2');

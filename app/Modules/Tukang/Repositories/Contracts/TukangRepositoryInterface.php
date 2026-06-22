@@ -14,4 +14,5 @@ interface TukangRepositoryInterface
     public function findAllOrderedByName(): array;
     public function save(array $data): bool;
     public function searchForDropdown(string $term): array;
+    public function getInsertID(): int;
 }

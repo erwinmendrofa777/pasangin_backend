@@ -180,6 +180,26 @@ class ConstructionService
         }, $progressList);
 
         $jobsList = $this->jobRepository->findAllByConstructionId($id);
+        if (!empty($jobsList)) {
+            $jobIds = array_column($jobsList, 'id');
+            $db = \Config\Database::connect();
+            $jobSkills = $db->table('construction_job_skills cjs')
+                ->select('cjs.construction_job_id, ts.id as skill_id, ts.skill_name')
+                ->join('tukang_skill ts', 'ts.id = cjs.tukang_skill_id')
+                ->whereIn('cjs.construction_job_id', $jobIds)
+                ->get()->getResultArray();
+            $skillsByJob = [];
+            foreach ($jobSkills as $js) {
+                $skillsByJob[$js['construction_job_id']][] = [
+                    'id' => $js['skill_id'],
+                    'skill_name' => $js['skill_name']
+                ];
+            }
+            foreach ($jobsList as &$j) {
+                $j['skills'] = $skillsByJob[$j['id']] ?? [];
+            }
+            unset($j);
+        }
         $jobsByTarget = [];
         foreach ($jobsList as $j) {
             if (!empty($j['construction_target_id'])) {
@@ -189,7 +209,7 @@ class ConstructionService
 
         $db = \Config\Database::connect();
         $applicants = $db->table('job_applications ja')
-            ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name')
+            ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization')
             ->join('tukang', 'tukang.id = ja.tukang_id', 'left')
             ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
             ->where('ja.project_id', $id)
@@ -231,6 +251,7 @@ class ConstructionService
             'admin_users' => $this->userAdminRepository->findAllOrderedByIdDesc(),
             'material_submissions' => $this->materialSubmissionRepository->findByConstructionId($id),
             'satuan_options' => (new SatuanModel())->orderBy('nama_satuan', 'ASC')->findAll(),
+            'available_skills' => (new \App\Modules\Tukang\Models\TukangSkillModel())->orderBy('skill_name', 'ASC')->findAll(),
         ];
     }
 
@@ -591,6 +612,26 @@ class ConstructionService
     public function getTargetView(int $id): array
     {
         $jobsList = $this->jobRepository->findAllByConstructionId($id);
+        if (!empty($jobsList)) {
+            $jobIds = array_column($jobsList, 'id');
+            $db = \Config\Database::connect();
+            $jobSkills = $db->table('construction_job_skills cjs')
+                ->select('cjs.construction_job_id, ts.id as skill_id, ts.skill_name')
+                ->join('tukang_skill ts', 'ts.id = cjs.tukang_skill_id')
+                ->whereIn('cjs.construction_job_id', $jobIds)
+                ->get()->getResultArray();
+            $skillsByJob = [];
+            foreach ($jobSkills as $js) {
+                $skillsByJob[$js['construction_job_id']][] = [
+                    'id' => $js['skill_id'],
+                    'skill_name' => $js['skill_name']
+                ];
+            }
+            foreach ($jobsList as &$j) {
+                $j['skills'] = $skillsByJob[$j['id']] ?? [];
+            }
+            unset($j);
+        }
         $jobsByTarget = [];
         foreach ($jobsList as $j) {
             if (!empty($j['construction_target_id'])) {
@@ -600,7 +641,7 @@ class ConstructionService
 
         $db = \Config\Database::connect();
         $applicants = $db->table('job_applications ja')
-            ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name')
+            ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization')
             ->join('tukang', 'tukang.id = ja.tukang_id', 'left')
             ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
             ->where('ja.project_id', $id)
@@ -624,6 +665,7 @@ class ConstructionService
             'applicants_by_target' => $applicantsByTarget,
             'jobs_by_target'      => $jobsByTarget,
             'job_info'            => null,
+            'available_skills'    => (new \App\Modules\Tukang\Models\TukangSkillModel())->orderBy('skill_name', 'ASC')->findAll(),
         ];
     }
 
@@ -795,11 +837,11 @@ class ConstructionService
         $row = [
             'construction_id' => $constructionId,
             'construction_target_id' => $targetId,
-            'detail_pekerjaan' => $data['detail_pekerjaan'],
             'detail_lokasi' => $data['detail_lokasi'],
             'tanggal_mulai' => $data['tanggal_mulai'],
             'tanggal_akhir' => $data['tanggal_akhir'],
             'upah' => $data['upah'],
+            'is_open' => isset($data['is_open']) ? (int) $data['is_open'] : 1,
             'latitude' => $request['latitude'] ?? '0',
             'longitude' => $request['longitude'] ?? '0',
         ];
@@ -813,9 +855,33 @@ class ConstructionService
         }
 
         if ($existingJob) {
-            $this->jobRepository->update($existingJob['id'], $row);
+            $jobId = $existingJob['id'];
+            $this->jobRepository->update($jobId, $row);
         } else {
             $this->jobRepository->insert($row);
+            $db = \Config\Database::connect();
+            $jobId = $db->insertID();
+        }
+
+        // Simpan relasi ke construction_job_skills
+        $skills = $data['skills'] ?? [];
+        $db = \Config\Database::connect();
+        
+        // Hapus kualifikasi skill lama
+        $db->table('construction_job_skills')->where('construction_job_id', $jobId)->delete();
+
+        // Simpan kualifikasi skill baru jika ada
+        if (!empty($skills) && is_array($skills)) {
+            $skillsData = [];
+            foreach ($skills as $skillId) {
+                $skillsData[] = [
+                    'construction_job_id' => $jobId,
+                    'tukang_skill_id' => (int) $skillId,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ];
+            }
+            $db->table('construction_job_skills')->insertBatch($skillsData);
         }
     }
 

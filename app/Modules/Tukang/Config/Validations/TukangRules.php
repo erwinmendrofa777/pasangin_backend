@@ -11,7 +11,7 @@ trait TukangRules
         'name'             => 'required|min_length[3]|max_length[255]',
         'email'            => 'required|valid_email|is_unique[tukang.email]',
         'phone'            => 'required|numeric|min_length[9]|max_length[15]',
-        'specialization'   => 'required',
+        'skills'           => 'required',
         'nik'              => 'required|exact_length[16]|numeric',
         'gender'           => 'required|in_list[Laki-laki,Perempuan]',
         'dob'              => 'required|valid_date',
@@ -39,8 +39,8 @@ trait TukangRules
             'min_length' => 'Nomor telepon minimal 9 digit.',
             'max_length' => 'Nomor telepon maksimal 15 digit.',
         ],
-        'specialization' => [
-            'required' => 'Spesialisasi wajib dipilih.',
+        'skills' => [
+            'required' => 'Minimal satu keahlian wajib dipilih.',
         ],
         'nik' => [
             'required'     => 'NIK wajib diisi.',

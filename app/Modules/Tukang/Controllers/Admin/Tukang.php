@@ -75,7 +75,13 @@ class Tukang extends BaseController
             return redirect()->to('/admin/tukang')->with('error', 'Anda tidak memiliki akses untuk menambah tukang/mitra.');
         }
 
-        return view('App\Modules\Tukang\Views\create', ['title' => 'Tambah Mitra Tukang Baru']);
+        $skillModel = new \App\Modules\Tukang\Models\TukangSkillModel();
+        $skills = $skillModel->orderBy('skill_name', 'ASC')->findAll();
+
+        return view('App\Modules\Tukang\Views\create', [
+            'title' => 'Tambah Mitra Tukang Baru',
+            'skills' => $skills
+        ]);
     }
 
     // -------------------------------------------------------------------------

@@ -21,7 +21,8 @@ class ProjectDesignsModel extends Model
         'design_name',
         'file',
         'status',
-        'revision_note'
+        'revision_note',
+        'design_type'
     ];
 
     // Dates

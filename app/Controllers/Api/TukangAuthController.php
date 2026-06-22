@@ -31,11 +31,13 @@ class TukangAuthController extends ResourceController
         $phone = $this->request->getVar('phone');
 
         $user = $model->where('phone', $phone)->first();
-        $fcm = $fcmModel->where('user_id', $user['id'])->where('user_type', 'tukang')->first();
 
         if (!$user) {
             return $this->failNotFound('Nomor telepon Tukang tidak terdaftar  .');
         }
+
+        // Query FCM setelah $user dipastikan ada
+        $fcm = $fcmModel->where('user_id', $user['id'])->where('user_type', 'tukang')->first();
 
         if (!password_verify($this->request->getVar('password'), $user['password'])) {
             return $this->failUnauthorized('Password yang   masukkan salah.');
@@ -70,7 +72,7 @@ class TukangAuthController extends ResourceController
             'status' => true,
             'message' => 'Login Tukang berhasil.',
             'data' => $user,
-            'is_notification_enabled' => $fcm['is_notification_enabled']
+            'is_notification_enabled' => $fcm['is_notification_enabled'] ?? true
         ]);
     }
 
@@ -120,6 +122,9 @@ class TukangAuthController extends ResourceController
 
         $model = new TukangModel();
         try {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
             $model->save([
                 'agent_code' => $data['agent_code'] ?? null,
                 'name' => $data['name'],
@@ -130,7 +135,6 @@ class TukangAuthController extends ResourceController
                 'dob' => $data['dob'] ?? null,
                 'ktp_address' => $data['ktp_address'] ?? null,
                 'domicile_address' => $data['domicile_address'] ?? null,
-                'specialization' => $data['specialization'] ?? null,
                 'status' => 'Berkas Diproses',
                 'created_at' => date('Y-m-d H:i:s'),
                 'rating_avg' => '0.0',
@@ -138,6 +142,19 @@ class TukangAuthController extends ResourceController
                 'behavior_score' => '0.0',
                 'registration_step' => 1
             ]);
+
+            $tukangId = $model->getInsertID();
+            if ($tukangId) {
+                $skillsInput = $data['skills'] ?? $data['specialization'] ?? null;
+                $skillMapModel = new \App\Modules\Tukang\Models\TukangSkillMapModel();
+                $skillMapModel->syncSkills($tukangId, $skillsInput);
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new Exception('Gagal menyimpan data registrasi mitra tukang.');
+            }
 
             // Kirim notifikasi ke Admin (Permission: tukang_verify)
             $notifService = new \App\Modules\Notifications\Services\NotificationService();
@@ -151,6 +168,26 @@ class TukangAuthController extends ResourceController
                 'status' => 'success',
                 'message' => 'Pendaftaran berhasil  . Silakan login.'
             ]);
+        } catch (Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
+
+    /**
+     * GET: api/tukang/skills
+     * Mendapatkan daftar keahlian (skills) master dari tabel tukang_skill
+     */
+    public function getSkills()
+    {
+        try {
+            $model = new \App\Modules\Tukang\Models\TukangSkillModel();
+            $skills = $model->orderBy('skill_name', 'ASC')->findAll();
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Daftar keahlian berhasil diambil.',
+                'data' => $skills
+            ], 200);
         } catch (Exception $e) {
             return $this->failServerError($e->getMessage());
         }
@@ -198,16 +235,34 @@ class TukangAuthController extends ResourceController
         try {
             $tukangId = $this->request->user->uid;
 
+            $json = $this->request->getJSON(true);
+
             $dataUpdate = [
-                'name' => $this->request->getPost('name'),
-                'phone' => $this->request->getPost('phone'),
-                'email' => $this->request->getPost('email'),
-                'specialization' => $this->request->getPost('specialization'),
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
+            if ($this->request->getPost('name') !== null) {
+                $dataUpdate['name'] = $this->request->getPost('name');
+            } elseif (isset($json['name'])) {
+                $dataUpdate['name'] = $json['name'];
+            }
+
+            if ($this->request->getPost('phone') !== null) {
+                $dataUpdate['phone'] = $this->request->getPost('phone');
+            } elseif (isset($json['phone'])) {
+                $dataUpdate['phone'] = $json['phone'];
+            }
+
+            if ($this->request->getPost('email') !== null) {
+                $dataUpdate['email'] = $this->request->getPost('email');
+            } elseif (isset($json['email'])) {
+                $dataUpdate['email'] = $json['email'];
+            }
+
             if (!empty($this->request->getPost('password'))) {
                 $dataUpdate['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
+            } elseif (!empty($json['password'])) {
+                $dataUpdate['password'] = password_hash($json['password'], PASSWORD_DEFAULT);
             }
 
             $file = $this->request->getFile('profile_photo');
@@ -217,8 +272,44 @@ class TukangAuthController extends ResourceController
                 $dataUpdate['profile_photo'] = $newName;
             }
 
+            // Tentukan apakah parameter keahlian dikirim dalam request
+            $hasSkillsKey = false;
+            $skillsInput = null;
+
+            if ($this->request->getPost('skills') !== null) {
+                $skillsInput = $this->request->getPost('skills');
+                $hasSkillsKey = true;
+            } elseif ($this->request->getPost('specialization') !== null) {
+                $skillsInput = $this->request->getPost('specialization');
+                $hasSkillsKey = true;
+            }
+
+            if (!$hasSkillsKey && is_array($json)) {
+                if (isset($json['skills'])) {
+                    $skillsInput = $json['skills'];
+                    $hasSkillsKey = true;
+                } elseif (isset($json['specialization'])) {
+                    $skillsInput = $json['specialization'];
+                    $hasSkillsKey = true;
+                }
+            }
+
             $model = new TukangModel();
+            $db = \Config\Database::connect();
+            $db->transStart();
+
             $model->update($tukangId, $dataUpdate);
+
+            if ($hasSkillsKey) {
+                $skillMapModel = new \App\Modules\Tukang\Models\TukangSkillMapModel();
+                $skillMapModel->syncSkills($tukangId, $skillsInput);
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new Exception('Gagal memperbarui profil mitra.');
+            }
 
             return $this->respond([
                 'status' => true,
@@ -286,6 +377,10 @@ class TukangAuthController extends ResourceController
         if (!empty($user['profile_photo'])) {
             $user['profile_photo'] = base_url('uploads/tukang/' . $user['profile_photo']);
         }
+
+        // Ambil data keahlian dari tabel junction
+        $skillMapModel = new \App\Modules\Tukang\Models\TukangSkillMapModel();
+        $user['skills'] = $skillMapModel->getSkillsByTukangId($user['id']);
 
         return $this->respond(['status' => true, 'data' => $user]);
     }

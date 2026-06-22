@@ -323,24 +323,82 @@ class DesignRequestService
      *
      * @return int Nomor revisi yang baru dibuat
      */
-    public function addDesignResult(int $designRequestId, array $postData, $file): int
+    public function addDesignResult(int $designRequestId, array $postData, $files): int
     {
-        $fileName = $this->uploadFile($file, self::PATH_DESIGN);
         $targetId = (int) $postData['design_targets_id'];
 
         $maxRev = $this->projectDesignRepository->getMaxRevisionNumber($targetId);
         $nextRev = $maxRev + 1;
 
-        $this->projectDesignRepository->insert([
-            'design_request_id' => $designRequestId,
-            'design_targets_id' => $targetId,
-            'user_admin_id' => $postData['user_admin_id'] ?? null,
-            'revision_number' => $nextRev,
-            'design_name' => $postData['design_name'],
-            'file' => $fileName,
-            'status' => 'PENDING',
-            'revision_note' => null,
-        ]);
+        $hasInserted = false;
+
+        // 1. Process 3D Object Name if filled
+        $objectName = $postData['3d_object_name'] ?? '';
+        if (!empty(trim($objectName))) {
+            $displayName = $postData['design_name'];
+            $this->projectDesignRepository->insert([
+                'design_request_id' => $designRequestId,
+                'design_targets_id' => $targetId,
+                'user_admin_id' => $postData['user_admin_id'] ?? null,
+                'revision_number' => $nextRev,
+                'design_name' => $displayName,
+                'file' => trim($objectName),
+                'status' => 'PENDING',
+                'revision_note' => null,
+                'design_type' => '3d',
+            ]);
+            $hasInserted = true;
+        }
+
+        // 2. Process Files if uploaded
+        if (!empty($files)) {
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+
+            foreach ($files as $file) {
+                if ($file && $file->isValid() && !$file->hasMoved()) {
+                    $fileName = $this->uploadFile($file, self::PATH_DESIGN);
+                    
+                    $originalName = $file->getClientName();
+                    $displayName = $postData['design_name'];
+                    // If multiple files, or if both files and a 3D string are uploaded, append original name
+                    if (count($files) > 1 || !empty(trim($objectName))) {
+                        $displayName .= ' - ' . pathinfo($originalName, PATHINFO_FILENAME);
+                    }
+
+                    // Auto-detect the type from the file extension
+                    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                    $detectedType = 'general';
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                        $detectedType = 'image';
+                    } elseif ($ext === 'pdf') {
+                        $detectedType = 'pdf';
+                    } elseif (in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv'])) {
+                        $detectedType = 'video';
+                    } elseif (in_array($ext, ['obj', 'fbx', 'glb', 'gltf', 'dwg', 'rvt'])) {
+                        $detectedType = '3d';
+                    }
+
+                    $this->projectDesignRepository->insert([
+                        'design_request_id' => $designRequestId,
+                        'design_targets_id' => $targetId,
+                        'user_admin_id' => $postData['user_admin_id'] ?? null,
+                        'revision_number' => $nextRev,
+                        'design_name' => $displayName,
+                        'file' => $fileName,
+                        'status' => 'PENDING',
+                        'revision_note' => null,
+                        'design_type' => $detectedType,
+                    ]);
+                    $hasInserted = true;
+                }
+            }
+        }
+
+        if (!$hasInserted) {
+            throw new \RuntimeException('Tidak ada data desain yang berhasil disimpan.');
+        }
 
         return $nextRev;
     }
@@ -381,23 +439,32 @@ class DesignRequestService
             throw new RuntimeException('Data desain tidak ditemukan.');
         }
 
-        // Set revisi ini APPROVED
-        $this->projectDesignRepository->update($id, [
-            'status' => 'APPROVED',
-            'revision_note' => 'Disetujui oleh admin',
-        ]);
+        $targetId = (int) $design['design_targets_id'];
+        $revNum = (int) $design['revision_number'];
 
-        // Tolak semua revisi PENDING lain dalam target yang sama (bulk update)
-        $this->projectDesignRepository->updateStatusByTargetId(
-            (int) $design['design_targets_id'],
-            $id,
-            'REJECTED',
-            'Revisi lain telah disetujui'
-        );
+        // Set ALL designs in this target and revision to APPROVED
+        $db = \Config\Database::connect();
+        $db->table('project_designs')
+            ->where('design_targets_id', $targetId)
+            ->where('revision_number', $revNum)
+            ->update([
+                'status' => 'APPROVED',
+                'revision_note' => 'Disetujui oleh admin',
+            ]);
+
+        // Tolak semua revisi PENDING lain dalam target yang sama (yang nomor revisinya berbeda)
+        $db->table('project_designs')
+            ->where('design_targets_id', $targetId)
+            ->where('revision_number !=', $revNum)
+            ->where('status', 'PENDING')
+            ->update([
+                'status' => 'REJECTED',
+                'revision_note' => 'Revisi lain telah disetujui',
+            ]);
 
         // Otomatis ubah status target menjadi DONE
-        if (!empty($design['design_targets_id'])) {
-            $this->targetRepository->update((int) $design['design_targets_id'], [
+        if (!empty($targetId)) {
+            $this->targetRepository->update($targetId, [
                 'status' => 'DONE'
             ]);
 
@@ -407,7 +474,7 @@ class DesignRequestService
 
         return [
             'design_request_id' => (int) $design['design_request_id'],
-            'revision_number' => (int) $design['revision_number'],
+            'revision_number' => $revNum,
         ];
     }
 
@@ -425,14 +492,22 @@ class DesignRequestService
             throw new RuntimeException('Data desain tidak ditemukan.');
         }
 
-        $this->projectDesignRepository->update($id, [
-            'status' => 'REJECTED',
-            'revision_note' => !empty($note) ? $note : 'Ditolak oleh admin',
-        ]);
+        $targetId = (int) $design['design_targets_id'];
+        $revNum = (int) $design['revision_number'];
+
+        // Set ALL designs in this target and revision to REJECTED
+        $db = \Config\Database::connect();
+        $db->table('project_designs')
+            ->where('design_targets_id', $targetId)
+            ->where('revision_number', $revNum)
+            ->update([
+                'status' => 'REJECTED',
+                'revision_note' => !empty($note) ? $note : 'Ditolak oleh admin',
+            ]);
 
         return [
             'design_request_id' => (int) $design['design_request_id'],
-            'revision_number' => (int) $design['revision_number'],
+            'revision_number' => $revNum,
         ];
     }
 
@@ -442,9 +517,12 @@ class DesignRequestService
 
     /**
      * Tambah target/task baru ke dalam proyek desain.
+     * Setelah target dibuat, otomatis membuat tagihan (invoice) terkait.
      */
     public function createTarget(int $designRequestId, array $postData): void
     {
+        $db = \Config\Database::connect();
+
         $this->targetRepository->insert([
             'design_request_id' => $designRequestId,
             'user_admin_id'     => $postData['user_admin_id'] ?? null,
@@ -454,10 +532,26 @@ class DesignRequestService
             'keterangan'        => null,
             'status'            => 'PENDING',
         ]);
+
+        // Ambil ID target yang baru saja di-insert
+        $newTargetId = $db->insertID();
+
+        // Otomatis buat tagihan terkait target ini (nominal & jatuh tempo diisi kemudian oleh admin)
+        if ($newTargetId) {
+            $this->invoiceRepository->insert([
+                'design_request_id' => $designRequestId,
+                'design_target_id'  => $newTargetId,
+                'description'       => $postData['task_name'],
+                'amount'            => null,
+                'due_date'          => null,
+                'status'            => 'UNPAID',
+            ]);
+        }
     }
 
     /**
      * Hapus satu target dari proyek desain.
+     * Invoice yang terhubung ke target ini juga akan dihapus otomatis.
      *
      * @throws RuntimeException
      */
@@ -468,6 +562,9 @@ class DesignRequestService
         if (!$target) {
             throw new RuntimeException('Target tidak ditemukan.');
         }
+
+        // Hapus invoice yang terhubung ke target ini (jika ada)
+        $this->invoiceRepository->deleteByDesignTargetId($targetId);
 
         $this->targetRepository->delete($targetId);
 
@@ -505,17 +602,39 @@ class DesignRequestService
     // =========================================================================
 
     /**
-     * Buat tagihan baru untuk proyek desain.
+     * Buat tagihan manual (tanpa target) untuk proyek desain.
      */
     public function addInvoice(int $designRequestId, array $postData): void
     {
         $this->invoiceRepository->insert([
             'design_request_id' => $designRequestId,
-            'description' => $postData['description'],
-            'amount' => $postData['amount'],
-            'due_date' => $postData['due_date'],
-            'status' => 'UNPAID',
+            'design_target_id'  => null, // tagihan manual tidak terhubung ke target
+            'description'       => $postData['description'],
+            'amount'            => $postData['amount'],
+            'due_date'          => $postData['due_date'],
+            'status'            => 'UNPAID',
         ]);
+    }
+
+    /**
+     * Update nominal dan jatuh tempo tagihan target.
+     *
+     * @throws RuntimeException
+     */
+    public function updateInvoice(int $invoiceId, array $postData): int
+    {
+        $invoice = $this->invoiceRepository->findById($invoiceId);
+
+        if (!$invoice) {
+            throw new RuntimeException('Tagihan tidak ditemukan.');
+        }
+
+        $this->invoiceRepository->update($invoiceId, [
+            'amount'   => $postData['amount'],
+            'due_date' => $postData['due_date'],
+        ]);
+
+        return (int) $invoice['design_request_id'];
     }
 
     /**

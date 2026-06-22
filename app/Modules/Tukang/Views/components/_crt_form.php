@@ -73,19 +73,15 @@
                                                 value="<?= old('phone') ?>" placeholder="08123456789" required>
                                         </div>
                                         <div class="col-md-12">
-                                            <label for="specialization" class="form-label">Spesialisasi Keahlian <span
+                                            <label for="skills" class="form-label">Keahlian (Skill) <span
                                                     class="text-danger">*</span></label>
-                                            <select class="form-select" id="specialization" name="specialization"
-                                                required>
-                                                <option value="" disabled selected>Pilih Keahlian...</option>
-                                                <option value="Tukang Bangunan" <?= old('specialization') == 'Tukang Bangunan' ? 'selected' : '' ?>>Tukang Bangunan (General)</option>
-                                                <option value="Tukang Listrik" <?= old('specialization') == 'Tukang Listrik' ? 'selected' : '' ?>>Tukang Listrik</option>
-                                                <option value="Tukang Ledeng" <?= old('specialization') == 'Tukang Ledeng' ? 'selected' : '' ?>>Tukang Ledeng / Plumber</option>
-                                                <option value="Tukang Cat" <?= old('specialization') == 'Tukang Cat' ? 'selected' : '' ?>>Tukang Cat</option>
-                                                <option value="Tukang Kayu" <?= old('specialization') == 'Tukang Kayu' ? 'selected' : '' ?>>Tukang Kayu</option>
-                                                <option value="Tukang Las" <?= old('specialization') == 'Tukang Las' ? 'selected' : '' ?>>Tukang Las / Besi</option>
-                                                <option value="Tukang Plafon" <?= old('specialization') == 'Tukang Plafon' ? 'selected' : '' ?>>Tukang Plafon / Gypsum</option>
-                                                <option value="Tukang Keramik" <?= old('specialization') == 'Tukang Keramik' ? 'selected' : '' ?>>Tukang Keramik / Lantai</option>
+                                            <select class="form-control select2" id="skills" name="skills[]"
+                                                multiple="multiple" data-placeholder="Pilih Keahlian..." required style="width: 100%;">
+                                                <?php foreach ($skills as $skill): ?>
+                                                    <option value="<?= $skill['id'] ?>" <?= (is_array(old('skills')) && in_array($skill['id'], old('skills'))) ? 'selected' : '' ?>>
+                                                        <?= esc($skill['skill_name']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
                                     </div>

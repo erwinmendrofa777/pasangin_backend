@@ -200,9 +200,12 @@
         });
     });
 
-    function selectRow(tr) {
+    function selectRow(element) {
+        var tr = element.closest('tr');
+        if (!tr) return;
+
         // Hapus seleksi sebelumnya
-        document.querySelectorAll('#mainTable tr.item-row.selected').forEach(function (el) {
+        document.querySelectorAll('table.table-schedule tr.item-row.selected').forEach(function (el) {
             el.classList.remove('selected');
         });
         tr.classList.add('selected');
@@ -285,11 +288,221 @@
         }
     }
 
-    function openBuatLowonganModal(event, targetId, targetName, laborRate, volume) {
+    /**
+     * Toggle visibility of a week-group (every 5 weeks) using the week header trigger.
+     * @param {number} grpIdx  - zero-based group index
+     * @param {HTMLElement} btn - the toggle button/header clicked
+     */
+    function toggleWeekGroup(grpIdx, btn) {
+        // Find all trigger headers for this group (across both tables)
+        var triggers = document.querySelectorAll('th.week-group-trigger[data-group-idx="' + grpIdx + '"]');
+        
+        // Find all collapsible cells in both tables belonging to this group index (excluding the trigger itself)
+        var cells = document.querySelectorAll('[data-wg="' + grpIdx + '"]');
+        
+        var isNowCollapsed = btn.classList.contains('collapsed-trigger');
+
+        if (isNowCollapsed) {
+            // Expand (Open)
+            triggers.forEach(function(th) {
+                th.classList.remove('collapsed-trigger');
+                
+                // Reset label text
+                var label = th.querySelector('.week-label-text');
+                if (label) label.textContent = th.getAttribute('data-label-original');
+                
+                // Show date subtext
+                var subtext = th.querySelector('.week-date-subtext');
+                if (subtext) subtext.style.display = '';
+            });
+            
+            cells.forEach(function(c) { 
+                c.classList.remove('wg-hidden'); 
+            });
+        } else {
+            // Collapse (Close)
+            triggers.forEach(function(th) {
+                th.classList.add('collapsed-trigger');
+                
+                // Change label text to range
+                var label = th.querySelector('.week-label-text');
+                if (label) {
+                    var start = th.getAttribute('data-start-week');
+                    var end = th.getAttribute('data-end-week');
+                    label.textContent = 'MG ' + start + '–' + end;
+                }
+                
+                // Hide date subtext
+                var subtext = th.querySelector('.week-date-subtext');
+                if (subtext) subtext.style.display = 'none';
+            });
+            
+            cells.forEach(function(c) { 
+                c.classList.add('wg-hidden'); 
+            });
+        }
+        
+        // Recalculate visibility of target spanned cells
+        updateActiveCellsVisibility();
+    }
+
+    /**
+     * Update visibility of spanned target cells based on collapsed week groups.
+     */
+    function updateActiveCellsVisibility() {
+        var cells = document.querySelectorAll('.cell-bar.week-active');
+        cells.forEach(function(cell) {
+            var startWk = parseInt(cell.getAttribute('data-start-wk'));
+            var endWk = parseInt(cell.getAttribute('data-end-wk'));
+            var weekGroupSize = 5;
+            
+            var hasVisibleWeek = false;
+            for (var w = startWk; w <= endWk; w++) {
+                var grpIdxOfW = Math.floor((w - 1) / weekGroupSize);
+                var isFirstOfGrp = ((w - 1) % weekGroupSize === 0);
+                
+                // Query the trigger element for this week's group
+                var thTrigger = document.querySelector('th.week-group-trigger[data-group-idx="' + grpIdxOfW + '"]');
+                var isGrpCollapsed = thTrigger && thTrigger.classList.contains('collapsed-trigger');
+                
+                // A week is visible if:
+                // - It is the first week of a group (always visible to act as expand trigger)
+                // - OR the group trigger is not collapsed.
+                if (isFirstOfGrp || !isGrpCollapsed) {
+                    hasVisibleWeek = true;
+                    break;
+                }
+            }
+            
+            if (hasVisibleWeek) {
+                cell.classList.remove('wg-hidden');
+            } else {
+                cell.classList.add('wg-hidden');
+            }
+        });
+    }
+
+    /**
+     * Toggle visibility of detail columns (RAB prices & volume details)
+     */
+    function toggleDetailColumns() {
+        var body = document.body;
+        var btn = document.getElementById('toggleDetailCols');
+        
+        if (body.classList.contains('show-detail-cols')) {
+            body.classList.remove('show-detail-cols');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-eye me-1"></i> Tampilkan Detail';
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-outline-secondary');
+            }
+            localStorage.setItem('show_target_detail_cols', 'false');
+        } else {
+            body.classList.add('show-detail-cols');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-eye-slash me-1"></i> Sembunyikan Detail';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-secondary');
+            }
+            localStorage.setItem('show_target_detail_cols', 'true');
+        }
+    }
+
+    // Client-side real-time filter for Manage Vacancies table
+    function filterLokerTable() {
+        var query = document.getElementById('search-loker-input').value.toLowerCase().trim();
+        
+        // Filter both panels
+        ['#panel-rab-utama', '#panel-addendum'].forEach(function(panelSelector) {
+            var panel = document.querySelector(panelSelector);
+            if (!panel) return;
+            var rows = panel.querySelectorAll('tbody tr.loker-row');
+            var emptyRow = panel.querySelector('tbody tr.empty-search-row');
+            var visibleCount = 0;
+            
+            rows.forEach(function(row) {
+                var searchText = row.getAttribute('data-search-text') || '';
+                if (searchText.indexOf(query) !== -1) {
+                    row.style.setProperty('display', '', 'important');
+                    visibleCount++;
+                } else {
+                    row.style.setProperty('display', 'none', 'important');
+                }
+            });
+            
+            if (emptyRow) {
+                if (visibleCount === 0 && rows.length > 0) {
+                    emptyRow.style.setProperty('display', '', 'important');
+                    var p = emptyRow.querySelector('p');
+                    if (p) p.textContent = 'Tidak ada lowongan pekerjaan yang cocok dengan pencarian Anda.';
+                } else if (rows.length === 0) {
+                    emptyRow.style.setProperty('display', '', 'important');
+                } else {
+                    emptyRow.style.setProperty('display', 'none', 'important');
+                }
+            }
+        });
+    }
+
+    // Dynamic Skill Chips renderer and click-toggles
+    function renderSkillChips(selectedIds = []) {
+        var container = document.getElementById('skills-chips-container');
+        var select = document.getElementById('inp-skills-loker');
+        if (!container || !select) return;
+
+        container.innerHTML = '';
+        
+        Array.from(select.options).forEach(function(option) {
+            var id = option.value;
+            var name = option.text;
+            var isSelected = selectedIds.includes(parseInt(id));
+            
+            // Sync selection in hidden select
+            option.selected = isSelected;
+
+            var chip = document.createElement('div');
+            chip.className = 'skill-chip' + (isSelected ? ' active' : '');
+            chip.setAttribute('data-id', id);
+            chip.setAttribute('data-name', name.toLowerCase());
+            chip.innerHTML = `<i class="fas ${isSelected ? 'fa-check' : 'fa-plus'}"></i> <span>${name}</span>`;
+            
+            chip.addEventListener('click', function(e) {
+                e.preventDefault();
+                var nowSelected = !option.selected;
+                option.selected = nowSelected;
+                
+                // Update visual representation
+                if (nowSelected) {
+                    chip.classList.add('active');
+                    chip.querySelector('i').className = 'fas fa-check';
+                } else {
+                    chip.classList.remove('active');
+                    chip.querySelector('i').className = 'fas fa-plus';
+                }
+            });
+            
+            container.appendChild(chip);
+        });
+    }
+
+    function openBuatLowonganModal(event, targetId, targetName, laborRate, volume, ahspId = 0) {
         if (event) event.stopPropagation();
+
+        // Close Kelola modal if it's open to prevent backdrop stacking
+        var kelolaModalEl = document.getElementById('modalKelolaLowongan');
+        if (kelolaModalEl) {
+            var kelolaInst = bootstrap.Modal.getInstance(kelolaModalEl);
+            if (kelolaInst) kelolaInst.hide();
+        }
 
         var cid = <?= json_encode($construction['id'] ?? '') ?>;
         var startDateStr = <?= json_encode($construction['start_date'] ?? null) ?>;
+        if (!startDateStr) {
+            startDateStr = <?= json_encode($construction['created_at'] ?? null) ?>;
+        }
+        if (!startDateStr) {
+            startDateStr = new Date().toISOString().slice(0, 10);
+        }
         
         var startWeek = 1;
         var endWeek = 2;
@@ -341,16 +554,143 @@
         document.getElementById('inp-upah-loker').value = calculatedWage;
         document.getElementById('display-upah-loker-input').value = new Intl.NumberFormat('id-ID').format(calculatedWage);
         
-        document.getElementById('display-unit-wage').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(laborRate || 0));
-        document.getElementById('display-volume').innerText = (parseFloat(volume) || 0).toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        document.getElementById('display-total-wage-calc').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(calculatedWage);
+        function renderSimpleBreakdown(rate, vol) {
+            var calculatedWage = Math.round((parseFloat(rate) || 0) * (parseFloat(vol) || 0));
+            var breakdownContainer = document.getElementById('upah-breakdown-container');
+            if (breakdownContainer) {
+                breakdownContainer.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 12.5px;">
+                        <span>Upah per Unit (Tenaga Kerja):</span>
+                        <span class="fw-bold text-dark">Rp ${new Intl.NumberFormat('id-ID').format(Math.round(rate || 0))}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 12.5px;">
+                        <span>Volume Pekerjaan Target:</span>
+                        <span class="fw-bold text-dark">${(parseFloat(vol) || 0).toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <hr style="margin: 8px 0; border-top: 1px dashed #cbd5e1;">
+                    <div class="d-flex justify-content-between align-items-center" style="font-size: 12.5px;">
+                        <span class="fw-bold">Total Upah (Unit × Volume):</span>
+                        <span class="fw-bold text-success" style="font-size: 13.5px;">Rp ${new Intl.NumberFormat('id-ID').format(calculatedWage)}</span>
+                    </div>
+                `;
+            }
+        }
+
+        var breakdownContainer = document.getElementById('upah-breakdown-container');
+        if (breakdownContainer) {
+            if (ahspId && parseInt(ahspId) > 0) {
+                breakdownContainer.innerHTML = `
+                    <div class="text-center py-3 text-muted">
+                        <i class="fas fa-spinner fa-spin me-1"></i> Memuat rincian upah...
+                    </div>
+                `;
+                $.get('<?= base_url('admin/ahsp/show') ?>/' + ahspId, function(res) {
+                    if (res.status && res.data && res.data.tenaga_kerja && res.data.tenaga_kerja.length > 0) {
+                        var rowsHtml = '';
+                        var totalUnitLabor = 0;
+                        var totalAllLabor = 0;
+                        res.data.tenaga_kerja.forEach(function(t, idx) {
+                            var koef = parseFloat(t.koefisien) || 0;
+                            var hargaSatuan = parseFloat(t.harga_satuan) || 0;
+                            var jumlah = koef * hargaSatuan;
+                            totalUnitLabor += jumlah;
+                            
+                            var totalHarga = jumlah * (parseFloat(volume) || 0);
+                            totalAllLabor += totalHarga;
+                            
+                            rowsHtml += `
+                                <tr>
+                                    <td class="ps-3 fw-medium text-dark">${t.uraian || '-'}</td>
+                                    <td class="text-center">${t.satuan || '-'}</td>
+                                    <td class="text-end font-monospace">${koef.toFixed(4).replace('.', ',')}</td>
+                                    <td class="text-end font-monospace">Rp ${Math.round(hargaSatuan).toLocaleString('id-ID')}</td>
+                                    <td class="text-end font-monospace fw-bold text-dark">Rp ${Math.round(jumlah).toLocaleString('id-ID')}</td>
+                                    <td class="text-end font-monospace fw-bold text-dark pe-3">Rp ${Math.round(totalHarga).toLocaleString('id-ID')}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        breakdownContainer.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 12.5px;">
+                                <span>Upah per Unit (Tenaga Kerja):</span>
+                                <span class="fw-bold text-dark">Rp ${new Intl.NumberFormat('id-ID').format(Math.round(totalUnitLabor))}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 12.5px;">
+                                <span>Volume Pekerjaan Target:</span>
+                                <span class="fw-bold text-dark">${(parseFloat(volume) || 0).toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                            <hr style="margin: 8px 0; border-top: 1px dashed #cbd5e1;">
+                            <div class="d-flex justify-content-between align-items-center mb-3" style="font-size: 12.5px;">
+                                <span class="fw-bold">Total Upah (Unit × Volume):</span>
+                                <span class="fw-bold text-success" style="font-size: 13.5px;">Rp ${new Intl.NumberFormat('id-ID').format(Math.round(totalAllLabor))}</span>
+                            </div>
+
+                            <!-- Accordion Rincian Tenaga Kerja -->
+                            <div class="accordion" id="accordionTenagaKerja">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingTenaga">
+                                        <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTenaga" aria-expanded="false" aria-controls="collapseTenaga" style="padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #e2e8f0; box-shadow: none;">
+                                            <i class="fas fa-list-ul me-2"></i> Lihat Rincian Tenaga Kerja (AHSP)
+                                        </button>
+                                    </h2>
+                                    <div id="collapseTenaga" class="accordion-collapse collapse" aria-labelledby="headingTenaga" data-bs-parent="#accordionTenagaKerja">
+                                        <div class="accordion-body p-0">
+                                            <div class="table-responsive" style="border: none; border-radius: 0; overflow: hidden; background: #fff;">
+                                                <table class="table table-sm table-hover align-middle mb-0" style="font-size: 11px;">
+                                                    <thead class="table-light text-secondary" style="font-size: 9.5px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                                                        <tr>
+                                                            <th class="ps-3">Klasifikasi Pekerja</th>
+                                                            <th class="text-center" style="width: 70px;">Satuan</th>
+                                                            <th class="text-end" style="width: 90px;">Koefisien</th>
+                                                            <th class="text-end" style="width: 120px;">Harga Satuan</th>
+                                                            <th class="text-end" style="width: 120px;">Jumlah</th>
+                                                            <th class="text-end pe-3" style="width: 140px;">Total Harga</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${rowsHtml}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        renderSimpleBreakdown(laborRate, volume);
+                    }
+                }).fail(function() {
+                    renderSimpleBreakdown(laborRate, volume);
+                });
+            } else {
+                renderSimpleBreakdown(laborRate, volume);
+            }
+        }
 
         var job = jobsByTarget[targetId] || null;
+        var searchInp = document.getElementById('skills-search-input');
+        if (searchInp) searchInp.value = '';
+
+        var selectedSkillIds = [];
         if (job) {
-            document.getElementById('inp-detail-pekerjaan-loker').value = job.detail_pekerjaan || '';
             document.getElementById('inp-detail-lokasi-loker').value = job.detail_lokasi || '';
+            
+            // Collect pre-selected skill IDs
+            if (job.skills && Array.isArray(job.skills)) {
+                selectedSkillIds = job.skills.map(function(s) { return parseInt(s.id); });
+            }
         } else {
-            document.getElementById('inp-detail-pekerjaan-loker').value = '';
+            document.getElementById('inp-detail-lokasi-loker').value = '';
+        }
+
+        // Render skill chips with active states
+        renderSkillChips(selectedSkillIds);
+
+        // Populate is_open status dropdown
+        var isOpenSelect = document.getElementById('inp-is-open-loker');
+        if (isOpenSelect) {
+            isOpenSelect.value = (job && job.is_open !== undefined) ? job.is_open : '1';
         }
 
         var modalEl = document.getElementById('modalBuatLowongan');
@@ -363,6 +703,13 @@
     function openLihatLowonganModal(event, targetId, targetName) {
         if (event) event.stopPropagation();
 
+        // Close Kelola modal if it's open to prevent backdrop stacking
+        var kelolaModalEl = document.getElementById('modalKelolaLowongan');
+        if (kelolaModalEl) {
+            var kelolaInst = bootstrap.Modal.getInstance(kelolaModalEl);
+            if (kelolaInst) kelolaInst.hide();
+        }
+
         var job = jobsByTarget[targetId] || null;
         if (!job) {
             alert('Lowongan belum dibuat!');
@@ -370,20 +717,60 @@
         }
 
         document.getElementById('lihat-loker-subtitle').innerText = 'Target: ' + targetName;
-        document.getElementById('display-detail-pekerjaan-loker').innerHTML = (job.detail_pekerjaan || '').replace(/\n/g, '<br>');
+        document.getElementById('display-detail-pekerjaan-loker').innerHTML = targetName || '';
         document.getElementById('display-detail-lokasi-loker').innerHTML = (job.detail_lokasi || '').replace(/\n/g, '<br>');
+
+        // Render qualifications (skills)
+        var skillsContainer = document.getElementById('display-skills-loker');
+        if (skillsContainer) {
+            skillsContainer.innerHTML = '';
+            if (job.skills && Array.isArray(job.skills) && job.skills.length > 0) {
+                job.skills.forEach(function(sk) {
+                    var span = document.createElement('span');
+                    span.className = 'badge bg-light text-dark border me-1 mb-1';
+                    span.style.fontSize = '0.8rem';
+                    span.style.padding = '6px 12px';
+                    span.style.borderRadius = '6px';
+                    span.style.fontWeight = '500';
+                    span.textContent = sk.skill_name;
+                    skillsContainer.appendChild(span);
+                });
+            } else {
+                skillsContainer.innerHTML = '<span class="text-muted fst-italic" style="font-size: 0.85rem;">Tidak ada kualifikasi skill khusus</span>';
+            }
+        }
+
+        // Render status lowongan
+        var statusContainer = document.getElementById('display-status-loker');
+        if (statusContainer) {
+            statusContainer.innerHTML = '';
+            var isOpen = (job.is_open !== undefined && job.is_open !== null) ? parseInt(job.is_open) !== 0 : true;
+            var span = document.createElement('span');
+            if (isOpen) {
+                span.className = 'badge bg-success text-white';
+                span.textContent = 'Dibuka';
+            } else {
+                span.className = 'badge bg-danger text-white';
+                span.textContent = 'Ditutup';
+            }
+            span.style.fontSize = '0.8rem';
+            span.style.padding = '6px 12px';
+            span.style.borderRadius = '6px';
+            span.style.fontWeight = '600';
+            statusContainer.appendChild(span);
+        }
 
         var dateMulai = job.tanggal_mulai ? new Date(job.tanggal_mulai) : null;
         var dateAkhir = job.tanggal_akhir ? new Date(job.tanggal_akhir) : null;
         var options = { day: 'numeric', month: 'short', year: 'numeric' };
         var jadwalText = '?';
         if (dateMulai && dateAkhir) {
-            jadwalText = `<div>${dateMulai.toLocaleDateString('id-ID', options)}<br>s.d.<br>${dateAkhir.toLocaleDateString('id-ID', options)}</div>`;
+            jadwalText = `<div>${dateMulai.toLocaleDateString('id-ID', options)} – ${dateAkhir.toLocaleDateString('id-ID', options)}</div>`;
         }
-        document.getElementById('display-jadwal-kerja-loker').innerHTML = `<i class="far fa-calendar-alt text-indigo me-2" style="color:#6366f1"></i> ${jadwalText}`;
+        document.getElementById('display-jadwal-kerja-loker').innerHTML = jadwalText;
 
         var upahFormatted = new Intl.NumberFormat('id-ID').format(job.upah || 0);
-        document.getElementById('display-upah-loker').innerHTML = `<i class="fas fa-wallet text-indigo me-2" style="color:#6366f1"></i> Rp ${upahFormatted}`;
+        document.getElementById('display-upah-loker').innerHTML = `Rp ${upahFormatted}`;
 
         var applicants = applicantsByTarget[targetId] || [];
         document.getElementById('display-jumlah-pelamar-loker').innerText = applicants.length + ' Pelamar';
@@ -399,9 +786,6 @@
                 </div>
             `;
         } else {
-            var listGroup = document.createElement('div');
-            listGroup.className = 'list-group list-group-flush';
-
             applicants.forEach(function(app) {
                 var st = app.status || 'Berkas Diproses';
                 var whatsapp = app.phone ? app.phone.replace(/[^0-9]/g, '') : '';
@@ -414,60 +798,84 @@
                 var chatButton = '';
                 if (whatsapp) {
                     chatButton = `
-                        <a href="https://wa.me/${whatsapp}" target="_blank" class="btn btn-sm btn-success px-2 py-0.5 ms-2" style="border-radius: 6px; font-size: 0.75rem; line-height: 1.3;">
-                            <i class="fab fa-whatsapp me-1"></i> Chat
+                        <a href="https://wa.me/${whatsapp}" target="_blank" class="wa-btn">
+                            <i class="fab fa-whatsapp"></i> Chat WhatsApp
                         </a>
                     `;
                 }
 
-                var item = document.createElement('div');
-                item.className = 'list-group-item p-4 border-bottom';
-                item.style.backgroundColor = '#fff';
-                item.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <h6 class="fw-bold text-dark mb-1" style="font-size: 0.95rem;">${app.tukang_name || 'Tukang #' + app.tukang_id}</h6>
-                            <span class="text-muted d-block" style="font-size: 0.75rem;">Melamar pada: ${app.created_at || '-'}</span>
+                // Initial generation
+                var initials = (app.tukang_name || 'TK')
+                    .split(' ')
+                    .map(function(n) { return n[0]; })
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+                
+                var colors = ['#4f46e5', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#06b6d4', '#14b8a6'];
+                var sum = 0;
+                var nameStr = app.tukang_name || '';
+                for (var i = 0; i < nameStr.length; i++) {
+                    sum += nameStr.charCodeAt(i);
+                }
+                var avatarBg = colors[sum % colors.length];
+
+                var stLower = st.toLowerCase().replace(/ /g, '-');
+                var card = document.createElement('div');
+                card.className = 'applicant-card status-' + stLower;
+                card.innerHTML = `
+                    <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="applicant-avatar-circle" style="background-color: ${avatarBg};">
+                                ${initials}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0" style="font-size: 14px; font-family: 'Outfit', sans-serif;">${app.tukang_name || 'Tukang #' + app.tukang_id}</h6>
+                                <span class="text-muted d-block mt-0.5" style="font-size: 11px;"><i class="far fa-clock me-1"></i>Melamar pada: ${app.created_at || '-'}</span>
+                            </div>
                         </div>
-                        <span class="badge ${stBadgeClass} text-uppercase" style="font-size: 0.72rem; padding: 5px 10px; border-radius: 6px; letter-spacing: 0.3px; font-weight: 600;">${st}</span>
+                        <span class="badge ${stBadgeClass} text-uppercase" style="font-size: 9.5px; padding: 5px 10px; border-radius: 20px; letter-spacing: 0.5px; font-weight: 700;">${st}</span>
                     </div>
-                    <div class="d-flex flex-wrap gap-3 align-items-center my-3" style="font-size: 0.82rem; color: #475569;">
+                    
+                    <div class="row g-2 mb-3" style="font-size: 12px; color: #475569; background: #f8fafc; padding: 12px; border-radius: 8px;">
                         ${app.phone ? `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-phone-alt text-success me-1.5"></i>
-                            <span>${app.phone}</span>
+                        <div class="col-sm-7 d-flex align-items-center gap-2 flex-wrap">
+                            <i class="fas fa-phone-alt text-success"></i>
+                            <span class="fw-semibold">${app.phone}</span>
                             ${chatButton}
                         </div>` : ''}
                         ${app.specialization ? `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-tools text-primary me-1.5"></i>
-                            <span>Spesialisasi: <strong>${app.specialization}</strong></span>
+                        <div class="col-sm-5 d-flex align-items-center gap-2">
+                            <i class="fas fa-tools text-primary"></i>
+                            <span>Spesialisasi: <strong class="text-dark">${app.specialization}</strong></span>
                         </div>` : ''}
                     </div>
+                    
                     <?php if (can('construction_pelamar')): ?>
-                        <form action="<?= base_url('admin/construction/update_applicant_status') ?>" method="post" class="mt-3">
+                        <form action="<?= base_url('admin/construction/update_applicant_status') ?>" method="post" class="mt-2 pt-2 border-top border-light">
                             <?= csrf_field() ?>
                             <input type="hidden" name="id" value="${app.id}">
                             <input type="hidden" name="construction_target_id" value="${targetId}">
-                            <div class="input-group input-group-sm w-100" style="max-width: 320px;">
-                                <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 8px 0 0 8px; font-size: 0.78rem;">Ubah Status:</span>
-                                <select name="status" class="form-select border-start-0 text-dark fw-medium" style="border-radius: 0; font-size: 0.8rem; background-color: #fff; height: 34px;">
-                                    <option value="Berkas Diproses" ${st === 'Berkas Diproses' ? 'selected' : ''}>Berkas Diproses</option>
-                                    <option value="Proses Test" ${st === 'Proses Test' ? 'selected' : ''}>Proses Test</option>
-                                    <option value="Proses Aktivasi" ${st === 'Proses Aktivasi' ? 'selected' : ''}>Proses Aktivasi</option>
-                                    <option value="Siap Kerja" ${st === 'Siap Kerja' ? 'selected' : ''}>Siap Kerja</option>
-                                    <option value="Ditolak" ${st === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
-                                </select>
-                                <button type="submit" class="btn btn-primary px-3" style="border-radius: 0 8px 8px 0; font-size: 0.8rem; font-weight: 600;">
-                                    <i class="fas fa-check"></i>
-                                </button>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="text-secondary fw-semibold" style="font-size: 12px;">Status Pelamar:</span>
+                                <div class="input-group input-group-sm" style="max-width: 280px; width: 100%;">
+                                    <select name="status" class="form-select text-dark fw-bold" style="border-radius: 8px 0 0 8px; font-size: 12px; background-color: #fff; height: 36px; border: 1.5px solid #cbd5e1;">
+                                        <option value="Berkas Diproses" ${st === 'Berkas Diproses' ? 'selected' : ''}>Berkas Diproses</option>
+                                        <option value="Proses Test" ${st === 'Proses Test' ? 'selected' : ''}>Proses Test</option>
+                                        <option value="Proses Aktivasi" ${st === 'Proses Aktivasi' ? 'selected' : ''}>Proses Aktivasi</option>
+                                        <option value="Siap Kerja" ${st === 'Siap Kerja' ? 'selected' : ''}>Siap Kerja</option>
+                                        <option value="Ditolak" ${st === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary px-3" style="border-radius: 0 8px 8px 0; font-size: 12px; font-weight: 700; background-color: #4f46e5; border-color: #4f46e5;">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     <?php endif; ?>
                 `;
-                listGroup.appendChild(item);
+                container.appendChild(card);
             });
-            container.appendChild(listGroup);
         }
 
         var modalEl = document.getElementById('modalLihatLowongan');
@@ -477,7 +885,96 @@
         }
     }
 
+    function toggleJobStatus(btn) {
+        var jobId = btn.getAttribute('data-job-id');
+        if (!jobId) return;
+
+        // Visual loading state
+        var originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Mengubah...';
+
+        var postData = {};
+        postData['<?= csrf_token() ?>'] = '<?= csrf_hash() ?>';
+
+        $.post('<?= base_url('admin/construction/toggle-job-status') ?>/' + jobId, postData, function(res) {
+            btn.disabled = false;
+            if (res.status) {
+                // Update badge state dynamically
+                var is_open = parseInt(res.is_open) === 1;
+                var numApplicants = btn.getAttribute('data-applicants') || '0';
+                
+                // Update properties in client-side jobsByTarget object
+                for (var targetId in jobsByTarget) {
+                    if (jobsByTarget[targetId] && parseInt(jobsByTarget[targetId].id) === parseInt(jobId)) {
+                        jobsByTarget[targetId].is_open = res.is_open;
+                        break;
+                    }
+                }
+
+                if (is_open) {
+                    btn.className = 'btn btn-sm badge bg-success text-white px-2.5 py-1.5 fw-semibold toggle-job-status-btn';
+                    btn.style.border = 'none';
+                    btn.style.boxShadow = '0 2px 6px rgba(25, 135, 84, 0.2)';
+                    btn.innerHTML = '<i class="fas fa-check-circle me-1"></i> Dibuka (' + numApplicants + ' Pelamar)';
+                } else {
+                    btn.className = 'btn btn-sm badge bg-danger-subtle text-danger px-2.5 py-1.5 fw-semibold toggle-job-status-btn';
+                    btn.style.border = '1px solid rgba(220, 53, 69, 0.15)';
+                    btn.style.boxShadow = 'none';
+                    btn.innerHTML = '<i class="fas fa-times-circle me-1"></i> Ditutup (' + numApplicants + ' Pelamar)';
+                }
+            } else {
+                alert(res.message || 'Gagal mengubah status lowongan');
+                btn.innerHTML = originalContent;
+            }
+        }).fail(function() {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            alert('Terjadi kesalahan jaringan.');
+        });
+    }
+
     $(document).ready(function() {
+        // Skill chips search input listener
+        $(document).on('input', '#skills-search-input', function(e) {
+            var q = e.target.value.toLowerCase().trim();
+            var chips = document.querySelectorAll('#skills-chips-container .skill-chip');
+            chips.forEach(function(chip) {
+                var name = chip.getAttribute('data-name') || '';
+                if (name.indexOf(q) !== -1) {
+                    chip.style.display = '';
+                } else {
+                    chip.style.display = 'none';
+                }
+            });
+        });
+
+        // Restore detail columns preference
+        if (localStorage.getItem('show_target_detail_cols') === 'true') {
+            document.body.classList.add('show-detail-cols');
+            var btn = document.getElementById('toggleDetailCols');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-eye-slash me-1"></i> Sembunyikan Detail';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-secondary');
+            }
+        }
+
+        // Initial visibility check for spanned target cells
+        updateActiveCellsVisibility();
+
+        // Re-open kelola modal when child modals are closed
+        $('#modalBuatLowongan, #modalLihatLowongan').on('hidden.bs.modal', function () {
+            var kelolaModalEl = document.getElementById('modalKelolaLowongan');
+            if (kelolaModalEl && kelolaModalEl.classList.contains('show') === false) {
+                // Check if any other modal is currently opening/shown (like stacking)
+                if ($('.modal.show').length === 0) {
+                    var kelolaInst = bootstrap.Modal.getInstance(kelolaModalEl) || new bootstrap.Modal(kelolaModalEl);
+                    kelolaInst.show();
+                }
+            }
+        });
+
         <?php if (session()->getFlashdata('open_target_job_modal')): ?>
             var targetIdToOpen = <?= json_encode(session()->getFlashdata('open_target_job_modal')) ?>;
             var targetListObj = <?= json_encode($target_list ?? []) ?>;

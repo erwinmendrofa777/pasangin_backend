@@ -157,6 +157,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->post('tukang/login', 'TukangAuthController::login');
     $routes->post('tukang/register', 'TukangAuthController::register');
     $routes->post('tukang/verify', 'TukangAuthController::extractSync');
+    $routes->get('tukang/skills', 'TukangAuthController::getSkills');
 
     // Auth Supplier
     $routes->post('supplier/login', 'SupplierAuthController::login');
@@ -376,7 +377,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('tukang/jobs/renovation', 'TukangJobApi::getRenovationJobs');
     $routes->get('tukang/my-applications/(:num)', 'TukangJobApi::getMyApplications/$1');
     $routes->post('tukang/submit-progress', 'TukangJobApi::submitProgress');
-    $routes->get('tukang/my-targets/(:num)', 'TukangJobApi::getMyTargets/$1');
+    $routes->get('tukang/my-targets/construction/(:num)', 'TukangJobApi::getMyConstructionTargets/$1');
+    $routes->get('tukang/my-targets/renovation/(:num)', 'TukangJobApi::getMyRenovationTargets/$1');
     $routes->post('tukang/job-submit', 'JobApplicationController::submit');
     $routes->get('tukang/application-status/(:num)', 'TukangJobApi::getApplicationStatus/$1');
     $routes->get('tukang/banners', 'TukangContentController::banners');

@@ -16,6 +16,7 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Design
     $routes->post('design/add-invoice/(:num)', 'DesignRequests::addInvoice/$1');
     $routes->get('design/verify-payment/(:num)', 'DesignRequests::verifyPayment/$1');
     $routes->get('design/delete-invoice/(:num)', 'DesignRequests::deleteInvoice/$1');
+    $routes->post('design/update-invoice/(:num)', 'DesignRequests::updateInvoice/$1');
     $routes->post('design/update-progress/(:num)', 'DesignRequests::updateProgress/$1');
     $routes->post('design/create-target/(:num)', 'DesignRequests::createTarget/$1');
     $routes->get('design/delete-target/(:num)/(:num)', 'DesignRequests::deleteTarget/$1/$2');

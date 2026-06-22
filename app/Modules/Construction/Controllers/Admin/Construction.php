@@ -754,6 +754,43 @@ class Construction extends BaseController
         return redirect()->to(base_url('admin/construction/detail/' . $post['id'] . '#target'))->with('success', 'Lowongan berhasil dipublikasikan! Notifikasi dikirim ke seluruh tukang.');
     }
 
+    public function toggle_job_status($jobId)
+    {
+        if (!can('construction_lowongan')) {
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => 'Anda tidak memiliki akses untuk mengubah lowongan.'
+            ]);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $job = $db->table('construction_jobs')->where('id', $jobId)->get()->getRowArray();
+            if (!$job) {
+                return $this->response->setJSON([
+                    'status'  => false,
+                    'message' => 'Data lowongan tidak ditemukan.'
+                ]);
+            }
+
+            $newStatus = (int)$job['is_open'] === 1 ? 0 : 1;
+            $db->table('construction_jobs')->where('id', $jobId)->update(['is_open' => $newStatus]);
+
+            log_admin_activity('update', 'Construction', 'Toggle Status Lowongan ' . $jobId . ' menjadi ' . ($newStatus === 1 ? 'Dibuka' : 'Ditutup'));
+
+            return $this->response->setJSON([
+                'status' => true,
+                'is_open' => $newStatus,
+                'message' => 'Status lowongan berhasil diperbarui.'
+            ]);
+        } catch (\Throwable $e) {
+            return $this->response->setJSON([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // ABSENSI
     // -------------------------------------------------------------------------

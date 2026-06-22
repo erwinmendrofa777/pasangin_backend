@@ -97,10 +97,11 @@ if (!empty($task['request_start_date']) && !empty($task['request_target_date']))
     <?php if (!empty($pendingDesigns) && $pendingDesignsCount > 0): ?>
         <div class="review-preview-row">
             <?php foreach ($pendingDesigns as $pd):
-                $fileExt = strtolower(pathinfo($pd['file'], PATHINFO_EXTENSION));
-                $isPdf = ($fileExt === 'pdf');
-                $isVideo = in_array($fileExt, ['mp4', 'mov', 'avi', 'webm', 'mkv']);
-                $isImg = in_array($fileExt, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                $dtype = $pd['design_type'] ?? 'general';
+                $isPdf = ($dtype === 'pdf');
+                $isVideo = ($dtype === 'video');
+                $is3d = ($dtype === '3d');
+                $isImg = ($dtype === 'image');
                 $fileUrl = base_url('uploads/design_results/' . $pd['file']);
                 ?>
                 <div class="review-preview-item" data-design-id="<?= $pd['id'] ?>">
@@ -125,13 +126,21 @@ if (!empty($task['request_start_date']) && !empty($task['request_target_date']))
                             </div>
                         </div>
                         <a href="#kanban-video-<?= $pd['id'] ?>" class="glightbox" data-gallery="kanban-gallery-<?= $task['id'] ?>"
-                            data-slide-class="glightbox-video-slide">
+                            data-slide-class="glightbox-video-slide" title="Putar Video: <?= esc($pd['design_name']) ?>">
                             <i class="fas fa-file-video text-warning"
                                 style="font-size:24px; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);"></i>
                             <div class="video-play-icon">
                                 <i class="fas fa-play"></i>
                             </div>
                         </a>
+                    <?php elseif ($is3d): ?>
+                        <!-- 3D Object Name Copy Button -->
+                        <button type="button" class="glightbox-none" 
+                                onclick="navigator.clipboard.writeText('<?= esc($pd['file']) ?>'); iziToast.success({title: 'Copied', message: 'Nama objek disalin!', position: 'topRight'});" 
+                                title="Salin Nama Objek 3D: <?= esc($pd['file']) ?>"
+                                style="width: 100%; height: 100%; border: none; background: #eafcff; color: #0dcaf0; display: flex; align-items: center; justify-content: center; border-radius: 6px; outline: none;">
+                            <i class="far fa-copy" style="font-size: 16px;"></i>
+                        </button>
                     <?php else: ?>
                         <!-- Image Lightbox -->
                         <a href="<?= $fileUrl ?>" class="glightbox" data-gallery="kanban-gallery-<?= $task['id'] ?>"

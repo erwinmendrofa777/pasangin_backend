@@ -49,10 +49,14 @@ class TukangService
         $tukang = $this->tukangRepository->findById($id);
 
         if (!$tukang) {
-            throw new RuntimeException('Mitra Tukang tidak ditemukan.');
+            throw new \RuntimeException('Mitra Tukang tidak ditemukan.');
         }
 
         $tukang['ratings'] = $this->ratingRepository->findByTukangId($id);
+
+        // Ambil data keahlian dari tabel junction
+        $skillMapModel = new \App\Modules\Tukang\Models\TukangSkillMapModel();
+        $tukang['skills'] = $skillMapModel->getSkillsByTukangId($id);
 
         return $tukang;
     }
@@ -89,11 +93,13 @@ class TukangService
         $ktpName     = $this->uploadPhoto($files['ktp_photo']);
         $selfieName  = $this->uploadPhoto($files['selfie_photo']);
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $this->tukangRepository->save([
             'name'             => $postData['name'],
             'email'            => $postData['email'],
             'phone'            => $postData['phone'],
-            'specialization'   => $postData['specialization'],
             'nik'              => $postData['nik'],
             'gender'           => $postData['gender'],
             'dob'              => $postData['dob'],
@@ -109,6 +115,19 @@ class TukangService
             'rata_rata_rating' => 0,
             'total_ulasan'     => 0,
         ]);
+
+        $tukangId = $this->tukangRepository->getInsertID();
+        if ($tukangId) {
+            $skills = $postData['skills'] ?? [];
+            $skillMapModel = new \App\Modules\Tukang\Models\TukangSkillMapModel();
+            $skillMapModel->syncSkills($tukangId, $skills);
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            throw new \RuntimeException('Gagal mendaftarkan mitra tukang.');
+        }
     }
 
     // =========================================================================

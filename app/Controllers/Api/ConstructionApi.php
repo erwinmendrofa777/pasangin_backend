@@ -587,7 +587,7 @@ class ConstructionApi extends BaseController
                 cp.id as progress_id, cp.volume as progress_bobot, cp.photo_url as progress_photo, cp.created_at as progress_date, cp.status as progress_status,
                 ct.id as target_id, COALESCE(cr.volume, ca.volume) as target_bobot,
                 COALESCE(cr.group_name, ca.group_name) as rab_group, COALESCE(cr.sub_group_name, ca.sub_group_name) as rab_subgroup, COALESCE(cr.activity_name, ca.activity_name) as rab_activity,
-                ja.tukang_name, ja.specialization, t.profile_photo, ja.tukang_id as id_tukang,
+                ja.tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization, t.profile_photo, ja.tukang_id as id_tukang,
                 tr.id as rating_id, tr.skill_score, tr.behavior_score, tr.comment as rating_comment, tr.created_at as rating_created_at
             ')
             ->join('construction_targets ct', 'ct.id = cp.id_construction_targets', 'inner')

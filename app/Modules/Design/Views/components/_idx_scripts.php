@@ -506,17 +506,23 @@
                         if (res.status && res.data.length > 0) {
                             var html = '';
                             res.data.forEach(function (item) {
-                                var fileExt = item.file.split('.').pop().toLowerCase();
+                                var fileType = item.design_type || 'general';
                                 var fileUrl = '<?= base_url("uploads/design_results") ?>/' + item.file;
                                 var iconClass = 'icon-img';
                                 var iconFa = 'fa-file-image';
                                 
-                                if (fileExt === 'pdf') {
+                                if (fileType === 'pdf') {
                                     iconClass = 'icon-pdf';
                                     iconFa = 'fa-file-pdf';
-                                } else if (['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(fileExt)) {
+                                } else if (fileType === 'video') {
                                     iconClass = 'icon-video';
                                     iconFa = 'fa-file-video';
+                                } else if (fileType === '3d') {
+                                    iconClass = 'icon-3d';
+                                    iconFa = 'fa-cubes';
+                                } else if (fileType === 'general') {
+                                    iconClass = 'icon-general';
+                                    iconFa = 'fa-file-alt';
                                 }
                                 
                                 var badgeClass = 'bg-warning text-dark';
@@ -551,12 +557,19 @@
                                 html += '    </div>';
                                 html += '  </div>';
                                 html += '  <div class="design-item-actions">';
-                                html += '    <a href="' + fileUrl + '" target="_blank" class="btn-kanban-action" title="Lihat Berkas" style="width: 26px; height: 26px; margin: 0;">';
-                                html += '      <i class="fas fa-eye"></i>';
-                                html += '    </a>';
-                                html += '    <a href="' + fileUrl + '" download class="btn-kanban-action" title="Unduh" style="width: 26px; height: 26px; margin: 0;">';
-                                html += '      <i class="fas fa-download"></i>';
-                                html += '    </a>';
+                                if (fileType === '3d') {
+                                    var safeFile = (item.file || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                                    html += '    <button type="button" class="btn-kanban-action" title="Salin Nama Objek" style="width: 26px; height: 26px; margin: 0; border: none; background: transparent; display: flex; align-items: center; justify-content: center;" onclick="navigator.clipboard.writeText(\'' + safeFile + '\'); iziToast.success({title: \'Copied\', message: \'Nama objek disalin!\', position: \'topRight\'});">';
+                                    html += '      <i class="far fa-copy"></i>';
+                                    html += '    </button>';
+                                } else {
+                                    html += '    <a href="' + fileUrl + '" target="_blank" class="btn-kanban-action" title="Lihat Berkas" style="width: 26px; height: 26px; margin: 0;">';
+                                    html += '      <i class="fas fa-eye"></i>';
+                                    html += '    </a>';
+                                    html += '    <a href="' + fileUrl + '" download class="btn-kanban-action" title="Unduh" style="width: 26px; height: 26px; margin: 0;">';
+                                    html += '      <i class="fas fa-download"></i>';
+                                    html += '    </a>';
+                                }
                                 html += '  </div>';
                                 html += '</div>';
                             });
@@ -578,8 +591,37 @@
 
         /* ===== File Upload Label Change Handler ===== */
         $(document).on('change', '#modalUploadFile', function () {
-            var filename = this.files.length ? this.files[0].name : 'Pilih file...';
+            var filename = 'Pilih file...';
+            if (this.files.length > 0) {
+                if (this.files.length === 1) {
+                    filename = this.files[0].name;
+                } else {
+                    filename = this.files.length + ' file dipilih';
+                }
+            }
             $('#modalUploadFileNameLabel').text(filename);
+        });
+
+        /* ===== Modal Upload Design Form Submit Handler (At least one input required) ===== */
+        $(document).on('submit', '#modalUploadDesignForm', function (e) {
+            var filesInput = $('#modalUploadFile')[0];
+            var objectInput = $('#modal3dObjectNameInput').val().trim();
+            
+            var hasFiles = filesInput && filesInput.files && filesInput.files.length > 0;
+            var hasObject = objectInput.length > 0;
+            
+            if (!hasFiles && !hasObject) {
+                e.preventDefault();
+                if (typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Validasi Gagal',
+                        message: 'Wajib mengunggah file desain atau mengisi nama objek 3D!',
+                        position: 'topRight'
+                    });
+                } else {
+                    alert('Wajib mengunggah file desain atau mengisi nama objek 3D!');
+                }
+            }
         });
 
         /* ===== Save Keterangan Description Handler ===== */

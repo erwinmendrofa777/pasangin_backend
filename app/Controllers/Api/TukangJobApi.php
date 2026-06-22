@@ -23,11 +23,43 @@ class TukangJobApi extends ResourceController
     {
         try {
             $jobs = $this->db->table('construction_jobs')
-                ->select('construction_jobs.*, construction_requests.latitude, construction_requests.longitude, construction_requests.address as client_address')
+                ->select('
+                    construction_jobs.*, 
+                    construction_requests.latitude, 
+                    construction_requests.longitude, 
+                    construction_requests.address as client_address,
+                    COALESCE(ahsp.uraian, ca.activity_name) as detail_pekerjaan
+                ')
                 ->join('construction_requests', 'construction_requests.id = construction_jobs.construction_id')
+                ->join('construction_targets ct', 'ct.id = construction_jobs.construction_target_id', 'left')
+                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
+                ->join('ahsp', 'ahsp.id = cr.ahsp_id', 'left')
+                ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
+                ->where('construction_jobs.is_open', 1)
                 ->orderBy('construction_jobs.created_at', 'DESC')
                 ->get()
                 ->getResultArray();
+
+            if (!empty($jobs)) {
+                $jobIds = array_column($jobs, 'id');
+                $jobSkills = $this->db->table('construction_job_skills cjs')
+                    ->select('cjs.construction_job_id, ts.id as skill_id, ts.skill_name')
+                    ->join('tukang_skill ts', 'ts.id = cjs.tukang_skill_id')
+                    ->whereIn('cjs.construction_job_id', $jobIds)
+                    ->get()->getResultArray();
+
+                $skillsByJob = [];
+                foreach ($jobSkills as $js) {
+                    $skillsByJob[$js['construction_job_id']][] = [
+                        'id' => (int) $js['skill_id'],
+                        'skill_name' => $js['skill_name']
+                    ];
+                }
+
+                foreach ($jobs as &$job) {
+                    $job['skills'] = $skillsByJob[$job['id']] ?? [];
+                }
+            }
 
             return $this->respond(['status' => true, 'data' => $jobs], 200);
         } catch (\Exception $e) {
@@ -87,9 +119,14 @@ class TukangJobApi extends ResourceController
 
         try {
             $data = $this->db->query("
-                SELECT ja.*, IF(ja.project_type = 'construction', cj.detail_pekerjaan, rj.detail_pekerjaan) as project_name
+                SELECT ja.*, 
+                       IF(ja.project_type = 'construction', COALESCE(ahsp.uraian, ca.activity_name), rj.detail_pekerjaan) as project_name
                 FROM job_applications ja
-                LEFT JOIN construction_jobs cj ON ja.project_id = cj.construction_id AND ja.project_type = 'construction'
+                LEFT JOIN construction_jobs cj ON (cj.id = ja.construction_job_id OR (ja.construction_job_id IS NULL AND cj.construction_id = ja.project_id))
+                LEFT JOIN construction_targets ct ON ct.id = cj.construction_target_id
+                LEFT JOIN construction_rabs cr ON cr.id = ct.id_construction_rabs
+                LEFT JOIN ahsp ON ahsp.id = cr.ahsp_id
+                LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                 LEFT JOIN renovation_jobs rj ON ja.project_id = rj.renovation_id AND ja.project_type = 'renovation'
                 WHERE ja.tukang_id = ? ORDER BY ja.id DESC
             ", [$tukangId])->getResultArray();
@@ -103,110 +140,140 @@ class TukangJobApi extends ResourceController
     /**
      * 5. Target Proyek
      */
-    public function getMyTargets($tukangId = null)
+    /**
+     * 5a. Target Proyek Konstruksi
+     * GET: api/tukang/my-targets/construction/{tukangId}
+     */
+    public function getMyConstructionTargets($tukangId = null)
     {
         if ($tukangId === null)
             return $this->fail('ID Tukang dibutuhkan', 400);
 
         try {
             $sql = "
-                    (
-                        SELECT 
-                            COALESCE(crab.group_name, ca.group_name) as group_name,
-                            COALESCE(crab.sub_group_name, ca.sub_group_name) as sub_group_name,
-                            COALESCE(ahsp.uraian, ca.activity_name) as activity_name,
-                            creq.id as construction_id,
-                            null as renovation_id,
-                            creq.workday as hari_kerja,
-                            ct.start_week,
-                            ct.end_week,
-                            COALESCE(crab.volume, ca.volume) as bobot,
-                            ct.status as target_status,
-                            creq.status as construction_status,
-                            ja.project_type,
-                            creq.start_date,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id) as report_count,
-                            (SELECT status FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id ORDER BY created_at DESC LIMIT 1) as last_report_status,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_count,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'REJECTED') as rejected_count,
-                            (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_count,
-                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_weight,
-                            (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_weight
-                        FROM construction_targets ct
-                        JOIN job_applications ja ON ja.id = ct.id_job_applications
-                        LEFT JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs
-                        LEFT JOIN ahsp ON ahsp.id = crab.ahsp_id
-                        LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
-                        JOIN construction_requests creq ON creq.id = ct.construction_id
-                        WHERE ja.tukang_id = ?
-                    )
+                SELECT 
+                    COALESCE(crab.group_name, ca.group_name) as group_name,
+                    COALESCE(crab.sub_group_name, ca.sub_group_name) as sub_group_name,
+                    COALESCE(ahsp.uraian, ca.activity_name) as activity_name,
+                    creq.id as construction_id,
+                    creq.workday as hari_kerja,
+                    ct.id as target_id,
+                    ct.start_week,
+                    ct.end_week,
+                    COALESCE(crab.volume, ca.volume) as volume,
+                    ct.status as target_status,
+                    crab.unit as satuan_volume,
+                    creq.status as construction_status,
+                    'construction' as project_type,
+                    creq.start_date,
+                    (SELECT COUNT(id) FROM construction_progress WHERE id_construction_targets = ct.id) as report_count,
+                    (SELECT status FROM construction_progress WHERE id_construction_targets = ct.id ORDER BY created_at DESC LIMIT 1) as last_report_status,
+                    (SELECT COUNT(id) FROM construction_progress WHERE id_construction_targets = ct.id AND status = 'APPROVED') as approved_count,
+                    (SELECT COUNT(id) FROM construction_progress WHERE id_construction_targets = ct.id AND status = 'REJECTED') as rejected_count,
+                    (SELECT COUNT(id) FROM construction_progress WHERE id_construction_targets = ct.id AND status = 'PENDING') as pending_count,
+                    (SELECT SUM(volume) FROM construction_progress WHERE id_construction_targets = ct.id AND status = 'APPROVED') as approved_weight,
+                    (SELECT SUM(volume) FROM construction_progress WHERE id_construction_targets = ct.id AND status = 'PENDING') as pending_weight
+                FROM construction_targets ct
+                JOIN job_applications ja ON ja.id = ct.id_job_applications
+                LEFT JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs
+                LEFT JOIN ahsp ON ahsp.id = crab.ahsp_id
+                LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
+                JOIN construction_requests creq ON creq.id = ct.construction_id
+                WHERE ja.tukang_id = ?
+                ORDER BY ct.start_week ASC
+            ";
 
-                    UNION ALL
+            $data = $this->db->query($sql, [$tukangId])->getResultArray();
 
-                    (
-                        SELECT 
-                            rrab.group_name,
-                            rrab.sub_group_name,
-                            rrab.activity_name,
-                            null as construction_id,
-                            rreq.id as renovation_id,
-                            rreq.workday as hari_kerja,
-                            rt.start_week,
-                            rt.end_week,
-                            rt.bobot,
-                            rt.status as target_status,
-                            rreq.status as renovation_status,
-                            ja.project_type,
-                            rreq.start_date,
-                            (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id) as report_count,
-                            (SELECT status FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id ORDER BY created_at DESC LIMIT 1) as last_report_status,
-                            (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'approved') as approved_count,
-                            (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'rejected') as rejected_count,
-                            (SELECT COUNT(id) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'pending') as pending_count,
-                            (SELECT SUM(bobot) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'approved') as approved_weight,
-                            (SELECT SUM(bobot) FROM renovation_progress WHERE renovation_progress.id_renovation_targets = rt.id AND LOWER(status) = 'pending') as pending_weight
-                        FROM renovation_targets rt
-                        JOIN job_applications ja ON ja.id = rt.id_job_applications
-                        JOIN renovation_rabs rrab ON rrab.id = rt.id_renovation_rabs
-                        JOIN renovation_requests rreq ON rreq.id = rt.renovation_id
-                        WHERE ja.tukang_id = ?
-                    )
-
-                    ORDER BY start_week ASC
-                ";
-
-            $data = $this->db->query($sql, [$tukangId, $tukangId])->getResultArray();
-
-            $today = new \DateTime();
-            foreach ($data as &$row) {
-                // Kalkulasi current_project_week
-                $row['current_project_week'] = 0;
-                if (!empty($row['start_date'])) {
-                    $start = new \DateTime($row['start_date']);
-                    if ($today >= $start) {
-                        $diffDays = $today->diff($start)->days;
-                        $row['current_project_week'] = floor($diffDays / 7) + 1;
-                    }
-                }
-
-                // Rapikan respon JSON
-                unset($row['start_date']);
-                $row['report_count'] = (int) $row['report_count'];
-                $row['approved_count'] = (int) $row['approved_count'];
-                $row['rejected_count'] = (int) $row['rejected_count'];
-                $row['pending_count'] = (int) $row['pending_count'];
-                $row['approved_weight'] = (float) $row['approved_weight'];
-                $row['pending_weight'] = (float) $row['pending_weight'];
-
-                if ($row['last_report_status']) {
-                    $row['last_report_status'] = strtoupper($row['last_report_status']);
-                }
-            }
-
-            return $this->respond(['status' => true, 'data' => $data], 200);
+            return $this->respond([
+                'status' => true,
+                'data' => $this->_formatTargetRows($data)
+            ], 200);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
         }
+    }
+
+    /**
+     * 5b. Target Proyek Renovasi
+     * GET: api/tukang/my-targets/renovation/{tukangId}
+     */
+    public function getMyRenovationTargets($tukangId = null)
+    {
+        if ($tukangId === null)
+            return $this->fail('ID Tukang dibutuhkan', 400);
+
+        try {
+            $sql = "
+                SELECT 
+                    rrab.group_name,
+                    rrab.sub_group_name,
+                    rrab.activity_name,
+                    rreq.id as renovation_id,
+                    rreq.workday as hari_kerja,
+                    rt.id as target_id,
+                    rt.start_week,
+                    rt.end_week,
+                    rt.bobot,
+                    rt.status as target_status,
+                    rreq.status as renovation_status,
+                    'renovation' as project_type,
+                    rreq.start_date,
+                    (SELECT COUNT(id) FROM renovation_progress WHERE id_renovation_targets = rt.id) as report_count,
+                    (SELECT status FROM renovation_progress WHERE id_renovation_targets = rt.id ORDER BY created_at DESC LIMIT 1) as last_report_status,
+                    (SELECT COUNT(id) FROM renovation_progress WHERE id_renovation_targets = rt.id AND LOWER(status) = 'approved') as approved_count,
+                    (SELECT COUNT(id) FROM renovation_progress WHERE id_renovation_targets = rt.id AND LOWER(status) = 'rejected') as rejected_count,
+                    (SELECT COUNT(id) FROM renovation_progress WHERE id_renovation_targets = rt.id AND LOWER(status) = 'pending') as pending_count,
+                    (SELECT SUM(bobot) FROM renovation_progress WHERE id_renovation_targets = rt.id AND LOWER(status) = 'approved') as approved_weight,
+                    (SELECT SUM(bobot) FROM renovation_progress WHERE id_renovation_targets = rt.id AND LOWER(status) = 'pending') as pending_weight
+                FROM renovation_targets rt
+                JOIN job_applications ja ON ja.id = rt.id_job_applications
+                JOIN renovation_rabs rrab ON rrab.id = rt.id_renovation_rabs
+                JOIN renovation_requests rreq ON rreq.id = rt.renovation_id
+                WHERE ja.tukang_id = ?
+                ORDER BY rt.start_week ASC
+            ";
+
+            $data = $this->db->query($sql, [$tukangId])->getResultArray();
+
+            return $this->respond([
+                'status' => true,
+                'data' => $this->_formatTargetRows($data)
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
+
+    /**
+     * Helper: format & kalkulasi field pada setiap baris target
+     */
+    private function _formatTargetRows(array $rows): array
+    {
+        $today = new \DateTime();
+        foreach ($rows as &$row) {
+            $row['current_project_week'] = 0;
+            if (!empty($row['start_date'])) {
+                $start = new \DateTime($row['start_date']);
+                if ($today >= $start) {
+                    $diffDays = $today->diff($start)->days;
+                    $row['current_project_week'] = (int) floor($diffDays / 7) + 1;
+                }
+            }
+            unset($row['start_date']);
+
+            $row['report_count'] = (int) ($row['report_count'] ?? 0);
+            $row['approved_count'] = (int) ($row['approved_count'] ?? 0);
+            $row['rejected_count'] = (int) ($row['rejected_count'] ?? 0);
+            $row['pending_count'] = (int) ($row['pending_count'] ?? 0);
+            $row['approved_weight'] = (float) ($row['approved_weight'] ?? 0);
+            $row['pending_weight'] = (float) ($row['pending_weight'] ?? 0);
+
+            if (!empty($row['last_report_status'])) {
+                $row['last_report_status'] = strtoupper($row['last_report_status']);
+            }
+        }
+        return $rows;
     }
 
     /**
@@ -219,11 +286,17 @@ class TukangJobApi extends ResourceController
 
         try {
             $data = $this->db->query("
-                SELECT ja.project_id, cj.detail_pekerjaan as project_name, cr.address as client_address,
-                (SELECT percentage FROM construction_progress WHERE construction_id = ja.project_id ORDER BY id DESC LIMIT 1) as last_percentage
+                SELECT ja.project_id, 
+                       COALESCE(ahsp.uraian, ca.activity_name) as project_name, 
+                       req.address as client_address,
+                       (SELECT percentage FROM construction_progress WHERE construction_id = ja.project_id ORDER BY id DESC LIMIT 1) as last_percentage
                 FROM job_applications ja
-                JOIN construction_jobs cj ON ja.project_id = cj.construction_id
-                JOIN construction_requests cr ON ja.project_id = cr.id
+                LEFT JOIN construction_jobs cj ON (cj.id = ja.construction_job_id OR (ja.construction_job_id IS NULL AND cj.construction_id = ja.project_id))
+                LEFT JOIN construction_targets ct ON ct.id = cj.construction_target_id
+                LEFT JOIN construction_rabs rab ON rab.id = ct.id_construction_rabs
+                LEFT JOIN ahsp ON ahsp.id = rab.ahsp_id
+                LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
+                JOIN construction_requests req ON ja.project_id = req.id
                 WHERE ja.tukang_id = ? AND ja.status = 'Siap Kerja' AND ja.project_type = 'construction'
             ", [$tukangId])->getResultArray();
 
@@ -287,9 +360,20 @@ class TukangJobApi extends ResourceController
 
             // 1. Cari proyek aktif untuk tukang ini
             $jaBuilder = $this->db->table('job_applications ja')
-                ->select('ja.project_id as construction_id, ja.tukang_id, cj.detail_pekerjaan as project_name, cr.id, cr.address, cr.start_date as project_start_date')
-                ->join('construction_jobs cj', 'cj.construction_id = ja.project_id', 'left')
-                ->join('construction_requests cr', 'cr.id = ja.project_id', 'left')
+                ->select('
+                    ja.project_id as construction_id, 
+                    ja.tukang_id, 
+                    COALESCE(ahsp.uraian, ca.activity_name) as project_name, 
+                    req.id, 
+                    req.address, 
+                    req.start_date as project_start_date
+                ')
+                ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
+                ->join('construction_targets ct', 'ct.id = cj.construction_target_id', 'left')
+                ->join('construction_rabs rab', 'rab.id = ct.id_construction_rabs', 'left')
+                ->join('ahsp', 'ahsp.id = rab.ahsp_id', 'left')
+                ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
+                ->join('construction_requests req', 'req.id = ja.project_id', 'left')
                 ->where('ja.tukang_id', $tukangId)
                 ->where('ja.project_type', 'construction')
                 ->orderBy('ja.id', 'DESC');
@@ -344,7 +428,7 @@ class TukangJobApi extends ResourceController
 
             // 4. Ambil data target (difilter berdasarkan tukang_id)
             $targetsRaw = $this->db->table('construction_targets t')
-                ->select('t.id, COALESCE(ahsp.uraian, ca.activity_name) as target_name, t.start_week as startweek, t.end_week as endweek, COALESCE(r.volume, ca.volume) as weight, t.status')
+                ->select('t.id, COALESCE(ahsp.uraian, ca.activity_name) as target_name, t.start_week as startweek, t.end_week as endweek, COALESCE(r.volume, ca.volume) as volume, COALESCE(r.unit, ca.unit) as unit, t.status')
                 ->join('construction_rabs r', 'r.id = t.id_construction_rabs', 'left')
                 ->join('ahsp', 'ahsp.id = r.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = t.id_construction_addendum', 'left')
@@ -359,8 +443,8 @@ class TukangJobApi extends ResourceController
                 $targetId = $t['id'];
                 $is_late = $current_project_week > $t['endweek'];
 
-                $approved_weight = 0;
-                $pending_weight = 0;
+                $approved_volume = 0;
+                $pending_volume = 0;
 
                 $last_report_status = null;
                 $last_report_date = null;
@@ -381,10 +465,10 @@ class TukangJobApi extends ResourceController
                     foreach ($pList as $p) {
                         $pStatus = strtolower($p['status'] ?? 'pending');
                         if ($pStatus === 'approved') {
-                            $approved_weight += (float) $p['volume'];
+                            $approved_volume += (float) $p['volume'];
                             $approved_count++;
                         } elseif ($pStatus === 'pending') {
-                            $pending_weight += (float) $p['volume'];
+                            $pending_volume += (float) $p['volume'];
                             $pending_count++;
                         } elseif ($pStatus === 'rejected') {
                             $rejected_count++;
@@ -399,12 +483,13 @@ class TukangJobApi extends ResourceController
                     'target_name' => $t['target_name'],
                     'startweek' => (int) $t['startweek'],
                     'endweek' => (int) $t['endweek'],
-                    'weight' => (float) $t['weight'],
+                    'volume' => (float) $t['volume'],
+                    'unit' => $t['unit'],
                     'description' => $t['target_name'], // Placeholder deskripsi disamakan dengan target_name
                     'status' => $statusFormatted,
                     'is_late' => $is_late,
-                    'approved_weight' => $approved_weight,
-                    'pending_weight' => $pending_weight,
+                    'approved_volume' => $approved_volume,
+                    'pending_volume' => $pending_volume,
                     'last_report_status' => $last_report_status,
                     'last_report_date' => $last_report_date,
                     'report_count' => $report_count,
@@ -446,9 +531,30 @@ class TukangJobApi extends ResourceController
                 $file->move(FCPATH . 'uploads/construction/progress', $newName);
             }
 
+            $constructionId = $this->request->getPost('construction_id');
+            $weekNumber = $this->request->getPost('week_number');
+
+            // Hitung week_number secara otomatis berdasarkan start_date proyek jika tidak dikirim dari POST
+            if (empty($weekNumber) && !empty($constructionId)) {
+                $project = $this->db->table('construction_requests')->where('id', $constructionId)->get()->getRowArray();
+                if ($project && !empty($project['start_date'])) {
+                    $start = new \DateTime($project['start_date']);
+                    $today = new \DateTime();
+                    if ($today >= $start) {
+                        $diffDays = $today->diff($start)->days;
+                        $weekNumber = floor($diffDays / 7) + 1;
+                    } else {
+                        $weekNumber = 1;
+                    }
+                } else {
+                    $weekNumber = 1;
+                }
+            }
+
             $this->db->table('construction_progress')->insert([
                 'id_construction_targets' => $this->request->getPost('id_construction_targets'),
-                'construction_id' => $this->request->getPost('construction_id'),
+                'construction_id' => $constructionId,
+                'week_number' => $weekNumber ? (int) $weekNumber : null,
                 'volume' => $this->request->getPost('volume') ?? $this->request->getPost('bobot') ?? 0,
                 'description' => $this->request->getPost('description'),
                 'status' => 'pending',
@@ -626,9 +732,30 @@ class TukangJobApi extends ResourceController
                 $file->move(FCPATH . 'uploads/renovation/progress', $newName);
             }
 
+            $renovationId = $this->request->getPost('renovation_id');
+            $weekNumber = $this->request->getPost('week_number');
+
+            // Hitung week_number secara otomatis berdasarkan start_date proyek jika tidak dikirim dari POST
+            if (empty($weekNumber) && !empty($renovationId)) {
+                $project = $this->db->table('renovation_requests')->where('id', $renovationId)->get()->getRowArray();
+                if ($project && !empty($project['start_date'])) {
+                    $start = new \DateTime($project['start_date']);
+                    $today = new \DateTime();
+                    if ($today >= $start) {
+                        $diffDays = $today->diff($start)->days;
+                        $weekNumber = floor($diffDays / 7) + 1;
+                    } else {
+                        $weekNumber = 1;
+                    }
+                } else {
+                    $weekNumber = 1;
+                }
+            }
+
             $this->db->table('renovation_progress')->insert([
                 'id_renovation_targets' => $this->request->getPost('id_renovation_targets'),
-                'renovation_id' => $this->request->getPost('renovation_id'),
+                'renovation_id' => $renovationId,
+                'week_number' => $weekNumber ? (int) $weekNumber : null,
                 'bobot' => $this->request->getPost('bobot') ?? 0,
                 'description' => $this->request->getPost('description'),
                 'status' => 'pending',
@@ -637,7 +764,6 @@ class TukangJobApi extends ResourceController
             ]);
 
             // Kirim notifikasi  
-            $renovationId = $this->request->getPost('renovation_id');
             $project = $this->db->table('renovation_requests')->where('id', $renovationId)->get()->getRowArray();
             if ($project && !empty($project['user_id'])) {
                 $title = "Update Progres Renovasi";

@@ -299,7 +299,7 @@ class RenovationApi extends BaseController
                 rp.id as progress_id, rp.bobot as progress_bobot, rp.photo_url as progress_photo, rp.created_at as progress_date, rp.status as progress_status,
                 rt.id as target_id, rt.bobot as target_bobot,
                 rr.group_name as rab_group, rr.sub_group_name as rab_subgroup, rr.activity_name as rab_activity,
-                ja.tukang_name, ja.specialization, t.profile_photo, ja.tukang_id as id_tukang
+                ja.tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization, t.profile_photo, ja.tukang_id as id_tukang
             ')
             ->join('renovation_targets rt', 'rt.id = rp.id_renovation_targets', 'inner')
             ->join('renovation_rabs rr', 'rr.id = rt.id_renovation_rabs', 'left')

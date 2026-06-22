@@ -18,6 +18,7 @@ class ProjectInvoicesModel extends Model
         'midtrans_order_id',
         'payment_status',
         'design_request_id',
+        'design_target_id',
         'description',
         'amount',
         'due_date',

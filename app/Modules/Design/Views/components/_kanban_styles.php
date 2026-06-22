@@ -674,6 +674,16 @@
         color: #4f46e5;
     }
 
+    .design-item-icon.icon-3d {
+        background: #eef6ff;
+        color: #0ea5e9;
+    }
+
+    .design-item-icon.icon-general {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
     .design-item-details {
         display: flex;
         flex-direction: column;

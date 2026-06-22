@@ -1,56 +1,52 @@
 <div class="card header-card" style="margin-bottom: 16px;">
     <div class="card-body p-4">
-        <div class="row align-items-center g-3">
-            <div class="col-lg-6">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
-                        style="width: 48px; height: 48px; background: rgba(255, 92, 92, 0.1); color: var(--palette-primary); flex-shrink: 0;">
-                        <i class="fas fa-file-invoice-dollar" style="font-size: 1.25rem;"></i>
-                    </div>
-                    <div>
-                        <h5 class="mb-1 fw-bold text-dark" style="letter-spacing: -0.3px;">Manajemen RAB Proyek</h5>
-                        <p class="text-muted mb-0 small">Kelola data rancangan anggaran biaya (RAB) untuk proyek
-                            konstruksi ini.</p>
-                    </div>
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
+                    style="width: 48px; height: 48px; background: rgba(255, 92, 92, 0.1); color: var(--palette-primary); flex-shrink: 0; border-radius: 12px !important;">
+                    <i class="fas fa-file-invoice-dollar" style="font-size: 1.25rem;"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1 fw-bold text-dark" style="letter-spacing: -0.3px;">Manajemen RAB Proyek</h5>
+                    <p class="text-muted mb-0 small">Kelola data rancangan anggaran biaya (RAB) untuk proyek
+                        konstruksi ini.</p>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap flex-sm-nowrap">
-                    <?php
-                    $isLocked = false;
-                    if (!empty($rab_list)) {
-                        $isLocked = (int) $rab_list[0]['is_locked'] === 1;
-                    }
-                    ?>
-                    <?php if (!$isLocked): ?>
-                        <button type="button" id="btnSaveDraft" class="btn-adm btn-adm-success ladda-button"
-                            data-style="zoom-in" onclick="saveAllRab(false)">
-                            <i class="fas fa-save"></i> Simpan Draf
-                        </button>
-                        <button type="button" class="btn-adm btn-adm-success" data-bs-toggle="modal"
-                            data-bs-target="#modalImportRab">
-                            <i class="fas fa-file-import"></i> Import Excel
-                        </button>
-                        <button type="button" id="btnLockRab" class="btn-adm btn-adm-danger ladda-button"
-                            data-style="zoom-in" onclick="saveAllRab(true)">
-                            <i class="fas fa-lock"></i> Kunci & Simpan RAB
-                        </button>
-                    <?php else: ?>
-                        <a href="<?= base_url('admin/construction/cetak-pdf/' . $construction['id']) ?>" target="_blank"
-                            class="btn-adm btn-adm-success">
-                            <i class="fas fa-file-pdf"></i> Generate Kontrak
-                        </a>
-                        <a href="<?= base_url('admin/construction/export-rab-excel/' . $construction['id']) ?>"
-                            class="btn-adm btn-adm-success">
-                            <i class="fas fa-file-excel"></i> Export Excel
-                        </a>
-                        <a href="<?= base_url('admin/construction/unlock_rab/' . $construction['id']) ?>"
-                            class="btn-adm btn-adm-warning ladda-button" data-style="zoom-in"
-                            onclick="Ladda.create(this).start();">
-                            <i class="fas fa-lock-open"></i> Buka Kunci
-                        </a>
-                    <?php endif; ?>
-                </div>
+            <div class="d-flex align-items-center justify-content-md-end gap-2 flex-wrap flex-sm-nowrap">
+                <?php
+                $isLocked = false;
+                if (!empty($rab_list)) {
+                    $isLocked = (int) $rab_list[0]['is_locked'] === 1;
+                }
+                ?>
+                <?php if (!$isLocked): ?>
+                    <button type="button" id="btnSaveDraft" class="btn-adm btn-adm-success ladda-button"
+                        data-style="zoom-in" onclick="saveAllRab(false)">
+                        <i class="fas fa-save"></i> Simpan Draf
+                    </button>
+                    <button type="button" class="btn-adm btn-adm-success" data-bs-toggle="modal"
+                        data-bs-target="#modalImportRab">
+                        <i class="fas fa-file-import"></i> Import Excel
+                    </button>
+                    <button type="button" id="btnLockRab" class="btn-adm btn-adm-danger ladda-button"
+                        data-style="zoom-in" onclick="saveAllRab(true)">
+                        <i class="fas fa-lock"></i> Kunci & Simpan RAB
+                    </button>
+                <?php else: ?>
+                    <a href="<?= base_url('admin/construction/cetak-pdf/' . $construction['id']) ?>" target="_blank"
+                        class="btn-adm btn-adm-success">
+                        <i class="fas fa-file-pdf"></i> Generate Kontrak
+                    </a>
+                    <a href="<?= base_url('admin/construction/export-rab-excel/' . $construction['id']) ?>"
+                        class="btn-adm btn-adm-success">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </a>
+                    <a href="<?= base_url('admin/construction/unlock_rab/' . $construction['id']) ?>"
+                        class="btn-adm btn-adm-warning ladda-button" data-style="zoom-in"
+                        onclick="Ladda.create(this).start();">
+                        <i class="fas fa-lock-open"></i> Buka Kunci
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -27,6 +27,14 @@
         <?php endforeach; ?>
     <?php endif; ?>
 
+    /* ===== Initialize Select2 ===== */
+    if ($('.select2').length > 0) {
+        $('.select2').select2({
+            placeholder: 'Pilih Keahlian...',
+            allowClear: true
+        });
+    }
+
     /* ===== Loading on Submit ===== */
     document.getElementById('create-tukang-form').addEventListener('submit', function() {
         const submitBtn = this.querySelector('.ladda-button');

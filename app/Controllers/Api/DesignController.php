@@ -295,10 +295,48 @@ class DesignController extends ResourceController
 
         $result = [];
         foreach ($targets as $target) {
-            // Hitung jumlah revisi untuk target ini
-            $revisiCount = $this->db->table('project_designs')
+            // Ambil semua project_designs untuk target ini
+            $projectDesigns = $this->db->table('project_designs')
                 ->where('design_targets_id', $target['id'])
-                ->countAllResults();
+                ->orderBy('revision_number', 'DESC')
+                ->get()->getResultArray();
+
+            $revisions = [];
+            foreach ($projectDesigns as $pd) {
+                $revNum = (int) ($pd['revision_number'] ?? 1);
+                if (!isset($revisions[$revNum])) {
+                    // Decode image_revision_note
+                    $revImgUrls = [];
+                    if (!empty($pd['image_revision_note'])) {
+                        $decoded = json_decode($pd['image_revision_note'], true);
+                        if (is_array($decoded)) {
+                            foreach ($decoded as $imgFile) {
+                                $revImgUrls[] = base_url('uploads/design_results/revision_comment/' . $imgFile);
+                            }
+                        }
+                    }
+
+                    $revisions[$revNum] = [
+                        'revision_number' => $revNum,
+                        'status' => $pd['status'],
+                        'revision_note' => $pd['revision_note'],
+                        'image_revision_note' => $revImgUrls,
+                        'created_at' => $pd['created_at'],
+                        'files' => []
+                    ];
+                }
+
+                $revisions[$revNum]['files'][] = [
+                    'id' => $pd['id'],
+                    'design_name' => $pd['design_name'],
+                    'file_name' => $pd['file'],
+                    'file_url' => base_url('uploads/design_results/' . $pd['file']),
+                    'design_type' => $pd['design_type']
+                ];
+            }
+
+            krsort($revisions);
+            $revisionsList = array_values($revisions);
 
             // Hitung tanggal mulai target (start_date proyek + (start_week - 1) hari)
             // Asumsi start_week menyimpan "Day X"
@@ -314,9 +352,10 @@ class DesignController extends ResourceController
             $result[] = [
                 'id' => $target['id'],
                 'task_name' => $target['task_name'],
-                'jumlah_revisi' => $revisiCount,
+                'jumlah_revisi' => count($revisionsList),
                 'target_start_date' => $targetStartDate,
-                'status' => $target['status']
+                'status' => $target['status'],
+                'revisions' => $revisionsList
             ];
         }
 
@@ -390,6 +429,18 @@ class DesignController extends ResourceController
             ]);
         }
 
+        $design = $this->db->table('project_designs')->where('id', $id)->get()->getRowArray();
+        if (!$design) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Data desain tidak ditemukan',
+                'data' => []
+            ]);
+        }
+
+        $targetId = (int)$design['design_targets_id'];
+        $revNum = (int)$design['revision_number'];
+
         $data = [
             'revision_note' => $this->request->getPost('revision_note') ?? $this->request->getJSON(true)['revision_note'] ?? null,
             'status' => $this->request->getPost('status') ?? $this->request->getJSON(true)['status'],
@@ -417,26 +468,33 @@ class DesignController extends ResourceController
             }
         }
 
-        $update = $this->db->table('project_designs')->update($data, ['id' => $id]);
+        // Update semua data project_designs dalam target dan nomor revisi yang sama
+        $update = $this->db->table('project_designs')
+            ->where('design_targets_id', $targetId)
+            ->where('revision_number', $revNum)
+            ->update($data);
 
         if ($update) {
             // Jika status diupdate menjadi APPROVED, otomatis ubah status target menjadi DONE
             if (isset($data['status']) && $data['status'] === 'APPROVED') {
-                $design = $this->db->table('project_designs')->where('id', $id)->get()->getRowArray();
-                if ($design && !empty($design['design_targets_id'])) {
+                if (!empty($targetId)) {
                     $this->db->table('design_targets')
-                        ->where('id', $design['design_targets_id'])
+                        ->where('id', $targetId)
                         ->update(['status' => 'DONE']);
 
-                    // Tolak semua revisi PENDING lain dalam target yang sama
+                    // Tolak semua revisi PENDING lain dalam target yang sama (yang nomor revisinya berbeda)
                     $this->db->table('project_designs')
-                        ->where('design_targets_id', $design['design_targets_id'])
-                        ->where('id !=', $id)
+                        ->where('design_targets_id', $targetId)
+                        ->where('revision_number !=', $revNum)
                         ->where('status', 'PENDING')
                         ->update([
                             'status' => 'REJECTED',
                             'revision_note' => 'Revisi lain telah disetujui'
                         ]);
+
+                    // Update status permohonan utama jika semua target sudah selesai
+                    $designService = new \App\Modules\Design\Services\DesignRequestService();
+                    $designService->checkAndUpdateDesignRequestStatus((int) $design['design_request_id']);
                 }
             }
 
@@ -459,40 +517,57 @@ class DesignController extends ResourceController
     // =========================================================================
     public function invoices($designRequestId = null)
     {
-        // Query dengan join ke table vouchers untuk mendapatkan nominal diskon
+        if (empty($designRequestId)) {
+            return $this->fail('Design Request ID tidak ditemukan.', 400);
+        }
+
+        // Join vouchers (diskon) dan design_targets (info target terhubung)
         $invoices = $this->db->table('project_invoices')
-            ->select('project_invoices.*, vouchers.discount_nominal')
-            ->join('vouchers', 'vouchers.code = project_invoices.voucher_code', 'left')
-            ->where('design_request_id', $designRequestId)
-            ->orderBy('created_at', 'DESC')
+            ->select('
+                project_invoices.*,
+                vouchers.discount_nominal,
+                dt.task_name  AS target_task_name,
+                dt.status     AS target_status
+            ')
+            ->join('vouchers',        'vouchers.code = project_invoices.voucher_code',           'left')
+            ->join('design_targets dt', 'dt.id = project_invoices.design_target_id',             'left')
+            ->where('project_invoices.design_request_id', $designRequestId)
+            // Tampilkan tagihan target lebih dulu (design_target_id IS NOT NULL), lalu manual
+            ->orderBy('project_invoices.design_target_id IS NULL', 'ASC')
+            ->orderBy('project_invoices.design_target_id', 'ASC')
+            ->orderBy('project_invoices.id', 'ASC')
             ->get()->getResultArray();
 
-        // Olah data untuk menambahkan kalkulasi nominal
+        // Olah data: kalkulasi nominal, flag jenis tagihan
         $formattedInvoices = array_map(function ($invoice) {
-            $originalAmount = (int) ($invoice['amount'] ?? 0);
+            // Nominal bisa NULL (tagihan target yang belum diisi)
+            $originalAmount = $invoice['amount'] !== null ? (float) $invoice['amount'] : null;
             $discountAmount = (int) ($invoice['discount_nominal'] ?? 0);
-            $grossAmount = max(0, $originalAmount - $discountAmount);
+            $grossAmount    = $originalAmount !== null
+                ? max(0, $originalAmount - $discountAmount)
+                : null;
 
-            // Tambahkan field baru ke array
-            $invoice['original_amount'] = $originalAmount;
-            $invoice['discount_amount'] = $discountAmount;
-            $invoice['gross_amount'] = $grossAmount;
+            $invoice['original_amount']   = $originalAmount;
+            $invoice['discount_amount']   = $discountAmount;
+            $invoice['gross_amount']      = $grossAmount;
+
+            // Flag: apakah tagihan ini terhubung ke target desain
+            $invoice['is_target_linked']  = !empty($invoice['design_target_id']);
+
+            // Pastikan design_target_id bertipe int atau null
+            $invoice['design_target_id']  = $invoice['design_target_id']
+                ? (int) $invoice['design_target_id']
+                : null;
 
             return $invoice;
         }, $invoices);
 
-        if ($formattedInvoices) {
-            return $this->respond([
-                'status' => true,
-                'message' => 'Detail permohonan invoice ditemukan',
-                'data' => $formattedInvoices
-            ]);
-        } else {
-            return $this->respond([
-                'status' => true,
-                'message' => 'Belum ada invoice untuk permohonan ini',
-                'data' => []
-            ]);
-        }
+        return $this->respond([
+            'status'  => true,
+            'message' => !empty($formattedInvoices)
+                ? 'Daftar invoice ditemukan'
+                : 'Belum ada invoice untuk permohonan ini',
+            'data'    => $formattedInvoices,
+        ]);
     }
 }

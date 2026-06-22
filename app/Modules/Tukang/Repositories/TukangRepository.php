@@ -16,7 +16,8 @@ class TukangRepository implements TukangRepositoryInterface
 
     public function findById(int $id): ?array
     {
-        return $this->model->find($id) ?: null;
+        $tukang = $this->model->find($id) ?: null;
+        return $this->populateSpecialization($tukang);
     }
 
     public function findWithFcmToken(): array
@@ -30,7 +31,7 @@ class TukangRepository implements TukangRepositoryInterface
 
     public function findAllWithRatings(): array
     {
-        return $this->model->db
+        $tukangs = $this->model->db
             ->table('tukang')
             ->select([
                 'tukang.*',
@@ -41,6 +42,8 @@ class TukangRepository implements TukangRepositoryInterface
             ->orderBy('tukang.id', 'DESC')
             ->get()
             ->getResultArray();
+
+        return $this->populateSpecializations($tukangs);
     }
 
     public function countAll(): int
@@ -69,12 +72,62 @@ class TukangRepository implements TukangRepositoryInterface
             ->orderBy('name', 'ASC')
             ->findAll();
 
-        return is_array($result) ? $result : [];
+        $tukangs = is_array($result) ? $result : [];
+        return $this->populateSpecializations($tukangs);
     }
 
     public function save(array $data): bool
     {
         return (bool) $this->model->save($data);
+    }
+
+    public function getInsertID(): int
+    {
+        return (int) $this->model->getInsertID();
+    }
+
+    private function populateSpecialization(?array $tukang): ?array
+    {
+        if (!$tukang) {
+            return null;
+        }
+
+        $skills = $this->model->db->table('tukang_skill_map m')
+            ->select('s.skill_name')
+            ->join('tukang_skill s', 's.id = m.tukang_skill_id')
+            ->where('m.tukang_id', $tukang['id'])
+            ->get()
+            ->getResultArray();
+
+        $names = array_column($skills, 'skill_name');
+        $tukang['specialization'] = implode(', ', $names);
+        return $tukang;
+    }
+
+    private function populateSpecializations(array $tukangs): array
+    {
+        if (empty($tukangs)) {
+            return [];
+        }
+
+        $ids = array_column($tukangs, 'id');
+        $skills = $this->model->db->table('tukang_skill_map m')
+            ->select('m.tukang_id, s.skill_name')
+            ->join('tukang_skill s', 's.id = m.tukang_skill_id')
+            ->whereIn('m.tukang_id', $ids)
+            ->get()
+            ->getResultArray();
+
+        $skillsByTukang = [];
+        foreach ($skills as $s) {
+            $skillsByTukang[$s['tukang_id']][] = $s['skill_name'];
+        }
+
+        foreach ($tukangs as &$t) {
+            $t['specialization'] = isset($skillsByTukang[$t['id']]) ? implode(', ', $skillsByTukang[$t['id']]) : '';
+        }
+
+        return $tukangs;
     }
 
     public function searchForDropdown(string $term): array

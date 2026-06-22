@@ -406,13 +406,13 @@ Kelola Permintaan Desain
                                 </li>
                             <?php endif; ?>
 
-                            <?php if (can('design_progress')): ?>
+                            <?php /* if (can('design_progress')): ?>
                                 <li class="nav-item">
                                     <a class="nav-link" id="progress-tab" data-bs-toggle="tab" href="#progress" role="tab">
                                         <i class="fas fa-tasks"></i> Progress
                                     </a>
                                 </li>
-                            <?php endif; ?>
+                            <?php endif; */ ?>
 
                             <?php if (can('design_pembayaran')): ?>
                                 <li class="nav-item">
@@ -459,12 +459,12 @@ Kelola Permintaan Desain
                 </div>
             <?php endif; ?>
 
-            <!-- 5. TAB PROGRESS -->
+            <?php /* <!-- 5. TAB PROGRESS -->
             <?php if (can('design_progress')): ?>
                 <div class="tab-pane fade py-0" id="progress" role="tabpanel">
                     <?= $this->include('App\Modules\Design\Views\progress') ?>
                 </div>
-            <?php endif; ?>
+            <?php endif; */ ?>
 
             <!-- 6. TAB PEMBAYARAN -->
             <?php if (can('design_pembayaran')): ?>

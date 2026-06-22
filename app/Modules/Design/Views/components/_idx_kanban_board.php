@@ -235,26 +235,31 @@ foreach ($designerTasks ?? [] as $task) {
                                 <input type="hidden" name="user_admin_id" value="<?= session()->get('user_id') ?>">
                                 <input type="hidden" name="redirect_to" value="managerial">
                                 
-                                <div class="row g-2 align-items-end">
+                                <div class="row g-2">
                                     <div class="col-12 mb-2">
                                         <label class="form-label mb-1 text-muted fw-bold" style="font-size: 9px; letter-spacing: 0.4px;">NAMA DESAIN</label>
                                         <input type="text" name="design_name" class="form-control form-control-sm" 
                                                placeholder="Contoh: Denah Lantai 1" required style="font-size: 12px; height: 38px; border-radius: 10px; border: 1.5px solid #cbd5e1;">
                                     </div>
-                                    <div class="col-8">
-                                        <label class="form-label mb-1 text-muted fw-bold" style="font-size: 9px; letter-spacing: 0.4px;">PILIH BERKAS</label>
+                                    <div class="col-12 mb-2" id="modalFileUploadCol">
+                                        <label class="form-label mb-1 text-muted fw-bold" style="font-size: 9px; letter-spacing: 0.4px;">PILIH BERKAS (OPSIONAL)</label>
                                         <div class="custom-file-upload">
                                             <label for="modalUploadFile" class="file-upload-label">
                                                 <span class="file-upload-filename" id="modalUploadFileNameLabel">Pilih file...</span>
                                                 <i class="fas fa-file-upload"></i>
                                             </label>
-                                            <input type="file" id="modalUploadFile" name="design_file" required 
-                                                   accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.webm,.mkv" class="d-none">
+                                            <input type="file" id="modalUploadFile" name="design_files[]" multiple
+                                                   accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.webm,.mkv,.obj,.fbx,.glb,.gltf,.dwg,.rvt" class="d-none">
                                         </div>
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-12 mb-2" id="modal3dObjectCol">
+                                        <label class="form-label mb-1 text-muted fw-bold" style="font-size: 9px; letter-spacing: 0.4px;">NAMA OBJEK 3D (STRING) (OPSIONAL)</label>
+                                        <input type="text" name="3d_object_name" id="modal3dObjectNameInput" class="form-control form-control-sm" 
+                                               placeholder="Contoh: UnityObject_Building_Floor1" style="font-size: 12px; height: 38px; border-radius: 10px; border: 1.5px solid #cbd5e1;">
+                                    </div>
+                                    <div class="col-12 mt-2">
                                         <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold d-flex align-items-center justify-content-center" style="height: 38px; border-radius: 10px; font-size: 12px; gap: 4px;">
-                                            <i class="fas fa-upload"></i> Upload
+                                            <i class="fas fa-upload"></i> Upload Sekarang
                                         </button>
                                     </div>
                                 </div>

@@ -107,9 +107,20 @@ $currentMeta = $statusMeta[$status] ?? ['class' => 'status-default', 'icon' => '
                             <div class="info-item">
                                 <div class="info-icon"><i class="fas fa-tools"></i></div>
                                 <div>
-                                    <div class="info-label">Spesialisasi</div>
+                                    <div class="info-label">Spesialisasi / Keahlian</div>
                                     <div class="info-value fw-bold text-primary">
-                                        <?= esc($tukang['specialization'] ?: 'Umum') ?></div>
+                                        <?php if (!empty($tukang['skills'])): ?>
+                                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                                <?php foreach ($tukang['skills'] as $sk): ?>
+                                                    <span class="badge bg-light text-primary border border-primary-subtle" style="font-size: 0.75rem; border-radius: 6px; padding: 4px 8px;">
+                                                        <?= esc($sk['skill_name']) ?>
+                                                    </span>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <?= esc($tukang['specialization'] ?: 'Umum') ?>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                             <div class="info-item">

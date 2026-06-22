@@ -349,7 +349,6 @@
 | `phone` | `varchar(20) NOT NULL` |  |
 | `dob` | `date DEFAULT NULL` |  |
 | `address` | `text DEFAULT NULL` |  |
-| `specialization` | `varchar(255) DEFAULT NULL` |  |
 | `status` | `enum('Berkas Diproses'` |  |
 | `created_at` | `datetime DEFAULT NULL` |  |
 | `updated_at` | `datetime DEFAULT NULL` |  |
@@ -909,7 +908,6 @@
 | `profile_photo` | `varchar(255) DEFAULT NULL` |  |
 | `ktp_photo` | `varchar(255) DEFAULT NULL` |  |
 | `selfie_photo` | `varchar(255) DEFAULT NULL` |  |
-| `specialization` | `varchar(100) DEFAULT NULL` |  |
 | `status` | `enum('Berkas Diproses'` |  |
 | `balance` | `decimal(15` |  |
 | `last_login_at` | `datetime DEFAULT NULL` |  |
