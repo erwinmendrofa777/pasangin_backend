@@ -74,6 +74,8 @@ class DesignRequestService
             throw new RuntimeException('Data tidak ditemukan.');
         }
 
+        $db = \Config\Database::connect();
+
         return [
             'request' => $request,
             'surveys' => $this->surveyRepository->findByDesignRequestId($id),
@@ -81,6 +83,21 @@ class DesignRequestService
             'invoices' => $this->invoiceRepository->findByDesignRequestId($id),
             'targets' => $this->targetRepository->findByDesignRequestId($id),
             'admin_users' => $this->userAdminRepository->findAllOrderedByIdDesc(),
+            'rab_list' => $db->table('rabs')
+                ->select('rabs.*, ahsp.uraian as activity_name, ahsp.kode as ahsp_kode')
+                ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left')
+                ->where('design_request_id', $id)
+                ->orderBy('roman_number', 'ASC')
+                ->orderBy('id', 'ASC')
+                ->get()->getResultArray(),
+            'ahsp_list' => (new \App\Modules\AHSP\Services\AHSPService())->getAll(), // Mengambil list AHSP lengkap dengan detailnya
+            'satuan_options' => $db->table('satuan')->orderBy('nama_satuan', 'ASC')->get()->getResultArray(),
+            'all_products' => $db->table('products')
+                ->select('products.*, suppliers.name as supplier_name')
+                ->join('suppliers', 'suppliers.id = products.supplier_id', 'left')
+                ->get()->getResultArray(),
+            'project_type' => 'design',
+            'project_id' => $id,
         ];
     }
 

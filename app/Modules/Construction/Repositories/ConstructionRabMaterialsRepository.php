@@ -17,8 +17,8 @@ class ConstructionRabMaterialsRepository implements ConstructionRabMaterialsRepo
     public function findByRabId(int $rabId): array
     {
         return $this->model
-            ->select('construction_rab_materials.*, products.name as material_name, products.price')
-            ->join('products', 'products.id = construction_rab_materials.product_id', 'left')
+            ->select('rab_materials.*, products.name as material_name, products.price')
+            ->join('products', 'products.id = rab_materials.product_id', 'left')
             ->where('rab_id', $rabId)
             ->findAll();
     }

@@ -336,8 +336,6 @@ class UserController extends BaseController
             $constProjects = $db->table('construction_requests')->select('id')->where('user_id', $userId)->get()->getResultArray();
             $constIds = array_column($constProjects, 'id');
             if (!empty($constIds)) {
-                $db->table('construction_surveys')->whereIn('construction_id', $constIds)->delete();
-                $db->table('construction_designs')->whereIn('construction_id', $constIds)->delete();
                 $db->table('construction_progress')->whereIn('construction_id', $constIds)->delete();
                 $db->table('construction_invoices')->whereIn('construction_id', $constIds)->delete();
                 $db->table('construction_attendance')->whereIn('id_construction', $constIds)->delete();
@@ -345,11 +343,11 @@ class UserController extends BaseController
                 $db->table('construction_targets')->whereIn('construction_id', $constIds)->delete();
                 $db->table('construction_addendum')->whereIn('construction_id', $constIds)->delete();
 
-                $rabIds = array_column($db->table('construction_rabs')->select('id')->whereIn('construction_id', $constIds)->get()->getResultArray(), 'id');
+                $rabIds = array_column($db->table('rabs')->select('id')->whereIn('construction_id', $constIds)->get()->getResultArray(), 'id');
                 if (!empty($rabIds)) {
-                    $db->table('construction_rab_materials')->whereIn('rab_id', $rabIds)->delete();
+                    $db->table('rab_materials')->whereIn('rab_id', $rabIds)->delete();
                 }
-                $db->table('construction_rabs')->whereIn('construction_id', $constIds)->delete();
+                $db->table('rabs')->whereIn('construction_id', $constIds)->delete();
                 $db->table('job_applications')->where('project_type', 'construction')->whereIn('project_id', $constIds)->delete();
                 $db->table('construction_requests')->whereIn('id', $constIds)->delete();
             }

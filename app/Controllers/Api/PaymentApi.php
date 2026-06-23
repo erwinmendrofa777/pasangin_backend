@@ -564,7 +564,7 @@ class PaymentApi extends BaseController
             }
 
             // 2. Ambil data RAB
-            $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+            $rab = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
             if (!$rab) {
                 log_message('error', "Gagal membuat pesanan material: RAB ID {$rabId} tidak ditemukan.");
                 return;
@@ -577,7 +577,7 @@ class PaymentApi extends BaseController
             }
 
             // 3. Ambil produk material terpilih untuk rab_id ini
-            $selectedMaterials = $this->db->table('construction_rab_materials crm')
+            $selectedMaterials = $this->db->table('rab_materials crm')
                 ->select('crm.*, p.name as product_name, p.price as product_price, p.supplier_id, p.stock as product_stock')
                 ->join('products p', 'p.id = crm.product_id')
                 ->where('crm.rab_id', $rabId)

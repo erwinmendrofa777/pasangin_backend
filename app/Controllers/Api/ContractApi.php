@@ -30,7 +30,7 @@ class ContractApi extends ResourceController
             r.is_locked
         ')
         ->join('users u', 'u.id = cr.user_id', 'left')
-        ->join('construction_rabs r', 'r.construction_id = cr.id', 'left')
+        ->join('rabs r', 'r.construction_id = cr.id', 'left')
         ->where('cr.id', $id)
         ->get()
         ->getRowArray();
@@ -43,7 +43,7 @@ class ContractApi extends ResourceController
     }
 
     // 🔹 2. Ambil work items
-    $workItems = $this->db->table('construction_rabs')
+    $workItems = $this->db->table('rabs')
         ->select('roman_number, group_name, SUM(total_price) as total_price')
         ->where('construction_id', $id)
         ->groupBy(['roman_number', 'group_name'])

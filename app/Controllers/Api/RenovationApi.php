@@ -581,7 +581,7 @@ class RenovationApi extends BaseController
         if (!$rabItem)
             return $this->fail('Item RAB tidak ditemukan.');
 
-        // 3. Update tabel construction_rabs
+        // 3. Update tabel renovation_rabs
         $updateData = [
             'selected_material_id' => $productId,
             'current_unit_price' => $product['price'],
@@ -614,7 +614,7 @@ class RenovationApi extends BaseController
             $tanggal_kontrak = date('Y-m-d');
 
             $data = [
-                // construction_rabs - construction_requests - users
+                // renovation_rabs - renovation_requests - users
                 'template_kontrak' => $this->db->table('renovation_requests')
                     ->select('renovation_requests.address as address_renovation,
                                                     renovation_requests.id as renovation_id,

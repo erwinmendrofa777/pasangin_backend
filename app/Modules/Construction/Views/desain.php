@@ -1,68 +1,7 @@
 <div class="row mt-1 g-3">
 
-    <!-- ══════ PANEL UPLOAD ══════ -->
-    <div class="col-lg-4 align-self-start">
-        <div class="desain-upload-card p-4">
-            <div class="d-flex align-items-center mb-3">
-                <div class="rounded-circle d-flex align-items-center justify-content-center mr-2"
-                    style="width:38px; height:38px; background:rgba(255, 92, 92,0.12);">
-                    <i class="fas fa-cloud-upload-alt text-primary"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0 font-weight-bold" style="font-size:0.9rem;">Upload Hasil Desain</h6>
-                </div>
-            </div>
-            <hr class="mt-2 mb-3">
-
-            <form action="<?= base_url('admin/construction/upload-design') ?>" method="post"
-                enctype="multipart/form-data">
-                <?= csrf_field() ?>
-                <input type="hidden" name="id" value="<?= $construction['id'] ?>">
-
-                <div class="mb-3">
-                    <label class="desain-label">Judul Desain</label>
-                    <input type="text" name="design_title" class="form-control desain-input"
-                        placeholder="Contoh: Denah Lantai 1" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="desain-label">Admin Perancang</label>
-                    <select name="user_admin_id" class="form-control desain-input" required>
-                        <option value="">— Pilih Admin —</option>
-                        <?php
-                        $currentUserId = session()->get('user_id');
-                        foreach ($admin_users ?? [] as $au):
-                            $selected = ($au['id'] == $currentUserId) ? 'selected' : '';
-                            ?>
-                            <option value="<?= $au['id'] ?>" <?= $selected ?>>
-                                <?= esc($au['full_name'] ?? $au['username'] ?? 'Admin ' . $au['id']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="desain-label">File Desain (Gambar/PDF/Video)</label>
-                    <div class="position-relative">
-                        <input type="file" name="design_2d" class="form-control desain-input"
-                            accept=".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mov,.avi,.webm,.mkv" required
-                            style="padding-right:40px;">
-                        <i class="fas fa-paperclip text-muted position-absolute"
-                            style="right:14px; top:50%; transform:translateY(-50%); pointer-events:none;"></i>
-                    </div>
-                    <small class="text-muted">Format: JPG, PNG, PDF, Video — maks. 50 MB</small>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block font-weight-bold ladda-button"
-                    data-style="zoom-in" style="border-radius:10px; letter-spacing:0.3px; padding:10px;">
-                    <span class="ladda-label"><i class="fas fa-cloud-upload-alt mr-1"></i> Upload Sekarang</span>
-                </button>
-            </form>
-        </div>
-    </div>
-
     <!-- ══════ GALERI DESAIN ══════ -->
-    <div class="col-lg-8">
+    <div class="col-lg-12">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <div>
                 <h6 class="font-weight-bold mb-0" style="font-size:0.9rem;">
@@ -75,7 +14,7 @@
         <?php if (empty($design_list)): ?>
             <div class="desain-empty text-muted py-5">
                 <i class="fas fa-drafting-compass mb-3" style="font-size:2.5rem; opacity:0.2;"></i>
-                <p class="mb-0" style="font-size:0.85rem;">Belum ada file desain yang diupload.</p>
+                <p class="mb-0" style="font-size:0.85rem;">Belum ada file desain. Hasil desain akan tampil di sini setelah disetujui pada tahap desain.</p>
             </div>
         <?php else: ?>
             <div class="row g-3">
@@ -144,11 +83,6 @@
                                         <i class="fas fa-eye text-primary"></i>
                                     </a>
                                 <?php endif; ?>
-                                <a href="<?= base_url('admin/construction/delete-design/' . $d['id'] . '/' . $construction['id']) ?>"
-                                    class="desain-overlay-btn ladda-button" data-style="zoom-in" title="Hapus"
-                                    onclick="if(confirm('Hapus file desain ini?')) { Ladda.create(this).start(); return true; } return false;">
-                                    <span class="ladda-label"><i class="fas fa-trash text-danger"></i></span>
-                                </a>
                             </div>
 
                             <!-- Info -->
@@ -205,12 +139,6 @@
                                         <i class="fas fa-eye mr-1"></i>Lihat
                                     </a>
                                 <?php endif; ?>
-                                <a href="<?= base_url('admin/construction/delete-design/' . $d['id'] . '/' . $construction['id']) ?>"
-                                    class="btn btn-sm btn-outline-danger ladda-button flex-grow-1" data-style="zoom-in"
-                                    style="border-radius:8px; font-size:0.78rem;"
-                                    onclick="if(confirm('Hapus file desain ini?')) { Ladda.create(this).start(); return true; } return false;">
-                                    <span class="ladda-label"><i class="fas fa-trash mr-1"></i>Hapus</span>
-                                </a>
                             </div>
 
                         </div>

@@ -11,8 +11,6 @@ use App\Modules\Construction\Repositories\ConstructionTargetsRepository;
 use App\Modules\Construction\Repositories\ConstructionProgressRepository;
 use App\Modules\Construction\Repositories\ConstructionRabsRepository;
 use App\Modules\Construction\Repositories\ConstructionAddendumRepository;
-use App\Modules\Construction\Repositories\ConstructionDesignRepository;
-use App\Modules\Construction\Repositories\ConstructionSurveyRepository;
 use App\Modules\Construction\Repositories\RabMaterialOptionRepository;
 use App\Modules\Construction\Repositories\ConstructionAddendumMaterialRepository;
 use App\Modules\Construction\Repositories\ConstructionRabMaterialsRepository;
@@ -30,8 +28,6 @@ use App\Modules\Construction\Repositories\Contracts\ConstructionTargetsRepositor
 use App\Modules\Construction\Repositories\Contracts\ConstructionProgressRepositoryInterface;
 use App\Modules\Construction\Repositories\Contracts\ConstructionRabsRepositoryInterface;
 use App\Modules\Construction\Repositories\Contracts\ConstructionAddendumRepositoryInterface;
-use App\Modules\Construction\Repositories\Contracts\ConstructionDesignRepositoryInterface;
-use App\Modules\Construction\Repositories\Contracts\ConstructionSurveyRepositoryInterface;
 use App\Modules\Construction\Repositories\Contracts\RabMaterialOptionRepositoryInterface;
 use App\Modules\Construction\Repositories\Contracts\ConstructionAddendumMaterialRepositoryInterface;
 use App\Modules\Construction\Repositories\Contracts\ConstructionRabMaterialsRepositoryInterface;
@@ -58,8 +54,6 @@ class ConstructionService
     protected ConstructionProgressRepositoryInterface $progressRepository;
     protected ConstructionRabsRepositoryInterface $rabRepository;
     protected ConstructionAddendumRepositoryInterface $addendumRepository;
-    protected ConstructionDesignRepositoryInterface $designRepository;
-    protected ConstructionSurveyRepositoryInterface $surveyRepository;
     protected RabMaterialOptionRepositoryInterface $rabMaterialOptionRepository;
     protected ConstructionAddendumMaterialRepositoryInterface $addendumMaterialRepository;
     protected ConstructionRabMaterialsRepositoryInterface $rabMaterialsRepository;
@@ -82,8 +76,6 @@ class ConstructionService
         $this->progressRepository = new ConstructionProgressRepository();
         $this->rabRepository = new ConstructionRabsRepository();
         $this->addendumRepository = new ConstructionAddendumRepository();
-        $this->designRepository = new ConstructionDesignRepository();
-        $this->surveyRepository = new ConstructionSurveyRepository();
         $this->rabMaterialOptionRepository = new RabMaterialOptionRepository();
         $this->addendumMaterialRepository = new ConstructionAddendumMaterialRepository();
         $this->rabMaterialsRepository = new ConstructionRabMaterialsRepository();
@@ -109,10 +101,21 @@ class ConstructionService
 
         // Custom stats for desainer
         if (in_array(strtolower($role ?? ''), ['kepala divisi desain', 'drafter', 'arsitek']) && $userId) {
-            $designModel = new \App\Modules\Construction\Models\ConstructionDesignModel();
+            $designModel = new \App\Modules\Design\Models\ProjectDesignsModel();
             $myDesigns = $designModel->where('user_admin_id', $userId)->findAll();
             
-            $myProjectIds = array_unique(array_column($myDesigns, 'construction_id'));
+            $myDesignRequestIds = array_unique(array_filter(array_column($myDesigns, 'design_request_id')));
+            
+            $myProjectIds = [];
+            if (!empty($myDesignRequestIds)) {
+                $db = \Config\Database::connect();
+                $projectsLinked = $db->table('construction_requests')
+                    ->select('id')
+                    ->whereIn('design_request_id', $myDesignRequestIds)
+                    ->get()
+                    ->getResultArray();
+                $myProjectIds = array_column($projectsLinked, 'id');
+            }
             
             $queueDesigning = 0;
             $queueSurvey = 0;
@@ -231,8 +234,28 @@ class ConstructionService
             'invoice_list' => $this->invoiceRepository->findByConstructionId($id),
             'job_info' => null, // Hapus data lowongan lama (global)
             'jobs_by_target' => $jobsByTarget,
-            'design_list' => $this->designRepository->findByConstructionId($id),
-            'survey_list' => $this->surveyRepository->findByConstructionId($id),
+            'design_list' => (function($designRequestId) {
+                if (!$designRequestId) return [];
+                $pdRepo = new \App\Modules\Design\Repositories\ProjectDesignsRepository();
+                $list = $pdRepo->findWithTaskByDesignRequestId($designRequestId);
+                foreach ($list as &$d) {
+                    $d['title'] = $d['design_name'] ?? 'Desain';
+                    $d['design_requests_id'] = $d['design_request_id'];
+                    $d['comment'] = $d['revision_note'] ?? null;
+                }
+                return $list;
+            })($construction['design_request_id'] ?? null),
+            'survey_list' => (function($designRequestId) {
+                if (!$designRequestId) return [];
+                $psRepo = new \App\Modules\Design\Repositories\ProjectSurveysRepository();
+                $list = $psRepo->findByDesignRequestId($designRequestId);
+                foreach ($list as &$srv) {
+                    $srv['survey_title'] = $srv['title'] ?? 'Survey';
+                    $srv['survey_notes'] = $srv['note'] ?? null;
+                    $srv['survey_file'] = $srv['file'] ?? null;
+                }
+                return $list;
+            })($construction['design_request_id'] ?? null),
             'rab_list' => $this->rabRepository->findByConstructionId($id),
             'rab' => $this->rabRepository->findByConstructionId($id),
             'list_tagihan' => $this->rabRepository->findByConstructionId($id),
@@ -298,47 +321,6 @@ class ConstructionService
         $this->constructionRepository->update($id, ['status' => strtoupper($status)]);
     }
 
-    public function uploadSurvey(int $constructionId, array $data, array $files = []): void
-    {
-        $uploadedFiles = [];
-        foreach ($files as $file) {
-            if ($file && $file->isValid() && !$file->hasMoved()) {
-                $newName = $file->getRandomName();
-                $file->move(FCPATH . self::PATH_SURVEY, $newName);
-                $uploadedFiles[] = $newName;
-            }
-        }
-
-        $payload = [
-            'construction_id' => $constructionId,
-            'user_admin_id' => $data['user_admin_id'] ?? null,
-            'survey_title' => $data['survey_title'],
-            'survey_notes' => $data['survey_notes'],
-            'survey_file' => !empty($uploadedFiles) ? json_encode($uploadedFiles) : null,
-        ];
-
-        $this->surveyRepository->save($payload);
-        $this->updateStatus($constructionId, 'DESIGNING');
-    }
-
-    public function uploadDesign(int $constructionId, array $data, $file = null): void
-    {
-        $payload = [
-            'construction_id' => $constructionId,
-            'user_admin_id' => $data['user_admin_id'] ?? null,
-            'title' => $data['design_title'],
-        ];
-
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move(FCPATH . self::PATH_DESIGN, $newName);
-            $payload['file'] = $newName;
-        }
-
-        $this->designRepository->save($payload);
-        $this->updateStatus($constructionId, 'RAB');
-    }
-
     public function saveRabRow(array $data): array
     {
         $id = $data['id'] ?? null;
@@ -381,7 +363,7 @@ class ConstructionService
         
         // Hitung ulang total RAB
         $rabRow = $db->query(
-            "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM construction_rabs WHERE construction_id = ?",
+            "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
             [$id]
         )->getRowArray();
         
@@ -400,9 +382,9 @@ class ConstructionService
         $userId = $proj ? ($proj['user_id'] ?? null) : null;
         
         if ($userId) {
-            $rabs = $db->table('construction_rabs')
-                ->select('construction_rabs.*, ahsp.uraian as activity_name')
-                ->join('ahsp', 'ahsp.id = construction_rabs.ahsp_id', 'left')
+            $rabs = $db->table('rabs')
+                ->select('rabs.*, ahsp.uraian as activity_name')
+                ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left')
                 ->where('construction_id', $id)
                 ->get()->getResultArray();
 
@@ -783,7 +765,7 @@ class ConstructionService
 
             // Hitung total anggaran (RAB + Addendum)
             $db = \Config\Database::connect();
-            $totalRAB = $db->table('construction_rabs')
+            $totalRAB = $db->table('rabs')
                 ->where('construction_id', $constructionId)
                 ->selectSum('total_price')
                 ->get()->getRowArray()['total_price'] ?? 0;
@@ -798,7 +780,7 @@ class ConstructionService
             // Hitung total realisasi harga (volume disetujui * harga satuan)
             $realizationRAB = $db->table('construction_progress cp')
                 ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
-                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs')
+                ->join('rabs cr', 'cr.id = ct.id_construction_rabs')
                 ->where('cp.construction_id', $constructionId)
                 ->where('cp.status', 'APPROVED')
                 ->select('SUM(cp.volume * cr.current_unit_price) as realization')
@@ -885,15 +867,6 @@ class ConstructionService
         }
     }
 
-    public function deleteSurvey(int $id): void
-    {
-        $this->surveyRepository->delete($id);
-    }
-
-    public function deleteDesign(int $id): void
-    {
-        $this->designRepository->delete($id);
-    }
 
     public function deleteAttendance(int $id): void
     {

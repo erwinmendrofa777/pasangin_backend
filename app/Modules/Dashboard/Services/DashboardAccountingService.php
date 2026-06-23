@@ -221,7 +221,7 @@ class DashboardAccountingService
         foreach ($constructions as $c) {
             $cId = $c['id'];
             
-            $totalRAB = $this->db->table('construction_rabs')
+            $totalRAB = $this->db->table('rabs')
                 ->where('construction_id', $cId)
                 ->selectSum('total_price')
                 ->get()->getRowArray()['total_price'] ?? 0;
@@ -239,7 +239,7 @@ class DashboardAccountingService
             
             $realizationRAB = $this->db->table('construction_progress cp')
                 ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
-                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs')
+                ->join('rabs cr', 'cr.id = ct.id_construction_rabs')
                 ->where('cp.construction_id', $cId)
                 ->where('cp.status', 'APPROVED')
                 ->select('SUM(cp.volume * cr.current_unit_price) as realization')

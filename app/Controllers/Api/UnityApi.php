@@ -17,7 +17,7 @@ class UnityApi extends BaseController
     }
 
     /**
-     * Mendapatkan data construction_rabs berdasarkan construction_requests.id
+     * Mendapatkan data rabs berdasarkan construction_requests.id
      * 
      * GET /api/unity/construction-rabs/{constructionRequestId}
      * 

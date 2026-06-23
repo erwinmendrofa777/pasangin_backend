@@ -9,6 +9,11 @@ Kelola Permintaan Desain
 <?= $this->endSection() ?>
 
 <?= $this->section('style') ?>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
     /* ===== AVATAR / ICON ===== */
     .avatar-wrapper {
@@ -358,6 +363,7 @@ Kelola Permintaan Desain
 <?= $this->include('App\Modules\Design\Views\components\_dtl_desain_styles') ?>
 <?= $this->include('App\Modules\Design\Views\components\_dtl_target_styles') ?>
 <?= $this->include('App\Modules\Design\Views\components\_dtl_pembayaran_styles') ?>
+<?= $this->include('App\Modules\Design\Views\components\_dtl_rab_styles') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -402,6 +408,14 @@ Kelola Permintaan Desain
                                 <li class="nav-item">
                                     <a class="nav-link" id="design-tab" data-bs-toggle="tab" href="#design" role="tab">
                                         <i class="fas fa-drafting-compass"></i> Desain
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php if (can('design_detail')): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="rab-tab" data-bs-toggle="tab" href="#rab" role="tab">
+                                        <i class="fas fa-file-invoice-dollar"></i> RAB
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -459,6 +473,13 @@ Kelola Permintaan Desain
                 </div>
             <?php endif; ?>
 
+            <!-- TAB RAB -->
+            <?php if (can('design_detail')): ?>
+                <div class="tab-pane fade py-0" id="rab" role="tabpanel">
+                    <?= $this->include('App\Modules\Design\Views\rab') ?>
+                </div>
+            <?php endif; ?>
+
             <?php /* <!-- 5. TAB PROGRESS -->
             <?php if (can('design_progress')): ?>
                 <div class="tab-pane fade py-0" id="progress" role="tabpanel">
@@ -483,4 +504,5 @@ Kelola Permintaan Desain
 <?= $this->include('App\Modules\Design\Views\components\_dtl_survey_scripts') ?>
 <?= $this->include('App\Modules\Design\Views\components\_dtl_desain_scripts') ?>
 <?= $this->include('App\Modules\Design\Views\components\_dtl_target_scripts') ?>
+<?= $this->include('App\Modules\Design\Views\components\_dtl_rab_scripts') ?>
 <?= $this->endSection() ?>

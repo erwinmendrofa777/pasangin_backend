@@ -50,6 +50,7 @@ class ConstructionApi extends BaseController
         // 3. Ambil data yang sudah pasti tervalidasi aman
         $data = [
             'user_id' => $this->request->getPost('user_id'),
+            'design_request_id' => $this->request->getPost('design_requests_id') ?: null,
             'full_name' => $this->request->getPost('full_name'),
             'phone' => $this->request->getPost('phone_number'),
             'land_area' => $this->request->getPost('land_area'),
@@ -103,38 +104,6 @@ class ConstructionApi extends BaseController
 
             if ($this->db->table('construction_requests')->insert($data)) {
                 $constructionId = $this->db->insertID();
-
-                // Hubungkan ke desain yang sudah dipilih jika ada
-                $designRequestsId = $this->request->getPost('design_requests_id');
-                if (!empty($designRequestsId)) {
-                    // Cari file desain disetujui (APPROVED) di project_designs berdasarkan design_request_id
-                    $designProject = $this->db->table('project_designs')
-                        ->where('design_request_id', $designRequestsId)
-                        ->where('status', 'APPROVED')
-                        ->orderBy('created_at', 'DESC')
-                        ->get()
-                        ->getRowArray();
-
-                    // Fallback: Cari yang non-APPROVED jika tidak ada yang APPROVED
-                    if (!$designProject) {
-                        $designProject = $this->db->table('project_designs')
-                            ->where('design_request_id', $designRequestsId)
-                            ->orderBy('created_at', 'DESC')
-                            ->get()
-                            ->getRowArray();
-                    }
-
-                    $constructionDesignData = [
-                        'construction_id' => $constructionId,
-                        'user_admin_id' => $designProject ? ($designProject['user_admin_id'] ?: null) : null,
-                        'design_requests_id' => $designRequestsId,
-                        'title' => $designProject ? ($designProject['design_name'] ?: 'Desain Terpilih') : 'Desain Terpilih',
-                        'file' => $designProject ? $designProject['file'] : '',
-                        'comment' => 'Desain dipilih oleh pelanggan saat pengajuan konstruksi.',
-                        'created_at' => date('Y-m-d H:i:s')
-                    ];
-                    $this->db->table('construction_designs')->insert($constructionDesignData);
-                }
 
                 // Kirim notifikasi ke Admin  
                 $this->notifService->sendToPermission(
@@ -335,6 +304,7 @@ class ConstructionApi extends BaseController
             // B. Simpan data Konstruksi (Construction Request)
             $constructionData = [
                 'user_id' => $this->request->getPost('user_id'),
+                'design_request_id' => $designRequestId,
                 'full_name' => $this->request->getPost('full_name'),
                 'phone' => $this->request->getPost('phone_number'),
                 'land_area' => $this->request->getPost('land_area'),
@@ -356,21 +326,6 @@ class ConstructionApi extends BaseController
                 throw new \RuntimeException('Gagal menyimpan data konstruksi ke database.');
             }
             $constructionId = $this->db->insertID();
-
-            // C. Simpan Relasi di construction_designs (Menunjuk ke berkas desain pertama klien)
-            $constructionDesignData = [
-                'construction_id' => $constructionId,
-                'user_admin_id' => null,
-                'design_requests_id' => $designRequestId,
-                'title' => $firstDesignName,
-                'file' => $firstDesignFile,
-                'comment' => 'Desain dipilih oleh pelanggan saat pengajuan konstruksi.',
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-
-            if (!$this->db->table('construction_designs')->insert($constructionDesignData)) {
-                throw new \RuntimeException('Gagal menyimpan relasi konstruksi dan desain ke database.');
-            }
 
             // D. Kirim notifikasi ke Admin
             $this->notifService->sendToPermission(
@@ -502,25 +457,32 @@ class ConstructionApi extends BaseController
             return $this->fail('Project ID tidak boleh kosong.');
         }
 
-        $surveys = $this->db->table('construction_surveys')->where('construction_id', $projectId)->orderBy('created_at', 'DESC')->get()->getResultArray();
+        $construction = $this->db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $projectId)
+            ->get()
+            ->getRowArray();
+
+        if (!$construction || empty($construction['design_request_id'])) {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Belum ada survey untuk Proyek konstruksi ini',
+                'data' => []
+            ]);
+        }
+
+        $designRequestId = (int) $construction['design_request_id'];
+
+        $psRepo = new \App\Modules\Design\Repositories\ProjectSurveysRepository();
+        $surveys = $psRepo->findByDesignRequestId($designRequestId);
 
         foreach ($surveys as &$item) {
-            $fileRaw = $item['survey_file'] ?? '';
-            $files = [];
-            if (!empty($fileRaw)) {
-                $decoded = json_decode($fileRaw, true);
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    $files = $decoded;
-                } else {
-                    $files = [$fileRaw];
-                }
-            }
+            $item['survey_title'] = $item['title'] ?? 'Survey';
+            $item['survey_notes'] = $item['note'] ?? null;
+            $item['survey_file'] = $item['file'] ?? null;
 
-            $item['survey_files'] = array_map(function ($f) {
-                return base_url('uploads/construction/survey/' . $f);
-            }, $files);
-
-            $item['image_url'] = !empty($files) ? base_url('uploads/construction/survey/' . $files[0]) : null;
+            $item['survey_files'] = !empty($item['file']) ? [base_url('uploads/survey/' . $item['file'])] : [];
+            $item['image_url'] = !empty($item['file']) ? base_url('uploads/survey/' . $item['file']) : null;
         }
 
         if ($surveys) {
@@ -547,15 +509,30 @@ class ConstructionApi extends BaseController
             return $this->fail('Project ID tidak boleh kosong.');
         }
 
-        $designRepo = new \App\Modules\Construction\Repositories\ConstructionDesignRepository();
-        $designs = $designRepo->findByConstructionId((int) $projectId);
+        $construction = $this->db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $projectId)
+            ->get()
+            ->getRowArray();
+
+        if (!$construction || empty($construction['design_request_id'])) {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Belum ada desain untuk Proyek konstruksi ini',
+                'data' => []
+            ]);
+        }
+
+        $designRequestId = (int) $construction['design_request_id'];
+
+        $pdRepo = new \App\Modules\Design\Repositories\ProjectDesignsRepository();
+        $designs = $pdRepo->findWithTaskByDesignRequestId($designRequestId);
 
         foreach ($designs as &$item) {
-            $item['image_url'] = !empty($item['file'])
-                ? (!empty($item['design_requests_id'])
-                    ? base_url('uploads/design_results/' . $item['file'])
-                    : base_url('uploads/construction/designs/' . $item['file']))
-                : null;
+            $item['title'] = $item['design_name'] ?? 'Desain';
+            $item['design_requests_id'] = $item['design_request_id'];
+            $item['comment'] = $item['revision_note'] ?? null;
+            $item['image_url'] = !empty($item['file']) ? base_url('uploads/design_results/' . $item['file']) : null;
         }
 
         if ($designs) {
@@ -591,7 +568,7 @@ class ConstructionApi extends BaseController
                 tr.id as rating_id, tr.skill_score, tr.behavior_score, tr.comment as rating_comment, tr.created_at as rating_created_at
             ')
             ->join('construction_targets ct', 'ct.id = cp.id_construction_targets', 'inner')
-            ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
+            ->join('rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
             ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
             ->join('job_applications ja', 'ja.id = ct.id_job_applications', 'left')
             ->join('tukang t', 't.id = ja.tukang_id', 'left')
@@ -729,13 +706,13 @@ class ConstructionApi extends BaseController
                 $ahspTenaga = [];
 
                 // Get RAB details
-                $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+                $rab = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
                 if ($rab) {
                     $ahspId = $rab['ahsp_id'];
                     $volume = (float) ($rab['volume'] ?? 0);
 
                     // Get Selected materials with product details
-                    $selectedMaterials = $this->db->table('construction_rab_materials crm')
+                    $selectedMaterials = $this->db->table('rab_materials crm')
                         ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit')
                         ->join('products p', 'p.id = crm.product_id', 'left')
                         ->where('crm.rab_id', $rabId)
@@ -864,7 +841,7 @@ class ConstructionApi extends BaseController
             $cId = $item['construction_id'];
 
             // Hitung total anggaran (RAB + Addendum)
-            $totalRAB = $this->db->table('construction_rabs')
+            $totalRAB = $this->db->table('rabs')
                 ->where('construction_id', $cId)
                 ->selectSum('total_price')
                 ->get()->getRowArray()['total_price'] ?? 0;
@@ -879,7 +856,7 @@ class ConstructionApi extends BaseController
             // Hitung total realisasi harga (volume disetujui * harga satuan)
             $realizationRAB = $this->db->table('construction_progress cp')
                 ->join('construction_targets ct', 'ct.id = cp.id_construction_targets')
-                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs')
+                ->join('rabs cr', 'cr.id = ct.id_construction_rabs')
                 ->where('cp.construction_id', $cId)
                 ->where('cp.status', 'APPROVED')
                 ->select('SUM(cp.volume * cr.current_unit_price) as realization')
@@ -951,7 +928,7 @@ class ConstructionApi extends BaseController
 
         if (!$id) {
             // Cari row rekomendasi di database
-            $query = $this->db->table('construction_rab_materials')
+            $query = $this->db->table('rab_materials')
                 ->where('rab_id', $rabId)
                 ->where('product_id', $productId);
             if ($ahspBahanId) {
@@ -964,7 +941,7 @@ class ConstructionApi extends BaseController
             $id = $rec['id'];
             $ahspBahanId = $rec['ahsp_bahan_id'];
         } else {
-            $rec = $this->db->table('construction_rab_materials')->where('id', $id)->get()->getRowArray();
+            $rec = $this->db->table('rab_materials')->where('id', $id)->get()->getRowArray();
             if (!$rec) {
                 return $this->fail('Rekomendasi produk tidak ditemukan.');
             }
@@ -973,7 +950,7 @@ class ConstructionApi extends BaseController
         }
 
         // Cek lock
-        $existing = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+        $existing = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
         if ($existing && $existing['is_locked'] == 1) {
             return $this->fail('Tidak dapat memperbarui material, RAB sudah dikunci.');
         }
@@ -982,13 +959,13 @@ class ConstructionApi extends BaseController
             $this->db->transStart();
 
             // Set semua rekomendasi untuk bahan ini ke selected = 0
-            $this->db->table('construction_rab_materials')
+            $this->db->table('rab_materials')
                 ->where('rab_id', $rabId)
                 ->where('ahsp_bahan_id', $ahspBahanId)
                 ->update(['selected' => 0]);
 
             // Set rekomendasi terpilih ke selected = 1
-            $this->db->table('construction_rab_materials')
+            $this->db->table('rab_materials')
                 ->where('id', $id)
                 ->update(['selected' => 1]);
 
@@ -1002,7 +979,7 @@ class ConstructionApi extends BaseController
             $newUnitPrice = $this->recalculateRabRowPrice($rabId);
 
             // Ambil data terbaru baris RAB
-            $updatedRab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+            $updatedRab = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
 
             return $this->respond([
                 'status' => true,
@@ -1023,7 +1000,7 @@ class ConstructionApi extends BaseController
 
     private function recalculateRabRowPrice($rabId)
     {
-        $rab = $this->db->table('construction_rabs')->where('id', $rabId)->get()->getRowArray();
+        $rab = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
         if (!$rab) {
             return 0;
         }
@@ -1043,7 +1020,7 @@ class ConstructionApi extends BaseController
         $allProducts = $this->db->table('products')->select('id, name, price')->get()->getResultArray();
         
         // Ambil produk terpilih (yang selected = 1) untuk rab_id ini
-        $selectedMaterials = $this->db->table('construction_rab_materials')
+        $selectedMaterials = $this->db->table('rab_materials')
             ->where('rab_id', $rabId)
             ->where('selected', 1)
             ->get()->getResultArray();
@@ -1088,7 +1065,7 @@ class ConstructionApi extends BaseController
         $totalPrice = (float) ($rab['volume'] ?? 0) * $newUnitPrice;
 
         // Update ke database
-        $this->db->table('construction_rabs')
+        $this->db->table('rabs')
             ->where('id', $rabId)
             ->update([
                 'current_unit_price' => $newUnitPrice,
@@ -1111,7 +1088,7 @@ class ConstructionApi extends BaseController
         $romanNumber = $this->request->getGet('roman_number') ?? $this->request->getVar('roman_number');
 
         try {
-            $query = $this->db->table('construction_rabs')->where('construction_id', $projectId);
+            $query = $this->db->table('rabs')->where('construction_id', $projectId);
             if (!empty($romanNumber)) {
                 $query->where('LOWER(TRIM(roman_number))', strtolower(trim($romanNumber)));
             }
@@ -1156,7 +1133,7 @@ class ConstructionApi extends BaseController
                     ->get()->getResultArray();
 
                 // 3. Ambil data rekomendasi produk untuk rab_id ini
-                $recommendations = $this->db->table('construction_rab_materials crm')
+                $recommendations = $this->db->table('rab_materials crm')
                     ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.stock as product_stock, p.photo as product_photo, p.description as product_description')
                     ->join('products p', 'p.id = crm.product_id', 'left')
                     ->where('crm.rab_id', $rab['id'])
@@ -1239,9 +1216,9 @@ class ConstructionApi extends BaseController
                     ->join('vouchers', 'vouchers.code = construction_requests.voucher_code', 'left')
                     ->where('construction_requests.id', $projectId)
                     ->get()->getRowArray(),
-                'rab' => $this->db->table('construction_rabs')
+                'rab' => $this->db->table('rabs')
                     ->select('group_name, SUM(total_price) as total_price')
-                    ->where('construction_rabs.construction_id', $projectId)
+                    ->where('rabs.construction_id', $projectId)
                     ->groupBy(['roman_number', 'group_name'])
                     ->orderBy('roman_number', 'ASC')
                     ->get()->getResultArray(),
@@ -1408,7 +1385,7 @@ class ConstructionApi extends BaseController
         (SELECT COUNT(id) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_count, 
         (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'APPROVED') as approved_weight, 
         (SELECT SUM(volume) FROM construction_progress WHERE construction_progress.id_construction_targets = ct.id AND status = 'PENDING') as pending_weight", false)
-            ->join('construction_rabs crab', 'crab.id = ct.id_construction_rabs', 'left')
+            ->join('rabs crab', 'crab.id = ct.id_construction_rabs', 'left')
             ->join('ahsp', 'ahsp.id = crab.ahsp_id', 'left')
             ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
             ->join('construction_requests creq', 'creq.id = ct.construction_id')
@@ -1476,18 +1453,19 @@ class ConstructionApi extends BaseController
             return $this->fail('Data tidak lengkap.');
         }
 
-        $this->db->table('construction_surveys')->where('id', $id_survey)->update([
+        $this->db->table('project_surveys')->where('id', $id_survey)->update([
             'comment' => $comment
         ]);
 
         // Ambil info survey  
-        $surveyInfo = $this->db->table('construction_surveys cs')
-            ->select('cr.full_name, cr.id as construction_id')
-            ->join('construction_requests cr', 'cr.id = cs.construction_id', 'left')
-            ->where('cs.id', $id_survey)
+        $surveyInfo = $this->db->table('project_surveys ps')
+            ->select('dr.full_name as design_client, cr.full_name as const_client, cr.id as construction_id')
+            ->join('design_requests dr', 'dr.id = ps.design_request_id', 'left')
+            ->join('construction_requests cr', 'cr.design_request_id = dr.id', 'left')
+            ->where('ps.id', $id_survey)
             ->get()->getRowArray();
 
-        $namaKlien = $surveyInfo['full_name'] ?? 'Seorang client';
+        $namaKlien = $surveyInfo['const_client'] ?? $surveyInfo['design_client'] ?? 'Seorang client';
 
         // Kirim notifikasi ke Admin  
         $this->notifService->sendToPermission(
@@ -1508,18 +1486,19 @@ class ConstructionApi extends BaseController
             return $this->fail('Data tidak lengkap.');
         }
 
-        $this->db->table('construction_designs')->where('id', $id_design)->update([
-            'comment' => $comment
+        $this->db->table('project_designs')->where('id', $id_design)->update([
+            'revision_note' => $comment
         ]);
 
         // Ambil info desain  
-        $designInfo = $this->db->table('construction_designs cd')
-            ->select('cr.full_name, cr.id as construction_id')
-            ->join('construction_requests cr', 'cr.id = cd.construction_id', 'left')
-            ->where('cd.id', $id_design)
+        $designInfo = $this->db->table('project_designs pd')
+            ->select('dr.full_name as design_client, cr.full_name as const_client, cr.id as construction_id')
+            ->join('design_requests dr', 'dr.id = pd.design_request_id', 'left')
+            ->join('construction_requests cr', 'cr.design_request_id = dr.id', 'left')
+            ->where('pd.id', $id_design)
             ->get()->getRowArray();
 
-        $namaKlien = $designInfo['full_name'] ?? 'Seorang client';
+        $namaKlien = $designInfo['const_client'] ?? $designInfo['design_client'] ?? 'Seorang client';
 
         // Kirim notifikasi ke Admin  
         $this->notifService->sendToPermission(

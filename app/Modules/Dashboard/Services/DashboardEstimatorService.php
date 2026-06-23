@@ -36,15 +36,15 @@ class DashboardEstimatorService
                 cr.status, 
                 cr.created_at, 
                 cr.rab_total as total_biaya,
-                (SELECT COUNT(id) FROM construction_rabs WHERE construction_id = cr.id) as rab_count,
-                (SELECT MIN(is_locked) FROM construction_rabs WHERE construction_id = cr.id) as is_rab_locked,
+                (SELECT COUNT(id) FROM rabs WHERE construction_id = cr.id) as rab_count,
+                (SELECT MIN(is_locked) FROM rabs WHERE construction_id = cr.id) as is_rab_locked,
                 (SELECT COUNT(id) FROM construction_targets WHERE construction_id = cr.id) as target_count,
                 COALESCE(
                     (
                         (
                             (SELECT COALESCE(SUM(crab.volume * crab.current_unit_price), 0) 
                              FROM construction_targets ct 
-                             JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs 
+                             JOIN rabs crab ON crab.id = ct.id_construction_rabs 
                              WHERE ct.construction_id = cr.id)
                             +
                             (SELECT COALESCE(SUM(ca.volume * ca.current_unit_price), 0) 
@@ -193,7 +193,7 @@ class DashboardEstimatorService
             SELECT DATE_FORMAT(cr.created_at, '%Y-%m') as month,
                    SUM(rabs.total_price) as total
             FROM construction_requests cr
-            INNER JOIN construction_rabs rabs ON rabs.construction_id = cr.id
+             INNER JOIN rabs rabs ON rabs.construction_id = cr.id
             WHERE cr.status NOT IN ('PENDING', 'CANCELLED')
               AND cr.created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
             GROUP BY DATE_FORMAT(cr.created_at, '%Y-%m')
@@ -257,7 +257,7 @@ class DashboardEstimatorService
         // Ambil grup pekerjaan RAB konstruksi
         $constCategories = $this->db->query("
             SELECT TRIM(group_name) as cat_name, SUM(total_price) as total
-            FROM construction_rabs
+             FROM rabs
             WHERE group_name IS NOT NULL AND group_name != ''
             GROUP BY group_name
         ")->getResultArray();

@@ -36,8 +36,8 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
         $this->recalculateUnlockedRabs($constructionId);
 
         return $this->model
-            ->select('construction_rabs.*, ahsp.uraian as activity_name, ahsp.kode as ahsp_kode, (SELECT COALESCE(SUM(harga_satuan * koefisien), 0) FROM ahsp_tenaga_kerja WHERE ahsp_tenaga_kerja.ahsp_id = construction_rabs.ahsp_id) AS ahsp_tenaga_kerja_total')
-            ->join('ahsp', 'ahsp.id = construction_rabs.ahsp_id', 'left')
+            ->select('rabs.*, ahsp.uraian as activity_name, ahsp.kode as ahsp_kode, (SELECT COALESCE(SUM(harga_satuan * koefisien), 0) FROM ahsp_tenaga_kerja WHERE ahsp_tenaga_kerja.ahsp_id = rabs.ahsp_id) AS ahsp_tenaga_kerja_total')
+            ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left')
             ->where('construction_id', $constructionId)
             ->orderBy('roman_number', 'ASC')
             ->orderBy('id', 'ASC')
@@ -75,7 +75,7 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
         $db = \Config\Database::connect();
         
         // 1. Ambil semua baris RAB yang tidak terkunci
-        $unlockedRabs = $db->table('construction_rabs')
+        $unlockedRabs = $db->table('rabs')
             ->where('construction_id', $constructionId)
             ->where('is_locked', 0)
             ->get()->getResultArray();
@@ -124,7 +124,7 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
         }
         
         // 5. Ambil selected materials untuk rabIds terkait
-        $selectedMaterials = $db->table('construction_rab_materials')
+        $selectedMaterials = $db->table('rab_materials')
             ->whereIn('rab_id', $rabIds)
             ->where('selected', 1)
             ->get()->getResultArray();
@@ -175,7 +175,7 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
                 $volume = (float) $row['volume'];
                 $totalPrice = $volume * $newUnitPrice;
                 
-                $db->table('construction_rabs')
+                $db->table('rabs')
                     ->where('id', $rabId)
                     ->update([
                         'current_unit_price' => $newUnitPrice,

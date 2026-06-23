@@ -6,11 +6,7 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Constr
     $routes->get('construction/export-pdf', 'Construction::exportPdf');
     $routes->get('construction/detail/(:num)', 'Construction::detail/$1');
     $routes->post('construction/update-status', 'Construction::updateStatus');
-    $routes->post('construction/upload-survey', 'Construction::uploadSurvey');
-    $routes->post('construction/upload-design', 'Construction::uploadDesign');
     $routes->post('construction/upload-rab', 'Construction::uploadRab');
-    $routes->get('construction/delete-survey/(:num)/(:num)', 'Construction::deleteSurvey/$1/$2');
-    $routes->get('construction/delete-design/(:num)/(:num)', 'Construction::deleteDesign/$1/$2');
     $routes->post('construction/add-progress', 'Construction::addProgress');
     $routes->get('construction/delete-progress/(:num)/(:num)', 'Construction::deleteProgress/$1/$2');
     $routes->post('construction/create_invoice', 'Construction::create_invoice');

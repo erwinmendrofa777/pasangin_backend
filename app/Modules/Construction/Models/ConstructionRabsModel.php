@@ -6,13 +6,14 @@ use CodeIgniter\Model;
 
 class ConstructionRabsModel extends Model
 {
-    protected $table            = 'construction_rabs';
+    protected $table            = 'rabs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $protectFields    = true;
     protected $allowedFields    = [
         'construction_id',
+        'design_request_id',
         'roman_number',
         'group_name',
         'sub_group_name',

@@ -1,6 +1,4 @@
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
     .invoice-wrap,
     .invoice-wrap *:not(i):not([class*="fa"]) {
         font-family: 'Plus Jakarta Sans', sans-serif;

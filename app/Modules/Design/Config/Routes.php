@@ -27,4 +27,19 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Design
     $routes->post('design/update-target-keterangan-ajax', 'DesignRequests::updateTargetKeteranganAjax');
     $routes->get('design/approve-design/(:num)', 'DesignRequests::approveDesign/$1');
     $routes->post('design/reject-design/(:num)', 'DesignRequests::rejectDesign/$1');
+
+    // RAB Design
+    $routes->post('design/save_rab_row', 'DesignRabController::save_rab_row');
+    $routes->post('design/save_all_rab/(:num)', 'DesignRabController::save_all_rab/$1');
+    $routes->get('design/delete_rab_row/(:num)', 'DesignRabController::delete_rab_row/$1');
+    $routes->get('design/get_rab_materials/(:num)', 'DesignRabController::get_rab_materials/$1');
+    $routes->post('design/add_rab_material', 'DesignRabController::add_rab_material');
+    $routes->post('design/select_rab_material', 'DesignRabController::select_rab_material');
+    $routes->get('design/delete_rab_material/(:num)', 'DesignRabController::delete_rab_material/$1');
+    $routes->get('design/recalculate_rab_price/(:num)', 'DesignRabController::recalculate_rab_price/$1');
+    $routes->get('design/download-rab-template/(:num)', 'DesignRabController::download_rab_template/$1');
+    $routes->post('design/import-rab-excel/(:num)', 'DesignRabController::import_rab_excel/$1');
+    $routes->get('design/export-rab-excel/(:num)', 'DesignRabController::export_rab_excel/$1');
+    $routes->get('design/lock_rab/(:num)', 'DesignRequests::lock_rab/$1');
+    $routes->get('design/unlock_rab/(:num)', 'DesignRequests::unlock_rab/$1');
 });

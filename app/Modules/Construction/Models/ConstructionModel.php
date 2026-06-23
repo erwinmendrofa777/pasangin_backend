@@ -13,6 +13,7 @@ class ConstructionModel extends Model
     
     protected $allowedFields    = [
         'user_id',
+        'design_request_id',
         'full_name',
         'phone',
         'land_area',

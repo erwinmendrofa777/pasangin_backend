@@ -36,6 +36,7 @@ class DesignRequestModel extends Model
         'target_date',      
         'progress_percent',
         'max_revision',
+        'rab_total',
         'created_at', 
         'updated_at',
     ];

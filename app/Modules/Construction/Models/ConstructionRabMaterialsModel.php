@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class ConstructionRabMaterialsModel extends Model
 {
-    protected $table            = 'construction_rab_materials';
+    protected $table            = 'rab_materials';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

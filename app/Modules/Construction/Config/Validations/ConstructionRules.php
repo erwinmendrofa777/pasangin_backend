@@ -114,60 +114,7 @@ trait ConstructionRules
         ],
     ];
 
-    // --- VALIDASI SURVEY & DESAIN ---
-    public array $constructionSurveyUpload = [
-        'id'            => 'required|numeric',
-        'user_admin_id' => 'required|numeric',
-        'survey_title'  => 'required|min_length[3]',
-        'survey_files'  => 'uploaded[survey_files]|max_size[survey_files,51200]|ext_in[survey_files,pdf,jpg,jpeg,png,webp,mp4,mov,avi,webm,mkv]',
-    ];
 
-    public array $constructionSurveyUpload_errors = [
-        'id' => [
-            'required' => 'ID wajib diisi.',
-            'numeric'  => 'ID harus berupa angka.',
-        ],
-        'user_admin_id' => [
-            'required' => 'Admin pelaksana wajib dipilih.',
-            'numeric'  => 'ID Admin tidak valid.',
-        ],
-        'survey_title' => [
-            'required'   => 'Judul survey wajib diisi.',
-            'min_length' => 'Judul survey minimal 3 karakter.',
-        ],
-        'survey_files' => [
-            'uploaded' => 'File survey wajib diunggah.',
-            'max_size' => 'Ukuran file survey maksimal 50MB.',
-            'ext_in'   => 'Format file survey harus berupa PDF, Gambar (JPG, JPEG, PNG, WEBP), atau Video (MP4, MOV, AVI, WEBM, MKV).',
-        ],
-    ];
-
-    public array $constructionDesignUpload = [
-        'id'            => 'required|numeric',
-        'user_admin_id' => 'required|numeric',
-        'design_title'  => 'required|min_length[3]',
-        'design_2d'     => 'uploaded[design_2d]|max_size[design_2d,51200]|ext_in[design_2d,pdf,jpg,jpeg,png,webp,mp4,mov,avi,webm,mkv]',
-    ];
-
-    public array $constructionDesignUpload_errors = [
-        'id' => [
-            'required' => 'ID wajib diisi.',
-            'numeric'  => 'ID harus berupa angka.',
-        ],
-        'user_admin_id' => [
-            'required' => 'Admin perancang wajib dipilih.',
-            'numeric'  => 'ID Admin tidak valid.',
-        ],
-        'design_title' => [
-            'required'   => 'Judul desain wajib diisi.',
-            'min_length' => 'Judul desain minimal 3 karakter.',
-        ],
-        'design_2d' => [
-            'uploaded' => 'File desain wajib diunggah.',
-            'max_size' => 'Ukuran file desain maksimal 50MB.',
-            'ext_in'   => 'Format file desain harus berupa PDF, Gambar (JPG, JPEG, PNG, WEBP), atau Video (MP4, MOV, AVI, WEBM, MKV).',
-        ],
-    ];
 
     // --- VALIDASI PROGRESS ---
     public array $constructionProgressAdd = [

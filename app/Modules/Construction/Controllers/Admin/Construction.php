@@ -250,7 +250,7 @@ class Construction extends BaseController
         // agar saat dikunci ulang nanti tidak double-count
         $db = \Config\Database::connect();
         $rabRow = $db->query(
-            "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM construction_rabs WHERE construction_id = ?",
+            "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
             [(int) $constructionId]
         )->getRowArray();
 
@@ -373,10 +373,10 @@ class Construction extends BaseController
                ->where('construction_id', $constructionId)
                ->update(['is_locked' => 1]);
 
-            // Hitung ulang RAB murni dari tabel construction_rabs (bukan baca rab_total lama)
+            // Hitung ulang RAB murni dari tabel rabs (bukan baca rab_total lama)
             // agar tidak double saat buka kunci lalu kunci ulang
             $rabRow = $db->query(
-                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM construction_rabs WHERE construction_id = ?",
+                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
                 [(int) $constructionId]
             )->getRowArray();
 
@@ -545,99 +545,6 @@ class Construction extends BaseController
         $this->svc->deleteInvoice((int) $id);
         log_admin_activity('delete', 'Construction', 'Delete Invoice ' . $id);
         return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#payment'))->with('success', 'Tagihan dihapus.');
-    }
-
-    // -------------------------------------------------------------------------
-    // SURVEY
-    // -------------------------------------------------------------------------
-    public function uploadSurvey()
-    {
-        if (!can('construction_survey')) {
-            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengunggah survey.');
-        }
-
-        if (!$this->validate('constructionSurveyUpload')) {
-            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
-        }
-
-        $constructionId = $this->request->getPost('id');
-        
-        $surveyFiles = $this->request->getFileMultiple('survey_files');
-        if ($surveyFiles === null) {
-            $singleFile = $this->request->getFile('survey_files');
-            $surveyFiles = ($singleFile && $singleFile->isValid()) ? [$singleFile] : [];
-        }
-
-        $this->svc->uploadSurvey((int) $constructionId, $this->request->getPost(), $surveyFiles);
-
-        // Kirim Notifikasi ke Client
-        $details = $this->svc->findConstructionWithDetails((int) $constructionId);
-        $project = $details['construction'] ?? null;
-
-        if ($project && !empty($project['user_id'])) {
-            $title = "Laporan Survey Baru";
-            $message = "Laporan survey untuk proyek Anda telah diunggah oleh tim kami. Silakan cek detail proyek.";
-
-            $this->notifService->sendPersonal('client', (int) $project['user_id'], $title, $message);
-        }
-
-        log_admin_activity('create', 'Construction', 'Tambah Survey ' . $constructionId);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#survey'))->with('success', 'Survey ditambahkan!');
-    }
-
-    public function deleteSurvey($id, $constructionId)
-    {
-        if (!can('construction_survey')) {
-            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menghapus survey.');
-        }
-        $this->svc->deleteSurvey((int) $id);
-        log_admin_activity('delete', 'Construction', 'Delete Survey ' . $id);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#survey'))->with('success', 'Survey dihapus.');
-    }
-
-    // -------------------------------------------------------------------------
-    // DESIGN
-    // -------------------------------------------------------------------------
-    public function uploadDesign()
-    {
-        if (!can('construction_desain')) {
-            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk mengunggah desain.');
-        }
-
-        if (!$this->validate('constructionDesignUpload')) {
-            return redirect()->back()->withInput()->with('error', implode(' ', $this->validator->getErrors()));
-        }
-
-        $constructionId = $this->request->getPost('id');
-        try {
-            $this->svc->uploadDesign((int) $constructionId, $this->request->getPost(), $this->request->getFile('design_2d'));
-
-            // Kirim Notifikasi ke Client
-            $details = $this->svc->findConstructionWithDetails((int) $constructionId);
-            $project = $details['construction'] ?? null;
-
-            if ($project && !empty($project['user_id'])) {
-                $title = "Hasil Desain Baru";
-                $message = "Hasil desain untuk proyek Anda telah diunggah. Silakan cek detail proyek untuk melihat desain terbaru.";
-
-                $this->notifService->sendPersonal('client', (int) $project['user_id'], $title, $message);
-            }
-
-            log_admin_activity('create', 'Construction', 'Tambah Desain ' . $constructionId);
-            return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#desain'))->with('success', 'Desain ditambahkan!');
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function deleteDesign($id, $constructionId)
-    {
-        if (!can('construction_desain')) {
-            return redirect()->to('/admin/construction')->with('error', 'Anda tidak memiliki akses untuk menghapus desain.');
-        }
-        $this->svc->deleteDesign((int) $id);
-        log_admin_activity('delete', 'Construction', 'Delete Desain ' . $id);
-        return redirect()->to(base_url('admin/construction/detail/' . $constructionId . '#desain'))->with('success', 'Desain dihapus.');
     }
 
     // -------------------------------------------------------------------------

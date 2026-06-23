@@ -120,7 +120,7 @@ class DesignRequests extends BaseController
         try {
             $details = $this->designService->findRequestWithDetails((int) $id);
         } catch (RuntimeException $e) {
-            return redirect()->to('/admin/designrequests')->with('error', $e->getMessage());
+            return redirect()->to('/admin/design')->with('error', $e->getMessage());
         }
 
         return view('App\Modules\Design\Views\detail', array_merge($details, [
@@ -195,7 +195,7 @@ class DesignRequests extends BaseController
 
         $this->designService->deleteRequest((int) $id);
         log_admin_activity('delete', 'Design Requests', 'Hapus Proyek ' . $id);
-        return redirect()->to('/admin/designrequests')->with('success', 'Data proyek berhasil dihapus permanen.');
+        return redirect()->to('/admin/design')->with('success', 'Data proyek berhasil dihapus permanen.');
     }
 
     // -------------------------------------------------------------------------
@@ -850,4 +850,70 @@ class DesignRequests extends BaseController
             return $this->response->setJSON(['status' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // 18. LOCK / UNLOCK RAB
+    // -------------------------------------------------------------------------
+    public function lock_rab($id)
+    {
+        if (!can('design_detail')) {
+            return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk mengunci RAB.');
+        }
+
+        $db = \Config\Database::connect();
+        
+        try {
+            $db->transStart();
+
+            // Lock all rows for this design request
+            $db->table('rabs')
+                ->where('design_request_id', $id)
+                ->update(['is_locked' => 1]);
+
+            // Hitung total dari DB
+            $rabRow = $db->query(
+                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
+                [(int) $id]
+            )->getRowArray();
+            
+            $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
+
+            $db->table('design_requests')
+                ->where('id', $id)
+                ->update(['rab_total' => $rabTotal]);
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                return redirect()->back()->with('error', 'Gagal mengunci RAB.');
+            }
+
+            log_admin_activity('update', 'Design Requests', 'Lock RAB Proyek ' . $id);
+            return redirect()->to('/admin/design/show/' . $id . '#rab')->with('success', 'RAB berhasil dikunci!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
+
+    public function unlock_rab($id)
+    {
+        if (!can('design_detail')) {
+            return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk membuka kunci RAB.');
+        }
+
+        $db = \Config\Database::connect();
+
+        try {
+            $db->table('rabs')
+                ->where('design_request_id', $id)
+                ->update(['is_locked' => 0]);
+
+            log_admin_activity('update', 'Design Requests', 'Unlock RAB Proyek ' . $id);
+            return redirect()->to('/admin/design/show/' . $id . '#rab')->with('success', 'Kunci RAB berhasil dibuka!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
 }
+

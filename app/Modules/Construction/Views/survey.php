@@ -1,71 +1,7 @@
 <div class="row g-4 mt-1">
 
-    <!-- ========== FORM TAMBAH SURVEY ========== -->
-    <div class="col-md-4 d-flex flex-column mt-0">
-        <div class="card survey-card-form h-100">
-            <div class="card-header">
-                <h6 class="mb-0 text-white" style="font-weight:700; font-size:0.9rem;">
-                    <i class="fas fa-plus-circle mr-2"></i>Tambah Laporan Survey
-                </h6>
-            </div>
-            <div class="card-body p-4">
-                <form action="<?= base_url('admin/construction/upload-survey') ?>" method="post"
-                    enctype="multipart/form-data">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="id" value="<?= $construction['id'] ?>">
-
-                    <div class="form-group mb-3">
-                        <label class="survey-label">Judul Laporan</label>
-                        <input type="text" name="survey_title" class="form-control survey-input"
-                            placeholder="Contoh: Survey Lokasi Pertama" required>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="survey-label">Admin Pelaksana</label>
-                        <select name="user_admin_id" class="form-control survey-input" required>
-                            <option value="">— Pilih Admin —</option>
-                            <?php 
-                            $currentUserId = session()->get('user_id');
-                            foreach ($admin_users ?? [] as $au): 
-                                $selected = ($au['id'] == $currentUserId) ? 'selected' : '';
-                            ?>
-                                <option value="<?= $au['id'] ?>" <?= $selected ?>>
-                                    <?= esc($au['full_name'] ?? $au['username'] ?? 'Admin ' . $au['id']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="survey-label">Catatan (Opsional)</label>
-                        <textarea name="survey_notes" class="form-control survey-input" rows="3"
-                            placeholder="Tambahkan catatan hasil survey..." style="resize:none;"></textarea>
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label class="survey-label">File Laporan (Bisa Lebih dari Satu)</label>
-                        <div class="file-upload-box">
-                            <span class="file-label" id="surveyFileNameDisplay">Pilih atau seret file...</span>
-                            <input type="file" name="survey_files[]" id="surveyFileInput"
-                                accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.mov,.avi,.webm,.mkv" multiple required>
-                            <i class="fas fa-paperclip"></i>
-                        </div>
-                        <div class="form-text mt-1" style="font-size:0.73rem;">
-                            <i class="fas fa-info-circle text-primary mr-1"></i>Format: PDF, Gambar, atau Video (Max 50MB).
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-survey-submit w-100 ladda-button"
-                        data-style="zoom-in">
-                        <span class="ladda-label"><i class="fas fa-save mr-2"></i>Simpan Laporan</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- ========== RIWAYAT SURVEY ========== -->
-    <div class="col-md-8 d-flex flex-column mt-0">
+    <div class="col-md-12 d-flex flex-column mt-0">
         <div class="card survey-card-history h-100">
             <div class="card-header">
                 <h6 class="mb-0 text-white" style="font-weight:700; font-size:0.9rem;">
@@ -80,7 +16,7 @@
                         </div>
                         <h6 class="font-weight-bold text-dark mb-1">Belum Ada Survey</h6>
                         <p class="text-muted mb-0" style="font-size:0.83rem;">
-                            Tambahkan laporan survey pertama melalui form di samping.
+                            Laporan survey akan tampil di sini setelah diunggah pada tahap desain.
                         </p>
                     </div>
                 <?php else: ?>
@@ -99,9 +35,9 @@
                             <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
                                 <div class="card-body p-3 p-md-4">
                                     <div class="row align-items-center g-3">
-
+ 
                                         <!-- Info Kiri: Ikon Survey + Judul + Catatan -->
-                                        <div class="col-12 col-md-5 d-flex gap-3">
+                                        <div class="col-12 col-md-7 d-flex gap-3">
                                             <div class="flex-shrink-0 d-flex align-items-center justify-content-center"
                                                 style="width:48px; height:48px; background:linear-gradient(135deg, #e0f2fe, #bae6fd); border-radius:10px; color:#0284c7; font-size:1.25rem; flex-shrink:0; border: 1px solid #bae6fd;">
                                                 <i class="fas fa-map-marked-alt"></i>
@@ -121,9 +57,9 @@
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-
+ 
                                         <!-- Info Tengah: Tanggal & PJ -->
-                                        <div class="col-12 col-md-4 px-md-3 survey-divider-x">
+                                        <div class="col-12 col-md-5 px-md-3 survey-divider-x">
                                             <div class="d-flex flex-row flex-md-column gap-3 gap-md-1 text-muted"
                                                 style="font-size:0.85rem;">
                                                 <div class="text-dark fw-bold"
@@ -139,20 +75,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Aksi: Hapus Laporan -->
-                                        <div class="col-12 col-md-3 text-md-end pt-3 pt-md-0 survey-divider-y">
-                                            <div class="d-flex justify-content-start justify-content-md-end gap-2">
-                                                <a href="<?= base_url('admin/construction/delete-survey/' . $srv['id'] . '/' . $construction['id']) ?>"
-                                                    class="btn btn-sm btn-outline-danger ladda-button" data-style="zoom-in"
-                                                    style="border-radius:8px;"
-                                                    onclick="if(confirm('Apakah Anda yakin ingin menghapus laporan survey ini?')) { Ladda.create(this).start(); return true; } return false;"
-                                                    title="Hapus Laporan">
-                                                    <span class="ladda-label"><i class="fas fa-trash-alt mr-1"></i>Hapus</span>
-                                                </a>
-                                            </div>
-                                        </div>
-
+ 
                                     </div>
 
                                     <!-- Lampiran Files (Grid List) -->

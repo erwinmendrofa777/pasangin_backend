@@ -32,7 +32,7 @@ class TukangJobApi extends ResourceController
                 ')
                 ->join('construction_requests', 'construction_requests.id = construction_jobs.construction_id')
                 ->join('construction_targets ct', 'ct.id = construction_jobs.construction_target_id', 'left')
-                ->join('construction_rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
+                ->join('rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
                 ->join('ahsp', 'ahsp.id = cr.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
                 ->where('construction_jobs.is_open', 1)
@@ -124,7 +124,7 @@ class TukangJobApi extends ResourceController
                 FROM job_applications ja
                 LEFT JOIN construction_jobs cj ON (cj.id = ja.construction_job_id OR (ja.construction_job_id IS NULL AND cj.construction_id = ja.project_id))
                 LEFT JOIN construction_targets ct ON ct.id = cj.construction_target_id
-                LEFT JOIN construction_rabs cr ON cr.id = ct.id_construction_rabs
+                LEFT JOIN rabs cr ON cr.id = ct.id_construction_rabs
                 LEFT JOIN ahsp ON ahsp.id = cr.ahsp_id
                 LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                 LEFT JOIN renovation_jobs rj ON ja.project_id = rj.renovation_id AND ja.project_type = 'renovation'
@@ -175,7 +175,7 @@ class TukangJobApi extends ResourceController
                     (SELECT SUM(volume) FROM construction_progress WHERE id_construction_targets = ct.id AND status = 'PENDING') as pending_weight
                 FROM construction_targets ct
                 JOIN job_applications ja ON ja.id = ct.id_job_applications
-                LEFT JOIN construction_rabs crab ON crab.id = ct.id_construction_rabs
+                LEFT JOIN rabs crab ON crab.id = ct.id_construction_rabs
                 LEFT JOIN ahsp ON ahsp.id = crab.ahsp_id
                 LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                 JOIN construction_requests creq ON creq.id = ct.construction_id
@@ -293,7 +293,7 @@ class TukangJobApi extends ResourceController
                 FROM job_applications ja
                 LEFT JOIN construction_jobs cj ON (cj.id = ja.construction_job_id OR (ja.construction_job_id IS NULL AND cj.construction_id = ja.project_id))
                 LEFT JOIN construction_targets ct ON ct.id = cj.construction_target_id
-                LEFT JOIN construction_rabs rab ON rab.id = ct.id_construction_rabs
+                LEFT JOIN rabs rab ON rab.id = ct.id_construction_rabs
                 LEFT JOIN ahsp ON ahsp.id = rab.ahsp_id
                 LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                 JOIN construction_requests req ON ja.project_id = req.id
@@ -370,7 +370,7 @@ class TukangJobApi extends ResourceController
                 ')
                 ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
                 ->join('construction_targets ct', 'ct.id = cj.construction_target_id', 'left')
-                ->join('construction_rabs rab', 'rab.id = ct.id_construction_rabs', 'left')
+                ->join('rabs rab', 'rab.id = ct.id_construction_rabs', 'left')
                 ->join('ahsp', 'ahsp.id = rab.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
                 ->join('construction_requests req', 'req.id = ja.project_id', 'left')
@@ -429,7 +429,7 @@ class TukangJobApi extends ResourceController
             // 4. Ambil data target (difilter berdasarkan tukang_id)
             $targetsRaw = $this->db->table('construction_targets t')
                 ->select('t.id, COALESCE(ahsp.uraian, ca.activity_name) as target_name, t.start_week as startweek, t.end_week as endweek, COALESCE(r.volume, ca.volume) as volume, COALESCE(r.unit, ca.unit) as unit, t.status')
-                ->join('construction_rabs r', 'r.id = t.id_construction_rabs', 'left')
+                ->join('rabs r', 'r.id = t.id_construction_rabs', 'left')
                 ->join('ahsp', 'ahsp.id = r.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = t.id_construction_addendum', 'left')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
@@ -801,9 +801,9 @@ class TukangJobApi extends ResourceController
                     'cr.land_area as radius_meter'
                 ])
                 ->select("'construction' as tipe_proyek", false)
-                ->select("(SELECT COALESCE(SUM(total_price), 0) FROM construction_rabs WHERE construction_id = cr.id) as total_rab_price", false)
+                ->select("(SELECT COALESCE(SUM(total_price), 0) FROM rabs WHERE construction_id = cr.id) as total_rab_price", false)
                 ->select("(SELECT COALESCE(SUM(total_price), 0) FROM construction_addendum WHERE construction_id = cr.id) as total_addendum_price", false)
-                ->select("(SELECT COALESCE(SUM(cp.volume * r.current_unit_price), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets JOIN construction_rabs r ON r.id = ct.id_construction_rabs WHERE ct.construction_id = cr.id AND LOWER(cp.status) = 'approved') as realisasi_rab_price", false)
+                ->select("(SELECT COALESCE(SUM(cp.volume * r.current_unit_price), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets JOIN rabs r ON r.id = ct.id_construction_rabs WHERE ct.construction_id = cr.id AND LOWER(cp.status) = 'approved') as realisasi_rab_price", false)
                 ->select("(SELECT COALESCE(SUM(cp.volume * a.current_unit_price), 0) FROM construction_progress cp JOIN construction_targets ct ON ct.id = cp.id_construction_targets JOIN construction_addendum a ON a.id = ct.id_construction_addendum WHERE ct.construction_id = cr.id AND LOWER(cp.status) = 'approved') as realisasi_addendum_price", false)
                 ->select("(SELECT COUNT(id) FROM construction_attendance WHERE id_construction = cr.id AND DATE(waktu) = '{$today}' AND type = 'masuk') as absen_masuk_count", false)
                 ->select("(SELECT COUNT(id) FROM construction_attendance WHERE id_construction = cr.id AND DATE(waktu) = '{$today}' AND type = 'keluar') as absen_keluar_count", false)
