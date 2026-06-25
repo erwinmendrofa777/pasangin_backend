@@ -16,92 +16,54 @@
     });
   <?php endif; ?>
 
-  const salesLabels = <?= isset($salesLabels) ? json_encode($salesLabels) : '[]' ?>;
-  const salesCountData = <?= isset($salesCountData) ? json_encode($salesCountData) : '[]' ?>;
-  const salesRevenueData = <?= isset($salesRevenueData) ? json_encode($salesRevenueData) : '[]' ?>;
+  const projectLabels = <?= isset($projectLabels) ? json_encode($projectLabels) : '[]' ?>;
+  const designTrend = <?= isset($designTrend) ? json_encode($designTrend) : '[]' ?>;
+  const constTrend = <?= isset($constTrend) ? json_encode($constTrend) : '[]' ?>;
+  const renovTrend = <?= isset($renovTrend) ? json_encode($renovTrend) : '[]' ?>;
+
+  const projectStatusLabels = <?= isset($projectStatusLabels) ? json_encode($projectStatusLabels) : '[]' ?>;
+  const projectStatusData = <?= isset($projectStatusData) ? json_encode($projectStatusData) : '[]' ?>;
 
   const tickColor = '#6c757d';
   const gridColor = '#e9ecef';
 
-  // ─── Revenue Bar Chart ───────────────────────────────────────────
-  new Chart(document.getElementById('revenueChart'), {
-    type: 'bar',
-    data: {
-      labels: salesLabels,
-      datasets: [{
-        label: 'Total Pendapatan (Rp)',
-        data: salesRevenueData,
-        backgroundColor: 'rgba(78,115,223,0.15)',
-        borderColor: 'rgba(78,115,223,1)',
-        borderWidth: 2,
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: tickColor,
-            fontFamily: "'Nunito','Segoe UI','Arial'",
-            beginAtZero: true,
-            callback: function (v) {
-              if (v >= 1e6) return 'Rp ' + (v / 1e6) + 'Jt';
-              if (v >= 1e3) return 'Rp ' + (v / 1e3) + 'Rb';
-              return 'Rp ' + v;
-            }
-          },
-          gridLines: {
-            color: gridColor
-          }
-        }],
-        xAxes: [{
-          ticks: {
-            fontColor: tickColor,
-            fontFamily: "'Nunito','Segoe UI','Arial'",
-            fontSize: 10
-          },
-          gridLines: {
-            display: false
-          }
-        }]
-      },
-      legend: {
-        labels: {
-          fontColor: tickColor,
-          fontFamily: "'Nunito','Segoe UI','Arial'"
-        }
-      },
-      tooltips: {
-        backgroundColor: '#343a40',
-        titleFontSize: 12,
-        bodyFontSize: 11,
-        callbacks: {
-          label: function (ti, d) {
-            let l = d.datasets[ti.datasetIndex].label || '';
-            return l + ': Rp ' + new Intl.NumberFormat('id-ID').format(ti.yLabel);
-          }
-        }
-      }
-    }
-  });
-
-  // ─── Sales Count Line Chart ──────────────────────────────────────
-  new Chart(document.getElementById('salesCountChart'), {
+  // ─── Project Trend Line Chart ──────────────────────────────────────
+  new Chart(document.getElementById('projectTrendChart'), {
     type: 'line',
     data: {
-      labels: salesLabels,
-      datasets: [{
-        label: 'Jumlah Penjualan',
-        data: salesCountData,
-        borderColor: 'rgba(28,200,138,1)',
-        backgroundColor: 'rgba(28,200,138,0.1)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6
-      }]
+      labels: projectLabels,
+      datasets: [
+        {
+          label: 'Desain',
+          data: designTrend,
+          borderColor: '#FF6F61',
+          backgroundColor: 'rgba(255, 111, 97, 0.05)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        },
+        {
+          label: 'Konstruksi',
+          data: constTrend,
+          borderColor: '#1cc88a',
+          backgroundColor: 'rgba(28,200,138,0.05)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        },
+        {
+          label: 'Renovasi',
+          data: renovTrend,
+          borderColor: '#f6c23e',
+          backgroundColor: 'rgba(246,194,62,0.05)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }
+      ]
     },
     options: {
       responsive: true,
@@ -140,6 +102,52 @@
         titleFontSize: 12,
         bodyFontSize: 11
       }
+    }
+  });
+
+  // ─── Project Status Doughnut Chart ─────────────────────────────────
+  new Chart(document.getElementById('projectStatusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: projectStatusLabels,
+      datasets: [{
+        data: projectStatusData,
+        backgroundColor: [
+          '#f6c23e', // Survey & Pending (kuning)
+          '#FF6F61', // Tahap Desain (merah coral)
+          '#36b9cc', // Tahap RAB (cyan)
+          '#1cc88a'  // Masa Pelaksanaan (hijau)
+        ],
+        hoverBackgroundColor: [
+          '#dfa82c',
+          '#e55f52',
+          '#258391',
+          '#17a673'
+        ],
+        hoverBorderColor: "rgba(234, 236, 244, 1)"
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position: 'bottom',
+        labels: {
+          fontColor: tickColor,
+          fontFamily: "'Nunito','Segoe UI','Arial'",
+          boxWidth: 15,
+          padding: 15
+        }
+      },
+      tooltips: {
+        backgroundColor: '#343a40',
+        bodyFontSize: 12,
+        xPadding: 15,
+        yPadding: 15,
+        displayColors: false,
+        caretPadding: 10
+      },
+      cutoutPercentage: 65
     }
   });
 </script>

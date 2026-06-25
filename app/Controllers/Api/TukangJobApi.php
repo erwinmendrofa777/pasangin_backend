@@ -179,11 +179,21 @@ class TukangJobApi extends ResourceController
                 LEFT JOIN ahsp ON ahsp.id = crab.ahsp_id
                 LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
                 JOIN construction_requests creq ON creq.id = ct.construction_id
-                WHERE ja.tukang_id = ?
+                WHERE ja.tukang_id IN (
+                    SELECT DISTINCT member_id FROM (
+                        SELECT ? as member_id
+                        UNION
+                        SELECT tg.tukang_id FROM tukang_group tg JOIN tukang_group_members tgm ON tgm.tukang_group_id = tg.id WHERE tgm.tukang_id = ? AND tgm.status = 'approved'
+                        UNION
+                        SELECT tgm.tukang_id FROM tukang_group_members tgm JOIN tukang_group tg ON tg.id = tgm.tukang_group_id WHERE tg.tukang_id = ? AND tgm.status = 'approved'
+                        UNION
+                        SELECT tgm2.tukang_id FROM tukang_group_members tgm1 JOIN tukang_group_members tgm2 ON tgm2.tukang_group_id = tgm1.tukang_group_id WHERE tgm1.tukang_id = ? AND tgm1.status = 'approved' AND tgm2.status = 'approved'
+                    ) as group_members
+                )
                 ORDER BY ct.start_week ASC
             ";
 
-            $data = $this->db->query($sql, [$tukangId])->getResultArray();
+            $data = $this->db->query($sql, [$tukangId, $tukangId, $tukangId, $tukangId])->getResultArray();
 
             return $this->respond([
                 'status' => true,
@@ -230,11 +240,21 @@ class TukangJobApi extends ResourceController
                 JOIN job_applications ja ON ja.id = rt.id_job_applications
                 JOIN renovation_rabs rrab ON rrab.id = rt.id_renovation_rabs
                 JOIN renovation_requests rreq ON rreq.id = rt.renovation_id
-                WHERE ja.tukang_id = ?
+                WHERE ja.tukang_id IN (
+                    SELECT DISTINCT member_id FROM (
+                        SELECT ? as member_id
+                        UNION
+                        SELECT tg.tukang_id FROM tukang_group tg JOIN tukang_group_members tgm ON tgm.tukang_group_id = tg.id WHERE tgm.tukang_id = ? AND tgm.status = 'approved'
+                        UNION
+                        SELECT tgm.tukang_id FROM tukang_group_members tgm JOIN tukang_group tg ON tg.id = tgm.tukang_group_id WHERE tg.tukang_id = ? AND tgm.status = 'approved'
+                        UNION
+                        SELECT tgm2.tukang_id FROM tukang_group_members tgm1 JOIN tukang_group_members tgm2 ON tgm2.tukang_group_id = tgm1.tukang_group_id WHERE tgm1.tukang_id = ? AND tgm1.status = 'approved' AND tgm2.status = 'approved'
+                    ) as group_members
+                )
                 ORDER BY rt.start_week ASC
             ";
 
-            $data = $this->db->query($sql, [$tukangId])->getResultArray();
+            $data = $this->db->query($sql, [$tukangId, $tukangId, $tukangId, $tukangId])->getResultArray();
 
             return $this->respond([
                 'status' => true,
@@ -274,6 +294,26 @@ class TukangJobApi extends ResourceController
             }
         }
         return $rows;
+    }
+
+    /**
+     * Helper: mendapatkan semua ID tukang dalam satu group (anggota + mandor)
+     */
+    private function _getGroupTukangIds($tukangId): array
+    {
+        $sql = "
+            SELECT DISTINCT member_id FROM (
+                SELECT ? as member_id
+                UNION
+                SELECT tg.tukang_id FROM tukang_group tg JOIN tukang_group_members tgm ON tgm.tukang_group_id = tg.id WHERE tgm.tukang_id = ? AND tgm.status = 'approved'
+                UNION
+                SELECT tgm.tukang_id FROM tukang_group_members tgm JOIN tukang_group tg ON tg.id = tgm.tukang_group_id WHERE tg.tukang_id = ? AND tgm.status = 'approved'
+                UNION
+                SELECT tgm2.tukang_id FROM tukang_group_members tgm1 JOIN tukang_group_members tgm2 ON tgm2.tukang_group_id = tgm1.tukang_group_id WHERE tgm1.tukang_id = ? AND tgm1.status = 'approved' AND tgm2.status = 'approved'
+            ) as group_members
+        ";
+        $rows = $this->db->query($sql, [$tukangId, $tukangId, $tukangId, $tukangId])->getResultArray();
+        return array_column($rows, 'member_id');
     }
 
     /**
@@ -357,6 +397,7 @@ class TukangJobApi extends ResourceController
 
         try {
             $constructionId = $this->request->getVar('construction_id');
+            $groupTukangIds = $this->_getGroupTukangIds($tukangId);
 
             // 1. Cari proyek aktif untuk tukang ini
             $jaBuilder = $this->db->table('job_applications ja')
@@ -374,7 +415,7 @@ class TukangJobApi extends ResourceController
                 ->join('ahsp', 'ahsp.id = rab.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
                 ->join('construction_requests req', 'req.id = ja.project_id', 'left')
-                ->where('ja.tukang_id', $tukangId)
+                ->whereIn('ja.tukang_id', $groupTukangIds)
                 ->where('ja.project_type', 'construction')
                 ->orderBy('ja.id', 'DESC');
 
@@ -414,7 +455,7 @@ class TukangJobApi extends ResourceController
                 ->select('p.*')
                 ->join('construction_targets t', 't.id = p.id_construction_targets')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
-                ->where('ja.tukang_id', $tukangId)
+                ->whereIn('ja.tukang_id', $groupTukangIds)
                 ->where('t.construction_id', $currentConstructionId)
                 ->orderBy('p.created_at', 'DESC')
                 ->get()
@@ -433,7 +474,7 @@ class TukangJobApi extends ResourceController
                 ->join('ahsp', 'ahsp.id = r.ahsp_id', 'left')
                 ->join('construction_addendum ca', 'ca.id = t.id_construction_addendum', 'left')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
-                ->where('ja.tukang_id', $tukangId)
+                ->whereIn('ja.tukang_id', $groupTukangIds)
                 ->where('t.construction_id', $currentConstructionId)
                 ->get()
                 ->getResultArray();
@@ -445,6 +486,7 @@ class TukangJobApi extends ResourceController
 
                 $approved_volume = 0;
                 $pending_volume = 0;
+                $pending_client_volume = 0;
 
                 $last_report_status = null;
                 $last_report_date = null;
@@ -453,6 +495,7 @@ class TukangJobApi extends ResourceController
                 $approved_count = 0;
                 $rejected_count = 0;
                 $pending_count = 0;
+                $pending_client_count = 0;
 
                 if (isset($progressByTarget[$targetId])) {
                     $pList = $progressByTarget[$targetId];
@@ -470,6 +513,9 @@ class TukangJobApi extends ResourceController
                         } elseif ($pStatus === 'pending') {
                             $pending_volume += (float) $p['volume'];
                             $pending_count++;
+                        } elseif ($pStatus === 'pending_client') {
+                            $pending_client_volume += (float) $p['volume'];
+                            $pending_client_count++;
                         } elseif ($pStatus === 'rejected') {
                             $rejected_count++;
                         }
@@ -490,12 +536,14 @@ class TukangJobApi extends ResourceController
                     'is_late' => $is_late,
                     'approved_volume' => $approved_volume,
                     'pending_volume' => $pending_volume,
+                    'pending_client_volume' => $pending_client_volume,
                     'last_report_status' => $last_report_status,
                     'last_report_date' => $last_report_date,
                     'report_count' => $report_count,
                     'approved_count' => $approved_count,
                     'rejected_count' => $rejected_count,
-                    'pending_count' => $pending_count
+                    'pending_count' => $pending_count,
+                    'pending_client_count' => $pending_client_count
                 ];
             }
 
@@ -575,13 +623,14 @@ class TukangJobApi extends ResourceController
 
         try {
             $renovationId = $this->request->getVar('renovation_id');
+            $groupTukangIds = $this->_getGroupTukangIds($tukangId);
 
             // 1. Cari proyek aktif untuk tukang ini
             $jaBuilder = $this->db->table('job_applications ja')
                 ->select('ja.project_id as renovation_id, ja.tukang_id, rj.detail_pekerjaan as project_name, rr.id, rr.address, rr.start_date as project_start_date')
                 ->join('renovation_jobs rj', 'rj.renovation_id = ja.project_id', 'left')
                 ->join('renovation_requests rr', 'rr.id = ja.project_id', 'left')
-                ->where('ja.tukang_id', $tukangId)
+                ->whereIn('ja.tukang_id', $groupTukangIds)
                 ->where('ja.project_type', 'renovation')
                 ->orderBy('ja.id', 'DESC');
 
@@ -621,7 +670,7 @@ class TukangJobApi extends ResourceController
                 ->select('p.*')
                 ->join('renovation_targets t', 't.id = p.id_renovation_targets')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
-                ->where('ja.tukang_id', $tukangId)
+                ->whereIn('ja.tukang_id', $groupTukangIds)
                 ->where('t.renovation_id', $currentRenovationId)
                 ->orderBy('p.created_at', 'DESC')
                 ->get()
@@ -638,7 +687,7 @@ class TukangJobApi extends ResourceController
                 ->select('t.id, r.activity_name as target_name, t.start_week as startweek, t.end_week as endweek, t.bobot as weight, t.status')
                 ->join('renovation_rabs r', 'r.id = t.id_renovation_rabs', 'left')
                 ->join('job_applications ja', 'ja.id = t.id_job_applications')
-                ->where('ja.tukang_id', $tukangId)
+                ->whereIn('ja.tukang_id', $groupTukangIds)
                 ->where('t.renovation_id', $currentRenovationId)
                 ->get()
                 ->getResultArray();
@@ -650,6 +699,7 @@ class TukangJobApi extends ResourceController
 
                 $approved_weight = 0;
                 $pending_weight = 0;
+                $pending_client_weight = 0;
 
                 $last_report_status = null;
                 $last_report_date = null;
@@ -658,6 +708,7 @@ class TukangJobApi extends ResourceController
                 $approved_count = 0;
                 $rejected_count = 0;
                 $pending_count = 0;
+                $pending_client_count = 0;
 
                 if (isset($progressByTarget[$targetId])) {
                     $pList = $progressByTarget[$targetId];
@@ -675,6 +726,9 @@ class TukangJobApi extends ResourceController
                         } elseif ($pStatus === 'pending') {
                             $pending_weight += (float) $p['bobot'];
                             $pending_count++;
+                        } elseif ($pStatus === 'pending_client') {
+                            $pending_client_weight += (float) $p['bobot'];
+                            $pending_client_count++;
                         } elseif ($pStatus === 'rejected') {
                             $rejected_count++;
                         }
@@ -694,12 +748,14 @@ class TukangJobApi extends ResourceController
                     'is_late' => $is_late,
                     'approved_weight' => $approved_weight,
                     'pending_weight' => $pending_weight,
+                    'pending_client_weight' => $pending_client_weight,
                     'last_report_status' => $last_report_status,
                     'last_report_date' => $last_report_date,
                     'report_count' => $report_count,
                     'approved_count' => $approved_count,
                     'rejected_count' => $rejected_count,
-                    'pending_count' => $pending_count
+                    'pending_count' => $pending_count,
+                    'pending_client_count' => $pending_client_count
                 ];
             }
 

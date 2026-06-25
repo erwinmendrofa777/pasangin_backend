@@ -20,6 +20,7 @@ trait TukangRules
         'profile_photo'    => 'uploaded[profile_photo]|is_image[profile_photo]|max_size[profile_photo,2048]',
         'ktp_photo'        => 'uploaded[ktp_photo]|is_image[ktp_photo]|max_size[ktp_photo,2048]',
         'selfie_photo'     => 'uploaded[selfie_photo]|is_image[selfie_photo]|max_size[selfie_photo,2048]',
+        'role'             => 'permit_empty|in_list[mandor,tukang]',
     ];
 
     public array $tukangSave_errors = [
@@ -75,6 +76,9 @@ trait TukangRules
             'uploaded' => 'Foto selfie dengan KTP wajib diunggah.',
             'is_image' => 'File harus berupa gambar.',
             'max_size' => 'Ukuran foto selfie maksimal 2MB.',
+        ],
+        'role' => [
+            'in_list' => 'Peran (role) harus berupa mandor atau tukang.',
         ],
     ];
 

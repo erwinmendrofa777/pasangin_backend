@@ -644,6 +644,7 @@
     .prog-card.st-approved::before { background: #22c55e; }
     .prog-card.st-rejected::before { background: #ef4444; }
     .prog-card.st-pending::before  { background: #f59e0b; }
+    .prog-card.st-pending_client::before { background: #6366f1; }
 
     /* Status pill (clickable dropdown trigger) */
     .prog-status-pill {
@@ -666,6 +667,7 @@
     .prog-status-pill.approved { background: #dcfce7; color: #16a34a; }
     .prog-status-pill.rejected { background: #fee2e2; color: #dc2626; }
     .prog-status-pill.pending  { background: #fef9c3; color: #b45309; }
+    .prog-status-pill.pending_client { background: #e0e7ff; color: #4f46e5; }
 
     .prog-status-pill .prog-dot {
         width: 6px; height: 6px;
@@ -676,6 +678,7 @@
     .approved .prog-dot { background: #16a34a; }
     .rejected .prog-dot { background: #dc2626; }
     .pending  .prog-dot { background: #b45309; }
+    .pending_client .prog-dot { background: #4f46e5; }
 
     /* Custom dropdown for status */
     .prog-status-dropdown {

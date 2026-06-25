@@ -267,29 +267,6 @@
     }
 
     /* ── Row States ── */
-    .row-locked td {
-        background: #ffffff;
-        opacity: 1;
-    }
-
-    .row-locked input,
-    .row-locked select {
-        pointer-events: none;
-        background: transparent !important;
-        border-color: transparent !important;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-    }
-
-    .row-locked input:not(.input-roman),
-    .row-locked select {
-        color: #0f172a !important;
-    }
-
-    .row-locked input.input-roman {
-        color: var(--palette-primary) !important;
-    }
 
     /* ── Total Cell ── */
     .row-rab-total {
@@ -383,19 +360,7 @@
         justify-content: center;
     }
 
-    /* ── Lock Badge ── */
-    .lock-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #f1f5f9;
-        color: #94a3b8;
-        font-size: 12px;
-        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
-    }
+
 
     /* ── Min Widths ── */
     .col-roman {
@@ -928,6 +893,18 @@
         margin-left: 15px;
         flex-shrink: 0;
         background-size: 14px;
-        transition: transform 0.2s ease;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    #accordionRabMaterials .accordion-button:not(.collapsed)::after {
+        transform: rotate(-180deg) !important;
+    }
+
+    #accordionRabMaterials .collapsing {
+        transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    #accordionRabMaterials .accordion-button {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
     }
 </style>

@@ -451,7 +451,12 @@
 
                             <div class="mb-3" id="3dObjectInputContainer">
                                 <label class="form-label text-muted fw-bold" style="font-size:10px;letter-spacing:.5px;text-transform:uppercase;">NAMA OBJEK 3D (STRING) (OPSIONAL)</label>
-                                <input type="text" name="3d_object_name" id="3dObjectNameInput" class="form-control form-control-sm" placeholder="Contoh: UnityObject_Building_Floor1" style="height: 40px;border-radius:8px;font-size:13px; border: 1.5px solid #cbd5e1;">
+                                <div class="input-group">
+                                    <input type="text" name="3d_object_name" id="3dObjectNameInput" class="form-control form-control-sm" placeholder="Contoh: UnityObject_Building_Floor1" style="height: 40px; border-top-left-radius:8px; border-bottom-left-radius:8px; border-top-right-radius: 0; border-bottom-right-radius: 0; font-size:13px; border: 1.5px solid #cbd5e1; border-right: none;">
+                                    <button class="btn btn-outline-primary btn-sm shadow-none" type="button" id="btnGenerate3dKey" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 0; border-bottom-left-radius: 0; border: 1.5px solid #cbd5e1; border-left: none; height: 40px; background-color: #f8fafc; color: var(--palette-primary, #0d6efd); font-weight: bold; font-size: 11px; padding: 0 16px; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                                        <i class="fas fa-random"></i> Generate Key
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

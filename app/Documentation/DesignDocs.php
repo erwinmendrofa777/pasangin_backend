@@ -371,4 +371,67 @@ class DesignDocs
         ]
     )]
     public function invoices() {}
+
+    #[OA\Get(
+        path: "/api/design/rabs/{designRequestId}",
+        summary: "Ambil RAB Proyek Desain",
+        description: "Mengambil daftar RAB (Rencana Anggaran Biaya) proyek desain beserta pilihan material produk rekomendasi.",
+        tags: ["Design (Desain)"],
+        security: [
+            ["bearerAuth" => []]
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: "designRequestId",
+                in: "path",
+                description: "ID Pengajuan Desain (design_requests.id)",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Detail RAB Proyek desain ditemukan.",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "status", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Detail RAB Proyek desain ditemukan"),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items(
+                            type: "object",
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1),
+                                new OA\Property(property: "design_request_id", type: "integer", example: 1),
+                                new OA\Property(property: "roman_number", type: "string", example: "I"),
+                                new OA\Property(property: "group_name", type: "string", example: "PEKERJAAN PERSIAPAN"),
+                                new OA\Property(property: "section_name", type: "string", nullable: true, example: "Persiapan Lahan"),
+                                new OA\Property(property: "activity_name", type: "string", example: "Pembersihan Lahan"),
+                                new OA\Property(property: "volume", type: "number", format: "float", example: 120.5),
+                                new OA\Property(property: "unit", type: "string", example: "m2"),
+                                new OA\Property(property: "current_unit_price", type: "number", format: "float", example: 15000),
+                                new OA\Property(property: "total_price", type: "number", format: "float", example: 1807500),
+                                new OA\Property(property: "is_locked", type: "integer", example: 0),
+                                new OA\Property(property: "image_url", type: "string", nullable: true, example: "https://backend.pasangin.co.id/uploads/design/rab/file.pdf"),
+                                new OA\Property(property: "materials", type: "array", items: new OA\Items(
+                                    type: "object",
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer", example: 5),
+                                        new OA\Property(property: "rab_id", type: "integer", example: 1),
+                                        new OA\Property(property: "product_id", type: "integer", example: 12),
+                                        new OA\Property(property: "product_name", type: "string", example: "Semen Tiga Roda 40kg"),
+                                        new OA\Property(property: "product_price", type: "number", format: "float", example: 65000),
+                                        new OA\Property(property: "product_unit", type: "string", example: "sak"),
+                                        new OA\Property(property: "product_image_url", type: "string", nullable: true, example: "https://backend.pasangin.co.id/uploads/products/semen.jpg")
+                                    ]
+                                ))
+                            ]
+                        ))
+                    ]
+                )
+            ),
+            new OA\Response(response: 400, description: "Design Request ID tidak boleh kosong."),
+            new OA\Response(response: 401, description: "Unauthorized.")
+        ]
+    )]
+    public function rabs() {}
 }

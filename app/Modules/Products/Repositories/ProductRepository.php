@@ -34,7 +34,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function findAllWithSupplier(): array
     {
         return $this->model
-            ->select('products.*, suppliers.name as supplier_name')
+            ->select('products.*, suppliers.name as supplier_name, suppliers.city as supplier_city')
             ->join('suppliers', 'suppliers.id = products.supplier_id', 'left')
             ->findAll();
     }

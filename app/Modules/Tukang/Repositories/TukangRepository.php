@@ -38,6 +38,9 @@ class TukangRepository implements TukangRepositoryInterface
                 'COALESCE((SELECT ROUND(AVG(skill_score), 1) FROM tukang_rating WHERE tukang_rating.id_tukang = tukang.id), 0) as skill_score',
                 'COALESCE((SELECT ROUND(AVG(behavior_score), 1) FROM tukang_rating WHERE tukang_rating.id_tukang = tukang.id), 0) as behavior_score',
                 'COALESCE(tukang.rata_rata_rating, 0) as rata_rata_rating',
+                'COALESCE((SELECT name_group FROM tukang_group WHERE tukang_id = tukang.id LIMIT 1), (SELECT tg.name_group FROM tukang_group tg JOIN tukang_group_members tgm ON tgm.tukang_group_id = tg.id WHERE tgm.tukang_id = tukang.id LIMIT 1)) AS group_name',
+                'COALESCE((SELECT referral_code FROM tukang_group WHERE tukang_id = tukang.id LIMIT 1), (SELECT tg.referral_code FROM tukang_group tg JOIN tukang_group_members tgm ON tgm.tukang_group_id = tg.id WHERE tgm.tukang_id = tukang.id LIMIT 1)) AS group_referral_code',
+                'CASE WHEN tukang.role = \'mandor\' AND (SELECT id FROM tukang_group WHERE tukang_id = tukang.id LIMIT 1) IS NOT NULL THEN \'owner\' ELSE (SELECT status FROM tukang_group_members WHERE tukang_id = tukang.id LIMIT 1) END AS group_status'
             ])
             ->orderBy('tukang.id', 'DESC')
             ->get()
@@ -150,5 +153,35 @@ class TukangRepository implements TukangRepositoryInterface
         }
         
         return $results;
+    }
+
+    public function findGroupConstructionTargets(): array
+    {
+        return $this->model->db->query("
+            SELECT 
+                ct.id,
+                ct.construction_id,
+                creq.address as project_address,
+                creq.start_date,
+                creq.workday,
+                COALESCE(ahsp.uraian, ca.activity_name) as activity_name,
+                COALESCE(crab.volume, ca.volume) as volume,
+                COALESCE(crab.unit, ca.unit) as unit,
+                ct.start_week,
+                ct.end_week,
+                ct.status,
+                ja.tukang_id,
+                COALESCE(
+                    (SELECT name_group FROM tukang_group WHERE tukang_id = ja.tukang_id LIMIT 1),
+                    (SELECT tg.name_group FROM tukang_group tg JOIN tukang_group_members tgm ON tgm.tukang_group_id = tg.id WHERE tgm.tukang_id = ja.tukang_id AND tgm.status = 'approved' LIMIT 1)
+                ) as group_name
+            FROM construction_targets ct
+            JOIN job_applications ja ON ja.id = ct.id_job_applications
+            JOIN construction_requests creq ON creq.id = ct.construction_id
+            LEFT JOIN rabs crab ON crab.id = ct.id_construction_rabs
+            LEFT JOIN ahsp ON ahsp.id = crab.ahsp_id
+            LEFT JOIN construction_addendum ca ON ca.id = ct.id_construction_addendum
+            ORDER BY ct.construction_id DESC, ct.start_week ASC
+        ")->getResultArray();
     }
 }

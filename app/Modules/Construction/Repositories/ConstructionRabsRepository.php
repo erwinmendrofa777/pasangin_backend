@@ -23,10 +23,23 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
     {
         $this->recalculateUnlockedRabs($id);
 
-        return $this->model
-            ->select('group_name, SUM(total_price) as total_price')
-            ->where('construction_id', $id)
-            ->groupBy('roman_number, group_name')
+        $db = \Config\Database::connect();
+        $project = $db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $id)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
+        $builder = $this->model
+            ->select('group_name, SUM(total_price) as total_price');
+
+        if ($designRequestId) {
+            $builder->where('design_request_id', $designRequestId);
+        } else {
+            $builder->where('construction_id', $id);
+        }
+
+        return $builder->groupBy('roman_number, group_name')
             ->orderBy('roman_number', 'ASC')
             ->findAll();
     }
@@ -35,23 +48,56 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
     {
         $this->recalculateUnlockedRabs($constructionId);
 
-        return $this->model
+        $db = \Config\Database::connect();
+        $project = $db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $constructionId)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
+        $builder = $this->model
             ->select('rabs.*, ahsp.uraian as activity_name, ahsp.kode as ahsp_kode, (SELECT COALESCE(SUM(harga_satuan * koefisien), 0) FROM ahsp_tenaga_kerja WHERE ahsp_tenaga_kerja.ahsp_id = rabs.ahsp_id) AS ahsp_tenaga_kerja_total')
-            ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left')
-            ->where('construction_id', $constructionId)
-            ->orderBy('roman_number', 'ASC')
+            ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left');
+
+        if ($designRequestId) {
+            $builder->where('design_request_id', $designRequestId);
+        } else {
+            $builder->where('construction_id', $constructionId);
+        }
+
+        return $builder->orderBy('roman_number', 'ASC')
             ->orderBy('id', 'ASC')
             ->findAll();
     }
 
     public function insert(array $data): int
     {
+        if (isset($data['construction_id']) && !isset($data['design_request_id'])) {
+            $db = \Config\Database::connect();
+            $project = $db->table('construction_requests')
+                ->select('design_request_id')
+                ->where('id', $data['construction_id'])
+                ->get()->getRowArray();
+            if ($project && !empty($project['design_request_id'])) {
+                $data['design_request_id'] = $project['design_request_id'];
+            }
+        }
         $this->model->insert($data);
         return (int) $this->model->getInsertID();
     }
 
     public function update(int $id, array $data): bool
     {
+        if (isset($data['construction_id']) && !isset($data['design_request_id'])) {
+            $db = \Config\Database::connect();
+            $project = $db->table('construction_requests')
+                ->select('design_request_id')
+                ->where('id', $data['construction_id'])
+                ->get()->getRowArray();
+            if ($project && !empty($project['design_request_id'])) {
+                $data['design_request_id'] = $project['design_request_id'];
+            }
+        }
         return (bool) $this->model->update($id, $data);
     }
 
@@ -62,23 +108,61 @@ class ConstructionRabsRepository implements ConstructionRabsRepositoryInterface
 
     public function lockByConstructionId(int $constructionId): bool
     {
+        $db = \Config\Database::connect();
+        $project = $db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $constructionId)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
+        if ($designRequestId) {
+            return (bool) $this->model->where('design_request_id', $designRequestId)->update(null, ['is_locked' => 1]);
+        }
         return (bool) $this->model->where('construction_id', $constructionId)->update(null, ['is_locked' => 1]);
     }
 
     public function unlockByConstructionId(int $constructionId): bool
     {
+        $db = \Config\Database::connect();
+        $project = $db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $constructionId)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
+        if ($designRequestId) {
+            return (bool) $this->model->where('design_request_id', $designRequestId)->update(null, ['is_locked' => 0]);
+        }
         return (bool) $this->model->where('construction_id', $constructionId)->update(null, ['is_locked' => 0]);
     }
 
     private function recalculateUnlockedRabs(int $constructionId): void
     {
         $db = \Config\Database::connect();
+
+        // Cek design_request_id
+        $project = $db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $constructionId)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
+        if ($designRequestId) {
+            // Sinkronisasikan construction_id ke baris RAB desain jika belum terisi
+            $db->table('rabs')
+                ->where('design_request_id', $designRequestId)
+                ->where('construction_id', null)
+                ->update(['construction_id' => $constructionId]);
+        }
         
         // 1. Ambil semua baris RAB yang tidak terkunci
-        $unlockedRabs = $db->table('rabs')
-            ->where('construction_id', $constructionId)
-            ->where('is_locked', 0)
-            ->get()->getResultArray();
+        $builder = $db->table('rabs')->where('is_locked', 0);
+        if ($designRequestId) {
+            $builder->where('design_request_id', $designRequestId);
+        } else {
+            $builder->where('construction_id', $constructionId);
+        }
+        $unlockedRabs = $builder->get()->getResultArray();
             
         if (empty($unlockedRabs)) {
             return;

@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="SystemSettingsTest" file="D:\Program Files\backend_core\tests\unit\SystemSettingsTest.php" tests="1" assertions="0" errors="1" warnings="0" failures="0" skipped="0" time="0.592528">
-    <testcase name="testGetValAndSetVal" class="SystemSettingsTest" classname="SystemSettingsTest" file="D:\Program Files\backend_core\tests\unit\SystemSettingsTest.php" line="17" assertions="0" time="0.592528">
-      <error type="CodeIgniter\Database\Exceptions\DatabaseException">SystemSettingsTest::testGetValAndSetVal
+  <testsuite name="" tests="6" assertions="7" errors="1" warnings="0" failures="0" skipped="0" time="0.085132">
+    <testsuite name="App" tests="6" assertions="7" errors="1" warnings="0" failures="0" skipped="0" time="0.085132">
+      <testsuite name="ExampleDatabaseTest" file="D:\Program Files\backend_core\tests\database\ExampleDatabaseTest.php" tests="2" assertions="3" errors="0" warnings="0" failures="0" skipped="0" time="0.053372">
+        <testcase name="testModelFindAll" class="ExampleDatabaseTest" classname="ExampleDatabaseTest" file="D:\Program Files\backend_core\tests\database\ExampleDatabaseTest.php" line="17" assertions="1" time="0.042738"/>
+        <testcase name="testSoftDeleteLeavesRow" class="ExampleDatabaseTest" classname="ExampleDatabaseTest" file="D:\Program Files\backend_core\tests\database\ExampleDatabaseTest.php" line="28" assertions="2" time="0.010634"/>
+      </testsuite>
+      <testsuite name="ExampleSessionTest" file="D:\Program Files\backend_core\tests\session\ExampleSessionTest.php" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.000901">
+        <testcase name="testSessionSimple" class="ExampleSessionTest" classname="ExampleSessionTest" file="D:\Program Files\backend_core\tests\session\ExampleSessionTest.php" line="10" assertions="1" time="0.000901"/>
+      </testsuite>
+      <testsuite name="HealthTest" file="D:\Program Files\backend_core\tests\unit\HealthTest.php" tests="2" assertions="3" errors="0" warnings="0" failures="0" skipped="0" time="0.015327">
+        <testcase name="testIsDefinedAppPath" class="HealthTest" classname="HealthTest" file="D:\Program Files\backend_core\tests\unit\HealthTest.php" line="12" assertions="1" time="0.000852"/>
+        <testcase name="testBaseUrlHasBeenSet" class="HealthTest" classname="HealthTest" file="D:\Program Files\backend_core\tests\unit\HealthTest.php" line="17" assertions="2" time="0.014476"/>
+      </testsuite>
+      <testsuite name="SystemSettingsTest" file="D:\Program Files\backend_core\tests\unit\SystemSettingsTest.php" tests="1" assertions="0" errors="1" warnings="0" failures="0" skipped="0" time="0.015532">
+        <testcase name="testGetValAndSetVal" class="SystemSettingsTest" classname="SystemSettingsTest" file="D:\Program Files\backend_core\tests\unit\SystemSettingsTest.php" line="17" assertions="0" time="0.015532">
+          <error type="CodeIgniter\Database\Exceptions\DatabaseException">SystemSettingsTest::testGetValAndSetVal
 CodeIgniter\Database\Exceptions\DatabaseException: no such table: db_conversations
 
 D:\Program Files\backend_core\vendor\codeigniter4\framework\system\Database\BaseConnection.php:863
@@ -14,6 +27,8 @@ D:\Program Files\backend_core\vendor\codeigniter4\framework\system\Test\Database
 D:\Program Files\backend_core\vendor\codeigniter4\framework\system\Test\DatabaseTestTrait.php:128
 D:\Program Files\backend_core\vendor\codeigniter4\framework\system\Test\DatabaseTestTrait.php:68
 D:\Program Files\backend_core\vendor\codeigniter4\framework\system\Test\CIUnitTestCase.php:254</error>
-    </testcase>
+        </testcase>
+      </testsuite>
+    </testsuite>
   </testsuite>
 </testsuites>

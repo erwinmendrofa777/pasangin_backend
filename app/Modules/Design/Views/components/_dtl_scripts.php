@@ -9,8 +9,28 @@
         }
     }
 
+    function updateScrollButtons() {
+        const container = document.querySelector('.nav-tabs-premium');
+        const btnLeft = document.querySelector('.nav-scroll-btn.left');
+        const btnRight = document.querySelector('.nav-scroll-btn.right');
+        if (!container || !btnLeft || !btnRight) return;
+
+        const hasScroll = container.scrollWidth > container.clientWidth;
+        if (hasScroll) {
+            btnLeft.style.display = 'flex';
+            btnRight.style.display = 'flex';
+        } else {
+            btnLeft.style.display = 'none';
+            btnRight.style.display = 'none';
+        }
+    }
+
     // Otomatis membuka Tab berdasarkan URL Hash
     document.addEventListener("DOMContentLoaded", function () {
+        // Hapus penanganan flash pencegah wrong-tab agar Bootstrap normal kembali
+        document.documentElement.classList.remove('has-tab-hash');
+        document.documentElement.removeAttribute('data-active-tab');
+
         var hash = location.hash.replace(/^#/, '');
         if (hash) {
             var triggerEl = document.querySelector('#myTab a[href="#' + hash + '"]');
@@ -21,17 +41,40 @@
             }
         }
 
-        // Update URL hash ketika tab di-klik
+        // Update URL hash ketika tab di-klik dan jalankan animasi
         var tabLinks = document.querySelectorAll('#myTab a[data-bs-toggle="tab"]');
         tabLinks.forEach(function (link) {
             link.addEventListener('shown.bs.tab', function (e) {
+                // 1. Update URL Hash
                 if (history.pushState) {
                     history.pushState(null, null, e.target.hash);
                 } else {
                     window.location.hash = e.target.hash;
                 }
+
+                // 2. Animasi Tab Content dengan Animate.css (fadeInUpMini)
+                var targetSelector = e.target.hash;
+                var pane = document.querySelector(targetSelector);
+                if (pane) {
+                    // Bersihkan kelas animasi lama (jika ada)
+                    pane.classList.remove('animate__animated', 'animate__fadeIn', 'animate__faster', 'animate__fadeInUpMini');
+                    // Trigger reflow untuk mengulang animasi
+                    void pane.offsetWidth;
+                    // Tambahkan kelas animasi
+                    pane.classList.add('animate__animated', 'animate__fadeInUpMini');
+                }
             });
         });
+
+        // Jalankan animasi awal untuk tab yang aktif saat pertama load
+        var activePane = document.querySelector('.tab-content .tab-pane.active');
+        if (activePane) {
+            activePane.classList.add('animate__animated', 'animate__fadeInUpMini');
+        }
+
+        // Cek visibilitas tombol scroll awal
+        updateScrollButtons();
+        window.addEventListener('resize', updateScrollButtons);
     });
 
     // Flash Messages

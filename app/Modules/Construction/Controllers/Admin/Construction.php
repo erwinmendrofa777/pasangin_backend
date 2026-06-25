@@ -595,17 +595,36 @@ class Construction extends BaseController
         }
 
         try {
-            $constructionId = $this->svc->updateProgressStatus((int) $id, $status);
+            $dbStatus = strtoupper($status);
+            if ($dbStatus === 'APPROVED') {
+                $dbStatus = 'PENDING_CLIENT';
+            }
+            $constructionId = $this->svc->updateProgressStatus((int) $id, $dbStatus);
 
-            // Kirim Notifikasi ke Tukang
+            // Kirim Notifikasi
             $details = $this->svc->findConstructionWithDetails((int) $constructionId);
             $project = $details['construction'] ?? null;
 
-            if ($project && !empty($project['tukang_id'])) {
-                $title = "Status Progres Diperbarui";
-                $message = "Status laporan progres proyek telah diperbarui menjadi: " . strtoupper($status) . ".";
-
-                $this->notifService->sendPersonal('tukang', (int) $project['tukang_id'], $title, $message);
+            if ($project) {
+                if ($dbStatus === 'PENDING_CLIENT') {
+                    if (!empty($project['user_id'])) {
+                        $title = "Persetujuan Progres Proyek";
+                        $message = "Admin telah menyetujui laporan progres. Silakan tinjau dan berikan persetujuan Anda.";
+                        $this->notifService->sendPersonal('client', (int) $project['user_id'], $title, $message);
+                    }
+                } else if ($dbStatus === 'REJECTED') {
+                    if (!empty($project['tukang_id'])) {
+                        $title = "Laporan Progres Ditolak";
+                        $message = "Laporan progres Anda telah ditolak oleh Admin.";
+                        $this->notifService->sendPersonal('tukang', (int) $project['tukang_id'], $title, $message);
+                    }
+                } else {
+                    if (!empty($project['tukang_id'])) {
+                        $title = "Status Progres Diperbarui";
+                        $message = "Status laporan progres proyek telah diperbarui menjadi: " . $dbStatus . ".";
+                        $this->notifService->sendPersonal('tukang', (int) $project['tukang_id'], $title, $message);
+                    }
+                }
             }
 
             log_admin_activity('update_status', 'Construction', 'Update Status Progres ' . $constructionId);

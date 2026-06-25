@@ -238,12 +238,13 @@ class ConstructionService
                 if (!$designRequestId) return [];
                 $pdRepo = new \App\Modules\Design\Repositories\ProjectDesignsRepository();
                 $list = $pdRepo->findWithTaskByDesignRequestId($designRequestId);
+                $list = array_filter($list, fn($d) => ($d['status'] ?? '') === 'APPROVED');
                 foreach ($list as &$d) {
                     $d['title'] = $d['design_name'] ?? 'Desain';
                     $d['design_requests_id'] = $d['design_request_id'];
                     $d['comment'] = $d['revision_note'] ?? null;
                 }
-                return $list;
+                return array_values($list);
             })($construction['design_request_id'] ?? null),
             'survey_list' => (function($designRequestId) {
                 if (!$designRequestId) return [];
@@ -360,12 +361,25 @@ class ConstructionService
         $this->constructionRepository->update($id, ['status' => 'CONSTRUCTION']);
 
         $db = \Config\Database::connect();
+
+        $project = $db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $id)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
         
         // Hitung ulang total RAB
-        $rabRow = $db->query(
-            "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
-            [$id]
-        )->getRowArray();
+        if ($designRequestId) {
+            $rabRow = $db->query(
+                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
+                [$designRequestId]
+            )->getRowArray();
+        } else {
+            $rabRow = $db->query(
+                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
+                [$id]
+            )->getRowArray();
+        }
         
         $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
         
@@ -382,11 +396,17 @@ class ConstructionService
         $userId = $proj ? ($proj['user_id'] ?? null) : null;
         
         if ($userId) {
-            $rabs = $db->table('rabs')
+            $rabsBuilder = $db->table('rabs')
                 ->select('rabs.*, ahsp.uraian as activity_name')
-                ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left')
-                ->where('construction_id', $id)
-                ->get()->getResultArray();
+                ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left');
+
+            if ($designRequestId) {
+                $rabsBuilder->where('design_request_id', $designRequestId);
+            } else {
+                $rabsBuilder->where('construction_id', $id);
+            }
+
+            $rabs = $rabsBuilder->get()->getResultArray();
 
             foreach ($rabs as $rab) {
                 $desc = trim(($rab['sub_group_name'] ? $rab['sub_group_name'] . ' — ' : '') . ($rab['activity_name'] ?: 'Pekerjaan'));
@@ -741,7 +761,54 @@ class ConstructionService
 
     public function deleteProgress(int $id): void
     {
-        $this->progressRepository->delete($id);
+        $progress = $this->progressRepository->findById($id);
+        if ($progress) {
+            $targetId = (int) $progress['id_construction_targets'];
+            $this->progressRepository->delete($id);
+            if ($targetId > 0) {
+                $this->recalculateTargetStatus($targetId);
+            }
+        }
+    }
+
+    public function recalculateTargetStatus(int $targetId): void
+    {
+        $target = $this->targetRepository->findById($targetId);
+        if (!$target) {
+            return;
+        }
+
+        $db = \Config\Database::connect();
+        $targetVolume = 0.0;
+
+        if (!empty($target['id_construction_rabs'])) {
+            $rabRow = $db->table('rabs')
+                ->where('id', $target['id_construction_rabs'])
+                ->select('volume')
+                ->get()->getRowArray();
+            $targetVolume = (float)($rabRow['volume'] ?? 0);
+        } elseif (!empty($target['id_construction_addendum'])) {
+            $addendumRow = $db->table('construction_addendum')
+                ->where('id', $target['id_construction_addendum'])
+                ->select('volume')
+                ->get()->getRowArray();
+            $targetVolume = (float)($addendumRow['volume'] ?? 0);
+        }
+
+        $approvedProgressRow = $db->table('construction_progress')
+            ->where('id_construction_targets', $targetId)
+            ->where('status', 'APPROVED')
+            ->selectSum('volume')
+            ->get()->getRowArray();
+        $totalApprovedVolume = (float)($approvedProgressRow['volume'] ?? 0);
+
+        if ($targetVolume > 0 && $totalApprovedVolume >= $targetVolume) {
+            $this->targetRepository->update($targetId, ['status' => 'Achieved']);
+        } elseif ($totalApprovedVolume > 0) {
+            $this->targetRepository->update($targetId, ['status' => 'Progress']);
+        } else {
+            $this->targetRepository->update($targetId, ['status' => 'Pending']);
+        }
     }
 
     public function updateProgressStatus(int $id, string $status): int
@@ -754,14 +821,12 @@ class ConstructionService
         $constructionId = (int) $progress['construction_id'];
         $this->progressRepository->update($id, ['status' => strtoupper($status)]);
 
-        if (strtoupper($status) === 'APPROVED') {
-            $targetId = (int) $progress['id_construction_targets'];
-            $target = $this->targetRepository->findById($targetId);
+        $targetId = (int) $progress['id_construction_targets'];
+        if ($targetId > 0) {
+            $this->recalculateTargetStatus($targetId);
+        }
 
-            if ($target) {
-                // Bisa tambahkan logika update status target jika sudah 100%
-                // Tapi saat ini kita biarkan dulu sesuai permintaan user.
-            }
+        if (strtoupper($status) === 'APPROVED') {
 
             // Hitung total anggaran (RAB + Addendum)
             $db = \Config\Database::connect();

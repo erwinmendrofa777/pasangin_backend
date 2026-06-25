@@ -24,6 +24,7 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Design
     $routes->post('design/update-target-status-ajax', 'DesignRequests::updateTargetStatusAjax');
     $routes->post('design/update-target-designer-ajax', 'DesignRequests::updateTargetDesignerAjax');
     $routes->post('design/get-target-designs-ajax', 'DesignRequests::getTargetDesignsAjax');
+    $routes->post('design/check-3d-name-ajax', 'DesignRequests::check3dNameAjax');
     $routes->post('design/update-target-keterangan-ajax', 'DesignRequests::updateTargetKeteranganAjax');
     $routes->get('design/approve-design/(:num)', 'DesignRequests::approveDesign/$1');
     $routes->post('design/reject-design/(:num)', 'DesignRequests::rejectDesign/$1');
@@ -40,6 +41,4 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Design
     $routes->get('design/download-rab-template/(:num)', 'DesignRabController::download_rab_template/$1');
     $routes->post('design/import-rab-excel/(:num)', 'DesignRabController::import_rab_excel/$1');
     $routes->get('design/export-rab-excel/(:num)', 'DesignRabController::export_rab_excel/$1');
-    $routes->get('design/lock_rab/(:num)', 'DesignRequests::lock_rab/$1');
-    $routes->get('design/unlock_rab/(:num)', 'DesignRequests::unlock_rab/$1');
 });

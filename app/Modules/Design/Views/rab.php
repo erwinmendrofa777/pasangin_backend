@@ -12,36 +12,18 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-md-end gap-2 flex-wrap flex-sm-nowrap">
-                <?php
-                $isLocked = false;
-                if (!empty($rab_list)) {
-                    $isLocked = (int) $rab_list[0]['is_locked'] === 1;
-                }
-                ?>
-                <?php if (!$isLocked): ?>
-                    <button type="button" id="btnSaveDraft" class="btn-adm btn-adm-success ladda-button"
-                        data-style="zoom-in" onclick="saveAllRab(false)">
-                        <i class="fas fa-save"></i> Simpan Draf
-                    </button>
-                    <button type="button" class="btn-adm btn-adm-success" data-bs-toggle="modal"
-                        data-bs-target="#modalImportRab">
-                        <i class="fas fa-file-import"></i> Import Excel
-                    </button>
-                    <button type="button" id="btnLockRab" class="btn-adm btn-adm-danger ladda-button"
-                        data-style="zoom-in" onclick="saveAllRab(true)">
-                        <i class="fas fa-lock"></i> Kunci & Simpan RAB
-                    </button>
-                <?php else: ?>
-                    <a href="<?= base_url('admin/design/export-rab-excel/' . $request['id']) ?>"
-                        class="btn-adm btn-adm-success">
-                        <i class="fas fa-file-excel"></i> Export Excel
-                    </a>
-                    <a href="<?= base_url('admin/design/unlock_rab/' . $request['id']) ?>"
-                        class="btn-adm btn-adm-warning ladda-button" data-style="zoom-in"
-                        onclick="Ladda.create(this).start();">
-                        <i class="fas fa-lock-open"></i> Buka Kunci
-                    </a>
-                <?php endif; ?>
+                <button type="button" id="btnSaveDraft" class="btn-adm btn-adm-success ladda-button"
+                    data-style="zoom-in" onclick="saveAllRab()">
+                    <i class="fas fa-save"></i> Simpan Draf
+                </button>
+                <button type="button" class="btn-adm btn-adm-success" data-bs-toggle="modal"
+                    data-bs-target="#modalImportRab">
+                    <i class="fas fa-file-import"></i> Import Excel
+                </button>
+                <a href="<?= base_url('admin/design/export-rab-excel/' . $request['id']) ?>"
+                    class="btn-adm btn-adm-success">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </a>
             </div>
         </div>
     </div>
@@ -84,13 +66,11 @@
                                 ?>
                                 <tr class="row-rab-subtotal">
                                     <td colspan="4" class="text-center" style="padding-left: 10px;">
-                                        <?php if (!$isLocked): ?>
-                                            <button type="button" class="btn btn-sm btn-link text-primary p-0"
-                                                style="font-size: 11px; text-decoration: none; font-weight: 500;"
-                                                onclick="addNewRabRowAt('<?= esc($currentRoman) ?>', '<?= esc($currentGroupName ?? 'PEKERJAAN') ?>', this)">
-                                                <i class="fas fa-plus-circle me-1"></i> Tambah Baris
-                                            </button>
-                                        <?php endif; ?>
+                                        <button type="button" class="btn btn-sm btn-link text-primary p-0"
+                                            style="font-size: 11px; text-decoration: none; font-weight: 500;"
+                                            onclick="addNewRabRowAt('<?= esc($currentRoman) ?>', '<?= esc($currentGroupName ?? 'PEKERJAAN') ?>', this)">
+                                            <i class="fas fa-plus-circle me-1"></i> Tambah Baris
+                                        </button>
                                     </td>
                                     <td colspan="3" class="text-end fw-bold text-uppercase"
                                         style="color: #4a5568; padding-right: 15px !important;">
@@ -110,7 +90,7 @@
                             $currentGroupName = $rab['group_name'] ?? 'PEKERJAAN';
                             $currentGroupSum += $subTotal;
                             ?>
-                            <tr data-id="<?= $rab['id'] ?>" class="<?= $rab['is_locked'] ? 'row-locked' : '' ?>">
+                            <tr data-id="<?= $rab['id'] ?>">
                                 <td>
                                     <?php
                                     $romanClass = 'input-rab-roman input-roman';
@@ -152,7 +132,7 @@
                                         value="<?= $rab['volume'] ?>" oninput="calculateGrandTotalRab()">
                                 </td>
                                 <td>
-                                    <select class="input-rab-unit input-unit" <?= $isLocked ? 'disabled' : '' ?>>
+                                    <select class="input-rab-unit input-unit">
                                         <option value="">— Pilih —</option>
                                         <?php
                                         $found = false;
@@ -184,30 +164,20 @@
                                 </td>
                                 <td class="row-rab-total"><?= number_format($subTotal, 2, ',', '.') ?></td>
                                 <td>
-                                    <?php if ($rab['is_locked'] == 1): ?>
-                                        <div class="tbl-actions" style="justify-content:center;">
-                                            <button class="tbl-btn tbl-btn-detail" title="Detail AHSP"
-                                                onclick="openAhspDetailModal('<?= esc($rab['ahsp_id']) ?>', '<?= esc(addslashes($rab['activity_name'])) ?>', <?= $rab['id'] ?>, <?= (float) $rab['volume'] ?>)">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
-                                            <span class="lock-badge"><i class="fas fa-lock"></i></span>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="tbl-actions">
-                                            <button class="tbl-btn tbl-btn-detail" title="Detail AHSP"
-                                                onclick="openAhspDetailModal('<?= esc($rab['ahsp_id']) ?>', '<?= esc(addslashes($rab['activity_name'])) ?>', <?= $rab['id'] ?>, <?= (float) $rab['volume'] ?>)">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
-                                            <button class="tbl-btn tbl-btn-mat" title="Bahan"
-                                                onclick="openRabMaterialModal(<?= $rab['id'] ?>, '<?= esc($rab['activity_name']) ?>')">
-                                                <i class="fas fa-boxes"></i>
-                                            </button>
-                                            <button class="tbl-btn tbl-btn-del" title="Hapus"
-                                                onclick="deleteRabRow(this, <?= $rab['id'] ?>)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    <?php endif; ?>
+                                    <div class="tbl-actions">
+                                        <button class="tbl-btn tbl-btn-detail" title="Detail AHSP"
+                                            onclick="openAhspDetailModal('<?= esc($rab['ahsp_id']) ?>', '<?= esc(addslashes($rab['activity_name'])) ?>', <?= $rab['id'] ?>, <?= (float) $rab['volume'] ?>)">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>
+                                        <button class="tbl-btn tbl-btn-mat" title="Bahan"
+                                            onclick="openRabMaterialModal(<?= $rab['id'] ?>, '<?= esc($rab['activity_name']) ?>')">
+                                            <i class="fas fa-boxes"></i>
+                                        </button>
+                                        <button class="tbl-btn tbl-btn-del" title="Hapus"
+                                            onclick="deleteRabRow(this, <?= $rab['id'] ?>)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             <?php
@@ -222,13 +192,11 @@
                             ?>
                             <tr class="row-rab-subtotal">
                                 <td colspan="4" class="text-center" style="padding-left: 10px;">
-                                    <?php if (!$isLocked): ?>
-                                        <button type="button" class="btn btn-sm btn-link text-primary p-0"
-                                            style="font-size: 11px; text-decoration: none; font-weight: 500;"
-                                            onclick="addNewRabRowAt('<?= esc($currentRoman) ?>', '<?= esc($currentGroupName ?? 'PEKERJAAN') ?>', this)">
-                                            <i class="fas fa-plus-circle me-1"></i> Tambah Baris
-                                        </button>
-                                    <?php endif; ?>
+                                    <button type="button" class="btn btn-sm btn-link text-primary p-0"
+                                        style="font-size: 11px; text-decoration: none; font-weight: 500;"
+                                        onclick="addNewRabRowAt('<?= esc($currentRoman) ?>', '<?= esc($currentGroupName ?? 'PEKERJAAN') ?>', this)">
+                                        <i class="fas fa-plus-circle me-1"></i> Tambah Baris
+                                    </button>
                                 </td>
                                 <td colspan="3" class="text-end fw-bold text-uppercase"
                                     style="color: #4a5568; padding-right: 15px !important;">
@@ -247,14 +215,12 @@
                 <tfoot>
                     <tr>
                         <td colspan="4" class="text-center" style="padding: 10px;">
-                            <?php if (!$isLocked): ?>
-                                <button type="button" class="btn btn-sm btn-link text-primary p-0"
-                                    style="font-size: 11px; text-decoration: none; font-weight: 500;"
-                                    onclick="addNewRabRow()">
-                                    <i class="fas fa-plus-circle me-1"></i>
-                                    <?= empty($rab_list) ? 'Tambah Baris Pertama' : 'Tambah Kelompok' ?>
-                                </button>
-                            <?php endif; ?>
+                            <button type="button" class="btn btn-sm btn-link text-primary p-0"
+                                style="font-size: 11px; text-decoration: none; font-weight: 500;"
+                                onclick="addNewRabRow()">
+                                <i class="fas fa-plus-circle me-1"></i>
+                                <?= empty($rab_list) ? 'Tambah Baris Pertama' : 'Tambah Kelompok' ?>
+                            </button>
                         </td>
                         <td colspan="3" class="text-end pe-3"
                             style="font-size:11px;letter-spacing:.06em;text-transform:uppercase; vertical-align: middle;">
@@ -574,3 +540,88 @@
         </div>
     </div>
 </div>
+
+<!-- ── Modal Picker Product & Supplier ── -->
+<div class="modal fade modal-rab" id="modalProductPicker" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div class="modal-header"
+                style="background: var(--palette-primary); color: white; border-top-left-radius: 16px; border-top-right-radius: 16px; padding: 16px 20px;">
+                <h5 class="modal-title text-white" id="modalProductPickerTitle">
+                    <i class="fas fa-box-open me-2"></i> Pilih Produk Rekomendasi
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto; padding: 20px 30px;">
+                <!-- Pencarian Cepat -->
+                <div class="mb-3">
+                    <div class="search-wrapper w-100" style="position: relative;">
+                        <input type="text" id="searchProductPicker" class="form-control search-input"
+                            placeholder="Cari nama produk, deskripsi, atau nama supplier..."
+                            style="padding-left: 40px; height: 45px; border-radius: 10px; width: 100%;">
+                        <i class="fas fa-search search-icon"
+                            style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    </div>
+                </div>
+
+                <style>
+                    .product-picker-card {
+                        position: relative;
+                        cursor: pointer;
+                        border: 1px solid #e8e8e8;
+                        border-radius: 4px;
+                        background: #fff;
+                        transition: transform 0.2s, box-shadow 0.2s;
+                        overflow: hidden;
+                    }
+                    .product-picker-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                        border-color: var(--palette-primary) !important;
+                    }
+                    /* Overlay Pilih di hover */
+                    .product-picker-card::after {
+                        content: 'PILIH';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) scale(0.8);
+                        background: var(--palette-primary);
+                        color: white;
+                        font-weight: bold;
+                        font-size: 13px;
+                        padding: 6px 16px;
+                        border-radius: 20px;
+                        opacity: 0;
+                        transition: all 0.2s ease;
+                        pointer-events: none;
+                        z-index: 10;
+                        letter-spacing: 0.05em;
+                    }
+                    .product-picker-card:hover::after {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                </style>
+
+                <!-- Grid Cards Produk -->
+                <div class="row row-cols-1 row-cols-md-3 g-3" id="productPickerGrid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="modal-footer d-flex justify-content-between align-items-center"
+                style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 30px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                <div class="text-muted" id="productPaginationInfo" style="font-size: 12px; font-weight: 500;">
+                    Menampilkan 0 - 0 dari 0 data
+                </div>
+                <ul class="pagination pagination-sm m-0" id="productPaginationList" style="gap: 3px;">
+                    <!-- dynamic pagination items -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -57,12 +57,21 @@ $totalTargets = count($groupedProgress);
                         $st = strtoupper($app['status'] ?? 'PENDING');
                         $stClass = 'st-pending';
                         $pillClass = 'pill-pending';
+                        $stLabel = 'PENDING';
                         if ($st === 'APPROVED') {
                             $stClass = 'st-approved';
                             $pillClass = 'pill-approved';
+                            $stLabel = 'APPROVED';
                         } elseif ($st === 'REJECTED') {
                             $stClass = 'st-rejected';
                             $pillClass = 'pill-rejected';
+                            $stLabel = 'REJECTED';
+                        } elseif ($st === 'PENDING_CLIENT') {
+                            $stClass = 'st-pending-client';
+                            $pillClass = 'pill-pending-client';
+                            $stLabel = 'PENDING CLIENT';
+                        } else {
+                            $stLabel = $st;
                         }
                         ?>
                         <div class="progress-item-card <?= $stClass ?>">
@@ -132,9 +141,16 @@ $totalTargets = count($groupedProgress);
                                         <button type="button" class="prog-status-pill <?= $pillClass ?> dropdown-toggle"
                                             data-bs-toggle="dropdown" aria-expanded="false">
                                             <span class="dot"></span>
-                                            <?= esc($st) ?>
+                                            <?= esc($stLabel) ?>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
+                                            <?php if ($st === 'PENDING_CLIENT'): ?>
+                                            <li>
+                                                <a class="dropdown-item active text-white" href="#" style="background-color:#6366f1 !important; color:#fff !important; cursor:default;" onclick="event.preventDefault();">
+                                                    <i class="fas fa-user-clock mr-2 text-white"></i>PENDING CLIENT
+                                                </a>
+                                            </li>
+                                            <?php endif; ?>
                                             <li>
                                                 <a class="dropdown-item <?= $st === 'PENDING' ? 'active bg-warning text-white' : '' ?>"
                                                     href="#"

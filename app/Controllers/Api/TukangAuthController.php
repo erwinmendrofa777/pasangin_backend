@@ -49,7 +49,7 @@ class TukangAuthController extends ResourceController
             'iat' => time(),
             'exp' => time() + (60 * 60 * 24 * 7), // Berlaku 7 hari
             'uid' => $user['id'],
-            'role' => 'tukang'
+            'role' => $user['role'] ?? 'tukang'
         ];
 
         $jwt = $this->_generateJWT($payload);
@@ -89,6 +89,7 @@ class TukangAuthController extends ResourceController
             'email' => 'required|valid_email|is_unique[tukang.email]',
             'phone' => 'required|numeric|min_length[10]|max_length[15]|is_unique[tukang.phone]',
             'password' => 'required|min_length[8]|max_length[255]',
+            'role' => 'permit_empty|in_list[mandor,tukang]',
         ];
 
         $messages = [
@@ -113,6 +114,9 @@ class TukangAuthController extends ResourceController
                 'required' => 'Password wajib diisi.',
                 'min_length' => 'Password terlalu pendek (minimal 8 karakter).',
                 'max_length' => 'Password terlalu panjang (maksimal 255 karakter).',
+            ],
+            'role' => [
+                'in_list' => 'Peran (role) harus berupa mandor atau tukang.',
             ],
         ];
 
@@ -140,7 +144,8 @@ class TukangAuthController extends ResourceController
                 'rating_avg' => '0.0',
                 'skill_score' => '0.0',
                 'behavior_score' => '0.0',
-                'registration_step' => 1
+                'registration_step' => 1,
+                'role' => $data['role'] ?? 'tukang'
             ]);
 
             $tukangId = $model->getInsertID();
@@ -202,7 +207,7 @@ class TukangAuthController extends ResourceController
         try {
             $tukangId = $this->request->user->uid;
 
-            if ($this->request->user->role !== 'tukang') {
+            if (!in_array($this->request->user->role, ['tukang', 'mandor'])) {
                 return $this->failUnauthorized('Akses ditolak.');
             }
 

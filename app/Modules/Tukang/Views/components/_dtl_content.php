@@ -97,6 +97,13 @@ $currentMeta = $statusMeta[$status] ?? ['class' => 'status-default', 'icon' => '
                                     <div class="info-value"><?= esc($tukang['dob'] ?: '-') ?></div>
                                 </div>
                             </div>
+                            <div class="info-item">
+                                <div class="info-icon"><i class="fas fa-user-tag"></i></div>
+                                <div>
+                                    <div class="info-label">Peran (Role)</div>
+                                    <div class="info-value text-capitalize"><?= esc($tukang['role'] ?? 'tukang') ?></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

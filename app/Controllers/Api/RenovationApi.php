@@ -306,6 +306,7 @@ class RenovationApi extends BaseController
             ->join('job_applications ja', 'ja.id = rt.id_job_applications', 'left')
             ->join('tukang t', 't.id = ja.tukang_id', 'left')
             ->where('rp.renovation_id', $projectId)
+            ->whereIn('rp.status', ['APPROVED', 'PENDING_CLIENT'])
             ->orderBy('rp.created_at', 'DESC')
             ->get()->getResultArray();
 
@@ -396,6 +397,130 @@ class RenovationApi extends BaseController
         }
     }
 
+    public function progressList($projectId = null)
+    {
+        if ($projectId === null) {
+            return $this->fail('Project ID tidak boleh kosong.', 400);
+        }
+
+        $progress = $this->db->table('renovation_progress rp')
+            ->select('
+                rp.id, rp.id_renovation_targets, rp.renovation_id, rp.week_number, rp.bobot, rp.description, rp.status, rp.photo_url, rp.created_at,
+                rr.group_name as rab_group, rr.sub_group_name as rab_subgroup, rr.activity_name as rab_activity,
+                ja.tukang_name
+            ')
+            ->join('renovation_targets rt', 'rt.id = rp.id_renovation_targets', 'inner')
+            ->join('renovation_rabs rr', 'rr.id = rt.id_renovation_rabs', 'left')
+            ->join('job_applications ja', 'ja.id = rt.id_job_applications', 'left')
+            ->where('rp.renovation_id', $projectId)
+            ->orderBy('rp.created_at', 'DESC')
+            ->get()->getResultArray();
+
+        foreach ($progress as &$item) {
+            $item['photo_url'] = !empty($item['photo_url']) ? base_url('uploads/renovation/progress/' . $item['photo_url']) : null;
+        }
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Daftar Laporan Progress Renovasi',
+            'data' => $progress
+        ]);
+    }
+
+    public function approveProgress($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('Progress ID tidak boleh kosong.', 400);
+        }
+
+        $progress = $this->db->table('renovation_progress')->where('id', $id)->get()->getRowArray();
+        if (!$progress) {
+            return $this->failNotFound('Laporan progress tidak ditemukan.');
+        }
+
+        if ($progress['status'] !== 'PENDING_CLIENT') {
+            return $this->fail('Laporan progress tidak dalam status menunggu persetujuan client.', 400);
+        }
+
+        try {
+            $this->db->transStart();
+
+            // Set status to APPROVED
+            $this->db->table('renovation_progress')->where('id', $id)->update(['status' => 'APPROVED']);
+
+            // Recalculate target & project status using the service logic
+            $svc = new \App\Modules\Renovation\Services\RenovationService();
+            $svc->updateProgressStatus((int) $id, 'APPROVED');
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->fail('Gagal menyetujui progress.');
+            }
+
+            // Kirim notifikasi ke tukang & admin
+            $title = "Progress Disetujui Client";
+            $message = "Client telah menyetujui laporan progress untuk target pengerjaan di Proyek #{$progress['renovation_id']}.";
+
+            // Notify tukang
+            $target = $this->db->table('renovation_targets')->where('id', $progress['id_renovation_targets'])->get()->getRowArray();
+            if ($target && !empty($target['id_job_applications'])) {
+                $ja = $this->db->table('job_applications')->where('id', $target['id_job_applications'])->get()->getRowArray();
+                if ($ja && !empty($ja['tukang_id'])) {
+                    $this->notifService->sendPersonal('tukang', (int) $ja['tukang_id'], $title, $message);
+                }
+            }
+
+            // Notify admin
+            $this->notifService->sendToPermission('renovation_progress', $title, $message);
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Laporan progress berhasil disetujui!'
+            ]);
+
+        } catch (\Throwable $th) {
+            return $this->fail($th->getMessage());
+        }
+    }
+
+    public function rejectProgress($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('Progress ID tidak boleh kosong.', 400);
+        }
+
+        $progress = $this->db->table('renovation_progress')->where('id', $id)->get()->getRowArray();
+        if (!$progress) {
+            return $this->failNotFound('Laporan progress tidak ditemukan.');
+        }
+
+        if ($progress['status'] !== 'PENDING_CLIENT') {
+            return $this->fail('Laporan progress tidak dalam status menunggu persetujuan client.', 400);
+        }
+
+        // Set status kembali ke PENDING
+        $this->db->table('renovation_progress')->where('id', $id)->update(['status' => 'PENDING']);
+
+        // Kirim notifikasi ke tukang & admin
+        $title = "Progress Ditinjau Kembali (Ditolak Client)";
+        $message = "Client menolak laporan progress di Proyek #{$progress['renovation_id']}. Laporan progres dikembalikan ke status PENDING.";
+
+        $target = $this->db->table('renovation_targets')->where('id', $progress['id_renovation_targets'])->get()->getRowArray();
+        if ($target && !empty($target['id_job_applications'])) {
+            $ja = $this->db->table('job_applications')->where('id', $target['id_job_applications'])->get()->getRowArray();
+            if ($ja && !empty($ja['tukang_id'])) {
+                $this->notifService->sendPersonal('tukang', (int) $ja['tukang_id'], $title, $message);
+            }
+        }
+        $this->notifService->sendToPermission('renovation_progress', $title, $message);
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Laporan progress berhasil ditolak dan dikembalikan ke status PENDING.'
+        ]);
+    }
+
     public function progressByUser()
     {
 
@@ -435,6 +560,12 @@ class RenovationApi extends BaseController
 
             $item['total_target'] = (float) $item['total_target'];
             $item['total_realisasi'] = (float) $item['total_realisasi'];
+
+            $hasPending = $this->db->table('renovation_progress')
+                ->where('renovation_id', $item['renovation_id'])
+                ->where('status', 'PENDING_CLIENT')
+                ->countAllResults() > 0;
+            $item['hasPendingApproval'] = $hasPending;
         }
 
         if (!empty($projects)) {
@@ -1561,6 +1692,18 @@ class RenovationApi extends BaseController
                 $targetId = $this->db->insertID();
 
                 // A2. Simpan berkas ke project_designs (revisi 1 untuk target baru ini)
+                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                $detectedType = 'general';
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                    $detectedType = 'image';
+                } elseif ($ext === 'pdf') {
+                    $detectedType = 'pdf';
+                } elseif (in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv'])) {
+                    $detectedType = 'video';
+                } elseif (in_array($ext, ['obj', 'fbx', 'glb', 'gltf', 'dwg', 'rvt'])) {
+                    $detectedType = '3d';
+                }
+
                 $projectDesignData = [
                     'user_admin_id' => null,
                     'design_request_id' => $designRequestId,
@@ -1570,6 +1713,7 @@ class RenovationApi extends BaseController
                     'file' => $fileName,
                     'status' => 'PENDING',
                     'revision_note' => null,
+                    'design_type' => $detectedType,
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 

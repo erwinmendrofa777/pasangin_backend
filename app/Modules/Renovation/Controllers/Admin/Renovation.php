@@ -450,18 +450,33 @@ class Renovation extends BaseController
             return redirect()->to('/admin/renovation')->with('error', 'Anda tidak memiliki akses untuk memperbarui progress.');
         }
         try {
+            $dbStatus = strtoupper($status);
+            if ($dbStatus === 'APPROVED') {
+                $dbStatus = 'PENDING_CLIENT';
+            }
             // Dapatkan detail progress sebelum diupdate untuk tahu siapa tukangnya
             $details = $this->svc->findRenovationWithDetailsByProgressId((int) $id);
-            $renovationId = $this->svc->updateProgressStatus((int) $id, $status);
+            $renovationId = $this->svc->updateProgressStatus((int) $id, $dbStatus);
 
-            // Kirim Notifikasi ke Tukang
-            $tukangId = $details['progress']['tukang_id'] ?? null;
-            if ($tukangId) {
-                $title = "Update Status Progress";
-                $statusLabel = ($status === 'APPROVED') ? 'DISETUJUI' : 'DITOLAK';
-                $message = "Laporan progress Anda untuk proyek renovasi telah {$statusLabel} oleh admin.";
+            // Dapatkan detail proyek untuk user_id client
+            $projectDetails = $this->svc->findRenovationWithDetails((int) $renovationId);
+            $project = $projectDetails['renovation'] ?? null;
 
-                $this->notifService->sendPersonal('tukang', (int) $tukangId, $title, $message);
+            // Kirim Notifikasi
+            if ($dbStatus === 'PENDING_CLIENT') {
+                if ($project && !empty($project['user_id'])) {
+                    $title = "Persetujuan Progres Proyek";
+                    $message = "Admin telah menyetujui laporan progres. Silakan tinjau dan berikan persetujuan Anda.";
+                    $this->notifService->sendPersonal('client', (int) $project['user_id'], $title, $message);
+                }
+            } else {
+                $tukangId = $details['progress']['tukang_id'] ?? null;
+                if ($tukangId) {
+                    $title = "Update Status Progress";
+                    $statusLabel = ($dbStatus === 'REJECTED') ? 'DITOLAK oleh admin' : $dbStatus;
+                    $message = "Laporan progress Anda untuk proyek renovasi telah {$statusLabel}.";
+                    $this->notifService->sendPersonal('tukang', (int) $tukangId, $title, $message);
+                }
             }
 
             log_admin_activity('update_status', 'renovation', 'memperbarui status progress proyek');

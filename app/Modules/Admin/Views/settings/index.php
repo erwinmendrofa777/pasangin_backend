@@ -6,81 +6,118 @@
 <?= $this->section('style') ?>
 <style>
     .sett-wrap {
-        max-width: 600px;
-        margin: 0 auto;
+        max-width: 640px;
+        margin: 1.5rem auto;
     }
 
     .sett-card {
         background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 16px 48px rgba(255,92,92,.08);
+        border-radius: 20px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.02);
         overflow: hidden;
     }
 
-    /* Hero */
+    /* Hero/Header */
     .sett-hero {
-        background: linear-gradient(135deg, #ff5c5c 0%, #ff8585 100%);
-        padding: 28px 32px;
+        background: #fff;
+        padding: 32px 36px 28px;
+        border-bottom: 1px solid #f1f5f9;
         position: relative;
-        overflow: hidden;
     }
-    .sett-hero::after {
-        content: '';
-        position: absolute;
-        width: 180px; height: 180px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.08);
-        top: -60px; right: -40px;
-    }
+    
     .sett-hero-inner {
-        position: relative;
-        z-index: 1;
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 16px;
     }
+    
     .sett-hero-ico {
-        width: 44px; height: 44px;
-        border-radius: 12px;
-        background: rgba(255,255,255,.2);
-        display: flex; align-items: center; justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(229, 57, 53, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
+        transition: transform 0.3s ease;
     }
-    .sett-hero-ico i { color: #fff; font-size: 1.1rem; }
-    .sett-hero h5 { color: #fff !important; font-weight: 800; font-size: 1.05rem; margin: 0 0 2px; }
-    .sett-hero p  { color: rgba(255,255,255,.8); font-size: .78rem; margin: 0; }
+    
+    .sett-hero-ico i {
+        color: #e53935;
+        font-size: 1.2rem;
+    }
+    
+    .sett-hero h5 {
+        color: #0f172a !important;
+        font-weight: 800;
+        font-size: 1.15rem;
+        margin: 0 0 4px;
+    }
+    
+    .sett-hero p {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin: 0;
+        font-weight: 500;
+    }
 
     /* Body */
-    .sett-body { padding: 30px 32px; }
+    .sett-body {
+        padding: 32px 36px;
+    }
 
-    /* Divider label */
+    /* Section divider */
     .sett-divider {
-        font-size: .68rem;
-        font-weight: 800;
-        letter-spacing: 1px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
-        color: #ff5c5c;
-        margin: 0 0 16px;
+        color: #475569;
+        margin: 28px 0 18px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
+    
     .sett-divider::after {
         content: '';
         flex: 1;
         height: 1px;
-        background: #ffe5e5;
+        background: #e2e8f0;
+    }
+    
+    .sett-divider i {
+        color: #e53935;
+        font-size: 0.9rem;
+    }
+    
+    .sett-divider:first-of-type {
+        margin-top: 0;
     }
 
-    /* Form */
-    .form-group { margin-bottom: 22px; }
+    /* Form controls */
+    .form-group {
+        margin-bottom: 24px;
+    }
 
     .form-label {
-        font-size: .75rem;
-        font-weight: 700;
+        font-size: 0.8rem;
+        font-weight: 600;
         color: #334155;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         display: block;
+    }
+
+    /* Hide number inputs spinner */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
     }
 
     .input-row {
@@ -88,135 +125,236 @@
         align-items: center;
         background: #f8fafc;
         border: 1.5px solid #e2e8f0;
-        border-radius: 11px;
-        overflow: hidden;
-        transition: all .2s;
+        border-radius: 12px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    
+    .input-row:hover {
+        border-color: #cbd5e1;
+    }
+    
     .input-row:focus-within {
-        border-color: #ff5c5c;
+        border-color: #e53935;
         background: #fff;
-        box-shadow: 0 0 0 3px rgba(255,92,92,.1);
+        box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.15);
     }
+    
     .input-row .adorn {
-        padding: 0 12px;
-        font-size: .82rem;
+        padding: 0 16px;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #64748b;
         background: #f1f5f9;
         border-right: 1.5px solid #e2e8f0;
-        min-height: 44px;
-        display: flex; align-items: center;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
         flex-shrink: 0;
-        transition: all .2s;
+        transition: all 0.2s ease;
     }
+
+    .input-row > .adorn:first-child,
+    .input-row > input:first-child {
+        border-top-left-radius: 10.5px;
+        border-bottom-left-radius: 10.5px;
+    }
+
+    .input-row > .adorn-r:last-child,
+    .input-row > input:last-child {
+        border-top-right-radius: 10.5px;
+        border-bottom-right-radius: 10.5px;
+    }
+    
     .input-row:focus-within .adorn {
-        background: #fff5f5;
+        background: rgba(229, 57, 53, 0.04);
         border-color: #ffd3d3;
-        color: #ff5c5c;
+        color: #e53935;
     }
+    
     .adorn-r {
         border-right: none !important;
         border-left: 1.5px solid #e2e8f0 !important;
     }
+    
     .input-row input,
     .input-row select {
         flex: 1;
         border: none;
         background: transparent;
         outline: none;
-        padding: 11px 14px;
-        font-size: .88rem;
+        padding: 12px 16px;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #0f172a;
-        min-height: 44px;
+        min-height: 48px;
     }
+    
     .input-hint {
-        font-size: .7rem;
+        font-size: 0.72rem;
+        color: #64748b;
+        margin-top: 6px;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .input-hint i {
         color: #94a3b8;
-        margin-top: 5px;
+        font-size: 0.78rem;
     }
 
     /* Fee type radio cards */
     .fee-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        gap: 12px;
+        margin-top: 4px;
     }
-    .fee-opt { position: relative; cursor: pointer; }
-    .fee-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+    
+    .fee-opt {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .fee-opt input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
     .fee-opt-lbl {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 12px 14px;
+        gap: 12px;
+        padding: 14px 16px;
         border: 1.5px solid #e2e8f0;
-        border-radius: 11px;
-        background: #f8fafc;
-        transition: all .2s;
+        border-radius: 12px;
+        background: #fff;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
     }
+    
+    .fee-opt-lbl:hover {
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+    }
+    
     .fee-opt input:checked + .fee-opt-lbl {
-        border-color: #ff5c5c;
-        background: #fff5f5;
-        box-shadow: 0 0 0 3px rgba(255,92,92,.08);
+        border-color: #e53935;
+        background: rgba(229, 57, 53, 0.02);
+        box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.08), 0 4px 12px rgba(229, 57, 53, 0.04);
     }
+    
     .fee-opt-ico {
-        width: 32px; height: 32px;
-        border-radius: 8px;
-        background: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #f1f5f9;
         border: 1.5px solid #e2e8f0;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
-        transition: all .2s;
+        transition: all 0.2s ease;
     }
+    
     .fee-opt input:checked + .fee-opt-lbl .fee-opt-ico {
-        background: #ff5c5c; border-color: #ff5c5c;
+        background: #e53935;
+        border-color: #e53935;
     }
-    .fee-opt-ico i { font-size: .78rem; color: #94a3b8; transition: all .2s; }
-    .fee-opt input:checked + .fee-opt-lbl .fee-opt-ico i { color: #fff; }
-    .fee-opt-text strong { display: block; font-size: .8rem; font-weight: 700; color: #334155; }
-    .fee-opt-text span   { font-size: .68rem; color: #94a3b8; }
-    .fee-opt input:checked + .fee-opt-lbl .fee-opt-text strong { color: #ff5c5c; }
+    
+    .fee-opt-ico i {
+        font-size: 0.85rem;
+        color: #64748b;
+        transition: all 0.2s ease;
+    }
+    
+    .fee-opt input:checked + .fee-opt-lbl .fee-opt-ico i {
+        color: #fff;
+    }
+    
+    .fee-opt-text strong {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1e293b;
+        transition: color 0.2s ease;
+    }
+    
+    .fee-opt-text span {
+        display: block;
+        font-size: 0.7rem;
+        color: #64748b;
+        margin-top: 2px;
+    }
+    
+    .fee-opt input:checked + .fee-opt-lbl .fee-opt-text strong {
+        color: #e53935;
+    }
 
     /* Actions */
     .sett-actions {
         display: flex;
         justify-content: flex-end;
-        gap: 10px;
-        padding-top: 8px;
+        gap: 12px;
+        padding-top: 24px;
         border-top: 1px solid #f1f5f9;
-        margin-top: 8px;
+        margin-top: 32px;
     }
+    
     .btn-sett-cancel {
-        display: inline-flex; align-items: center; gap: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         background: #fff;
-        color: #64748b;
-        font-weight: 700; font-size: .82rem;
+        color: #475569;
+        font-weight: 700;
+        font-size: 0.85rem;
         border: 1.5px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 10px 20px;
+        border-radius: 12px;
+        padding: 12px 24px;
         text-decoration: none;
-        transition: all .2s;
+        transition: all 0.2s ease;
+        height: 46px;
     }
-    .btn-sett-cancel:hover { border-color: #ffd3d3; color: #ff5c5c; background: #fff5f5; }
+    
+    .btn-sett-cancel:hover {
+        border-color: #cbd5e1;
+        color: #0f172a;
+        background: #f8fafc;
+    }
 
     .btn-sett-save {
-        display: inline-flex; align-items: center; gap: 6px;
-        background: #ff5c5c;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #e53935;
         color: #fff !important;
-        font-weight: 700; font-size: .82rem;
+        font-weight: 700;
+        font-size: 0.85rem;
         border: none;
-        border-radius: 10px;
-        padding: 10px 22px;
+        border-radius: 12px;
+        padding: 12px 26px;
         cursor: pointer;
-        transition: all .2s;
-        box-shadow: 0 4px 12px rgba(255,92,92,.3);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
         text-decoration: none;
+        height: 46px;
     }
+    
     .btn-sett-save:hover {
-        background: #e04d4d;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(255,92,92,.4);
+        background: #d32f2f;
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 20px rgba(229, 57, 53, 0.3);
+    }
+    
+    .btn-sett-save:active {
+        transform: translateY(0);
     }
 </style>
 <?= $this->endSection() ?>
@@ -229,7 +367,7 @@
         <div class="sett-hero">
             <div class="sett-hero-inner">
                 <div class="sett-hero-ico">
-                    <i class="fas fa-sliders-h"></i>
+                    <i class="fas fa-cog"></i>
                 </div>
                 <div>
                     <h5>Pengaturan Aplikasi</h5>
@@ -244,23 +382,23 @@
                 <?= csrf_field() ?>
 
                 <!-- Pajak -->
-                <p class="sett-divider"><i class="fas fa-receipt"></i> Pajak</p>
+                <div class="sett-divider"><i class="fas fa-receipt"></i> Pajak</div>
 
                 <div class="form-group">
                     <label class="form-label" for="tax_rate">Tarif PPN</label>
                     <div class="input-row">
-                        <span class="adorn"><i class="fas fa-percentage"></i></span>
+                        <span class="adorn"><i class="fas fa-file-invoice"></i></span>
                         <input type="number" name="tax_rate" id="tax_rate"
                                step="0.01" min="0" max="100"
                                value="<?= esc($settings['tax_rate']) ?>"
                                placeholder="11" required>
                         <span class="adorn adorn-r">%</span>
                     </div>
-                    <p class="input-hint">Dibebankan pada setiap pembelian produk.</p>
+                    <p class="input-hint"><i class="fas fa-info-circle"></i> Dibebankan pada setiap pembelian produk.</p>
                 </div>
 
                 <!-- Biaya Aplikasi -->
-                <p class="sett-divider"><i class="fas fa-mobile-alt"></i> Biaya Aplikasi</p>
+                <div class="sett-divider"><i class="fas fa-mobile-alt"></i> Biaya Aplikasi</div>
 
                 <div class="form-group">
                     <label class="form-label">Tipe Biaya</label>
@@ -303,7 +441,7 @@
                 </div>
 
                 <!-- Revisi Desain -->
-                <p class="sett-divider"><i class="fas fa-redo-alt"></i> Revisi Desain</p>
+                <div class="sett-divider"><i class="fas fa-redo-alt"></i> Revisi Desain</div>
 
                 <div class="form-group">
                     <label class="form-label" for="design_revision_price">Harga Tambah Kuota Revisi</label>
@@ -314,7 +452,7 @@
                                value="<?= esc($settings['design_revision_price'] ?? 100000) ?>"
                                placeholder="100000" required>
                     </div>
-                    <p class="input-hint">Biaya yang dikenakan kepada klien per satu kali penambahan kuota revisi desain.</p>
+                    <p class="input-hint"><i class="fas fa-info-circle"></i> Biaya yang dikenakan kepada klien per satu kali penambahan kuota revisi desain.</p>
                 </div>
 
                 <!-- Actions -->

@@ -195,40 +195,49 @@ Manajemen Tukang
 
     /* ===== BADGES ===== */
     .status-badge {
-        border-radius: 50px;
-        padding: 5px 14px;
+        border-radius: 30px !important;
+        padding: 6px 14px !important;
         font-weight: 700;
-        font-size: 0.7rem;
-        letter-spacing: 0.3px;
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        border: 1px solid transparent;
     }
 
     .status-berkas {
-        background: #fef9c3;
-        color: #854d0e;
+        background: #fffbeb !important;
+        color: #d97706 !important;
+        border: 1px solid #fde68a !important;
     }
 
     .status-ditolak {
-        background: #fee2e2;
-        color: #991b1b;
+        background: #fef2f2 !important;
+        color: #dc2626 !important;
+        border: 1px solid #fee2e2 !important;
     }
 
     .status-test {
-        background: #e0f2fe;
-        color: #075985;
+        background: #f0f9ff !important;
+        color: #0284c7 !important;
+        border: 1px solid #bae6fd !important;
     }
 
     .status-aktivasi {
-        background: #e0e7ff;
-        color: #3730a3;
+        background: #f5f3ff !important;
+        color: #7c3aed !important;
+        border: 1px solid #ddd6fe !important;
     }
 
     .status-siap {
-        background: #d1fae5;
-        color: #065f46;
+        background: #f0fdf4 !important;
+        color: #16a34a !important;
+        border: 1px solid #bbf7d0 !important;
     }
 
     /* ===== ACTION BUTTONS ===== */
@@ -348,11 +357,160 @@ Manajemen Tukang
             white-space: nowrap;
         }
     }
+
+    /* ===== PREMIUM GROUP TREE TABLE & PAGINATION ===== */
+    .group-parent-row {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .group-parent-row:hover {
+        background-color: #fff9f9 !important;
+    }
+    .group-parent-row.expanded {
+        background-color: #fff5f5 !important;
+    }
+    .group-parent-row.expanded .transition-icon {
+        transform: rotate(90deg) !important;
+        color: var(--palette-primary) !important;
+    }
+    .group-parent-row.expanded .toggle-detail-btn {
+        background-color: var(--palette-primary) !important;
+        color: #fff !important;
+    }
+    .group-detail-row {
+        background-color: #f8fafc !important;
+    }
+    .group-detail-row table {
+        background-color: #ffffff !important;
+    }
+    .group-detail-row table th {
+        background: #f8fafc !important;
+        color: #475569 !important;
+        font-weight: 700;
+        border-bottom: 1.5px solid #e2e8f0;
+    }
+    
+    /* Pagination styling overrides */
+    .pagination .page-item .page-link {
+        border-radius: 6px !important;
+        margin: 0 2px;
+        padding: 5px 11px;
+        font-weight: 600;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        transition: all 0.15s ease;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
+        color: #fff !important;
+        box-shadow: 0 2px 6px rgba(255, 92, 92, 0.2);
+    }
+    .pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+        background-color: #fff5f5 !important;
+        border-color: #ffcccc !important;
+        color: var(--palette-primary) !important;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #94a3b8;
+        background-color: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    /* Soft premium badges */
+    .badge-soft-owner {
+        background: #fffbeb !important;
+        color: #d97706 !important;
+        border: 1px solid #fde68a !important;
+    }
+    .badge-soft-approved {
+        background: #f0fdf4 !important;
+        color: #16a34a !important;
+        border: 1px solid #bbf7d0 !important;
+    }
+    .badge-soft-pending {
+        background: #fff7ed !important;
+        color: #ea580c !important;
+        border: 1px solid #ffedd5 !important;
+    }
+    .badge-soft-rejected {
+        background: #fef2f2 !important;
+        color: #dc2626 !important;
+        border: 1px solid #fee2e2 !important;
+    }
+    @media (min-width: 992px) {
+        .stats-divider {
+            border-left: 1.5px solid rgba(226, 232, 240, 0.8) !important;
+        }
+    }
+    #main-group-table thead th {
+        color: #ffffff !important;
+    }
+    .group-detail-row table thead th {
+        color: #334155 !important;
+        font-weight: 700 !important;
+    }
+
+    /* ===== PREMIUM MODAL & TABLE DESIGN ===== */
+    .modal-content {
+        border-radius: 20px !important;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.02) !important;
+    }
+    .modal-backdrop.show {
+        opacity: 0.45 !important;
+        background-color: #0f172a !important;
+    }
+    .btn-close-custom:hover {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+        transform: scale(1.05);
+    }
+    .btn-close-custom:active {
+        transform: scale(0.95);
+    }
+    .badge-status-completed {
+        background: #ecfdf5 !important;
+        color: #059669 !important;
+        border: 1px solid #a7f3d0 !important;
+    }
+    .badge-status-inprogress {
+        background: #eff6ff !important;
+        color: #2563eb !important;
+        border: 1px solid #bfdbfe !important;
+    }
+    .badge-status-pending {
+        background: #fffbeb !important;
+        color: #d97706 !important;
+        border: 1px solid #fde68a !important;
+    }
+    .badge-status-notstarted {
+        background: #f8fafc !important;
+        color: #64748b !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .project-card-badge {
+        background: rgba(255, 92, 92, 0.05) !important;
+        color: var(--palette-primary) !important;
+        border: 1.5px solid rgba(255, 92, 92, 0.15) !important;
+        font-weight: 700 !important;
+        border-radius: 6px !important;
+    }
+    .premium-target-card {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.015);
+        border-radius: 12px !important;
+        transition: all 0.25s ease-in-out;
+    }
+    .premium-target-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+        border-color: rgba(255, 92, 92, 0.18) !important;
+    }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <?= $this->include('App\Modules\Tukang\Views\components\_header_card') ?>
+
 <?= $this->include('App\Modules\Tukang\Views\components\_idx_table') ?>
 <?= $this->endSection() ?>
 

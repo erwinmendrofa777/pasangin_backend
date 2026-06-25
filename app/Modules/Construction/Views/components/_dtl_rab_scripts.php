@@ -192,7 +192,7 @@
 
     function romanToInt(roman) {
         if (!roman) return 0;
-        const lookup = {I:1, V:5, X:10, L:50, C:100, D:500, M:1000};
+        const lookup = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
         let num = 0;
         let val = 0;
         for (let i = roman.length - 1; i >= 0; i--) {
@@ -404,11 +404,6 @@
 
             let html = '';
             data.forEach(function (item, index) {
-                // Susun opsi produk untuk Select2 (Tambah Rekomendasi)
-                let optionsHtml = '<option value="">— Tambah Rekomendasi Produk —</option>';
-                allProducts.forEach(function (p) {
-                    optionsHtml += `<option value="${p.id}">${p.name} — Rp ${Number(p.price).toLocaleString('id-ID')} (${p.supplier_name || 'Tanpa Supplier'})</option>`;
-                });
 
                 // Susun daftar rekomendasi produk yang sudah ditambahkan
                 let recommendationsHtml = '';
@@ -550,10 +545,10 @@
                     `;
                 }
 
-                const isExpanded = index === 0;
-                const collapsedClass = isExpanded ? '' : 'collapsed';
-                const showClass = isExpanded ? 'show' : '';
-                const ariaExpanded = isExpanded ? 'true' : 'false';
+                const isExpanded = false;
+                const collapsedClass = 'collapsed';
+                const showClass = '';
+                const ariaExpanded = 'false';
 
                 html += `
                     <div class="accordion-item" style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
@@ -584,14 +579,11 @@
                         <div id="collapse-bahan-${item.ahsp_bahan_id}" class="accordion-collapse collapse ${showClass}" aria-labelledby="heading-bahan-${item.ahsp_bahan_id}" data-bs-parent="#accordionRabMaterials">
                             <div class="accordion-body p-4" style="background: #fafbfc; border-top: 1px solid #f1f5f9;">
                                 
-                                <!-- Dropdown Tambah Rekomendasi -->
-                                <div class="add-product-wrapper mb-4" style="max-width: 600px;">
-                                    <label class="form-label fw-bold text-secondary mb-2" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Outfit', sans-serif;">Tambah Rekomendasi Produk</label>
-                                    <div class="select-product-wrapper" style="position: relative;">
-                                        <select class="form-select select2-product-picker select2-active-instance" data-ahsp-bahan-id="${item.ahsp_bahan_id}" style="width: 100%;">
-                                            ${optionsHtml}
-                                        </select>
-                                    </div>
+                                <!-- Tombol Tambah Rekomendasi -->
+                                <div class="add-product-wrapper mb-4">
+                                    <button type="button" class="btn btn-adm btn-adm-primary btn-sm btn-open-product-picker d-inline-flex align-items-center gap-1" data-ahsp-bahan-id="${item.ahsp_bahan_id}" data-bahan-name="${item.uraian.replace(/"/g, '&quot;')}" style="border-radius: 8px; padding: 8px 16px;">
+                                        <i class="fas fa-plus-circle"></i> Tambah Rekomendasi Produk
+                                    </button>
                                 </div>
 
                                 <!-- Daftar Kartu Rekomendasi -->
@@ -609,62 +601,6 @@
             });
 
             $('#accordionRabMaterials').html(html);
-
-            // Inisialisasi select2
-            $('.select2-active-instance').each(function () {
-                $(this).select2({
-                    dropdownParent: $('#modalRabMaterials'),
-                    placeholder: "— Tambah Rekomendasi Produk —",
-                    allowClear: true,
-                    width: '100%'
-                });
-            });
-
-            // Bind event ketika produk baru ditambahkan sebagai rekomendasi
-            $('.select2-active-instance').off('change').on('change', function () {
-                const selectEl = $(this);
-                const ahspBahanId = selectEl.data('ahsp-bahan-id');
-                const productId = selectEl.val();
-
-                if (!productId) return;
-
-                const wrapper = selectEl.closest('.add-product-wrapper');
-                wrapper.css('opacity', '0.5');
-
-                $.post('<?= base_url('admin/construction/add_rab_material') ?>', {
-                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
-                    rab_id: activeRabId,
-                    ahsp_bahan_id: ahspBahanId,
-                    product_id: productId
-                }, function (res) {
-                    wrapper.css('opacity', '1');
-                    if (res.status) {
-                        loadRabMaterials(activeRabId); // Refresh modal view
-
-                        // Update harga satuan baris RAB
-                        const tr = $(`#rabBody tr[data-id="${activeRabId}"]`);
-                        if (tr.length > 0) {
-                            tr.find('.input-price').val(res.formatted_new_unit_price);
-
-                            // Hitung ulang subtotal baris
-                            const vol = parseFloat(tr.find('.input-vol').val()) || 0;
-                            const price = res.new_unit_price;
-                            const total = vol * price;
-                            tr.find('.row-rab-total').text(total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-
-                            // Hitung ulang grand total
-                            calculateGrandTotalRab();
-                        }
-                    } else {
-                        alert('❌ ' + res.message);
-                        loadRabMaterials(activeRabId);
-                    }
-                }).fail(function () {
-                    wrapper.css('opacity', '1');
-                    alert('Gagal menambahkan rekomendasi produk!');
-                    loadRabMaterials(activeRabId);
-                });
-            });
 
             // Bind event ketika radio button diklik untuk memilih salah satu rekomendasi
             $(document).off('click', '.select-product-radio').on('click', '.select-product-radio', function () {
@@ -786,6 +722,248 @@
             }
         });
     }
+
+    let activeAhspBahanId = null;
+    let productCurrentPage = 1;
+    const productPageSize = 12;
+
+    // Klik tombol untuk membuka modal pencarian produk & supplier
+    $(document).on('click', '.btn-open-product-picker', function () {
+        const btn = $(this);
+        activeAhspBahanId = btn.data('ahsp-bahan-id');
+        const bahanName = btn.data('bahan-name') || '';
+
+        // Reset search input ke nama bahan untuk filter awal
+        $('#searchProductPicker').val(bahanName);
+        $('#modalProductPickerTitle').html(`<i class="fas fa-box-open me-2"></i> Pilih Produk Rekomendasi untuk: <strong>${bahanName}</strong>`);
+        productCurrentPage = 1;
+
+        // Sembunyikan modal material utama terlebih dahulu agar tidak bertumpuk
+        const parentModal = bootstrap.Modal.getInstance(document.getElementById('modalRabMaterials'));
+        if (parentModal) {
+            parentModal.hide();
+        }
+
+        // Buka modal
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalProductPicker'));
+        modal.show();
+
+        // Render data
+        updateProductPickerPagination();
+    });
+
+    // Fitur live search di modal produk
+    $('#searchProductPicker').on('input', function () {
+        productCurrentPage = 1;
+        updateProductPickerPagination();
+    });
+
+    // Pindah halaman pagination di modal produk
+    $(document).on('click', '#productPaginationList .page-link', function (e) {
+        e.preventDefault();
+        const page = parseInt($(this).attr('data-page'));
+        if (!isNaN(page)) {
+            productCurrentPage = page;
+            updateProductPickerPagination();
+        }
+    });
+
+    function updateProductPickerPagination() {
+        const query = $('#searchProductPicker').val().toLowerCase();
+        let matchedProducts = [];
+
+        allProducts.forEach(function (p) {
+            const name = (p.name || '').toLowerCase();
+            const desc = (p.description || '').toLowerCase();
+            const supplier = (p.supplier_name || '').toLowerCase();
+
+            if (name.includes(query) || desc.includes(query) || supplier.includes(query)) {
+                matchedProducts.push(p);
+            }
+        });
+
+        const totalItems = matchedProducts.length;
+        const totalPages = Math.ceil(totalItems / productPageSize) || 1;
+
+        if (productCurrentPage > totalPages) {
+            productCurrentPage = totalPages;
+        }
+        if (productCurrentPage < 1) {
+            productCurrentPage = 1;
+        }
+
+        const start = (productCurrentPage - 1) * productPageSize;
+        const end = Math.min(start + productPageSize, totalItems);
+
+        let html = '';
+        if (totalItems === 0) {
+            html = `
+                <div class="col-12 text-center text-muted py-5" style="border: 1px dashed #cbd5e1; border-radius: 12px; background: #fafafa; width: 100%;">
+                    <i class="fas fa-box-open mb-2" style="font-size: 24px; color: #94a3b8;"></i>
+                    <div style="font-size: 13px;">Tidak ada produk yang cocok.</div>
+                </div>
+            `;
+            $('#productPaginationInfo').text('Menampilkan 0 data');
+        } else {
+            for (let i = start; i < end; i++) {
+                const p = matchedProducts[i];
+                const photoSrc = p.photo ? (p.photo.indexOf('http') === 0 ? p.photo : '<?= base_url('uploads/products') ?>/' + p.photo) : '';
+                const photoHtml = photoSrc ? `<img src="${photoSrc}" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fas fa-box text-muted" style="font-size: 20px;"></i>`;
+
+                let stockBadge = '';
+                if (p.stock > 10) {
+                    stockBadge = `<span class="badge border d-inline-flex align-items-center gap-1" style="font-size: 9px; border-radius: 6px; background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0 !important; padding: 4px 6px;"><i class="fas fa-check" style="font-size: 8px;"></i> Ready: ${p.stock}</span>`;
+                } else if (p.stock > 0) {
+                    stockBadge = `<span class="badge border d-inline-flex align-items-center gap-1" style="font-size: 9px; border-radius: 6px; background-color: #fffbeb; color: #92400e; border-color: #fde68a !important; padding: 4px 6px;"><i class="fas fa-exclamation-triangle" style="font-size: 8px;"></i> Sisa: ${p.stock}</span>`;
+                } else {
+                    stockBadge = `<span class="badge border d-inline-flex align-items-center gap-1" style="font-size: 9px; border-radius: 6px; background-color: #fef2f2; color: #991b1b; border-color: #fca5a5 !important; padding: 4px 6px;"><i class="fas fa-times" style="font-size: 8px;"></i> Habis</span>`;
+                }
+
+                const pRating = parseFloat(p.rata_rata_rating) || 5.0;
+                const pReviews = parseInt(p.total_ulasan) || 0;
+                const ratingHtml = `
+                    <div class="text-warning fw-semibold mt-1" style="font-size: 11px;">
+                        <i class="fas fa-star text-warning"></i> 
+                        ${pRating.toFixed(1)} 
+                        <span class="text-muted" style="font-weight: normal;">(${pReviews})</span>
+                    </div>
+                `;
+
+                html += `
+                    <div class="col">
+                        <div class="card h-100 product-picker-card d-flex flex-column" data-id="${p.id}">
+                            <!-- Foto Produk -->
+                            <div style="position: relative; width: 100%; height: 110px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #f1f5f9;">
+                                ${photoHtml}
+                            </div>
+                            <!-- Detail Produk -->
+                            <div class="card-body p-2 d-flex flex-column flex-grow-1">
+                                <!-- Nama Produk (Max 2 Baris) -->
+                                <h6 class="text-dark mb-1 text-truncate-2" style="font-size: 12px; font-family: 'Outfit', sans-serif; line-height: 1.4; height: 34px; overflow: hidden; font-weight: 500;" title="${p.name}">
+                                    ${p.name}
+                                </h6>
+                                
+                                <!-- Nama Supplier -->
+                                <div class="text-secondary text-truncate mb-2" style="font-size: 11px; font-family: 'Outfit', sans-serif;" title="${p.supplier_name || 'Tanpa Supplier'}">
+                                    <i class="fas fa-store text-primary me-1" style="font-size: 10px;"></i>${p.supplier_name || 'Tanpa Supplier'}
+                                </div>
+                                
+                                <!-- Harga -->
+                                <div style="color: var(--palette-primary); font-size: 14px; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                                    Rp${Number(p.price).toLocaleString('id-ID')}
+                                </div>
+                                
+                                <div class="mt-auto">
+                                    <!-- Rating & Stok -->
+                                    <div class="d-flex align-items-center gap-1" style="font-size: 10px; color: #757575;">
+                                        <span class="text-warning"><i class="fas fa-star" style="font-size: 9px;"></i></span>
+                                        <span style="color: #ffb900; font-weight: 600;">${pRating.toFixed(1)}</span>
+                                        <span style="color: #ccc;">|</span>
+                                        <span>Ready: ${p.stock}</span>
+                                    </div>
+                                    
+                                    <!-- Lokasi Supplier -->
+                                    <div class="mt-2 text-end text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.02em;">
+                                        <i class="fas fa-map-marker-alt me-1" style="font-size: 8px; color: #999;"></i>${(p.supplier_city || 'Luar Kota').trim()}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            $('#productPaginationInfo').text(`Menampilkan ${start + 1} - ${end} dari ${totalItems} data`);
+        }
+
+        $('#productPickerGrid').html(html);
+
+        // Render pagination controls
+        let paginationHtml = '';
+        paginationHtml += `
+            <li class="page-item ${productCurrentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${productCurrentPage - 1}" aria-label="Previous" style="color: var(--palette-primary); border-radius: 6px;">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= productCurrentPage - 1 && i <= productCurrentPage + 1)) {
+                const isActive = (productCurrentPage === i);
+                paginationHtml += `
+                    <li class="page-item ${isActive ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}" style="${isActive ? 'background-color: var(--palette-primary); border-color: var(--palette-primary); color: white;' : 'color: var(--palette-primary);'} border-radius: 6px; margin: 0 2px;">${i}</a>
+                    </li>
+                `;
+            } else if (i === 2 || i === totalPages - 1) {
+                paginationHtml += `<li class="page-item disabled"><span class="page-link" style="border: none; background: transparent;">...</span></li>`;
+            }
+        }
+
+        paginationHtml += `
+            <li class="page-item ${productCurrentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${productCurrentPage + 1}" aria-label="Next" style="color: var(--palette-primary); border-radius: 6px;">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        `;
+
+        $('#productPaginationList').html(paginationHtml);
+    }
+
+    // Klik kartu di modal produk picker untuk memilih produk
+    $(document).on('click', '.product-picker-card', function () {
+        const card = $(this);
+        const productId = card.data('id');
+
+        if (!productId || !activeAhspBahanId) return;
+
+        // Cegah klik ganda selama pemrosesan
+        card.css('pointer-events', 'none');
+
+        $.post('<?= base_url('admin/construction/add_rab_material') ?>', {
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+            rab_id: activeRabId,
+            ahsp_bahan_id: activeAhspBahanId,
+            product_id: productId
+        }, function (res) {
+            card.css('pointer-events', 'auto');
+            if (res.status) {
+                // Sembunyikan modal picker produk
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalProductPicker'));
+                if (modal) modal.hide();
+
+                // Refresh modal material utama
+                loadRabMaterials(activeRabId);
+
+                // Update harga satuan baris RAB
+                const tr = $(`#rabBody tr[data-id="${activeRabId}"]`);
+                if (tr.length > 0) {
+                    tr.find('.input-price').val(res.formatted_new_unit_price);
+
+                    // Hitung ulang subtotal baris
+                    const vol = parseFloat(tr.find('.input-vol').val()) || 0;
+                    const price = res.new_unit_price;
+                    const total = vol * price;
+                    tr.find('.row-rab-total').text(total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+                    // Hitung ulang grand total
+                    calculateGrandTotalRab();
+                }
+            } else {
+                alert('❌ ' + res.message);
+            }
+        }).fail(function () {
+            card.css('pointer-events', 'auto');
+            alert('Gagal menambahkan rekomendasi produk!');
+        });
+    });
+
+    // Ketika modal pencarian produk ditutup, tampilkan kembali modal material utama
+    $('#modalProductPicker').on('hidden.bs.modal', function () {
+        const parentModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRabMaterials'));
+        parentModal.show();
+    });
 
     const allProducts = <?= json_encode($all_products) ?>;
     let currentTaskInputTarget = null;

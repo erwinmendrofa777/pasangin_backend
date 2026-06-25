@@ -37,7 +37,7 @@
         dropzoneArea.addEventListener('drop', function (e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            
+
             if (files && files.length > 0) {
                 addFilesToQueue(files);
             }
@@ -62,7 +62,7 @@
 
     function renderUploadPreviews() {
         if (!previewList || !previewContainer) return;
-        
+
         previewList.innerHTML = '';
         const objectVal = objectNameInput ? objectNameInput.value.trim() : '';
 
@@ -94,7 +94,7 @@
         uploadedFiles.forEach((file, index) => {
             hasItems = true;
             const ext = file.name.split('.').pop().toLowerCase();
-            
+
             let badgeClass = 'file-icon-general';
             let iconClass = 'far fa-file-alt';
             let isImage = false;
@@ -115,8 +115,8 @@
                 iconClass = 'fas fa-cubes';
             }
 
-            const visualBlock = isImage 
-                ? `<img src="${thumbUrl}" class="preview-thumb-img" onload="window.URL.revokeObjectURL('${thumbUrl}')">` 
+            const visualBlock = isImage
+                ? `<img src="${thumbUrl}" class="preview-thumb-img" onload="window.URL.revokeObjectURL('${thumbUrl}')">`
                 : `<i class="${iconClass}" style="font-size: 16px;"></i>`;
 
             const itemHtml = `
@@ -165,6 +165,118 @@
         });
     }
 
+    const btnGenerate3dKey = document.getElementById('btnGenerate3dKey');
+    if (btnGenerate3dKey && objectNameInput) {
+        btnGenerate3dKey.addEventListener('click', function () {
+            const originalHtml = btnGenerate3dKey.innerHTML;
+            btnGenerate3dKey.disabled = true;
+            btnGenerate3dKey.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+            let attempts = 0;
+            const maxAttempts = 5;
+
+            function tryGenerateKey() {
+                attempts++;
+                if (attempts > maxAttempts) {
+                    btnGenerate3dKey.disabled = false;
+                    btnGenerate3dKey.innerHTML = originalHtml;
+                    alert('Gagal membuat key unik setelah beberapa kali percobaan.');
+                    return;
+                }
+
+                // Fetch and clean target name
+                const targetSelect = document.querySelector('select[name="design_targets_id"]');
+                let targetName = '';
+                if (targetSelect && targetSelect.selectedIndex >= 0) {
+                    const selectedOpt = targetSelect.options[targetSelect.selectedIndex];
+                    if (selectedOpt.value) {
+                        targetName = selectedOpt.text;
+                    }
+                }
+
+                if (!targetName) {
+                    btnGenerate3dKey.disabled = false;
+                    btnGenerate3dKey.innerHTML = originalHtml;
+                    alert('Silakan pilih target terlebih dahulu.');
+                    return;
+                }
+
+                const clientName = "<?= esc($request['full_name'] ?? '') ?>";
+                const cleanClientName = clientName.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+                const cleanTargetName = targetName.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+
+                // Generate random alphanumeric of 20 chars
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let randomPart = '';
+                for (let i = 0; i < 10; i++) {
+                    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+
+                let randomKey = '';
+                if (cleanClientName) {
+                    randomKey += cleanClientName + '_';
+                }
+                if (cleanTargetName) {
+                    randomKey += cleanTargetName + '_';
+                }
+                randomKey += randomPart;
+
+                // Check uniqueness via AJAX
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '<?= base_url("admin/design/check-3d-name-ajax") ?>', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const res = JSON.parse(xhr.responseText);
+                            if (res.status) {
+                                if (res.exists) {
+                                    // Already exists, try again
+                                    tryGenerateKey();
+                                } else {
+                                    // Unique! Set input value
+                                    objectNameInput.value = randomKey;
+                                    // Trigger preview list update
+                                    renderUploadPreviews();
+
+                                    btnGenerate3dKey.disabled = false;
+                                    btnGenerate3dKey.innerHTML = originalHtml;
+                                }
+                            } else {
+                                throw new Error(res.message || 'Error checking key.');
+                            }
+                        } catch (err) {
+                            fallbackToLocalGeneration(randomKey, originalHtml);
+                        }
+                    } else {
+                        fallbackToLocalGeneration(randomKey, originalHtml);
+                    }
+                };
+
+                xhr.onerror = function () {
+                    fallbackToLocalGeneration(randomKey, originalHtml);
+                };
+
+                // Prepare CSRF and string parameter
+                const csrfToken = '<?= csrf_token() ?>';
+                const csrfHash = '<?= csrf_hash() ?>';
+                const params = csrfToken + '=' + encodeURIComponent(csrfHash) + '&name=' + encodeURIComponent(randomKey);
+                xhr.send(params);
+            }
+
+            function fallbackToLocalGeneration(key, originalHtml) {
+                objectNameInput.value = key;
+                renderUploadPreviews();
+                btnGenerate3dKey.disabled = false;
+                btnGenerate3dKey.innerHTML = originalHtml;
+            }
+
+            tryGenerateKey();
+        });
+    }
+
     window.removeUploadedFile = function (index) {
         uploadedFiles.splice(index, 1);
         renderUploadPreviews();
@@ -185,17 +297,17 @@
             const form = document.getElementById('uploadDesignForm');
             if (form) form.reset();
             renderUploadPreviews();
-            
+
             // Reset overlay and buttons just in case
             const overlay = document.getElementById('uploadLoadingOverlay');
             if (overlay) overlay.classList.add('d-none');
-            
+
             const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-1"></i> Upload Sekarang';
             }
-            
+
             const cancelBtn = form ? form.querySelector('button[data-bs-dismiss="modal"]') : null;
             if (cancelBtn) cancelBtn.disabled = false;
 
@@ -219,7 +331,7 @@
             const objectInput = document.getElementById('3dObjectNameInput');
             const hasFiles = uploadedFiles.length > 0;
             const hasObject = objectInput && objectInput.value.trim().length > 0;
-            
+
             if (!hasFiles && !hasObject) {
                 e.preventDefault();
                 if (typeof iziToast !== 'undefined') {
@@ -326,7 +438,7 @@
             function handleUploadError(msg) {
                 // Hide overlay
                 if (overlay) overlay.classList.add('d-none');
-                
+
                 // Re-enable buttons
                 if (submitBtn) {
                     submitBtn.disabled = false;

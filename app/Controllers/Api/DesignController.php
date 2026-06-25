@@ -80,14 +80,32 @@ class DesignController extends ResourceController
             ->orderBy('created_at', 'DESC')
             ->findAll();
 
-        foreach ($data as &$project) {
-            $image_urls = [];
-            for ($i = 1; $i <= 5; $i++) {
-                if (!empty($project['gambar' . $i])) {
-                    $image_urls[] = base_url('uploads/designs/' . $project['gambar' . $i]);
-                }
+        if (!empty($data)) {
+            $designIds = array_column($data, 'id');
+            $db = \Config\Database::connect();
+            $constructions = $db->table('construction_requests')
+                ->select('id, design_request_id')
+                ->whereIn('design_request_id', $designIds)
+                ->get()
+                ->getResultArray();
+
+            $designToConstMap = [];
+            foreach ($constructions as $c) {
+                $designToConstMap[$c['design_request_id']] = $c['id'];
             }
-            $project['image_urls'] = $image_urls;
+
+            foreach ($data as &$project) {
+                $image_urls = [];
+                for ($i = 1; $i <= 5; $i++) {
+                    if (!empty($project['gambar' . $i])) {
+                        $image_urls[] = base_url('uploads/designs/' . $project['gambar' . $i]);
+                    }
+                }
+                $project['image_urls'] = $image_urls;
+                $project['construction_requests_id'] = isset($designToConstMap[$project['id']])
+                    ? (int) $designToConstMap[$project['id']]
+                    : null;
+            }
         }
 
         return $this->respond([
@@ -496,8 +514,8 @@ class DesignController extends ResourceController
             ]);
         }
 
-        $targetId = (int)$design['design_targets_id'];
-        $revNum = (int)$design['revision_number'];
+        $targetId = (int) $design['design_targets_id'];
+        $revNum = (int) $design['revision_number'];
 
         $status = $this->request->getPost('status') ?? $this->request->getJSON(true)['status'];
 
@@ -611,6 +629,8 @@ class DesignController extends ResourceController
         }
     }
 
+
+
     // =========================================================================
     // 6. GET INVOICES
     // =========================================================================
@@ -628,8 +648,8 @@ class DesignController extends ResourceController
                 dt.task_name  AS target_task_name,
                 dt.status     AS target_status
             ')
-            ->join('vouchers',        'vouchers.code = project_invoices.voucher_code',           'left')
-            ->join('design_targets dt', 'dt.id = project_invoices.design_target_id',             'left')
+            ->join('vouchers', 'vouchers.code = project_invoices.voucher_code', 'left')
+            ->join('design_targets dt', 'dt.id = project_invoices.design_target_id', 'left')
             ->where('project_invoices.design_request_id', $designRequestId)
             // Tampilkan tagihan target lebih dulu (design_target_id IS NOT NULL), lalu manual
             ->orderBy('project_invoices.design_target_id IS NULL', 'ASC', false)
@@ -642,19 +662,19 @@ class DesignController extends ResourceController
             // Nominal bisa NULL (tagihan target yang belum diisi)
             $originalAmount = $invoice['amount'] !== null ? (float) $invoice['amount'] : null;
             $discountAmount = (int) ($invoice['discount_nominal'] ?? 0);
-            $grossAmount    = $originalAmount !== null
+            $grossAmount = $originalAmount !== null
                 ? max(0, $originalAmount - $discountAmount)
                 : null;
 
-            $invoice['original_amount']   = $originalAmount;
-            $invoice['discount_amount']   = $discountAmount;
-            $invoice['gross_amount']      = $grossAmount;
+            $invoice['original_amount'] = $originalAmount;
+            $invoice['discount_amount'] = $discountAmount;
+            $invoice['gross_amount'] = $grossAmount;
 
             // Flag: apakah tagihan ini terhubung ke target desain
-            $invoice['is_target_linked']  = !empty($invoice['design_target_id']);
+            $invoice['is_target_linked'] = !empty($invoice['design_target_id']);
 
             // Pastikan design_target_id bertipe int atau null
-            $invoice['design_target_id']  = $invoice['design_target_id']
+            $invoice['design_target_id'] = $invoice['design_target_id']
                 ? (int) $invoice['design_target_id']
                 : null;
 
@@ -662,12 +682,121 @@ class DesignController extends ResourceController
         }, $invoices);
 
         return $this->respond([
-            'status'  => true,
+            'status' => true,
             'message' => !empty($formattedInvoices)
                 ? 'Daftar invoice ditemukan'
                 : 'Belum ada invoice untuk permohonan ini',
-            'data'    => $formattedInvoices,
+            'data' => $formattedInvoices,
         ]);
+    }
+
+    // =========================================================================
+    // 5b. GET RAB
+    // =========================================================================
+    public function rabs($designRequestId = null)
+    {
+        if ($designRequestId == null) {
+            return $this->fail('Design Request ID tidak boleh kosong.');
+        }
+
+        $romanNumber = $this->request->getGet('roman_number') ?? $this->request->getVar('roman_number');
+
+        try {
+            $query = $this->db->table('rabs')->where('design_request_id', $designRequestId);
+            if (!empty($romanNumber)) {
+                $query->where('LOWER(TRIM(roman_number))', strtolower(trim($romanNumber)));
+            }
+            $rabData = $query->orderBy('created_at', 'DESC')->get()->getResultArray();
+
+            foreach ($rabData as &$rab) {
+                $rab['image_url'] = !empty($rab['file']) ? base_url('uploads/design/rab/' . $rab['file']) : null;
+
+                // Ambil info master AHSP
+                $ahspInfo = $this->db->table('ahsp')
+                    ->where('id', $rab['ahsp_id'])
+                    ->get()->getRowArray();
+
+                if ($ahspInfo) {
+                    $ahspInfo['id'] = (int) $ahspInfo['id'];
+                } else {
+                    $ahspInfo = [
+                        'id' => (int) $rab['ahsp_id'],
+                        'kode' => '',
+                        'uraian' => $rab['activity_name'] ?? '',
+                        'satuan' => $rab['unit'] ?? ''
+                    ];
+                }
+
+                // 1. Ambil data ahsp_tenaga_kerja
+                $tenagaKerja = $this->db->table('ahsp_tenaga_kerja')
+                    ->where('ahsp_id', $rab['ahsp_id'])
+                    ->orderBy('id', 'ASC')
+                    ->get()->getResultArray();
+                foreach ($tenagaKerja as &$tk) {
+                    $tk['id'] = (int) $tk['id'];
+                    $tk['ahsp_id'] = (int) $tk['ahsp_id'];
+                    $tk['koefisien'] = (float) $tk['koefisien'];
+                    $tk['harga_satuan'] = (float) $tk['harga_satuan'];
+                }
+                $ahspInfo['tenaga_kerja'] = $tenagaKerja;
+
+                // 2. Ambil data ahsp_bahan
+                $bahanList = $this->db->table('ahsp_bahan')
+                    ->where('ahsp_id', $rab['ahsp_id'])
+                    ->orderBy('id', 'ASC')
+                    ->get()->getResultArray();
+
+                // 3. Ambil data rekomendasi produk untuk rab_id ini
+                $recommendations = $this->db->table('rab_materials crm')
+                    ->select('crm.*, p.name as product_name, p.price as product_price, p.unit as product_unit, p.stock as product_stock, p.photo as product_photo, p.description as product_description')
+                    ->join('products p', 'p.id = crm.product_id', 'left')
+                    ->where('crm.rab_id', $rab['id'])
+                    ->get()->getResultArray();
+
+                $recsByBahanId = [];
+                foreach ($recommendations as $rec) {
+                    $recsByBahanId[$rec['ahsp_bahan_id']][] = [
+                        'id' => (int) $rec['id'],
+                        'rab_id' => (int) $rec['rab_id'],
+                        'product_id' => (int) $rec['product_id'],
+                        'ahsp_bahan_id' => (int) $rec['ahsp_bahan_id'],
+                        'selected' => (int) $rec['selected'] === 1,
+                        'product_name' => $rec['product_name'],
+                        'product_price' => (float) $rec['product_price'],
+                        'product_unit' => $rec['product_unit'],
+                        'product_stock' => (int) $rec['product_stock'],
+                        'product_description' => $rec['product_description'],
+                        'product_image_url' => !empty($rec['product_photo']) ? (strpos($rec['product_photo'], 'http') === 0 ? $rec['product_photo'] : base_url('uploads/products/' . $rec['product_photo'])) : null,
+                    ];
+                }
+
+                foreach ($bahanList as &$b) {
+                    $b['id'] = (int) $b['id'];
+                    $b['ahsp_id'] = (int) $b['ahsp_id'];
+                    $b['koefisien'] = (float) $b['koefisien'];
+                    $b['recommendations'] = $recsByBahanId[$b['id']] ?? [];
+                }
+                $ahspInfo['bahan'] = $bahanList;
+
+                $rab['ahsp'] = $ahspInfo;
+            }
+        } catch (\Throwable $th) {
+            return $this->fail('Gagal mendapatkan data RAB dengan error : ' . $th->getMessage());
+        }
+
+        if ($rabData) {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Detail RAB Proyek desain ditemukan',
+                'data' => $rabData
+            ]);
+        } else {
+            return $this->respond([
+                'status' => true,
+                'message' => 'Belum ada RAB untuk Proyek desain ini',
+                'data' => $rabData
+            ]);
+        }
     }
 
     public function buyRevisionQuota()
@@ -695,12 +824,12 @@ class DesignController extends ResourceController
         // Buat invoice baru
         $invoiceData = [
             'design_request_id' => $designRequestId,
-            'description'       => "Tambahan Kuota Revisi ({$quantity}x)",
-            'amount'            => $totalPrice,
-            'due_date'          => date('Y-m-d', strtotime('+1 day')),
-            'status'            => 'UNPAID',
-            'payment_status'    => 'UNPAID',
-            'created_at'        => date('Y-m-d H:i:s'),
+            'description' => "Tambahan Kuota Revisi ({$quantity}x)",
+            'amount' => $totalPrice,
+            'due_date' => date('Y-m-d', strtotime('+1 day')),
+            'status' => 'UNPAID',
+            'payment_status' => 'UNPAID',
+            'created_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($this->db->table('project_invoices')->insert($invoiceData)) {
@@ -717,5 +846,172 @@ class DesignController extends ResourceController
         }
 
         return $this->failServerError('Gagal membuat invoice baru.');
+    }
+
+    public function select_material()
+    {
+        $json = $this->request->getJSON(true);
+        if (empty($json)) {
+            $json = [
+                'id' => $this->request->getVar('id'),
+                'rab_id' => $this->request->getVar('rab_id'),
+                'product_id' => $this->request->getVar('product_id'),
+                'ahsp_bahan_id' => $this->request->getVar('ahsp_bahan_id')
+            ];
+        }
+
+        $id = $json['id'] ?? null;
+        $rabId = $json['rab_id'] ?? null;
+        $productId = $json['product_id'] ?? null;
+        $ahspBahanId = $json['ahsp_bahan_id'] ?? null;
+
+        if (!$id && (!$rabId || !$productId)) {
+            return $this->fail('Parameter id rekomendasi atau (rab_id dan product_id) tidak ditemukan.');
+        }
+
+        if (!$id) {
+            // Cari row rekomendasi di database
+            $query = $this->db->table('rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('product_id', $productId);
+            if ($ahspBahanId) {
+                $query->where('ahsp_bahan_id', $ahspBahanId);
+            }
+            $rec = $query->get()->getRowArray();
+            if (!$rec) {
+                return $this->fail('Pilihan rekomendasi produk tidak ditemukan untuk item ini.');
+            }
+            $id = $rec['id'];
+            $ahspBahanId = $rec['ahsp_bahan_id'];
+        } else {
+            $rec = $this->db->table('rab_materials')->where('id', $id)->get()->getRowArray();
+            if (!$rec) {
+                return $this->fail('Rekomendasi produk tidak ditemukan.');
+            }
+            $rabId = $rec['rab_id'];
+            $ahspBahanId = $rec['ahsp_bahan_id'];
+        }
+
+        // Cek lock dinonaktifkan untuk modul desain
+
+        try {
+            $this->db->transStart();
+
+            // Set semua rekomendasi untuk bahan ini ke selected = 0
+            $this->db->table('rab_materials')
+                ->where('rab_id', $rabId)
+                ->where('ahsp_bahan_id', $ahspBahanId)
+                ->update(['selected' => 0]);
+
+            // Set rekomendasi terpilih ke selected = 1
+            $this->db->table('rab_materials')
+                ->where('id', $id)
+                ->update(['selected' => 1]);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->fail('Gagal menyimpan pilihan material.');
+            }
+
+            // Hitung ulang harga baris RAB
+            $newUnitPrice = $this->recalculateRabRowPrice($rabId);
+
+            // Ambil data terbaru baris RAB
+            $updatedRab = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Pilihan produk material berhasil diperbarui!',
+                'data' => [
+                    'rab_id' => (int) $rabId,
+                    'ahsp_bahan_id' => (int) $ahspBahanId,
+                    'selected_product_id' => (int) $rec['product_id'],
+                    'new_unit_price' => (float) $newUnitPrice,
+                    'total_price' => (float) ($updatedRab['total_price'] ?? 0)
+                ]
+            ]);
+
+        } catch (\Throwable $th) {
+            return $this->fail('Gagal memperbarui material dengan error: ' . $th->getMessage());
+        }
+    }
+
+    private function recalculateRabRowPrice($rabId)
+    {
+        $rab = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
+        if (!$rab) {
+            return 0;
+        }
+
+        $ahspId = $rab['ahsp_id'];
+
+        // 1. Hitung total tenaga kerja dari ahsp_tenaga_kerja
+        $laborSum = $this->db->table('ahsp_tenaga_kerja')
+            ->select('SUM(harga_satuan * koefisien) AS total')
+            ->where('ahsp_id', $ahspId)
+            ->get()->getRowArray();
+        $totalTenaga = (float) ($laborSum['total'] ?? 0);
+
+        // 2. Hitung total bahan
+        $requiredBahan = $this->db->table('ahsp_bahan')->where('ahsp_id', $ahspId)->get()->getResultArray();
+
+        $allProducts = $this->db->table('products')->select('id, name, price')->get()->getResultArray();
+
+        // Ambil produk terpilih (yang selected = 1) untuk rab_id ini
+        $selectedMaterials = $this->db->table('rab_materials')
+            ->where('rab_id', $rabId)
+            ->where('selected', 1)
+            ->get()->getResultArray();
+
+        $selectedMap = [];
+        foreach ($selectedMaterials as $sm) {
+            $selectedMap[$sm['ahsp_bahan_id']] = $sm['product_id'];
+        }
+
+        $productMap = [];
+        foreach ($allProducts as $p) {
+            $productMap[$p['id']] = $p;
+        }
+
+        $totalBahan = 0;
+        foreach ($requiredBahan as $rb) {
+            $koef = (float) ($rb['koefisien'] ?? 0);
+
+            if (isset($selectedMap[$rb['id']])) {
+                $selProdId = $selectedMap[$rb['id']];
+                if (isset($productMap[$selProdId])) {
+                    $totalBahan += $koef * (float) $productMap[$selProdId]['price'];
+                }
+            } else {
+                // Fallback pencarian produk otomatis berdasarkan nama
+                $bahanUraianClean = strtolower(trim($rb['uraian'] ?? ''));
+                $matchedProductPrice = 0;
+
+                foreach ($allProducts as $p) {
+                    $pNameClean = strtolower(trim($p['name'] ?? ''));
+                    if ($pNameClean === $bahanUraianClean || strpos($pNameClean, $bahanUraianClean) !== false || strpos($bahanUraianClean, $pNameClean) !== false) {
+                        $matchedProductPrice = (float) $p['price'];
+                        break;
+                    }
+                }
+
+                $totalBahan += $koef * $matchedProductPrice;
+            }
+        }
+
+        $newUnitPrice = $totalTenaga + $totalBahan;
+        $totalPrice = (float) ($rab['volume'] ?? 0) * $newUnitPrice;
+
+        // Update ke database
+        $this->db->table('rabs')
+            ->where('id', $rabId)
+            ->update([
+                'current_unit_price' => $newUnitPrice,
+                'total_price' => $totalPrice,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        return $newUnitPrice;
     }
 }

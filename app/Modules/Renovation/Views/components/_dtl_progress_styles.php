@@ -159,6 +159,10 @@
         background: #ffa426;
     }
 
+    .progress-item-card.st-pending-client::before {
+        background: #6366f1;
+    }
+
     /* ── Status pills ── */
     .prog-status-pill {
         display: inline-flex;
@@ -191,6 +195,11 @@
     .pill-pending {
         background: #fff3cd;
         color: #7d5a00;
+    }
+
+    .pill-pending-client {
+        background: #e0e7ff;
+        color: #4338ca;
     }
 
     .prog-status-pill .dot {

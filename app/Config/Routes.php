@@ -261,7 +261,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('design/progress/(:num)', 'DesignController::progress/$1');
     $routes->post('design/progress/(:num)', 'DesignController::updateProgress/$1');
     $routes->get('design/invoices/(:num)', 'DesignController::invoices/$1');
+    $routes->get('design/rabs/(:num)', 'DesignController::rabs/$1');
     $routes->post('design/buy-revision', 'DesignController::buyRevisionQuota');
+    $routes->patch('design/select-material', 'DesignController::select_material');
 
     // === MODUL KONSTRUKSI (SINKRON DENGAN ConstructionApi) ===
     $routes->post('construction/submit', 'ConstructionApi::submit');
@@ -280,6 +282,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('construction/targetsByUser', 'ConstructionApi::targetsByUser');
     $routes->patch('construction/select-material', 'ConstructionApi::select_material');
     $routes->patch('construction/finalize-rab', 'ConstructionApi::finalize_rab');
+    $routes->get('construction/progress-list/(:num)', 'ConstructionApi::progressList/$1');
+    $routes->patch('construction/progress/approve/(:num)', 'ConstructionApi::approveProgress/$1');
+    $routes->patch('construction/progress/reject/(:num)', 'ConstructionApi::rejectProgress/$1');
 
     // absensi konstruksi dan renovasi
     $routes->get('construction/attendance-projects/(:num)', 'TukangJobApi::getProjectListForAttendance/$1');
@@ -323,6 +328,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('renovation/targetsByUser', 'RenovationApi::targetsByUser');
     $routes->patch('renovation/select-material', 'RenovationApi::select_material');
     $routes->patch('renovation/finalize-rab', 'RenovationApi::finalize_rab');
+    $routes->get('renovation/progress-list/(:num)', 'RenovationApi::progressList/$1');
+    $routes->patch('renovation/progress/approve/(:num)', 'RenovationApi::approveProgress/$1');
+    $routes->patch('renovation/progress/reject/(:num)', 'RenovationApi::rejectProgress/$1');
 
     // absensi renovasi
     $routes->post('renovation/send-checkin-attendance/(:num)', 'RenovationApi::SendAttendance/$1');
@@ -373,6 +381,19 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     // Tukang Private Actions
     $routes->post('tukang/update-profile', 'TukangAuthController::updateProfile');
     $routes->post('tukang/update-fcm', 'TukangAuthController::updateFcmToken');
+
+    $routes->group('tukang/group', function ($routes) {
+        $routes->post('create', 'TukangGroupApi::create');
+        $routes->get('detail', 'TukangGroupApi::getGroup');
+        $routes->post('update', 'TukangGroupApi::update');
+        $routes->post('member-status', 'TukangGroupApi::updateMemberStatus');
+        $routes->post('remove-member', 'TukangGroupApi::removeMember');
+        $routes->post('join', 'TukangGroupApi::join');
+        $routes->post('leave', 'TukangGroupApi::leave');
+        $routes->get('my-status', 'TukangGroupApi::myStatus');
+        $routes->get('requests', 'TukangGroupApi::myRequests');
+        $routes->post('distribute-bulk', 'TukangGroupApi::distributeBulk');
+    });
     $routes->get('tukang/profile/(:num)', 'TukangAuthController::getProfile/$1');
     $routes->get('tukang/jobs/construction', 'TukangJobApi::getConstructionJobs');
     $routes->get('tukang/jobs/renovation', 'TukangJobApi::getRenovationJobs');
@@ -423,6 +444,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('(:any)/notifications/unread-count/(:num)', 'NotificationController::unreadCount/$1/$2');
     $routes->post('(:any)/notifications/toggle', 'NotificationController::toggleNotification/$1');
 });
+
+
+
+
 
 if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
     require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';

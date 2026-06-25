@@ -35,7 +35,7 @@
                 filtered.forEach(function(item, index) {
                     var st = (item.status || 'PENDING').toUpperCase();
                     var stLower = st.toLowerCase(); // 'approved', 'rejected', 'pending'
-                    var stLabel = { APPROVED: 'Approved', REJECTED: 'Rejected', PENDING: 'Pending' }[st] || st;
+                    var stLabel = { APPROVED: 'Approved', REJECTED: 'Rejected', PENDING: 'Pending', PENDING_CLIENT: 'Pending Client' }[st] || st;
 
                     // Week number badge
                     var weekHtml = '';
@@ -159,14 +159,19 @@
                 throw new Error('Network response was not ok');
             }
             
+            var mappedStatus = newStatus;
+            if (newStatus === 'APPROVED') {
+                mappedStatus = 'PENDING_CLIENT';
+            }
+            
             // Update the status in progressDataList array
             var found = progressDataList.find(function(p) { return parseInt(p.id) === parseInt(progressId); });
             if (found) {
-                found.status = newStatus;
+                found.status = mappedStatus;
             }
 
-            var stLower = newStatus.toLowerCase();
-            var stLabel = { APPROVED: 'Approved', REJECTED: 'Rejected', PENDING: 'Pending' }[newStatus] || newStatus;
+            var stLower = mappedStatus.toLowerCase();
+            var stLabel = { APPROVED: 'Approved', REJECTED: 'Rejected', PENDING: 'Pending', PENDING_CLIENT: 'Pending Client' }[mappedStatus] || mappedStatus;
             
             if (pill) {
                 pill.className = 'prog-status-pill ' + stLower;
@@ -185,7 +190,7 @@
                     currentStatus = found.status.toUpperCase();
                 }
                 var stLower = currentStatus.toLowerCase();
-                var stLabel = { APPROVED: 'Approved', REJECTED: 'Rejected', PENDING: 'Pending' }[currentStatus] || currentStatus;
+                var stLabel = { APPROVED: 'Approved', REJECTED: 'Rejected', PENDING: 'Pending', PENDING_CLIENT: 'Pending Client' }[currentStatus] || currentStatus;
                 pill.className = 'prog-status-pill ' + stLower;
                 pill.innerHTML = '<span class="prog-dot"></span> ' + stLabel + ' <i class="fas fa-chevron-down ms-1" style="font-size:.5rem;"></i>';
             }

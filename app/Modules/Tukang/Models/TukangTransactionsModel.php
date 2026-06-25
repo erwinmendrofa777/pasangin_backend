@@ -11,6 +11,7 @@ class TukangTransactionsModel extends Model
     protected $returnType = 'array';
     protected $allowedFields = [
         'tukang_id',
+        'group_transaction_id',
         'amount',
         'type',
         'description'

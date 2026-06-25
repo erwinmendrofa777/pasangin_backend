@@ -114,6 +114,7 @@ class TukangService
             'balance'          => 0,
             'rata_rata_rating' => 0,
             'total_ulasan'     => 0,
+            'role'             => $postData['role'] ?? 'tukang',
         ]);
 
         $tukangId = $this->tukangRepository->getInsertID();
@@ -204,5 +205,28 @@ class TukangService
         if (is_file($filePath)) {
             unlink($filePath);
         }
+    }
+
+    /**
+     * Ambil target konstruksi grup & mandiri, dikelompokkan berdasarkan nama grup.
+     */
+    public function getGroupedConstructionTargets(): array
+    {
+        $rawTargets = $this->tukangRepository->findGroupConstructionTargets();
+        
+        $grouped = [
+            'groups' => [],
+            'independent' => []
+        ];
+
+        foreach ($rawTargets as $target) {
+            if (!empty($target['group_name'])) {
+                $grouped['groups'][$target['group_name']][] = $target;
+            } else {
+                $grouped['independent'][] = $target;
+            }
+        }
+
+        return $grouped;
     }
 }

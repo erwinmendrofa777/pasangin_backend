@@ -117,6 +117,14 @@
                                                 value="<?= old('dob') ?>" required>
                                         </div>
                                         <div class="col-md-12">
+                                            <label for="role" class="form-label">Peran (Role) <span
+                                                    class="text-danger">*</span></label>
+                                            <select class="form-select" id="role" name="role" required>
+                                                <option value="tukang" <?= old('role') == 'tukang' ? 'selected' : '' ?>>Tukang</option>
+                                                <option value="mandor" <?= old('role') == 'mandor' ? 'selected' : '' ?>>Mandor</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-12">
                                             <label for="ktp_address" class="form-label">Alamat Sesuai KTP <span
                                                     class="text-danger">*</span></label>
                                             <textarea class="form-control" id="ktp_address" name="ktp_address" rows="2"

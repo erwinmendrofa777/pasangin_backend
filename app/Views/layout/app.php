@@ -417,8 +417,8 @@
       transform: scale(1.1);
     }
 
-    /* Menu Items Active State */
-    .sidebar-menu li.active a {
+    /* Menu Items Active State - apply ONLY to direct link (not submenus unless their parent li is active) */
+    .sidebar-menu li.active > a {
       background: rgba(229, 57, 53, 0.07) !important;
       /* Premium brand alpha tint */
       color: var(--palette-primary, #e53935) !important;
@@ -426,12 +426,12 @@
       box-shadow: none !important;
     }
 
-    .sidebar-menu li.active a i {
+    .sidebar-menu li.active > a i {
       color: var(--palette-primary, #e53935) !important;
     }
 
     /* Active Left Border Accent Indicator */
-    .sidebar-menu li.active a::before {
+    .sidebar-menu li.active > a::before {
       content: '';
       position: absolute;
       left: 0;
@@ -440,6 +440,15 @@
       width: 3.5px;
       background: var(--palette-primary, #e53935);
       border-radius: 0 4px 4px 0;
+    }
+
+    /* Dropdown Chevron Animation */
+    .main-sidebar .sidebar-menu li a.has-dropdown::after {
+      transition: transform 0.3s ease-in-out !important;
+    }
+
+    .main-sidebar .sidebar-menu li.active a.has-dropdown::after {
+      transform: translate(0, -50%) rotate(-180deg) !important;
     }
 
     /* Collapsed Sidebar (sidebar-mini) refinements */
@@ -990,56 +999,18 @@
 
             <!-- ============ DASHBOARD ============ -->
             <?php if (can('dashboard') || $isAccounting): ?>
-              <li class="menu-header">DASHBOARD</li>
               <li class="<?= ($seg2 == 'dashboard' || $seg2 == '') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= site_url('admin/dashboard') ?>"><i class="fas fa-fire"></i>
                   <span>Dashboard</span></a>
               </li>
             <?php endif; ?>
 
-            <!-- ============ MANAJEMEN ============ -->
-            <?php if (canAny(['chat', 'users', 'suppliers', 'products', 'orders', 'wallet', 'tukang']) || $isAccounting): ?>
-              <li class="menu-header">MANAJEMEN</li>
-
+            <!-- ============ MANAJEMEN SINGLE ITEMS ============ -->
+            <?php if (canAny(['chat', 'orders', 'users', 'admin_balance_view']) || $isAccounting): ?>
               <?php if (can('chat')): ?>
                 <li class="<?= ($seg2 == 'chat') ? 'active' : '' ?>">
                   <a class="nav-link" href="<?= site_url('admin/chat') ?>"><i class="fas fa-comments"></i> <span>Pesan
                       Masuk</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('users')): ?>
-                <li class="<?= ($seg2 == 'users') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/users') ?>"><i class="fas fa-users"></i>
-                    <span>Users</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('suppliers')): ?>
-                <li class="<?= ($seg2 == 'suppliers') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/suppliers') ?>"><i class="fas fa-store"></i>
-                    <span>Suppliers</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('products')): ?>
-                <li class="<?= ($seg2 == 'products') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/products') ?>"><i class="fas fa-box"></i>
-                    <span>Produk</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('satuan')): ?>
-                <li class="<?= ($seg2 == 'satuan') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/satuan') ?>"><i class="fas fa-balance-scale"></i>
-                    <span>Satuan</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('ahsp')): ?>
-                <li class="<?= ($seg2 == 'ahsp') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/ahsp') ?>"><i class="fas fa-clipboard-list"></i>
-                    <span>AHSP</span></a>
                 </li>
               <?php endif; ?>
 
@@ -1050,10 +1021,10 @@
                 </li>
               <?php endif; ?>
 
-              <?php if (can('wallet') || $isAccounting): ?>
-                <li class="<?= ($seg2 == 'wallet') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/wallet') ?>"><i class="fas fa-wallet"></i> <span>Wallet
-                      (Saldo)</span></a>
+              <?php if (can('users')): ?>
+                <li class="<?= ($seg2 == 'users') ? 'active' : '' ?>">
+                  <a class="nav-link" href="<?= site_url('admin/users') ?>"><i class="fas fa-users"></i>
+                    <span>Users</span></a>
                 </li>
               <?php endif; ?>
 
@@ -1063,26 +1034,10 @@
                     <span>Saldo Admin</span></a>
                 </li>
               <?php endif; ?>
-
-              <?php if (can('tukang')): ?>
-                <li class="<?= ($seg2 == 'tukang') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/tukang/index') ?>"><i class="fas fa-hard-hat"></i>
-                    <span>Tukang</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('tukang')): ?>
-                <li class="<?= ($seg2 == 'tukang-skill') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/tukang-skill') ?>"><i class="fas fa-tools"></i>
-                    <span>Tukang Skill</span></a>
-                </li>
-              <?php endif; ?>
             <?php endif; ?>
 
             <!-- ============ PROYEK ============ -->
             <?php if (canAny(['design', 'construction', 'renovation']) || $isAccounting || in_array(strtolower(session()->get('role') ?? ''), ['drafter', 'arsitek'])): ?>
-              <li class="menu-header">PROYEK</li>
-
               <?php if (can('design') || $isAccounting): ?>
                 <li
                   class="<?= ($seg2 == 'design' && ($uri->getTotalSegments() < 3 || ($uri->getSegment(3) !== 'managerial' && $uri->getSegment(3) !== 'tugas'))) ? 'active' : '' ?>">
@@ -1122,105 +1077,135 @@
               <?php endif; ?>
             <?php endif; ?>
 
-            <!-- ============ KONTEN ============ -->
-            <?php if (canAny(['banner', 'banner_supplier', 'vouchers', 'tips', 'promo', 'notification', 'price-estimate', 'syarat_ketentuan', 'about_application']) || $isAccounting): ?>
-              <li class="menu-header">KONTEN</li>
-
-              <?php if (can('banner')): ?>
-                <li class="<?= ($seg2 == 'banner') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/banner') ?>"><i class="fas fa-image"></i>
-                    <span>Banner</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('banner_supplier')): ?>
-                <li class="<?= ($seg2 == 'banner-supplier') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/banner-supplier') ?>"><i class="fas fa-store"></i>
-                    <span>Banner Supplier</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('vouchers') || $isAccounting): ?>
-                <li class="<?= ($seg2 == 'vouchers') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/vouchers') ?>"><i class="fas fa-ticket-alt"></i>
-                    <span>Voucher</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('tips')): ?>
-                <li class="<?= ($seg2 == 'tips') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/tips') ?>"><i class="fas fa-lightbulb"></i>
-                    <span>Tips</span></a>
-                </li>
-              <?php endif; ?>
-
-
-              <?php if (can('promo')): ?>
-                <li class="<?= ($seg2 == 'promo') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/promo') ?>"><i class="fas fa-percentage"></i>
-                    <span>Promosi</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('notification')): ?>
-                <li class="<?= ($seg2 == 'notification') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/notification') ?>"><i class="fas fa-bell"></i>
-                    <span>Notifikasi</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('price-estimate')): ?>
-                <li class="<?= ($seg2 == 'price-estimate') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/price-estimate') ?>"><i class="fas fa-calculator"></i>
-                    <span>Estimasi Harga</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('syarat_ketentuan')): ?>
-                <li class="<?= ($seg2 == 'syarat_ketentuan') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/syarat_ketentuan') ?>"><i class="fas fa-file-contract"></i>
-                    <span>Syarat & Ketentuan</span></a>
-                </li>
-              <?php endif; ?>
-              <?php if (can('about_application')): ?>
-                <li class="<?= ($seg2 == 'about_application') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/about_application') ?>"><i class="fas fa-info-circle"></i>
-                    <span>Tentang Aplikasi</span></a>
-                </li>
-              <?php endif; ?>
+            <!-- ============ DROPDOWNS AT THE BOTTOM ============ -->
+            <?php if (canAny(['suppliers', 'products', 'banner_supplier', 'promo'])): ?>
+              <li class="dropdown <?= ($seg2 == 'suppliers' || $seg2 == 'products' || $seg2 == 'banner-supplier' || $seg2 == 'promo') ? 'active' : '' ?>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-store"></i> <span>Supplier & Produk</span></a>
+                <ul class="dropdown-menu">
+                  <?php if (can('suppliers')): ?>
+                    <li class="<?= ($seg2 == 'suppliers') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/suppliers') ?>"><i class="fas fa-store"></i> <span>Suppliers</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('products')): ?>
+                    <li class="<?= ($seg2 == 'products') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/products') ?>"><i class="fas fa-box"></i> <span>Produk</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('banner_supplier')): ?>
+                    <li class="<?= ($seg2 == 'banner-supplier') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/banner-supplier') ?>"><i class="fas fa-store"></i> <span>Banner Supplier</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('promo')): ?>
+                    <li class="<?= ($seg2 == 'promo') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/promo') ?>"><i class="fas fa-percentage"></i> <span>Promosi</span></a>
+                    </li>
+                  <?php endif; ?>
+                </ul>
+              </li>
             <?php endif; ?>
 
-            <!-- ============ AKSES ============ -->
-            <?php if (canAny(['roles', 'admin', 'activity_log_view', 'settings_view'])): ?>
-              <li class="menu-header">AKSES</li>
+            <?php if (canAny(['tukang', 'wallet']) || $isAccounting): ?>
+              <li class="dropdown <?= ($seg2 == 'wallet' || $seg2 == 'tukang' || $seg2 == 'tukang-skill') ? 'active' : '' ?>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-hard-hat"></i> <span>Tukang & Wallet</span></a>
+                <ul class="dropdown-menu">
+                  <?php if (can('tukang')): ?>
+                    <li class="<?= ($seg2 == 'tukang') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/tukang/index') ?>"><i class="fas fa-hard-hat"></i> <span>Tukang</span></a>
+                    </li>
+                    <li class="<?= ($seg2 == 'tukang-skill') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/tukang-skill') ?>"><i class="fas fa-tools"></i> <span>Tukang Skill</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('wallet') || $isAccounting): ?>
+                    <li class="<?= ($seg2 == 'wallet') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/wallet') ?>"><i class="fas fa-wallet"></i> <span>Wallet (Saldo)</span></a>
+                    </li>
+                  <?php endif; ?>
+                </ul>
+              </li>
+            <?php endif; ?>
 
-              <?php if (can('settings_view')): ?>
-                <li class="<?= ($seg2 == 'settings') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/settings') ?>"><i class="fas fa-cog"></i> <span>Pengaturan
-                      Aplikasi</span></a>
-                </li>
-              <?php endif; ?>
+            <?php if (canAny(['banner', 'tips', 'notification', 'price-estimate', 'syarat_ketentuan', 'about_application'])): ?>
+              <li class="dropdown <?= in_array($seg2, ['banner', 'tips', 'notification', 'price-estimate', 'syarat_ketentuan', 'about_application']) ? 'active' : '' ?>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-file-alt"></i> <span>Kelola Konten</span></a>
+                <ul class="dropdown-menu">
+                  <?php if (can('banner')): ?>
+                    <li class="<?= ($seg2 == 'banner') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/banner') ?>"><i class="fas fa-image"></i> <span>Banner</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('tips')): ?>
+                    <li class="<?= ($seg2 == 'tips') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/tips') ?>"><i class="fas fa-lightbulb"></i> <span>Tips</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('notification')): ?>
+                    <li class="<?= ($seg2 == 'notification') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/notification') ?>"><i class="fas fa-bell"></i> <span>Notifikasi</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('price-estimate')): ?>
+                    <li class="<?= ($seg2 == 'price-estimate') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/price-estimate') ?>"><i class="fas fa-calculator"></i> <span>Estimasi Harga</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('syarat_ketentuan')): ?>
+                    <li class="<?= ($seg2 == 'syarat_ketentuan') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/syarat_ketentuan') ?>"><i class="fas fa-file-contract"></i> <span>Syarat & Ketentuan</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('about_application')): ?>
+                    <li class="<?= ($seg2 == 'about_application') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/about_application') ?>"><i class="fas fa-info-circle"></i> <span>Tentang Aplikasi</span></a>
+                    </li>
+                  <?php endif; ?>
+                </ul>
+              </li>
+            <?php endif; ?>
 
-              <?php if (can('admin')): ?>
-                <li class="<?= ($seg2 == 'admin') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/admin') ?>"><i class="fas fa-user-tie"></i> <span>Kelola
-                      Admin</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('roles')): ?>
-                <li class="<?= ($seg2 == 'roles') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/roles') ?>"><i class="fas fa-user-shield"></i> <span>Kelola
-                      Role</span></a>
-                </li>
-              <?php endif; ?>
-
-              <?php if (can('activity_log_view')): ?>
-                <li class="<?= ($seg2 == 'activity-logs') ? 'active' : '' ?>">
-                  <a class="nav-link" href="<?= site_url('admin/activity-logs') ?>"><i class="fas fa-history"></i> <span>Log
-                      Aktivitas</span></a>
-                </li>
-              <?php endif; ?>
+            <?php if (canAny(['roles', 'admin', 'activity_log_view', 'settings_view', 'vouchers', 'ahsp', 'satuan']) || $isAccounting): ?>
+              <li class="dropdown <?= in_array($seg2, ['settings', 'admin', 'roles', 'activity-logs', 'vouchers', 'satuan', 'ahsp']) ? 'active' : '' ?>">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-cog"></i> <span>Pengaturan & Akses</span></a>
+                <ul class="dropdown-menu">
+                  <?php if (can('settings_view')): ?>
+                    <li class="<?= ($seg2 == 'settings') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/settings') ?>"><i class="fas fa-cog"></i> <span>Pengaturan Aplikasi</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('admin')): ?>
+                    <li class="<?= ($seg2 == 'admin') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/admin') ?>"><i class="fas fa-user-tie"></i> <span>Kelola Admin</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('roles')): ?>
+                    <li class="<?= ($seg2 == 'roles') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/roles') ?>"><i class="fas fa-user-shield"></i> <span>Kelola Role</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('activity_log_view')): ?>
+                    <li class="<?= ($seg2 == 'activity-logs') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/activity-logs') ?>"><i class="fas fa-history"></i> <span>Log Aktivitas</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('vouchers') || $isAccounting): ?>
+                    <li class="<?= ($seg2 == 'vouchers') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/vouchers') ?>"><i class="fas fa-ticket-alt"></i> <span>Voucher</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('ahsp')): ?>
+                    <li class="<?= ($seg2 == 'ahsp') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/ahsp') ?>"><i class="fas fa-clipboard-list"></i> <span>AHSP</span></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if (can('satuan')): ?>
+                    <li class="<?= ($seg2 == 'satuan') ? 'active' : '' ?>">
+                      <a class="nav-link" href="<?= site_url('admin/satuan') ?>"><i class="fas fa-balance-scale"></i> <span>Satuan</span></a>
+                    </li>
+                  <?php endif; ?>
+                </ul>
+              </li>
             <?php endif; ?>
 
           </ul>

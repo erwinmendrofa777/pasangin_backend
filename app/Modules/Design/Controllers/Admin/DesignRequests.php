@@ -267,6 +267,49 @@ class DesignRequests extends BaseController
             return redirect()->to('/admin/dashboard')->with('error', $msg);
         }
 
+        // 1. Cek post_max_size terlampaui (jika POST tetapi $_POST dan $_FILES kosong sedangkan CONTENT_LENGTH ada)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
+            $msg = 'Ukuran total berkas yang dikirim terlalu besar dan melebihi batas maksimal server (post_max_size). Silakan kompres berkas Anda.';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        // 2. Cek upload_max_filesize atau error upload lainnya pada berkas yang diunggah
+        $uploadErrorMsg = null;
+        $filesInput = $this->request->getFileMultiple('design_files');
+        if ($filesInput && isset($filesInput[0])) {
+            foreach ($filesInput as $file) {
+                if ($file->getError() > 0 && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                    if ($file->getError() === UPLOAD_ERR_INI_SIZE) {
+                        $uploadErrorMsg = 'Ukuran berkas "' . esc($file->getName()) . '" terlalu besar dan melebihi batas upload maksimal server (upload_max_filesize).';
+                    } else {
+                        $uploadErrorMsg = 'Gagal mengunggah berkas "' . esc($file->getName()) . '" (Error Code: ' . $file->getError() . ').';
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!$uploadErrorMsg) {
+            $singleFile = $this->request->getFile('design_file');
+            if ($singleFile && $singleFile->getError() > 0 && $singleFile->getError() !== UPLOAD_ERR_NO_FILE) {
+                if ($singleFile->getError() === UPLOAD_ERR_INI_SIZE) {
+                    $uploadErrorMsg = 'Ukuran berkas "' . esc($singleFile->getName()) . '" terlalu besar dan melebihi batas upload maksimal server (upload_max_filesize).';
+                } else {
+                    $uploadErrorMsg = 'Gagal mengunggah berkas "' . esc($singleFile->getName()) . '" (Error Code: ' . $singleFile->getError() . ').';
+                }
+            }
+        }
+
+        if ($uploadErrorMsg) {
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $uploadErrorMsg]);
+            }
+            return redirect()->back()->withInput()->with('error', $uploadErrorMsg);
+        }
+
         // Validasi input dinamis
         $rules = [
             'design_targets_id' => 'required|numeric',
@@ -823,6 +866,26 @@ class DesignRequests extends BaseController
         }
     }
 
+    public function check3dNameAjax()
+    {
+        $role = strtolower(session()->get('role') ?? '');
+        if (!can('design') && !in_array($role, ['drafter', 'arsitek'])) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Anda tidak memiliki akses.']);
+        }
+
+        $name = $this->request->getPost('name');
+        if (empty($name)) {
+            return $this->response->setJSON(['status' => false, 'message' => 'Nama objek tidak boleh kosong.']);
+        }
+
+        $db = \Config\Database::connect();
+        $exists = $db->table('project_designs')
+            ->where('file', $name)
+            ->countAllResults() > 0;
+
+        return $this->response->setJSON(['status' => true, 'exists' => $exists]);
+    }
+
     public function updateTargetKeteranganAjax()
     {
         $role = strtolower(session()->get('role') ?? '');
@@ -851,69 +914,5 @@ class DesignRequests extends BaseController
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 18. LOCK / UNLOCK RAB
-    // -------------------------------------------------------------------------
-    public function lock_rab($id)
-    {
-        if (!can('design_detail')) {
-            return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk mengunci RAB.');
-        }
-
-        $db = \Config\Database::connect();
-        
-        try {
-            $db->transStart();
-
-            // Lock all rows for this design request
-            $db->table('rabs')
-                ->where('design_request_id', $id)
-                ->update(['is_locked' => 1]);
-
-            // Hitung total dari DB
-            $rabRow = $db->query(
-                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
-                [(int) $id]
-            )->getRowArray();
-            
-            $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
-
-            $db->table('design_requests')
-                ->where('id', $id)
-                ->update(['rab_total' => $rabTotal]);
-
-            $db->transComplete();
-
-            if ($db->transStatus() === false) {
-                return redirect()->back()->with('error', 'Gagal mengunci RAB.');
-            }
-
-            log_admin_activity('update', 'Design Requests', 'Lock RAB Proyek ' . $id);
-            return redirect()->to('/admin/design/show/' . $id . '#rab')->with('success', 'RAB berhasil dikunci!');
-
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
-        }
-    }
-
-    public function unlock_rab($id)
-    {
-        if (!can('design_detail')) {
-            return redirect()->to('/admin/design')->with('error', 'Anda tidak memiliki akses untuk membuka kunci RAB.');
-        }
-
-        $db = \Config\Database::connect();
-
-        try {
-            $db->table('rabs')
-                ->where('design_request_id', $id)
-                ->update(['is_locked' => 0]);
-
-            log_admin_activity('update', 'Design Requests', 'Unlock RAB Proyek ' . $id);
-            return redirect()->to('/admin/design/show/' . $id . '#rab')->with('success', 'Kunci RAB berhasil dibuka!');
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
-        }
-    }
 }
 

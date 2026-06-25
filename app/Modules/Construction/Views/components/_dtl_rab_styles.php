@@ -929,6 +929,18 @@
         margin-left: 15px;
         flex-shrink: 0;
         background-size: 14px;
-        transition: transform 0.2s ease;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    #accordionRabMaterials .accordion-button:not(.collapsed)::after {
+        transform: rotate(-180deg) !important;
+    }
+
+    #accordionRabMaterials .collapsing {
+        transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    #accordionRabMaterials .accordion-button {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
     }
 </style>

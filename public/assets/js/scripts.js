@@ -98,11 +98,25 @@ $(function() {
 
       $(".main-sidebar .sidebar-menu li a.has-dropdown").off('click').on('click', function() {
         var me = $(this);
+        var parent = me.parent();
+        var active = parent.hasClass('active');
 
-        me.parent().find('> .dropdown-menu').slideToggle(500, function() {
+        // Close other active dropdowns to behave like standard Stisla and trigger chevron reset
+        $('.main-sidebar .sidebar-menu li.dropdown.active').not(parent).removeClass('active').find('> .dropdown-menu').slideUp(500, function() {
           update_sidebar_nicescroll();
-          return false;
         });
+
+        if(active) {
+          parent.removeClass('active');
+          parent.find('> .dropdown-menu').slideUp(500, function() {
+            update_sidebar_nicescroll();
+          });
+        } else {
+          parent.addClass('active');
+          parent.find('> .dropdown-menu').slideDown(500, function() {
+            update_sidebar_nicescroll();
+          });
+        }
         return false;
       });
     }

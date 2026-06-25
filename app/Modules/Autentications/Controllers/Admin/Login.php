@@ -32,8 +32,16 @@ class Login extends BaseController
      */
     public function loginProcess()
     {
+        $isAjax = $this->request->isAJAX();
+
         if (!$this->validateData($this->request->getPost(), 'adminLogin')) {
             $errors = implode('<br>', $this->validator->getErrors());
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => $errors
+                ]);
+            }
             session()->setFlashdata('error', $errors);
             return redirect()->back()->withInput();
         }
@@ -68,8 +76,20 @@ class Login extends BaseController
                 }
             }
 
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'redirect' => site_url('admin/dashboard')
+                ]);
+            }
             return redirect()->to('/admin/dashboard');
         } catch (RuntimeException $e) {
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
             session()->setFlashdata('error', $e->getMessage());
             return redirect()->to('/admin/login');
         }

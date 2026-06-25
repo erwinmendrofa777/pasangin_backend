@@ -46,7 +46,8 @@ class TukangModel extends Model
         'registration_step',
         'is_verify',
         'rata_rata_rating',
-        'total_ulasan'
+        'total_ulasan',
+        'role'
     ];
 
     // Otomatis mengisi created_at dan updated_at  

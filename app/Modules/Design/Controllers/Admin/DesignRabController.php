@@ -38,16 +38,7 @@ class DesignRabController extends BaseController
 
         $totalPrice = $volume * $price;
 
-        // Cek lock
-        if (!empty($id) && $id != "0") {
-            $existing = $this->db->table('rabs')->where('id', $id)->get()->getRowArray();
-            if ($existing && $existing['is_locked'] == 1) {
-                return $this->response->setJSON([
-                    'status' => false,
-                    'message' => 'Maaf, baris ini sudah dikunci!'
-                ]);
-            }
-        }
+        // Cek lock dinonaktifkan untuk modul desain
 
         $data = [
             'design_request_id' => $designRequestId,
@@ -97,10 +88,6 @@ class DesignRabController extends BaseController
     public function delete_rab_row($id)
     {
         try {
-            $existing = $this->db->table('rabs')->where('id', $id)->get()->getRowArray();
-            if ($existing && $existing['is_locked'] == 1) {
-                return $this->response->setJSON(['status' => false, 'message' => 'Gagal! Baris ini terkunci.']);
-            }
 
             if ($this->db->table('rabs')->where('id', $id)->delete()) {
                 // Hapus juga relasi materialnya  
@@ -214,11 +201,7 @@ class DesignRabController extends BaseController
             return $this->response->setJSON(['status' => false, 'message' => 'Pilih produk terlebih dahulu!']);
         }
 
-        // Cek lock  
-        $existing = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
-        if ($existing && $existing['is_locked'] == 1) {
-            return $this->response->setJSON(['status' => false, 'message' => 'Tidak bisa tambah, RAB terkunci!']);
-        }
+        // Cek lock dinonaktifkan untuk modul desain
 
         try {
             // Cek apakah produk ini sudah direkomendasikan untuk bahan ini
@@ -232,13 +215,8 @@ class DesignRabController extends BaseController
                 return $this->response->setJSON(['status' => false, 'message' => 'Produk ini sudah ada dalam daftar rekomendasi!']);
             }
 
-            // Cek apakah sudah ada rekomendasi untuk bahan ini
-            $anyRecs = $this->db->table('rab_materials')
-                ->where('rab_id', $rabId)
-                ->where('ahsp_bahan_id', $ahspBahanId)
-                ->get()->getRowArray();
-
-            $selectedVal = $anyRecs ? 0 : 1;
+            // Jangan otomatis pilih, biarkan admin/client yang memilih nanti
+            $selectedVal = 0;
 
             $this->db->table('rab_materials')->insert([
                 'rab_id' => $rabId,
@@ -278,11 +256,7 @@ class DesignRabController extends BaseController
             $rabId = $rec['rab_id'];
             $ahspBahanId = $rec['ahsp_bahan_id'];
 
-            // Cek lock
-            $existing = $this->db->table('rabs')->where('id', $rabId)->get()->getRowArray();
-            if ($existing && $existing['is_locked'] == 1) {
-                return $this->response->setJSON(['status' => false, 'message' => 'RAB terkunci!']);
-            }
+            // Cek lock dinonaktifkan untuk modul desain
 
             $this->db->transStart();
 
@@ -465,7 +439,6 @@ class DesignRabController extends BaseController
     public function save_all_rab($designRequestId)
     {
         $rows = $this->request->getPost('rows') ?: [];
-        $shouldLock = $this->request->getPost('lock') === 'true' || $this->request->getPost('lock') === true;
 
         try {
             $this->db->transStart();
@@ -502,9 +475,7 @@ class DesignRabController extends BaseController
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
 
-                if ($shouldLock) {
-                    $data['is_locked'] = 1;
-                }
+
 
                 if (empty($id) || $id == "0" || $id == 0) {
                     $data['created_at'] = date('Y-m-d H:i:s');
@@ -517,24 +488,17 @@ class DesignRabController extends BaseController
                 }
             }
 
-            if ($shouldLock) {
-                // Lock all rows for this design request
-                $this->db->table('rabs')
-                    ->where('design_request_id', $designRequestId)
-                    ->update(['is_locked' => 1]);
+            // Hitung total dari DB untuk sinkronisasi rab_total di design_requests
+            $rabRow = $this->db->query(
+                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
+                [(int) $designRequestId]
+            )->getRowArray();
+            
+            $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
 
-                // Hitung total dari DB
-                $rabRow = $this->db->query(
-                    "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
-                    [(int) $designRequestId]
-                )->getRowArray();
-                
-                $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
-
-                $this->db->table('design_requests')
-                    ->where('id', $designRequestId)
-                    ->update(['rab_total' => $rabTotal]);
-            }
+            $this->db->table('design_requests')
+                ->where('id', $designRequestId)
+                ->update(['rab_total' => $rabTotal]);
 
             $this->db->transComplete();
 
@@ -549,7 +513,7 @@ class DesignRabController extends BaseController
 
             return $this->response->setJSON([
                 'status' => true,
-                'message' => $shouldLock ? 'RAB Berhasil Disimpan dan Dikunci!' : 'Draf RAB Berhasil Disimpan!'
+                'message' => 'RAB Berhasil Disimpan!'
             ]);
 
         } catch (\Throwable $e) {
@@ -814,10 +778,9 @@ class DesignRabController extends BaseController
 
             $this->db->transStart();
 
-            // Overwrite draf lama
+            // Overwrite data lama
             $this->db->table('rabs')
                 ->where('design_request_id', $designRequestId)
-                ->where('is_locked', 0)
                 ->delete();
 
             $this->db->table('rabs')->insertBatch($dataToInsert);

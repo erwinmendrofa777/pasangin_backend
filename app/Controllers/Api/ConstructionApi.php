@@ -29,22 +29,39 @@ class ConstructionApi extends BaseController
     // =========================================================================
     public function submit()
     {
-        //validasi input
-        $validationRules = [
-            'images' => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
-        ];
+        // Cek apakah ada file gambar yang diunggah
+        $hasUploadedImages = false;
+        $tempImages = $this->request->getFileMultiple('images');
+        if ($tempImages !== null) {
+            foreach ($tempImages as $img) {
+                if ($img && $img->getError() !== UPLOAD_ERR_NO_FILE) {
+                    $hasUploadedImages = true;
+                    break;
+                }
+            }
+        } else {
+            $singleImage = $this->request->getFile('images');
+            if ($singleImage && $singleImage->getError() !== UPLOAD_ERR_NO_FILE) {
+                $hasUploadedImages = true;
+            }
+        }
 
-        $validationMessages = [
-            'images' => [
-                'uploaded' => 'Setidaknya satu gambar harus diunggah.',
+        $validationRules = [];
+        $validationMessages = [];
+
+        if ($hasUploadedImages) {
+            $validationRules['images'] = 'max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]';
+            $validationMessages['images'] = [
                 'max_size' => 'Ukuran salah satu gambar melebihi 5MB.',
                 'mime_in' => 'Format salah satu gambar tidak valid. Gunakan JPG, PNG, atau WebP.'
-            ]
-        ];
+            ];
+        }
 
         // Mencegah Error Undefined Array
-        if (!$this->validate($validationRules, $validationMessages)) {
-            return $this->failValidationErrors($this->validator->getErrors());
+        if (!empty($validationRules)) {
+            if (!$this->validate($validationRules, $validationMessages)) {
+                return $this->failValidationErrors($this->validator->getErrors());
+            }
         }
 
         // 3. Ambil data yang sudah pasti tervalidasi aman
@@ -96,47 +113,72 @@ class ConstructionApi extends BaseController
             }
         }
 
-        // 5. Simpan ke database jika ada gambar yang berhasil diproses
+        // 5. Simpan ke database
         if (!empty($uploadedFileNames)) {
             foreach ($uploadedFileNames as $index => $fileName) {
                 $data['gambar' . ($index + 1)] = $fileName;
             }
+        }
 
-            if ($this->db->table('construction_requests')->insert($data)) {
-                $constructionId = $this->db->insertID();
+        if ($this->db->table('construction_requests')->insert($data)) {
+            $constructionId = $this->db->insertID();
 
-                // Kirim notifikasi ke Admin  
-                $this->notifService->sendToPermission(
-                    'construction_detail',
-                    'Permohonan Konstruksi Baru',
-                    "Pelanggan atas nama {$data['full_name']} telah mengirim permohonan konstruksi baru. Silakan cek detail."
-                );
+            // Kirim notifikasi ke Admin  
+            $this->notifService->sendToPermission(
+                'construction_detail',
+                'Permohonan Konstruksi Baru',
+                "Pelanggan atas nama {$data['full_name']} telah mengirim permohonan konstruksi baru. Silakan cek detail."
+            );
 
-                return $this->respondCreated([
-                    'status' => true,
-                    'message' => 'Permohonan berhasil dikirim',
-                    'construction_id' => $constructionId
-                ]);
-            } else {
-                return $this->fail('Gagal memperbarui data di database. Pastikan kolom gambar1-5 ada di allowedFields model.');
-            }
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Permohonan berhasil dikirim',
+                'construction_id' => $constructionId
+            ]);
+        } else {
+            return $this->fail('Gagal memperbarui data di database. Pastikan kolom gambar1-5 ada di allowedFields model.');
         }
     }
 
     public function submitConstructionAndDesignRequests()
     {
+        // Cek apakah ada file gambar konstruksi yang diunggah
+        $hasUploadedImages = false;
+        $tempImages = $this->request->getFileMultiple('images');
+        if ($tempImages !== null) {
+            foreach ($tempImages as $img) {
+                if ($img && $img->getError() !== UPLOAD_ERR_NO_FILE) {
+                    $hasUploadedImages = true;
+                    break;
+                }
+            }
+        } else {
+            $singleImage = $this->request->getFile('images');
+            if ($singleImage && $singleImage->getError() !== UPLOAD_ERR_NO_FILE) {
+                $hasUploadedImages = true;
+            }
+        }
+
         // 1. Validasi gambar konstruksi dan berkas desain
         $validationRules = [
-            'images' => 'uploaded[images]|max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]',
+            'design_files' => 'uploaded[design_files]|max_size[design_files,10240]|mime_in[design_files,application/pdf,image/jpg,image/jpeg,image/png,image/webp]'
         ];
 
         $validationMessages = [
-            'images' => [
-                'uploaded' => 'Setidaknya satu gambar konstruksi harus diunggah.',
-                'max_size' => 'Ukuran salah satu gambar konstruksi melebihi 5MB.',
-                'mime_in' => 'Format salah satu gambar konstruksi tidak valid. Gunakan JPG, PNG, atau WebP.'
+            'design_files' => [
+                'uploaded' => 'Setidaknya satu berkas desain harus diunggah.',
+                'max_size' => 'Ukuran salah satu berkas desain melebihi 10MB.',
+                'mime_in' => 'Format salah satu berkas desain tidak valid. Gunakan PDF, JPG, PNG, atau WebP.'
             ]
         ];
+
+        if ($hasUploadedImages) {
+            $validationRules['images'] = 'max_size[images,5120]|mime_in[images,image/jpg,image/jpeg,image/png,image/webp]';
+            $validationMessages['images'] = [
+                'max_size' => 'Ukuran salah satu gambar konstruksi melebihi 5MB.',
+                'mime_in' => 'Format salah satu gambar konstruksi tidak valid. Gunakan JPG, PNG, atau WebP.'
+            ];
+        }
 
         if (!$this->validate($validationRules, $validationMessages)) {
             return $this->failValidationErrors($this->validator->getErrors());
@@ -165,10 +207,6 @@ class ConstructionApi extends BaseController
                 $img->move($uploadPath, $newName);
                 $uploadedFileNames[] = $newName;
             }
-        }
-
-        if (empty($uploadedFileNames)) {
-            return $this->failValidationErrors('Gagal mengunggah gambar konstruksi.');
         }
 
         // Ambil dan proses berkas-berkas desain klien
@@ -279,6 +317,18 @@ class ConstructionApi extends BaseController
                 $targetId = $this->db->insertID();
 
                 // A2. Simpan berkas ke project_designs (revisi 1 untuk target baru ini)
+                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                $detectedType = 'general';
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                    $detectedType = 'image';
+                } elseif ($ext === 'pdf') {
+                    $detectedType = 'pdf';
+                } elseif (in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv'])) {
+                    $detectedType = 'video';
+                } elseif (in_array($ext, ['obj', 'fbx', 'glb', 'gltf', 'dwg', 'rvt'])) {
+                    $detectedType = '3d';
+                }
+
                 $projectDesignData = [
                     'user_admin_id' => null,
                     'design_request_id' => $designRequestId,
@@ -288,6 +338,7 @@ class ConstructionApi extends BaseController
                     'file' => $fileName,
                     'status' => 'PENDING',
                     'revision_note' => null,
+                    'design_type' => $detectedType,
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 
@@ -527,6 +578,7 @@ class ConstructionApi extends BaseController
 
         $pdRepo = new \App\Modules\Design\Repositories\ProjectDesignsRepository();
         $designs = $pdRepo->findWithTaskByDesignRequestId($designRequestId);
+        $designs = array_filter($designs, fn($item) => ($item['status'] ?? '') === 'APPROVED');
 
         foreach ($designs as &$item) {
             $item['title'] = $item['design_name'] ?? 'Desain';
@@ -534,6 +586,8 @@ class ConstructionApi extends BaseController
             $item['comment'] = $item['revision_note'] ?? null;
             $item['image_url'] = !empty($item['file']) ? base_url('uploads/design_results/' . $item['file']) : null;
         }
+
+        $designs = array_values($designs);
 
         if ($designs) {
             return $this->respond([
@@ -563,17 +617,19 @@ class ConstructionApi extends BaseController
             ->select('
                 cp.id as progress_id, cp.volume as progress_bobot, cp.photo_url as progress_photo, cp.created_at as progress_date, cp.status as progress_status,
                 ct.id as target_id, COALESCE(cr.volume, ca.volume) as target_bobot,
-                COALESCE(cr.group_name, ca.group_name) as rab_group, COALESCE(cr.sub_group_name, ca.sub_group_name) as rab_subgroup, COALESCE(cr.activity_name, ca.activity_name) as rab_activity,
+                COALESCE(cr.group_name, ca.group_name) as rab_group, COALESCE(cr.sub_group_name, ca.sub_group_name) as rab_subgroup, COALESCE(ah.uraian, ca.activity_name) as rab_activity,
                 ja.tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization, t.profile_photo, ja.tukang_id as id_tukang,
                 tr.id as rating_id, tr.skill_score, tr.behavior_score, tr.comment as rating_comment, tr.created_at as rating_created_at
             ')
             ->join('construction_targets ct', 'ct.id = cp.id_construction_targets', 'inner')
             ->join('rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
+            ->join('ahsp ah', 'ah.id = cr.ahsp_id', 'left')
             ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
             ->join('job_applications ja', 'ja.id = ct.id_job_applications', 'left')
             ->join('tukang t', 't.id = ja.tukang_id', 'left')
             ->join('tukang_rating tr', "tr.target_id = ct.id AND tr.id_tukang = t.id AND tr.project_type = 'construction'", 'left')
             ->where('cp.construction_id', $projectId)
+            ->whereIn('cp.status', ['APPROVED', 'PENDING_CLIENT'])
             ->orderBy('cp.created_at', 'ASC')
             ->get()->getResultArray();
 
@@ -672,6 +728,199 @@ class ConstructionApi extends BaseController
                 'data' => $progressList
             ]);
         }
+    }
+
+    public function progressList($projectId = null)
+    {
+        if ($projectId === null) {
+            return $this->fail('Project ID tidak boleh kosong.', 400);
+        }
+
+        $progress = $this->db->table('construction_progress cp')
+            ->select('
+                cp.id, cp.id_construction_targets, cp.construction_id, cp.week_number, cp.volume, cp.description, cp.status, cp.photo_url, cp.created_at,
+                COALESCE(cr.group_name, ca.group_name) as rab_group, COALESCE(cr.sub_group_name, ca.sub_group_name) as rab_subgroup, COALESCE(ah.uraian, ca.activity_name) as rab_activity,
+                ja.tukang_name
+            ')
+            ->join('construction_targets ct', 'ct.id = cp.id_construction_targets', 'inner')
+            ->join('rabs cr', 'cr.id = ct.id_construction_rabs', 'left')
+            ->join('ahsp ah', 'ah.id = cr.ahsp_id', 'left')
+            ->join('construction_addendum ca', 'ca.id = ct.id_construction_addendum', 'left')
+            ->join('job_applications ja', 'ja.id = ct.id_job_applications', 'left')
+            ->where('cp.construction_id', $projectId)
+            ->orderBy('cp.created_at', 'DESC')
+            ->get()->getResultArray();
+
+        foreach ($progress as &$item) {
+            $item['photo_url'] = !empty($item['photo_url']) ? base_url('uploads/construction/progress/' . $item['photo_url']) : null;
+        }
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Daftar Laporan Progress Konstruksi',
+            'data' => $progress
+        ]);
+    }
+
+    public function approveProgress($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('Progress ID tidak boleh kosong.', 400);
+        }
+
+        $progress = $this->db->table('construction_progress')->where('id', $id)->get()->getRowArray();
+        if (!$progress) {
+            return $this->failNotFound('Laporan progress tidak ditemukan.');
+        }
+
+        if ($progress['status'] !== 'PENDING_CLIENT') {
+            return $this->fail('Laporan progress tidak dalam status menunggu persetujuan client.', 400);
+        }
+
+        try {
+            $this->db->transStart();
+
+            // Set status to APPROVED
+            $this->db->table('construction_progress')->where('id', $id)->update(['status' => 'APPROVED']);
+
+            // Recalculate target & project status using the service logic
+            $svc = new \App\Modules\Construction\Services\ConstructionService();
+            $svc->updateProgressStatus((int) $id, 'APPROVED');
+
+            // --- PROSES TRANSFER DANA OTOMATIS KE MANDOR ---
+            $target = $this->db->table('construction_targets')->where('id', $progress['id_construction_targets'])->get()->getRowArray();
+            if ($target && !empty($target['id_job_applications'])) {
+                $ja = $this->db->table('job_applications')->where('id', $target['id_job_applications'])->get()->getRowArray();
+                if ($ja && !empty($ja['tukang_id'])) {
+                    $tukangId = (int) $ja['tukang_id'];
+                    $paymentAmount = 0.0;
+                    $activityName = 'Pekerjaan Konstruksi';
+                    $unit = '';
+
+                    // Jika target terhubung dengan RAB
+                    if (!empty($target['id_construction_rabs'])) {
+                        $rab = $this->db->table('rabs')->where('id', $target['id_construction_rabs'])->get()->getRowArray();
+                        if ($rab) {
+                            $unit = $rab['unit'] ?? '';
+                            // Dapatkan nama aktivitas dari AHSP
+                            if (!empty($rab['ahsp_id'])) {
+                                $ahsp = $this->db->table('ahsp')->where('id', $rab['ahsp_id'])->get()->getRowArray();
+                                if ($ahsp) {
+                                    $activityName = $ahsp['uraian'];
+                                }
+
+                                // Hitung total upah tenaga kerja per unit volume dari ahsp_tenaga_kerja
+                                $laborTotal = $this->db->table('ahsp_tenaga_kerja')
+                                    ->select('SUM(harga_satuan * koefisien) as total')
+                                    ->where('ahsp_id', $rab['ahsp_id'])
+                                    ->get()->getRowArray();
+                                $upahPerVolume = (float) ($laborTotal['total'] ?? 0);
+                                $paymentAmount = (float) $progress['volume'] * $upahPerVolume;
+                            }
+                        }
+                    }
+
+                    if ($paymentAmount > 0) {
+                        $desc = "Pembayaran upah progress pekerjaan " . $activityName . " volume " . $progress['volume'] . " " . $unit;
+ 
+                        // Cek apakah mandor/tukang ini memiliki grup
+                        $group = $this->db->table('tukang_group')->where('tukang_id', $tukangId)->get()->getRowArray();
+ 
+                        if ($group) {
+                            // Skenario A: Masuk ke saldo kelompok (group balance)
+                            $newGroupBalance = (float)$group['balance'] + $paymentAmount;
+                            $this->db->table('tukang_group')
+                                ->where('id', $group['id'])
+                                ->update(['balance' => $newGroupBalance]);
+ 
+                            // Catat transaksi masuk (inflow) di group_transactions
+                            $this->db->table('group_transactions')->insert([
+                                'group_id' => $group['id'],
+                                'amount' => $paymentAmount,
+                                'type' => 'inflow',
+                                'source_project_type' => 'construction',
+                                'source_invoice_id' => null,
+                                'description' => $desc,
+                                'created_at' => date('Y-m-d H:i:s')
+                            ]);
+                        } else {
+                            // Skenario B: Masuk ke wallet personal mandor/tukang
+                            $walletService = new \App\Modules\Wallets\Services\WalletService();
+                            $walletService->updateBalance($tukangId, $paymentAmount, 'income', $desc);
+                        }
+                    }
+                }
+            }
+            // ----------------------------------------------
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->fail('Gagal menyetujui progress.');
+            }
+
+            // Kirim notifikasi ke tukang & admin
+            $title = "Progress Disetujui Client";
+            $message = "Client telah menyetujui laporan progress untuk target pengerjaan di Proyek #{$progress['construction_id']}.";
+
+            // Notify tukang
+            if (isset($target) && !empty($target['id_job_applications'])) {
+                $ja = $this->db->table('job_applications')->where('id', $target['id_job_applications'])->get()->getRowArray();
+                if ($ja && !empty($ja['tukang_id'])) {
+                    $this->notifService->sendPersonal('tukang', (int) $ja['tukang_id'], $title, $message);
+                }
+            }
+
+            // Notify admin
+            $this->notifService->sendToPermission('construction_progress', $title, $message);
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Laporan progress berhasil disetujui!'
+            ]);
+
+        } catch (\Throwable $th) {
+            $this->db->transRollback();
+            return $this->fail($th->getMessage());
+        }
+    }
+
+    public function rejectProgress($id = null)
+    {
+        if ($id === null) {
+            return $this->fail('Progress ID tidak boleh kosong.', 400);
+        }
+
+        $progress = $this->db->table('construction_progress')->where('id', $id)->get()->getRowArray();
+        if (!$progress) {
+            return $this->failNotFound('Laporan progress tidak ditemukan.');
+        }
+
+        if ($progress['status'] !== 'PENDING_CLIENT') {
+            return $this->fail('Laporan progress tidak dalam status menunggu persetujuan client.', 400);
+        }
+
+        // Set status kembali ke PENDING
+        $svc = new \App\Modules\Construction\Services\ConstructionService();
+        $svc->updateProgressStatus((int) $id, 'PENDING');
+
+        // Kirim notifikasi ke tukang & admin
+        $title = "Progress Ditinjau Kembali (Ditolak Client)";
+        $message = "Client menolak laporan progress di Proyek #{$progress['construction_id']}. Laporan progres dikembalikan ke status PENDING.";
+
+        $target = $this->db->table('construction_targets')->where('id', $progress['id_construction_targets'])->get()->getRowArray();
+        if ($target && !empty($target['id_job_applications'])) {
+            $ja = $this->db->table('job_applications')->where('id', $target['id_job_applications'])->get()->getRowArray();
+            if ($ja && !empty($ja['tukang_id'])) {
+                $this->notifService->sendPersonal('tukang', (int) $ja['tukang_id'], $title, $message);
+            }
+        }
+        $this->notifService->sendToPermission('construction_progress', $title, $message);
+
+        return $this->respond([
+            'status' => true,
+            'message' => 'Laporan progress berhasil ditolak dan dikembalikan ke status PENDING.'
+        ]);
     }
 
     // =========================================================================
@@ -885,6 +1134,12 @@ class ConstructionApi extends BaseController
 
             $item['total_target'] = (float) $item['total_target'];
             $item['total_realisasi'] = (float) $item['total_realisasi'];
+
+            $hasPending = $this->db->table('construction_progress')
+                ->where('construction_id', $cId)
+                ->where('status', 'PENDING_CLIENT')
+                ->countAllResults() > 0;
+            $item['hasPendingApproval'] = $hasPending;
         }
 
         if (!empty($projects)) {
@@ -1016,20 +1271,20 @@ class ConstructionApi extends BaseController
 
         // 2. Hitung total bahan
         $requiredBahan = $this->db->table('ahsp_bahan')->where('ahsp_id', $ahspId)->get()->getResultArray();
-        
+
         $allProducts = $this->db->table('products')->select('id, name, price')->get()->getResultArray();
-        
+
         // Ambil produk terpilih (yang selected = 1) untuk rab_id ini
         $selectedMaterials = $this->db->table('rab_materials')
             ->where('rab_id', $rabId)
             ->where('selected', 1)
             ->get()->getResultArray();
-        
+
         $selectedMap = [];
         foreach ($selectedMaterials as $sm) {
             $selectedMap[$sm['ahsp_bahan_id']] = $sm['product_id'];
         }
-        
+
         $productMap = [];
         foreach ($allProducts as $p) {
             $productMap[$p['id']] = $p;
@@ -1038,7 +1293,7 @@ class ConstructionApi extends BaseController
         $totalBahan = 0;
         foreach ($requiredBahan as $rb) {
             $koef = (float) ($rb['koefisien'] ?? 0);
-            
+
             if (isset($selectedMap[$rb['id']])) {
                 $selProdId = $selectedMap[$rb['id']];
                 if (isset($productMap[$selProdId])) {
@@ -1048,7 +1303,7 @@ class ConstructionApi extends BaseController
                 // Fallback pencarian produk otomatis berdasarkan nama
                 $bahanUraianClean = strtolower(trim($rb['uraian'] ?? ''));
                 $matchedProductPrice = 0;
-                
+
                 foreach ($allProducts as $p) {
                     $pNameClean = strtolower(trim($p['name'] ?? ''));
                     if ($pNameClean === $bahanUraianClean || strpos($pNameClean, $bahanUraianClean) !== false || strpos($bahanUraianClean, $pNameClean) !== false) {
@@ -1056,7 +1311,7 @@ class ConstructionApi extends BaseController
                         break;
                     }
                 }
-                
+
                 $totalBahan += $koef * $matchedProductPrice;
             }
         }
@@ -1101,7 +1356,7 @@ class ConstructionApi extends BaseController
                 $ahspInfo = $this->db->table('ahsp')
                     ->where('id', $rab['ahsp_id'])
                     ->get()->getRowArray();
-                
+
                 if ($ahspInfo) {
                     $ahspInfo['id'] = (int) $ahspInfo['id'];
                 } else {

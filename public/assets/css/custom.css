@@ -94,12 +94,12 @@ h1, h2, h3, h4, h5, h6, .text-dark {
   background-color: #ffffff !important;
 }
 
-.main-sidebar .sidebar-menu li.active a {
+.main-sidebar .sidebar-menu li.active > a {
   color: var(--palette-primary) !important;
 }
 
 /* The left active line marker on sidebar */
-.main-sidebar .sidebar-menu li.active a:before {
+.main-sidebar .sidebar-menu li.active > a:before {
   background-color: var(--palette-primary) !important;
 }
 

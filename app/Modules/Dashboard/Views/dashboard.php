@@ -23,7 +23,7 @@ Dashboard
 
   .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 28px rgba(255, 111, 97, 0.18);
   }
 
   .stat-icon {
@@ -67,8 +67,14 @@ Dashboard
     border-radius: 14px;
     border: none;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
     overflow: hidden;
     height: 100%;
+  }
+
+  .dash-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(255, 111, 97, 0.15);
   }
 
   .dash-card .card-header {
@@ -238,10 +244,10 @@ Dashboard
 
 <?= $this->include('App\Modules\Dashboard\Views\components\_stats_cards') ?>
 
-<!-- ===== BARIS 2: GRAFIK PENDAPATAN & TOP PRODUK ===== -->
+<!-- ===== BARIS 2: TREN PROYEK & TOP PRODUK ===== -->
 <div class="row g-4 mb-4">
   <div class="col-12 col-lg-8">
-    <?= $this->include('App\Modules\Dashboard\Views\components\_revenue_chart') ?>
+    <?= $this->include('App\Modules\Dashboard\Views\components\_project_trend_chart') ?>
   </div>
 
   <div class="col-12 col-lg-4">
@@ -249,14 +255,14 @@ Dashboard
   </div>
 </div>
 
-<!-- ===== BARIS 3: TARIK DANA & GRAFIK PENJUALAN ===== -->
+<!-- ===== BARIS 3: STATUS PROYEK AKTIF & TARIK DANA ===== -->
 <div class="row g-4 mb-4">
-  <div class="col-12 col-lg-4">
-    <?= $this->include('App\Modules\Dashboard\Views\components\_tarik_dana') ?>
+  <div class="col-12 col-lg-8">
+    <?= $this->include('App\Modules\Dashboard\Views\components\_project_status_chart') ?>
   </div>
 
-  <div class="col-12 col-lg-8">
-    <?= $this->include('App\Modules\Dashboard\Views\components\_sales_chart') ?>
+  <div class="col-12 col-lg-4">
+    <?= $this->include('App\Modules\Dashboard\Views\components\_tarik_dana') ?>
   </div>
 </div>
 

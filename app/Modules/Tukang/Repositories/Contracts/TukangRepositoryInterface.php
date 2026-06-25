@@ -15,4 +15,5 @@ interface TukangRepositoryInterface
     public function save(array $data): bool;
     public function searchForDropdown(string $term): array;
     public function getInsertID(): int;
+    public function findGroupConstructionTargets(): array;
 }

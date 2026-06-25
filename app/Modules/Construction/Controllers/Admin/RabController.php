@@ -52,8 +52,16 @@ class RabController extends BaseController
             }
         }
 
+        // Ambil design_request_id jika ada
+        $project = $this->db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $constructionId)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
         $data = [
             'construction_id' => $constructionId,
+            'design_request_id' => $designRequestId,
             'roman_number' => $roman,
             'group_name' => $group,
             'sub_group_name' => $section,
@@ -251,14 +259,8 @@ class RabController extends BaseController
                 return $this->response->setJSON(['status' => false, 'message' => 'Produk ini sudah ada dalam daftar rekomendasi!']);
             }
 
-            // Cek apakah sudah ada rekomendasi untuk bahan ini
-            $anyRecs = $this->db->table('rab_materials')
-                ->where('rab_id', $rabId)
-                ->where('ahsp_bahan_id', $ahspBahanId)
-                ->get()->getRowArray();
-
-            // Jika belum ada rekomendasi, default selected = 1. Jika sudah ada, default selected = 0.
-            $selectedVal = $anyRecs ? 0 : 1;
+            // Jangan otomatis pilih, biarkan admin/client yang memilih nanti
+            $selectedVal = 0;
 
             $this->db->table('rab_materials')->insert([
                 'rab_id' => $rabId,
@@ -497,6 +499,13 @@ class RabController extends BaseController
             $grandTotal = 0;
             $savedIds = [];
 
+            // Ambil design_request_id jika ada
+            $project = $this->db->table('construction_requests')
+                ->select('design_request_id')
+                ->where('id', $constructionId)
+                ->get()->getRowArray();
+            $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
             // Loop and save each row
             foreach ($rows as $row) {
                 $id = $row['id'] ?? '0';
@@ -513,6 +522,7 @@ class RabController extends BaseController
 
                 $data = [
                     'construction_id' => $constructionId,
+                    'design_request_id' => $designRequestId,
                     'roman_number' => $roman,
                     'group_name' => $group,
                     'sub_group_name' => $section,
@@ -542,17 +552,28 @@ class RabController extends BaseController
             }
 
             if ($shouldLock) {
-                // Lock all rows for this construction
-                $this->db->table('rabs')
-                    ->where('construction_id', $constructionId)
-                    ->update(['is_locked' => 1]);
+                // Lock all rows for this construction / design request
+                if ($designRequestId) {
+                    $this->db->table('rabs')
+                        ->where('design_request_id', $designRequestId)
+                        ->update(['is_locked' => 1]);
 
-                // Hitung ulang total dari DB (bukan hanya dari rows yang dikirim)
-                // agar rows yang sudah tersimpan sebelumnya juga ikut dihitung
-                $rabRow = $this->db->query(
-                    "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
-                    [(int) $constructionId]
-                )->getRowArray();
+                    // Hitung ulang total dari DB
+                    $rabRow = $this->db->query(
+                        "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
+                        [(int) $designRequestId]
+                    )->getRowArray();
+                } else {
+                    $this->db->table('rabs')
+                        ->where('construction_id', $constructionId)
+                        ->update(['is_locked' => 1]);
+
+                    // Hitung ulang total dari DB
+                    $rabRow = $this->db->query(
+                        "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
+                        [(int) $constructionId]
+                    )->getRowArray();
+                }
                 
                 $rabTotal = (float) ($rabRow['rab_sum'] ?? 0);
 
@@ -570,11 +591,17 @@ class RabController extends BaseController
                 $userId = $proj ? ($proj['user_id'] ?? null) : null;
                 
                 if ($userId) {
-                    $rabs = $this->db->table('rabs')
+                    $rabsBuilder = $this->db->table('rabs')
                         ->select('rabs.*, ahsp.uraian as activity_name')
-                        ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left')
-                        ->where('construction_id', $constructionId)
-                        ->get()->getResultArray();
+                        ->join('ahsp', 'ahsp.id = rabs.ahsp_id', 'left');
+                    
+                    if ($designRequestId) {
+                        $rabsBuilder->where('design_request_id', $designRequestId);
+                    } else {
+                        $rabsBuilder->where('construction_id', $constructionId);
+                    }
+                    
+                    $rabs = $rabsBuilder->get()->getResultArray();
 
                     foreach ($rabs as $rab) {
                         $desc = trim(($rab['sub_group_name'] ? $rab['sub_group_name'] . ' — ' : '') . ($rab['activity_name'] ?: 'Pekerjaan'));
@@ -865,11 +892,22 @@ class RabController extends BaseController
      */
     public function import_rab_excel($constructionId)
     {
+        // Ambil design_request_id jika ada
+        $project = $this->db->table('construction_requests')
+            ->select('design_request_id')
+            ->where('id', $constructionId)
+            ->get()->getRowArray();
+        $designRequestId = $project ? ($project['design_request_id'] ?? null) : null;
+
         // Cek lock status  
-        $isLocked = $this->db->table('rabs')
-            ->where('construction_id', $constructionId)
-            ->where('is_locked', 1)
-            ->countAllResults() > 0;
+        $lockBuilder = $this->db->table('rabs')->where('is_locked', 1);
+        if ($designRequestId) {
+            $lockBuilder->where('design_request_id', $designRequestId);
+        } else {
+            $lockBuilder->where('construction_id', $constructionId);
+        }
+        $isLocked = $lockBuilder->countAllResults() > 0;
+
         if ($isLocked) {
             return $this->response->setJSON([
                 'status' => false,
@@ -993,6 +1031,7 @@ class RabController extends BaseController
 
                     $dataToInsert[] = [
                         'construction_id' => $constructionId,
+                        'design_request_id' => $designRequestId,
                         'roman_number' => $currentRoman,
                         'group_name' => $currentGroupName,
                         'sub_group_name' => $currentSectionGroup,
@@ -1021,18 +1060,31 @@ class RabController extends BaseController
             $this->db->transStart();
 
             // Hapus data draf lama (karena user setuju untuk overwrite)
-            $this->db->table('rabs')
-                ->where('construction_id', $constructionId)
-                ->delete();
+            if ($designRequestId) {
+                $this->db->table('rabs')
+                    ->where('design_request_id', $designRequestId)
+                    ->delete();
+            } else {
+                $this->db->table('rabs')
+                    ->where('construction_id', $constructionId)
+                    ->delete();
+            }
 
             // Batch insert
             $this->db->table('rabs')->insertBatch($dataToInsert);
 
             // Hitung ulang total RAB untuk proyek
-            $rabRow = $this->db->query(
-                "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
-                [(int) $constructionId]
-            )->getRowArray();
+            if ($designRequestId) {
+                $rabRow = $this->db->query(
+                    "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE design_request_id = ?",
+                    [(int) $designRequestId]
+                )->getRowArray();
+            } else {
+                $rabRow = $this->db->query(
+                    "SELECT COALESCE(SUM(total_price), 0) as rab_sum FROM rabs WHERE construction_id = ?",
+                    [(int) $constructionId]
+                )->getRowArray();
+            }
 
             $this->db->table('construction_requests')
                 ->where('id', $constructionId)
