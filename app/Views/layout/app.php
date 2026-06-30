@@ -1235,7 +1235,8 @@
             <?php endif; ?>
 
             <?php if (canAny(['settings_view', 'vouchers', 'ahsp', 'satuan', 'product_categories_view']) || $isAccounting): ?>
-              <li class="dropdown <?= in_array($seg2, ['settings', 'vouchers', 'satuan', 'ahsp', 'product-categories']) ? 'active' : '' ?>">
+              <li
+                class="dropdown <?= in_array($seg2, ['settings', 'vouchers', 'satuan', 'ahsp', 'product-categories']) ? 'active' : '' ?>">
                 <a href="#" class="nav-link has-dropdown"><i class="fas fa-cog"></i> <span>Pengaturan</span></a>
                 <ul class="dropdown-menu">
                   <?php if (can('settings_view')): ?>
