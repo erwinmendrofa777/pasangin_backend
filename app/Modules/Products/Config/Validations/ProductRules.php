@@ -9,7 +9,6 @@ trait ProductRules
      */
     public array $productSave = [
         'supplier_category_id' => 'permit_empty|numeric',
-        'app_category_id'      => 'required|numeric',
         'name'                 => 'required|min_length[3]|max_length[255]',
         'price'                => 'required|numeric',
         'stock'                => 'required|numeric',
@@ -20,10 +19,6 @@ trait ProductRules
     public array $productSave_errors = [
         'supplier_category_id' => [
             'numeric'  => 'Kategori toko harus berupa angka.'
-        ],
-        'app_category_id' => [
-            'required' => 'Kategori aplikasi wajib dipilih.',
-            'numeric'  => 'Kategori aplikasi harus berupa angka.'
         ],
         'name' => [
             'required'   => 'Nama produk wajib diisi.',
@@ -54,7 +49,6 @@ trait ProductRules
     public array $productUpdate = [
         'id'                   => 'permit_empty|numeric',
         'supplier_category_id' => 'permit_empty|numeric',
-        'app_category_id'      => 'permit_empty|numeric',
         'name'                 => 'permit_empty|min_length[3]|max_length[255]',
         'price'                => 'permit_empty|numeric',
         'stock'                => 'permit_empty|numeric',
@@ -67,9 +61,6 @@ trait ProductRules
         ],
         'supplier_category_id' => [
             'numeric' => 'Kategori toko harus berupa angka.'
-        ],
-        'app_category_id' => [
-            'numeric' => 'Kategori aplikasi harus berupa angka.'
         ],
         'name' => [
             'min_length' => 'Nama produk minimal 3 karakter.',

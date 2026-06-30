@@ -43,6 +43,26 @@
 
             <div class="info-list">
                 <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-layer-group"></i></div>
+                    <div>
+                        <div class="info-label">Kategori Aplikasi (Global)</div>
+                        <div class="info-value">
+                            <?php if (!empty($product['app_category_name'])): ?>
+                                <span class="badge badge-primary px-3 py-2" style="border-radius: 6px; font-size: 0.8rem;"><?= esc($product['app_category_name']) ?></span>
+                            <?php else: ?>
+                                <span class="text-danger fw-bold" style="font-size: 0.82rem;"><i class="fas fa-exclamation-circle me-1"></i>Belum Ditentukan (Butuh Kualifikasi)</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-store"></i></div>
+                    <div>
+                        <div class="info-label">Kategori Toko Supplier</div>
+                        <div class="info-value"><?= esc($product['category_name'] ?? '-') ?></div>
+                    </div>
+                </div>
+                <div class="info-item">
                     <div class="info-icon"><i class="fas fa-tag"></i></div>
                     <div>
                         <div class="info-label">Nama Produk</div>

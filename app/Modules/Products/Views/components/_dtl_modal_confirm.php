@@ -20,15 +20,38 @@
                     Pastikan keputusan ini sudah benar.
                 </p>
             </div>
-            <div class="modal-footer border-0 justify-content-center gap-2 pt-0">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Batal
-                </button>
-                <form id="updateStatusForm" method="POST" action="">
+            <div class="modal-footer border-0 justify-content-center gap-2 pt-0 w-100 px-4">
+                <form id="updateStatusForm" method="POST" action="" class="w-100">
                     <?= csrf_field() ?>
-                    <button type="submit" id="modalConfirmBtn" class="btn px-4 fw-semibold">
-                        <i class="fas fa-check me-1"></i>Ya, Ubah Sekarang
-                    </button>
+
+                    <!-- App Category Selection (shown only when status is 'aktif') -->
+                    <div id="appCategorySection" style="display:none;" class="text-start mb-4">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:0.85rem;">
+                            Pilih Kategori Aplikasi Global <span class="text-danger">*</span>
+                        </label>
+                        <select name="app_category_id" id="modal_app_category_id" class="form-control" style="border-radius: 8px; height: 42px;">
+                            <option value="">-- Pilih Kategori --</option>
+                            <?php if (!empty($app_categories)): ?>
+                                <?php foreach ($app_categories as $cat): ?>
+                                    <option value="<?= $cat['id'] ?>" <?= ($product['app_category_id'] == $cat['id']) ? 'selected' : '' ?>>
+                                        <?= esc($cat['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="text-muted d-block mt-1" style="font-size:0.75rem; line-height: 1.3;">
+                            Wajib menentukan kategori aplikasi global sebelum menyetujui produk ini agar tampil di pencarian pengguna.
+                        </small>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Batal
+                        </button>
+                        <button type="submit" id="modalConfirmBtn" class="btn px-4 fw-semibold">
+                            <i class="fas fa-check me-1"></i>Ya, Ubah Sekarang
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

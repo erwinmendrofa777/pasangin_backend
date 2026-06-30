@@ -415,14 +415,14 @@ class ProductApi extends ResourceController
             $model->insert([
                 'supplier_id'          => $supplierId,
                 'supplier_category_id' => !empty($supplierCategoryId) ? $supplierCategoryId : null,
-                'app_category_id'      => $input['app_category_id'],
+                'app_category_id'      => null, // Diisi oleh admin saat verifikasi/persetujuan produk
                 'name'                 => $input['name'],
                 'description'          => $input['description'] ?? null,
                 'price'                => $input['price'],
                 'unit'                 => $input['unit'] ?? 'pcs',
                 'stock'                => $input['stock'],
                 'min_order'            => $input['min_order'] ?? 1,
-                'status'               => 'aktif',
+                'status'               => 'tidak aktif',
                 'photo'                => $photoName,
             ]);
 
@@ -474,12 +474,12 @@ class ProductApi extends ResourceController
             unset($input['category_id']);
         }
 
+        // Singkirkan app_category_id dari input agar tidak bisa diubah oleh supplier via API
+        unset($input['app_category_id']);
+
         // Clean up empty string values for optional/nullable foreign keys
         if (isset($input['supplier_category_id']) && $input['supplier_category_id'] === '') {
             $input['supplier_category_id'] = null;
-        }
-        if (isset($input['app_category_id']) && $input['app_category_id'] === '') {
-            $input['app_category_id'] = null;
         }
 
         if (!$model->update($id, $input)) {

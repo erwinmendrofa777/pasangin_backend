@@ -57,10 +57,13 @@ class ProductController extends BaseController
             return redirect()->to(base_url('admin/products'))->with('error', $e->getMessage());
         }
 
+        $appCategoryModel = new \App\Modules\Products\Models\AppCategoryModel();
+
         return view('App\Modules\Products\Views\detail', [
             'title' => 'Detail Produk',
             'product' => $product,
             'ratings' => $product['ratings'],
+            'app_categories' => $appCategoryModel->orderBy('name', 'ASC')->findAll(),
         ]);
     }
 
@@ -97,7 +100,12 @@ class ProductController extends BaseController
         }
 
         try {
-            $this->productService->updateStatus((int) $id, $status);
+            $appCategoryId = $this->request->getPost('app_category_id');
+            if ($status === 'aktif' && empty($appCategoryId)) {
+                return redirect()->back()->with('error', 'Kategori aplikasi wajib dipilih saat menyetujui (mengaktifkan) produk.');
+            }
+
+            $this->productService->updateStatus((int) $id, $status, $appCategoryId ? (int)$appCategoryId : null);
             log_admin_activity('update_status', 'product', 'Ubah status produk dengan id: ' . $id);
             return redirect()->back()->with('success', 'Status produk berhasil diubah.');
         } catch (RuntimeException $e) {

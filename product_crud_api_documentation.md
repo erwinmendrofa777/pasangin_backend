@@ -2,6 +2,10 @@
 
 Dokumentasi ini mencakup endpoint untuk menambahkan produk baru dan memperbarui informasi produk yang sudah ada oleh Supplier yang telah terautentikasi dan disetujui (status `approved`).
 
+> [!IMPORTANT]
+> **Kebijakan Kualifikasi Kategori**:
+> Supplier **tidak perlu mengisi** field `app_category_id` (Kategori Aplikasi Global). Saat produk baru didaftarkan oleh supplier, status produk akan bernilai `'tidak aktif'`. Admin di Web Panel yang akan meninjau kelayakan produk tersebut, mengklasifikasikannya ke dalam Kategori Aplikasi Global yang sesuai, dan menyetujuinya (mengubah status menjadi `'aktif'`).
+
 ---
 
 ## 📌 1. Tambah Produk Baru
@@ -26,8 +30,7 @@ Kirimkan data dalam format **Form Data** (karena mendukung unggahan file foto pr
 
 | Field | Tipe | Status | Deskripsi & Aturan |
 | :--- | :--- | :--- | :--- |
-| `app_category_id` | Integer | **Wajib (Required)** | ID Kategori Aplikasi Global (didapat dari `GET /api/app-categories`). |
-| `supplier_category_id` | Integer | *Opsional* | ID Kategori Toko khusus supplier (didapat dari `GET /api/categories`). |
+| `supplier_category_id` | Integer | *Opsional* | ID Kategori Toko khusus supplier (didapat dari `GET /api/supplier/categories`). |
 | `category_id` | Integer | *Opsional* | **(Kompatibilitas Mundur)** Jika frontend belum diganti, parameter lama ini tetap diterima dan dipetakan otomatis ke `supplier_category_id`. |
 | `name` | String | **Wajib (Required)** | Nama produk.<br>• Minimal: 3 karakter<br>• Maksimal: 255 karakter |
 | `price` | Numeric | **Wajib (Required)** | Harga satuan produk (angka desimal/bulat). |
@@ -53,7 +56,7 @@ Kirimkan data dalam format **Form Data** (karena mendukung unggahan file foto pr
   "status": 400,
   "error": 400,
   "messages": {
-    "app_category_id": "Kategori aplikasi wajib dipilih.",
+    "name": "Nama produk wajib diisi.",
     "price": "Harga produk wajib diisi."
   }
 }
@@ -63,7 +66,7 @@ Kirimkan data dalam format **Form Data** (karena mendukung unggahan file foto pr
 
 ## 📌 2. Edit / Update Produk
 
-Endpoint ini digunakan untuk memperbarui data produk yang sudah terdaftar. 
+Endpoint ini digunakan untuk memperbarui data produk yang sudah terdaftar.
 
 > [!NOTE]
 > Meskipun operasinya adalah update (biasanya menggunakan method `PUT`), endpoint ini menggunakan method **`POST`** agar server PHP dapat memproses kiriman file gambar (`photo`) baru via `multipart/form-data` dengan lancar.
@@ -89,7 +92,6 @@ Semua parameter bersifat opsional (kirimkan hanya field yang ingin diubah saja):
 
 | Field | Tipe | Status | Deskripsi |
 | :--- | :--- | :--- | :--- |
-| `app_category_id` | Integer | *Opsional* | ID Kategori Aplikasi baru jika ingin diganti. |
 | `supplier_category_id` | Integer | *Opsional* | ID Kategori Toko baru jika ingin diganti. |
 | `category_id` | Integer | *Opsional* | **(Kompatibilitas Mundur)** Tetap diterima jika dikirimkan oleh frontend versi lama. |
 | `name` | String | *Opsional* | Nama produk baru (min 3, maks 255 karakter). |

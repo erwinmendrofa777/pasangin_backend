@@ -33,6 +33,19 @@
                 document.getElementById('updateStatusForm').action =
                     '<?= base_url('admin/products/update_status/' . $product['id']) ?>/' + newStatus;
 
+                // Toggle app category section depending on new status
+                var catSection = document.getElementById('appCategorySection');
+                var catSelect = document.getElementById('modal_app_category_id');
+                if (catSection && catSelect) {
+                    if (newStatus === 'aktif') {
+                        catSection.style.display = 'block';
+                        catSelect.setAttribute('required', 'required');
+                    } else {
+                        catSection.style.display = 'none';
+                        catSelect.removeAttribute('required');
+                    }
+                }
+
                 // Color mapping
                 var colorMap = {
                     success: {

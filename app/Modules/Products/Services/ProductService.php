@@ -98,7 +98,7 @@ class ProductService
      *
      * @throws RuntimeException
      */
-    public function updateStatus(int $id, string $status): void
+    public function updateStatus(int $id, string $status, ?int $appCategoryId = null): void
     {
         if (!in_array($status, self::ALLOWED_STATUSES, true)) {
             throw new RuntimeException('Status tidak valid: ' . $status);
@@ -107,7 +107,12 @@ class ProductService
         // Pastikan produk ada sebelum update
         $this->findProductOrFail($id);
 
-        if (!$this->productRepository->update($id, ['status' => $status])) {
+        $updateData = ['status' => $status];
+        if ($status === 'aktif' && $appCategoryId !== null) {
+            $updateData['app_category_id'] = $appCategoryId;
+        }
+
+        if (!$this->productRepository->update($id, $updateData)) {
             throw new RuntimeException('Gagal mengubah status produk di database.');
         }
     }
