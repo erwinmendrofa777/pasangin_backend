@@ -351,7 +351,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->post('products/ratings/create', 'ProductApi::createRating');
     $routes->get('products/ratings/(:num)', 'ProductApi::showrating/$1');
     $routes->get('products/ratings/supplier', 'ProductApi::showRatingBySupplier');
-    $routes->resource('categories', ['controller' => 'CategoryApi']);
+    $routes->resource('supplier/categories', ['controller' => 'SupplierCategoryApi']);
     $routes->post('supplier/update-profile', 'SupplierAuthController::updateProfile');
     $routes->post('supplier/update-fcm', 'SupplierAuthController::updateFcmToken');
 
