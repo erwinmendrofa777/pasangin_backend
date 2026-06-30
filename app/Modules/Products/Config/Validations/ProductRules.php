@@ -8,18 +8,22 @@ trait ProductRules
      * Aturan validasi untuk tambah produk baru
      */
     public array $productSave = [
-        'category_id' => 'required|numeric',
-        'name'        => 'required|min_length[3]|max_length[255]',
-        'price'       => 'required|numeric',
-        'stock'       => 'required|numeric',
-        'unit'        => 'permit_empty|max_length[50]',
-        'photo'       => 'permit_empty|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
+        'supplier_category_id' => 'permit_empty|numeric',
+        'app_category_id'      => 'required|numeric',
+        'name'                 => 'required|min_length[3]|max_length[255]',
+        'price'                => 'required|numeric',
+        'stock'                => 'required|numeric',
+        'unit'                 => 'permit_empty|max_length[50]',
+        'photo'                => 'permit_empty|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
     ];
 
     public array $productSave_errors = [
-        'category_id' => [
-            'required' => 'Kategori produk wajib dipilih.',
-            'numeric'  => 'Kategori produk harus berupa angka.'
+        'supplier_category_id' => [
+            'numeric'  => 'Kategori toko harus berupa angka.'
+        ],
+        'app_category_id' => [
+            'required' => 'Kategori aplikasi wajib dipilih.',
+            'numeric'  => 'Kategori aplikasi harus berupa angka.'
         ],
         'name' => [
             'required'   => 'Nama produk wajib diisi.',
@@ -48,20 +52,24 @@ trait ProductRules
      * Aturan validasi untuk update produk
      */
     public array $productUpdate = [
-        'id'          => 'permit_empty|numeric',
-        'category_id' => 'permit_empty|numeric',
-        'name'        => 'permit_empty|min_length[3]|max_length[255]',
-        'price'       => 'permit_empty|numeric',
-        'stock'       => 'permit_empty|numeric',
-        'photo'       => 'permit_empty|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
+        'id'                   => 'permit_empty|numeric',
+        'supplier_category_id' => 'permit_empty|numeric',
+        'app_category_id'      => 'permit_empty|numeric',
+        'name'                 => 'permit_empty|min_length[3]|max_length[255]',
+        'price'                => 'permit_empty|numeric',
+        'stock'                => 'permit_empty|numeric',
+        'photo'                => 'permit_empty|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
     ];
 
     public array $productUpdate_errors = [
         'id' => [
             'numeric' => 'ID produk harus berupa angka.'
         ],
-        'category_id' => [
-            'numeric' => 'Kategori produk harus berupa angka.'
+        'supplier_category_id' => [
+            'numeric' => 'Kategori toko harus berupa angka.'
+        ],
+        'app_category_id' => [
+            'numeric' => 'Kategori aplikasi harus berupa angka.'
         ],
         'name' => [
             'min_length' => 'Nama produk minimal 3 karakter.',

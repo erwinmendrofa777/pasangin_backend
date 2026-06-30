@@ -357,6 +357,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
 
 
     $routes->get('satuan', 'SatuanApi::index');
+    $routes->get('app-categories', 'AppCategoryApi::index');
 
     // Modul Lainnya (Client & Tukang)
     $routes->group('cart', function ($routes) {

@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Controllers\Api;
+
 use CodeIgniter\RESTful\ResourceController;
 use App\Modules\Satuan\Models\SatuanModel;
 

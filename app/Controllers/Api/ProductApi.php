@@ -220,10 +220,10 @@ class ProductApi extends ResourceController
 
         $model = new ProductModel();
         // PERBAIKAN: Mengambil daftar kategori unik dari produk yang dimiliki supplier, bukan nama produk.
-        $data = $model->select('categories.name, MIN(categories.id) as id')
-            ->join('categories', 'categories.id = products.category_id')
-            ->groupBy('categories.name')
-            ->orderBy('categories.name', 'ASC')
+        $data = $model->select('supplier_categories.name, MIN(supplier_categories.id) as id')
+            ->join('supplier_categories', 'supplier_categories.id = products.category_id')
+            ->groupBy('supplier_categories.name')
+            ->orderBy('supplier_categories.name', 'ASC')
             ->asArray() // Mengembalikan sebagai array agar konsisten
             ->findAll();
 
@@ -411,17 +411,19 @@ class ProductApi extends ResourceController
 
         $model = new ProductModel();
         try {
+            $supplierCategoryId = $input['supplier_category_id'] ?? $input['category_id'] ?? null;
             $model->insert([
-                'supplier_id' => $supplierId,
-                'category_id' => $input['category_id'],
-                'name' => $input['name'],
-                'description' => $input['description'] ?? null,
-                'price' => $input['price'],
-                'unit' => $input['unit'] ?? 'pcs',
-                'stock' => $input['stock'],
-                'min_order' => $input['min_order'] ?? 1,
-                'status' => 'aktif',
-                'photo' => $photoName,
+                'supplier_id'          => $supplierId,
+                'supplier_category_id' => !empty($supplierCategoryId) ? $supplierCategoryId : null,
+                'app_category_id'      => $input['app_category_id'],
+                'name'                 => $input['name'],
+                'description'          => $input['description'] ?? null,
+                'price'                => $input['price'],
+                'unit'                 => $input['unit'] ?? 'pcs',
+                'stock'                => $input['stock'],
+                'min_order'            => $input['min_order'] ?? 1,
+                'status'               => 'aktif',
+                'photo'                => $photoName,
             ]);
 
             return $this->respondCreated(['status' => true, 'message' => 'Produk berhasil ditambahkan.']);
@@ -464,6 +466,20 @@ class ProductApi extends ResourceController
             $newName = $file->getRandomName();
             $file->move('uploads/products/', $newName);
             $input['photo'] = $newName;
+        }
+
+        // Map category_id to supplier_category_id if passed for backward compatibility
+        if (isset($input['category_id']) && !isset($input['supplier_category_id'])) {
+            $input['supplier_category_id'] = $input['category_id'];
+            unset($input['category_id']);
+        }
+
+        // Clean up empty string values for optional/nullable foreign keys
+        if (isset($input['supplier_category_id']) && $input['supplier_category_id'] === '') {
+            $input['supplier_category_id'] = null;
+        }
+        if (isset($input['app_category_id']) && $input['app_category_id'] === '') {
+            $input['app_category_id'] = null;
         }
 
         if (!$model->update($id, $input)) {

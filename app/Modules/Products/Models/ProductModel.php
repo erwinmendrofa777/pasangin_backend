@@ -16,7 +16,7 @@ class ProductModel extends Model
     // ▼▼▼ FIELD SUDAH DILENGKAPI DENGAN KATEGORI, UNIT, MIN ORDER, DAN WEIGHT ▼▼▼
     protected $allowedFields    = [
         'supplier_id', 
-        'category_id', 
+        'supplier_category_id', 
         'app_category_id',
         'name', 
         'description', 
@@ -62,8 +62,8 @@ class ProductModel extends Model
      */
     public function getProductsBySupplier($supplierId)
     {
-        return $this->select('products.*, categories.name as category_name, app_categories.name as app_category_name')
-                    ->join('categories', 'categories.id = products.category_id', 'left')
+        return $this->select('products.*, supplier_categories.name as category_name, app_categories.name as app_category_name')
+                    ->join('supplier_categories', 'supplier_categories.id = products.supplier_category_id', 'left')
                     ->join('app_categories', 'app_categories.id = products.app_category_id', 'left')
                     ->where('products.supplier_id', $supplierId)
                     ->orderBy('products.created_at', 'DESC')

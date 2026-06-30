@@ -52,7 +52,8 @@ class ProductDocs
                             properties: [
                                 new OA\Property(property: "id", type: "string", example: "12"),
                                 new OA\Property(property: "supplier_id", type: "string", example: "2"),
-                                new OA\Property(property: "category_id", type: "string", example: "1"),
+                                new OA\Property(property: "supplier_category_id", type: "string", example: "1", nullable: true),
+                                new OA\Property(property: "app_category_id", type: "string", example: "2"),
                                 new OA\Property(property: "name", type: "string", example: "Semen Tiga Roda 40kg"),
                                 new OA\Property(property: "description", type: "string", example: "Semen berkualitas tinggi untuk konstruksi beton."),
                                 new OA\Property(property: "price", type: "string", example: "65000.00"),
@@ -414,9 +415,10 @@ class ProductDocs
             content: new OA\MediaType(
                 mediaType: "multipart/form-data",
                 schema: new OA\Schema(
-                    required: ["category_id", "name", "price", "stock"],
+                    required: ["app_category_id", "name", "price", "stock"],
                     properties: [
-                        new OA\Property(property: "category_id", type: "integer", example: 1, description: "ID Kategori"),
+                        new OA\Property(property: "supplier_category_id", type: "integer", example: 1, description: "ID Kategori Supplier (Opsional)"),
+                        new OA\Property(property: "app_category_id", type: "integer", example: 2, description: "ID Kategori Aplikasi (Wajib)"),
                         new OA\Property(property: "name", type: "string", example: "Besi Beton Polos 8mm", description: "Nama produk"),
                         new OA\Property(property: "description", type: "string", example: "Besi beton polos ukuran standar SNI.", description: "Keterangan produk"),
                         new OA\Property(property: "price", type: "number", format: "float", example: 48000.00, description: "Harga produk per unit"),
@@ -480,7 +482,8 @@ class ProductDocs
                 mediaType: "multipart/form-data",
                 schema: new OA\Schema(
                     properties: [
-                        new OA\Property(property: "category_id", type: "integer", example: 1),
+                        new OA\Property(property: "supplier_category_id", type: "integer", example: 1, description: "ID Kategori Supplier"),
+                        new OA\Property(property: "app_category_id", type: "integer", example: 2, description: "ID Kategori Aplikasi"),
                         new OA\Property(property: "name", type: "string", example: "Besi Beton Polos 8mm (Update)"),
                         new OA\Property(property: "description", type: "string", example: "Deskripsi terbaru."),
                         new OA\Property(property: "price", type: "number", format: "float", example: 49500.00),
