@@ -214,9 +214,9 @@ class ConstructionService
         $applicants = $db->table('job_applications ja')
             ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization')
             ->join('tukang', 'tukang.id = ja.tukang_id', 'left')
-            ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
+            ->join('construction_jobs cj', '(cj.id = ja.construction_job_id OR (ja.construction_job_id IS NULL AND cj.construction_id = ja.project_id))', 'left')
             ->where('ja.project_id', $id)
-            ->where('ja.project_type', 'CONSTRUCTION')
+            ->where('ja.project_type', 'construction')
             ->orderBy('ja.created_at', 'DESC')
             ->get()->getResultArray();
 
@@ -645,9 +645,9 @@ class ConstructionService
         $applicants = $db->table('job_applications ja')
             ->select('ja.*, cj.construction_target_id, tukang.name as tukang_name, (SELECT GROUP_CONCAT(ts.skill_name SEPARATOR \', \') FROM tukang_skill_map tsm JOIN tukang_skill ts ON ts.id = tsm.tukang_skill_id WHERE tsm.tukang_id = ja.tukang_id) as specialization')
             ->join('tukang', 'tukang.id = ja.tukang_id', 'left')
-            ->join('construction_jobs cj', 'cj.id = ja.construction_job_id', 'left')
+            ->join('construction_jobs cj', '(cj.id = ja.construction_job_id OR (ja.construction_job_id IS NULL AND cj.construction_id = ja.project_id))', 'left')
             ->where('ja.project_id', $id)
-            ->where('ja.project_type', 'CONSTRUCTION')
+            ->where('ja.project_type', 'construction')
             ->orderBy('ja.created_at', 'DESC')
             ->get()->getResultArray();
 

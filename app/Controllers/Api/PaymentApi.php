@@ -592,8 +592,58 @@ class PaymentApi extends BaseController
 
             // 4. Ambil data construction_requests untuk info pengiriman
             $construction = $this->db->table('construction_requests')->where('id', $constructionId)->get()->getRowArray();
-            $recipientName = $construction['full_name'] ?? 'Pelanggan';
-            $recipientPhone = $construction['phone'] ?? '08123456789';
+            $recipientName = null;
+            $recipientPhone = null;
+            $mandorTukangId = null;
+
+            // Cari mandor yang ditugaskan khusus pada pekerjaan (target) RAB ini
+            $target = $this->db->table('construction_targets')
+                ->where('id_construction_rabs', $rabId)
+                ->get()
+                ->getRowArray();
+
+            if ($target && !empty($target['id_job_applications'])) {
+                $mandor = $this->db->table('job_applications ja')
+                    ->select('t.id as mandor_id, t.name as mandor_name, t.phone as mandor_phone')
+                    ->join('tukang t', 't.id = ja.tukang_id')
+                    ->where('ja.id', $target['id_job_applications'])
+                    ->where('t.role', 'mandor')
+                    ->get()
+                    ->getRowArray();
+
+                if ($mandor) {
+                    $recipientName = $mandor['mandor_name'];
+                    $recipientPhone = $mandor['mandor_phone'];
+                    $mandorTukangId = $mandor['mandor_id'];
+                }
+            }
+
+            // Fallback 1: Cari mandor mana saja yang disetujui di proyek ini
+            if (!$recipientName) {
+                $anyMandor = $this->db->table('job_applications ja')
+                    ->select('t.id as mandor_id, t.name as mandor_name, t.phone as mandor_phone')
+                    ->join('tukang t', 't.id = ja.tukang_id')
+                    ->where('ja.project_id', $constructionId)
+                    ->where('ja.project_type', 'construction')
+                    ->where('ja.status', 'Siap Kerja')
+                    ->where('t.role', 'mandor')
+                    ->orderBy('ja.id', 'DESC')
+                    ->get()
+                    ->getRowArray();
+
+                if ($anyMandor) {
+                    $recipientName = $anyMandor['mandor_name'];
+                    $recipientPhone = $anyMandor['mandor_phone'];
+                    $mandorTukangId = $anyMandor['mandor_id'];
+                }
+            }
+
+            // Fallback 2: Gunakan nama Client
+            if (!$recipientName) {
+                $recipientName = $construction['full_name'] ?? 'Pelanggan';
+                $recipientPhone = $construction['phone'] ?? '08123456789';
+            }
+
             $shippingAddress = $construction['address'] ?? 'Alamat Konstruksi';
             $latitude = $construction['latitude'] ?? null;
             $longitude = $construction['longitude'] ?? null;
@@ -716,6 +766,16 @@ class PaymentApi extends BaseController
                 log_message('error', "Gagal memproses pembuatan pesanan material untuk invoiceId {$invoiceId} di database. DB Error: [" . ($dbError['code'] ?? '') . "] " . ($dbError['message'] ?? ''));
             } else {
                 log_message('info', "Berhasil membuat pesanan material otomatis untuk invoiceId {$invoiceId}.");
+
+                // Kirim notifikasi ke Mandor
+                if ($mandorTukangId) {
+                    $this->notifService->sendPersonal(
+                        'tukang',
+                        (int) $mandorTukangId,
+                        'Pesanan Material Proyek',
+                        'Tagihan proyek telah dibayar oleh Client. Pesanan material RAB untuk proyek Anda telah berhasil diproses.'
+                    );
+                }
             }
 
         } catch (\Exception $e) {

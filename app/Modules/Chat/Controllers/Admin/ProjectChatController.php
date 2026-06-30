@@ -562,10 +562,10 @@ class ProjectChatController extends BaseController
             $userExists = $db->table('users')->where('id', $clientId)->countAllResults() > 0;
             if (!$userExists) {
                 return $this->response->setJSON([
-                    'status'  => false,
-                    'message' => 'Klien (ID ' . $clientId . ') tidak ditemukan di database.',
+                    'status'    => false,
+                    'message'   => 'Akun klien proyek ini tidak ditemukan di sistem. Hubungi administrator untuk memperbaiki data.',
                     'csrf_hash' => csrf_hash()
-                ])->setStatusCode(400);
+                ])->setStatusCode(200);
             }
 
             $projectConversationModel = new ProjectConversationModel();
