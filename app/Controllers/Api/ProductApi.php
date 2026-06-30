@@ -389,13 +389,6 @@ class ProductApi extends ResourceController
         if (!$supplierId)
             return $this->failUnauthorized('Hanya supplier yang bisa menambah produk.');
 
-        // CEK STATUS AKUN  
-        $supplierModel = new SupplierModel();
-        $supplier = $supplierModel->find($supplierId);
-        if (!$supplier || $supplier['status'] !== 'approved') {
-            return $this->failForbidden('Akses ditolak. Akun Anda belum disetujui oleh admin.');
-        }
-
         $input = $this->request->getPost();
         $file = $this->request->getFile('photo');
 
