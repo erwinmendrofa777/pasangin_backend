@@ -1,6 +1,6 @@
 # CodeIgniter 4 Git Ignore File
 /vendor/
-.env
+/.env
 .env.production
 .git-ftp-config
 .git-ftp-ignore
