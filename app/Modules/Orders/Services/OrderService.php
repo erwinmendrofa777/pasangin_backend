@@ -22,11 +22,12 @@ class OrderService
 
     // Daftar status pesanan yang sah
     private const ALLOWED_STATUSES = [
-        'PENDING',
         'UNPAID',
         'PAID',
-        'SETTLEMENT',
+        'PROCESSED',
+        'LOADING',
         'SHIPPED',
+        'ARRIVED',
         'COMPLETED',
         'CANCELLED',
     ];

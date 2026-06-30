@@ -652,13 +652,21 @@ class OrderApi extends BaseController
             return $this->fail('Pesanan yang dibatalkan, belum dibayar, atau gagal tidak dapat diselesaikan.');
         }
 
+        // Jika pesanan terkait proyek konstruksi, harus sudah dilaporkan sampai oleh mandor (ARRIVED)
+        if (!empty($order->construction_invoice_id) && $order->status !== 'ARRIVED') {
+            return $this->fail('Pesanan proyek konstruksi belum dilaporkan sampai oleh mandor.');
+        }
+
         try {
             $this->db->transStart();
 
             // 1. Update status pesanan menjadi COMPLETED
             $this->db->table('orders')
                 ->where('id', $orderId)
-                ->update(['status' => 'COMPLETED']);
+                ->update([
+                    'status' => 'COMPLETED',
+                    'client_confirmed_at' => date('Y-m-d H:i:s')
+                ]);
 
             // 2. Ambil semua item produk di pesanan ini untuk mendapatkan supplier_id & menghitung subtotal
             $items = $this->db->table('order_items')
@@ -775,6 +783,82 @@ class OrderApi extends BaseController
         } catch (\Exception $e) {
             $this->db->transRollback();
             return $this->fail('Gagal menyelesaikan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Konfirmasi pesanan diterima oleh mandor (sampai di lokasi proyek)
+     * POST api/orders/mandor-confirm/(:num)
+     */
+    public function mandorConfirm($orderId)
+    {
+        $user = $this->request->user;
+        if (!in_array($user->role, ['tukang', 'mandor'])) {
+            return $this->failForbidden('Akses khusus mandor atau tukang.');
+        }
+
+        $order = $this->db->table('orders')->where('id', $orderId)->get()->getRow();
+        if (!$order) {
+            return $this->failNotFound('Pesanan tidak ditemukan.');
+        }
+
+        // Hanya pesanan yang sedang dikirim yang bisa dikonfirmasi sampai
+        if ($order->status !== 'SHIPPED') {
+            return $this->fail('Hanya pesanan berstatus SHIPPED (sedang dikirim) yang dapat dikonfirmasi sampai.');
+        }
+
+        // Upload foto bukti penerimaan
+        $file = $this->request->getFile('delivery_photo');
+        if (!$file || !$file->isValid()) {
+            return $this->fail('Foto bukti pengiriman (delivery_photo) wajib diunggah.');
+        }
+
+        // Validasi folder upload
+        $uploadPath = FCPATH . 'uploads/deliveries';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $newName = $file->getRandomName();
+        if (!$file->move($uploadPath, $newName)) {
+            return $this->fail('Gagal menyimpan foto bukti pengiriman.');
+        }
+
+        $notes = $this->request->getVar('delivery_notes') ?? '';
+
+        try {
+            $this->db->transStart();
+
+            $this->db->table('orders')
+                ->where('id', $orderId)
+                ->update([
+                    'status' => 'ARRIVED',
+                    'delivery_photo' => $newName,
+                    'delivery_notes' => $notes,
+                    'mandor_confirmed_at' => date('Y-m-d H:i:s')
+                ]);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \Exception('Gagal memperbarui status pengiriman di database.');
+            }
+
+            // Kirim notifikasi ke client (pemilik order)
+            $this->notifService->sendPersonal(
+                'client',
+                (int) $order->user_id,
+                'Pesanan Sampai di Lokasi',
+                "Pesanan {$order->order_id} telah diterima oleh mandor. Silakan periksa laporan fisik dan konfirmasi pesanan Anda."
+            );
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Konfirmasi penerimaan pesanan berhasil disimpan.'
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage());
         }
     }
 }

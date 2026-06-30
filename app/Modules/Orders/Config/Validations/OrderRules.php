@@ -8,7 +8,7 @@ trait OrderRules
      * Aturan validasi untuk pembaruan status pesanan
      */
     public array $orderUpdateStatus = [
-        'status' => 'required|in_list[PENDING,UNPAID,PAID,SETTLEMENT,PROCESSED,SHIPPED,COMPLETED,CANCELLED]',
+        'status' => 'required|in_list[UNPAID,PAID,PROCESSED,LOADING,SHIPPED,ARRIVED,COMPLETED,CANCELLED]',
     ];
 
     public array $orderUpdateStatus_errors = [

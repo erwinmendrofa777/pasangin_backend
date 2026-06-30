@@ -239,7 +239,7 @@ Detail Pesanan
 <?= $this->section('content') ?>
 
 <?php
-$status = $order['status'] ?? 'PENDING';
+$status = $order['status'] ?? 'UNPAID';
 $this->setData([
     'status' => $status
 ]);

@@ -23,7 +23,7 @@ class SupplierCategoryApi extends ResourceController
 
     /**
      * --- 1. LIST KATEGORI SAYA ---
-     * GET: /api/supplier-categories
+     * GET: /api/supplier/categories
      */
     public function index()
     {
@@ -39,9 +39,9 @@ class SupplierCategoryApi extends ResourceController
                 ->findAll();
 
             return $this->respond([
-                'status'  => true,
+                'status' => true,
                 'message' => empty($data) ? 'Belum ada kategori untuk supplier ini' : 'List kategori supplier',
-                'data'    => $data
+                'data' => $data
             ]);
         } catch (\Throwable $e) {
             log_message('error', $e->getMessage());

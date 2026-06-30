@@ -1,13 +1,14 @@
 <?php
 /* ===== STATUS META ===== */
-$status = $order['status'] ?? 'PENDING';
+$status = $order['status'] ?? 'UNPAID';
 $statusMeta = [
-    'PAID'       => ['class' => 'status-paid',      'icon' => 'fas fa-check-circle',      'label' => 'PAID'],
-    'SETTLEMENT' => ['class' => 'status-paid',      'icon' => 'fas fa-check-circle',      'label' => 'SETTLEMENT'],
-    'SHIPPED'    => ['class' => 'status-paid',      'icon' => 'fas fa-truck',             'label' => 'SHIPPED'],
-    'COMPLETED'  => ['class' => 'status-paid',      'icon' => 'fas fa-check-double',      'label' => 'COMPLETED'],
-    'PENDING'    => ['class' => 'status-pending',   'icon' => 'fas fa-clock',             'label' => 'PENDING'],
     'UNPAID'     => ['class' => 'status-pending',   'icon' => 'fas fa-exclamation-circle','label' => 'UNPAID'],
+    'PAID'       => ['class' => 'status-paid',      'icon' => 'fas fa-check-circle',      'label' => 'PAID'],
+    'PROCESSED'  => ['class' => 'status-paid',      'icon' => 'fas fa-box',               'label' => 'PROCESSED'],
+    'LOADING'    => ['class' => 'status-paid',      'icon' => 'fas fa-dolly-flatbed',     'label' => 'LOADING'],
+    'SHIPPED'    => ['class' => 'status-paid',      'icon' => 'fas fa-truck',             'label' => 'SHIPPED'],
+    'ARRIVED'    => ['class' => 'status-paid',      'icon' => 'fas fa-clipboard-check',   'label' => 'ARRIVED'],
+    'COMPLETED'  => ['class' => 'status-paid',      'icon' => 'fas fa-check-double',      'label' => 'COMPLETED'],
     'CANCELLED'  => ['class' => 'status-cancelled', 'icon' => 'fas fa-times-circle',      'label' => 'CANCELLED'],
     'EXPIRED'    => ['class' => 'status-cancelled', 'icon' => 'fas fa-times-circle',      'label' => 'EXPIRED'],
 ];

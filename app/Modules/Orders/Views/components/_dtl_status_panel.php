@@ -14,11 +14,12 @@
                 <div class="d-grid gap-2">
                     <?php
                     $actions = [
-                        'PENDING'    => ['color' => 'warning', 'icon' => 'fas fa-clock',             'label' => 'PENDING',    'desc' => 'Menunggu proses sistem'],
                         'UNPAID'     => ['color' => 'warning', 'icon' => 'fas fa-exclamation-circle','label' => 'UNPAID',     'desc' => 'Menunggu pembayaran pembeli'],
                         'PAID'       => ['color' => 'success', 'icon' => 'fas fa-check-circle',      'label' => 'PAID',       'desc' => 'Pembayaran diterima'],
-                        'SETTLEMENT' => ['color' => 'success', 'icon' => 'fas fa-check-circle',      'label' => 'SETTLEMENT', 'desc' => 'Pembayaran selesai'],
+                        'PROCESSED'  => ['color' => 'info',    'icon' => 'fas fa-box',               'label' => 'PROCESSED',  'desc' => 'Pesanan sedang dipersiapkan'],
+                        'LOADING'    => ['color' => 'info',    'icon' => 'fas fa-dolly-flatbed',     'label' => 'LOADING',    'desc' => 'Pesanan sedang dimuat'],
                         'SHIPPED'    => ['color' => 'success', 'icon' => 'fas fa-truck',             'label' => 'SHIPPED',    'desc' => 'Pesanan sedang dikirim'],
+                        'ARRIVED'    => ['color' => 'success', 'icon' => 'fas fa-clipboard-check',   'label' => 'ARRIVED',    'desc' => 'Pesanan sampai di lokasi'],
                         'COMPLETED'  => ['color' => 'success', 'icon' => 'fas fa-check-double',      'label' => 'COMPLETED',  'desc' => 'Pesanan selesai'],
                         'CANCELLED'  => ['color' => 'danger',  'icon' => 'fas fa-times-circle',      'label' => 'CANCELLED',  'desc' => 'Pesanan dibatalkan'],
                     ];

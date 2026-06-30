@@ -370,6 +370,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('orders/history', 'OrderApi::history');
     $routes->get('orders/detail/(:any)', 'OrderApi::detail/$1');
     $routes->delete('orders/delete/(:any)', 'OrderApi::delete/$1');
+    $routes->post('orders/mandor-confirm/(:num)', 'OrderApi::mandorConfirm/$1');
     $routes->post('orders/complete/(:num)', 'OrderApi::complete/$1');
     $routes->get('payment/check_status/(:any)', 'PaymentApi::checkStatus/$1');
     $routes->get('payment/token/(:num)', 'PaymentApi::getPaymentToken/$1');

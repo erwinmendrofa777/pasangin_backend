@@ -80,7 +80,7 @@ class SupplierOrderApi extends BaseController
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $supplierId)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->get()->getRow();
         $totalIncome = $incomeRow ? ($incomeRow->total ?? 0) : 0;
 
@@ -147,7 +147,7 @@ class SupplierOrderApi extends BaseController
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $supplierId)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->get()->getRow();
         $totalRevenue = $revenueRow ? ($revenueRow->total ?? 0) : 0;
 
@@ -157,7 +157,7 @@ class SupplierOrderApi extends BaseController
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $supplierId)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->groupBy('orders.id')
             ->get();
         $totalOrders = $totalOrdersQuery->getNumRows();
@@ -168,7 +168,7 @@ class SupplierOrderApi extends BaseController
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $supplierId)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->get()->getRow();
         $totalProductsSold = $soldRow ? ($soldRow->total ?? 0) : 0;
 
@@ -178,7 +178,7 @@ class SupplierOrderApi extends BaseController
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $supplierId)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->groupBy('orders.user_id')
             ->get();
         $totalBuyers = $totalBuyersQuery->getNumRows();
@@ -194,7 +194,7 @@ class SupplierOrderApi extends BaseController
             ->where('products.supplier_id', $supplierId)
             ->where('DATE(orders.created_at) >=', $startDate)
             ->where('DATE(orders.created_at) <=', $endDate)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->groupBy('DATE(orders.created_at)')
             ->get()->getResultArray();
 

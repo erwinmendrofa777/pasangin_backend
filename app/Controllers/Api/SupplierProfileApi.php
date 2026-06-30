@@ -50,7 +50,7 @@ class SupplierProfileApi extends ResourceController
             ->join('orders', 'orders.id = order_items.order_id')
             ->join('products', 'products.id = order_items.product_id')
             ->where('products.supplier_id', $id)
-            ->whereIn('orders.status', ['PAID', 'SETTLEMENT', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
+            ->whereIn('orders.status', ['PAID', 'PROCESSED', 'SHIPPED', 'COMPLETED'])
             ->groupBy('orders.id')
             ->get();
         $supplier['jumlah_pesanan'] = $totalOrdersQuery->getNumRows();
