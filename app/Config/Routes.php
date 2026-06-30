@@ -356,6 +356,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->post('supplier/update-fcm', 'SupplierAuthController::updateFcmToken');
 
 
+    $routes->get('satuan', 'SatuanApi::index');
+
     // Modul Lainnya (Client & Tukang)
     $routes->group('cart', function ($routes) {
         $routes->get('/', 'CartApi::index');
