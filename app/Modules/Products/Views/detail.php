@@ -251,11 +251,20 @@ Detail Produk
 /* ===== STATUS META ===== */
 $status = $product['status'] ?? 'unknown';
 $statusMeta = [
-    'aktif' => ['class' => 'status-aktif', 'icon' => 'fas fa-check-circle', 'label' => 'Aktif'],
-    'tidak aktif' => ['class' => 'status-tidak_aktif', 'icon' => 'fas fa-times-circle', 'label' => 'Tidak Aktif'],
+    'aktif' => ['class' => 'status-aktif', 'icon' => 'fas fa-play', 'label' => 'Aktif'],
+    'tidak aktif' => ['class' => 'status-tidak_aktif', 'icon' => 'fas fa-pause', 'label' => 'Tidak Aktif'],
     'habis' => ['class' => 'status-habis', 'icon' => 'fas fa-box-open', 'label' => 'Habis'],
 ];
 $currentMeta = $statusMeta[$status] ?? ['class' => 'status-default', 'icon' => 'fas fa-circle', 'label' => ucfirst($status)];
+
+/* ===== APPROVAL META ===== */
+$approval = $product['approval_status'] ?? 'pending';
+$approvalMeta = [
+    'approved' => ['class' => 'bg-success text-white fw-bold px-3 py-1 rounded', 'icon' => 'fas fa-check-circle', 'label' => 'Disetujui (Approved)'],
+    'rejected' => ['class' => 'bg-danger text-white fw-bold px-3 py-1 rounded', 'icon' => 'fas fa-times-circle', 'label' => 'Ditolak (Rejected)'],
+    'pending'  => ['class' => 'bg-warning text-dark fw-bold px-3 py-1 rounded', 'icon' => 'fas fa-clock', 'label' => 'Menunggu Persetujuan (Pending)'],
+];
+$currentApprovalMeta = $approvalMeta[$approval] ?? ['class' => 'status-default', 'icon' => 'fas fa-circle', 'label' => ucfirst($approval)];
 
 /* ===== PHOTO ===== */
 if (!empty($product['photo'])) {
@@ -274,6 +283,8 @@ $this->setData([
     'status' => $status,
     'statusMeta' => $statusMeta,
     'currentMeta' => $currentMeta,
+    'approval' => $approval,
+    'currentApprovalMeta' => $currentApprovalMeta,
     'photoSrc' => $photoSrc,
     'initials' => $initials
 ]);

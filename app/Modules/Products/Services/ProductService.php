@@ -117,6 +117,34 @@ class ProductService
         }
     }
 
+    /**
+     * Ubah status persetujuan produk oleh admin (pending / approved / rejected).
+     *
+     * @throws RuntimeException
+     */
+    public function updateApproval(int $id, string $approvalStatus, ?int $appCategoryId = null): void
+    {
+        $allowed = ['pending', 'approved', 'rejected'];
+        if (!in_array($approvalStatus, $allowed, true)) {
+            throw new RuntimeException('Status persetujuan tidak valid: ' . $approvalStatus);
+        }
+
+        // Pastikan produk ada sebelum update
+        $this->findProductOrFail($id);
+
+        $updateData = ['approval_status' => $approvalStatus];
+        if ($approvalStatus === 'approved') {
+            $updateData['status'] = 'aktif'; // Otomatis aktif saat disetujui pertama kali
+            if ($appCategoryId !== null) {
+                $updateData['app_category_id'] = $appCategoryId;
+            }
+        }
+
+        if (!$this->productRepository->update($id, $updateData)) {
+            throw new RuntimeException('Gagal mengubah status persetujuan produk di database.');
+        }
+    }
+
     // =========================================================================
     // DELETE
     // =========================================================================

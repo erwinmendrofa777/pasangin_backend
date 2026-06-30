@@ -112,4 +112,32 @@ class ProductController extends BaseController
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+    // -------------------------------------------------------------------------
+    // 5. UPDATE APPROVAL STATUS PRODUK (ADMIN ONLY)
+    // -------------------------------------------------------------------------
+    public function updateApproval($id, $approvalStatus)
+    {
+        if (!can('products_status')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses untuk mengubah status persetujuan produk.');
+        }
+
+        // Validasi menggunakan grup 'productUpdateApproval'
+        if (!$this->validateData(['approval_status' => $approvalStatus], 'productUpdateApproval')) {
+            return redirect()->back()->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        try {
+            $appCategoryId = $this->request->getPost('app_category_id');
+            if ($approvalStatus === 'approved' && empty($appCategoryId)) {
+                return redirect()->back()->with('error', 'Kategori aplikasi wajib dipilih saat menyetujui produk.');
+            }
+
+            $this->productService->updateApproval((int) $id, $approvalStatus, $appCategoryId ? (int)$appCategoryId : null);
+            log_admin_activity('update_approval', 'product', 'Ubah status persetujuan produk dengan id ' . $id . ' menjadi ' . $approvalStatus);
+            return redirect()->back()->with('success', 'Status persetujuan produk berhasil diperbarui.');
+        } catch (RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 }

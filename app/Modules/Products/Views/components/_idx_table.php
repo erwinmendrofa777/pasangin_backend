@@ -12,7 +12,8 @@
                         <th class="text-center">Supplier</th>
                         <th class="text-center">Harga</th>
                         <th class="text-center">Stok</th>
-                        <th class="text-center">Status</th>
+                        <th class="text-center">Status (Supplier)</th>
+                        <th class="text-center">Persetujuan (Admin)</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -51,13 +52,26 @@
                                 <td class="fw-bold text-dark">Rp <?= number_format($row['price'], 0, ',', '.') ?></td>
                                 <td class="text-muted"><?= esc($row['stock'] ?: '0') ?></td>
                                 <td>
-                                    <?php if ($row['status'] === 'aktif' && $row['stock'] > 0): ?>
-                                        <span class="status-badge status-available"><i class="fas fa-check-circle"></i>
-                                            Tersedia</span>
-                                    <?php elseif ($row['status'] === 'aktif' && $row['stock'] <= 0): ?>
-                                        <span class="status-badge status-out"><i class="fas fa-clock"></i> Habis</span>
+                                    <?php if ($row['status'] === 'aktif'): ?>
+                                        <span class="status-badge status-available"><i class="fas fa-play"></i> Aktif</span>
+                                    <?php elseif ($row['status'] === 'tidak aktif'): ?>
+                                        <span class="status-badge status-inactive"><i class="fas fa-pause"></i> Tidak Aktif</span>
+                                    <?php elseif ($row['status'] === 'habis'): ?>
+                                        <span class="status-badge status-out"><i class="fas fa-box-open"></i> Habis</span>
                                     <?php else: ?>
-                                        <span class="status-badge status-inactive"><i class="fas fa-ban"></i> Tidak Aktif</span>
+                                        <span class="status-badge status-default"><?= esc($row['status']) ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php 
+                                    $approval = $row['approval_status'] ?? 'pending';
+                                    if ($approval === 'approved'): 
+                                    ?>
+                                        <span class="status-badge bg-success text-white fw-bold" style="font-size:0.75rem;"><i class="fas fa-check-circle"></i> Disetujui</span>
+                                    <?php elseif ($approval === 'rejected'): ?>
+                                        <span class="status-badge bg-danger text-white fw-bold" style="font-size:0.75rem;"><i class="fas fa-times-circle"></i> Ditolak</span>
+                                    <?php else: ?>
+                                        <span class="status-badge bg-warning text-dark fw-bold" style="font-size:0.75rem;"><i class="fas fa-clock"></i> Menunggu</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>

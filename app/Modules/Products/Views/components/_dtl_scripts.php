@@ -24,20 +24,20 @@
         if (confirmModal) {
             confirmModal.addEventListener('show.bs.modal', function(event) {
                 var btn = event.relatedTarget;
-                var newStatus = btn.getAttribute('data-status');
+                var newStatus = btn.getAttribute('data-approval-status');
                 var statusLabel = btn.getAttribute('data-status-label');
                 var color = btn.getAttribute('data-color');
                 var icon = btn.getAttribute('data-icon');
 
                 // Set form action
                 document.getElementById('updateStatusForm').action =
-                    '<?= base_url('admin/products/update_status/' . $product['id']) ?>/' + newStatus;
+                    '<?= base_url('admin/products/update_approval/' . $product['id']) ?>/' + newStatus;
 
                 // Toggle app category section depending on new status
                 var catSection = document.getElementById('appCategorySection');
                 var catSelect = document.getElementById('modal_app_category_id');
                 if (catSection && catSelect) {
-                    if (newStatus === 'aktif') {
+                    if (newStatus === 'approved') {
                         catSection.style.display = 'block';
                         catSelect.setAttribute('required', 'required');
                     } else {

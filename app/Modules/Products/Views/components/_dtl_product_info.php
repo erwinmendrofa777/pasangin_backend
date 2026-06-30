@@ -4,13 +4,16 @@
 
         <!-- Hero Banner -->
         <div class="profile-hero bg-primary">
-            <div class="d-flex justify-content-between align-items-center" style="z-index:1;">
+            <div class="d-flex justify-content-between align-items-center" style="z-index:1; width: 100%;">
                 <h5 class="text-white mb-0 ms-3 fw-bold" style="font-size:1.2rem;">
                     <?= esc($product['name'] ?? '-') ?>
                 </h5>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="status-pill <?= $currentMeta['class'] ?>">
-                        <span class="dot"></span><?= $currentMeta['label'] ?>
+                <div class="d-flex align-items-center gap-2 flex-wrap me-3">
+                    <span class="badge bg-white text-dark fw-bold px-3 py-2 shadow-sm" style="font-size:0.75rem; border-radius:30px;">
+                        <i class="fas fa-play me-1 text-primary"></i>Status: <?= esc($currentMeta['label']) ?>
+                    </span>
+                    <span class="status-pill <?= $currentApprovalMeta['class'] ?>" style="font-size:0.75rem;">
+                        <span class="dot"></span>Persetujuan: <?= esc($currentApprovalMeta['label']) ?>
                     </span>
                 </div>
             </div>

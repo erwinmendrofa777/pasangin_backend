@@ -6,7 +6,7 @@
             <!-- Card Header -->
             <div class="card-header">
                 <h6 class="text-white mb-0 fw-bold">
-                    <i class="fas fa-sliders-h me-2"></i>Kelola Status Produk
+                    <i class="fas fa-shield-alt me-2"></i>Kelola Kelayakan Produk
                 </h6>
             </div>
 
@@ -14,16 +14,16 @@
                 <div class="d-grid gap-2">
                     <?php
                     $actions = [
-                        'aktif' => ['color' => 'success', 'icon' => 'fas fa-check-circle', 'label' => 'Aktif', 'desc' => 'Produk tersedia dan dapat dibeli'],
-                        'tidak aktif' => ['color' => 'danger', 'icon' => 'fas fa-times-circle', 'label' => 'Tidak Aktif', 'desc' => 'Produk disembunyikan'],
-                        'habis' => ['color' => 'warning', 'icon' => 'fas fa-box-open', 'label' => 'Habis', 'desc' => 'Stok produk kosong'],
+                        'approved' => ['color' => 'success', 'icon' => 'fas fa-check-circle', 'label' => 'Setujui (Approve)', 'desc' => 'Produk disetujui tampil di App Client'],
+                        'rejected' => ['color' => 'danger', 'icon' => 'fas fa-times-circle', 'label' => 'Tolak (Reject)', 'desc' => 'Produk ditolak/disembunyikan dari App Client'],
                     ];
                     foreach ($actions as $key => $act):
-                        $isActive = ($status === $key);
+                        $isActive = ($approval === $key);
                         ?>
                         <button type="button"
                             class="btn <?= $isActive ? 'btn-' . $act['color'] : 'btn-outline-' . $act['color'] ?> status-action-btn text-start"
-                            <?= $isActive ? 'disabled' : '' ?>         <?= !$isActive ? 'data-bs-toggle="modal" data-bs-target="#confirmStatusModal"' : '' ?> data-status="<?= $key ?>"
+                            <?= $isActive ? 'disabled' : '' ?> <?= !$isActive ? 'data-bs-toggle="modal" data-bs-target="#confirmStatusModal"' : '' ?> 
+                            data-approval-status="<?= $key ?>"
                             data-status-label="<?= $act['label'] ?>" data-color="<?= $act['color'] ?>"
                             data-icon="<?= $act['icon'] ?>">
                             <div class="d-flex align-items-center justify-content-between w-100">
@@ -49,7 +49,7 @@
                 <div class="mt-3 pt-3 border-top">
                     <p class="text-muted mb-0" style="font-size:0.78rem;">
                         <i class="fas fa-info-circle text-primary me-1"></i>
-                        Tombol berwarna solid menunjukkan status yang sedang aktif dan tidak dapat dipilih kembali.
+                        Tombol berwarna solid menunjukkan status persetujuan yang sedang aktif saat ini.
                     </p>
                 </div>
 

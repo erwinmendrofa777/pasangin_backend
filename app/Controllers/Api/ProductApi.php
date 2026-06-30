@@ -326,7 +326,8 @@ class ProductApi extends ResourceController
             $builder->like('suppliers.city', $region);
         }
 
-        $builder->where('products.status', 'aktif');
+        $builder->where('products.status', 'aktif')
+                ->where('products.approval_status', 'approved');
 
         // 3. Hitung total data menggunakan metode CLONE (Trik yang sangat bagus!)
         $totalBuilder = clone $builder;
@@ -422,7 +423,8 @@ class ProductApi extends ResourceController
                 'unit'                 => $input['unit'] ?? 'pcs',
                 'stock'                => $input['stock'],
                 'min_order'            => $input['min_order'] ?? 1,
-                'status'               => 'tidak aktif',
+                'status'               => 'tidak aktif', // Awalnya wajib tidak aktif sampai disetujui admin
+                'approval_status'      => 'pending',     // Murni persetujuan admin
                 'photo'                => $photoName,
             ]);
 
@@ -459,6 +461,15 @@ class ProductApi extends ResourceController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
+        // Blokir jika supplier mencoba mengaktifkan produk yang belum disetujui admin
+        if (isset($input['status']) && $input['status'] === 'aktif') {
+            if (($product['approval_status'] ?? 'pending') !== 'approved') {
+                return $this->failValidationErrors([
+                    'status' => 'Produk tidak dapat diaktifkan sebelum disetujui (approved) oleh Admin.'
+                ]);
+            }
+        }
+
         if ($file && $file->isValid() && !$file->hasMoved()) {
             if (!empty($product['photo']) && file_exists('uploads/products/' . $product['photo'])) {
                 unlink('uploads/products/' . $product['photo']);
@@ -474,8 +485,9 @@ class ProductApi extends ResourceController
             unset($input['category_id']);
         }
 
-        // Singkirkan app_category_id dari input agar tidak bisa diubah oleh supplier via API
+        // Singkirkan app_category_id dan approval_status dari input agar tidak bisa diubah oleh supplier via API
         unset($input['app_category_id']);
+        unset($input['approval_status']);
 
         // Clean up empty string values for optional/nullable foreign keys
         if (isset($input['supplier_category_id']) && $input['supplier_category_id'] === '') {

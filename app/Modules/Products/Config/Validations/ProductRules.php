@@ -92,4 +92,15 @@ trait ProductRules
             'in_list'  => 'Status produk tidak valid. Gunakan: aktif, tidak aktif, atau habis.'
         ]
     ];
+
+    public array $productUpdateApproval = [
+        'approval_status' => 'required|in_list[pending,approved,rejected]',
+    ];
+
+    public array $productUpdateApproval_errors = [
+        'approval_status' => [
+            'required' => 'Status persetujuan wajib dipilih.',
+            'in_list'  => 'Status persetujuan tidak valid. Gunakan: pending, approved, atau rejected.'
+        ]
+    ];
 }

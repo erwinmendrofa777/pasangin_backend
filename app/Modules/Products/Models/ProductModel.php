@@ -26,6 +26,7 @@ class ProductModel extends Model
         'min_order', 
         'weight', 
         'status', 
+        'approval_status',
         'photo',
         'rata_rata_rating',
         'total_ulasan'
