@@ -14,4 +14,9 @@ class SatuanApi extends ResourceController
 
         return $this->response->setJSON($satuan);
     }
+
+    public function tes()
+    {
+        return $this->response->setJSON(['message' => 'API is working!']);
+    }
 }
