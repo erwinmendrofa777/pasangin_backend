@@ -44,7 +44,9 @@ class SupplierCategoryApi extends ResourceController
                 'data'    => $data
             ]);
         } catch (\Throwable $e) {
+            $model = new \App\Modules\Supplier\Models\CategoryModel();
             log_message('error', $e->getMessage());
+            log_message('error', $model->table);
             return $this->failServerError('Terjadi kesalahan saat mengambil data kategori.');
         }
     }
