@@ -351,6 +351,7 @@ class DesignRequestService
 
         // 1. Process 3D Object Name if filled
         $objectName = $postData['3d_object_name'] ?? '';
+        $manualType = $postData['design_type'] ?? 'auto'; // Tipe manual dari selector
         if (!empty(trim($objectName))) {
             $displayName = $postData['design_name'];
             $this->projectDesignRepository->insert([
@@ -384,17 +385,22 @@ class DesignRequestService
                         $displayName .= ' - ' . pathinfo($originalName, PATHINFO_FILENAME);
                     }
 
-                    // Auto-detect the type from the file extension
-                    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-                    $detectedType = 'general';
-                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
-                        $detectedType = 'image';
-                    } elseif ($ext === 'pdf') {
-                        $detectedType = 'pdf';
-                    } elseif (in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv'])) {
-                        $detectedType = 'video';
-                    } elseif (in_array($ext, ['obj', 'fbx', 'glb', 'gltf', 'dwg', 'rvt'])) {
-                        $detectedType = '3d';
+                    // Tentukan tipe: pakai manual jika bukan 'auto', otherwise auto-detect
+                    if ($manualType !== 'auto' && in_array($manualType, ['image', 'pdf', 'video', '3d'])) {
+                        $detectedType = $manualType;
+                    } else {
+                        // Auto-detect dari ekstensi file
+                        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                        $detectedType = 'general';
+                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                            $detectedType = 'image';
+                        } elseif ($ext === 'pdf') {
+                            $detectedType = 'pdf';
+                        } elseif (in_array($ext, ['mp4', 'mov', 'avi', 'webm', 'mkv'])) {
+                            $detectedType = 'video';
+                        } elseif (in_array($ext, ['obj', 'fbx', 'glb', 'gltf', 'dwg', 'rvt'])) {
+                            $detectedType = '3d';
+                        }
                     }
 
                     $this->projectDesignRepository->insert([
@@ -501,7 +507,7 @@ class DesignRequestService
      * @return array ['design_request_id', 'revision_number']
      * @throws RuntimeException
      */
-    public function rejectDesign(int $id, string $note = ''): array
+    public function rejectDesign(int $id, string $note = '', array $imageFiles = []): array
     {
         $design = $this->projectDesignRepository->findById($id);
 
@@ -512,15 +518,37 @@ class DesignRequestService
         $targetId = (int) $design['design_targets_id'];
         $revNum = (int) $design['revision_number'];
 
+        // Build update data
+        $updateData = [
+            'status' => 'REJECTED',
+            'revision_note' => !empty($note) ? $note : 'Ditolak oleh admin',
+        ];
+
+        // Handle upload gambar lampiran revisi jika ada
+        if (!empty($imageFiles)) {
+            $uploadPath = FCPATH . 'uploads/design_results/revision_comment/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            $fileNames = [];
+            foreach ($imageFiles as $imgFile) {
+                if ($imgFile && $imgFile->isValid() && !$imgFile->hasMoved()) {
+                    $newName = $imgFile->getRandomName();
+                    $imgFile->move($uploadPath, $newName);
+                    $fileNames[] = $newName;
+                }
+            }
+            if (!empty($fileNames)) {
+                $updateData['image_revision_note'] = json_encode($fileNames);
+            }
+        }
+
         // Set ALL designs in this target and revision to REJECTED
         $db = \Config\Database::connect();
         $db->table('project_designs')
             ->where('design_targets_id', $targetId)
             ->where('revision_number', $revNum)
-            ->update([
-                'status' => 'REJECTED',
-                'revision_note' => !empty($note) ? $note : 'Ditolak oleh admin',
-            ]);
+            ->update($updateData);
 
         return [
             'design_request_id' => (int) $design['design_request_id'],

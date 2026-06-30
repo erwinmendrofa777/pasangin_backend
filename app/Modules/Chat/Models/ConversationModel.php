@@ -18,13 +18,11 @@ class ConversationModel extends Model
     protected $allowedFields    = [
         'client_id',
         'admin_id',
-        'supplier_id',
         'client_type',
         'title',                // BARU: Menyimpan judul/topik chat
         'last_message_preview',
         'last_message_at',
         'unread_by_admin_count',
-        'unread_by_supplier_count',
         'unread_by_client_count',
         'status',
         'category'

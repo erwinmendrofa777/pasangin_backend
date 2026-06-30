@@ -25,8 +25,12 @@
         }
     }
 
-    // Otomatis membuka Tab berdasarkan URL Hash
     document.addEventListener("DOMContentLoaded", function () {
+        // Pindahkan semua modal ke body untuk mencegah backdrop menutupi modal (Bootstrap backdrop bug)
+        document.querySelectorAll('.modal').forEach(function (modal) {
+            document.body.appendChild(modal);
+        });
+
         // Hapus penanganan flash pencegah wrong-tab agar Bootstrap normal kembali
         document.documentElement.classList.remove('has-tab-hash');
         document.documentElement.removeAttribute('data-active-tab');
@@ -35,9 +39,7 @@
         if (hash) {
             var triggerEl = document.querySelector('#myTab a[href="#' + hash + '"]');
             if (triggerEl) {
-                var tab = new bootstrap.Tab(triggerEl);
-                tab.show();
-                triggerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                triggerEl.scrollIntoView({ block: 'nearest', inline: 'center' });
             }
         }
 
@@ -66,11 +68,6 @@
             });
         });
 
-        // Jalankan animasi awal untuk tab yang aktif saat pertama load
-        var activePane = document.querySelector('.tab-content .tab-pane.active');
-        if (activePane) {
-            activePane.classList.add('animate__animated', 'animate__fadeInUpMini');
-        }
 
         // Cek visibilitas tombol scroll awal
         updateScrollButtons();

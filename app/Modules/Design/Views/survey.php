@@ -1,5 +1,57 @@
 
-<div class="row g-4 mt-1">
+<style>
+    .scrollable-card-body::-webkit-scrollbar {
+        width: 6px;
+    }
+    .scrollable-card-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+    .scrollable-card-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .scrollable-card-body::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    .survey-right-card {
+        background-color: #f8f9fa !important;
+    }
+
+    .survey-right-card-body {
+        background: #f8f9fa;
+        overflow-y: auto;
+    }
+
+    @media (max-width: 767.98px) {
+        .survey-right-card-body {
+            max-height: 450px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .survey-row {
+            align-items: stretch;
+        }
+        .survey-right-col {
+            position: relative;
+        }
+        .survey-right-card {
+            position: absolute !important;
+            top: 0;
+            bottom: 0;
+            left: calc(var(--bs-gutter-x, 1.5rem) / 2);
+            right: calc(var(--bs-gutter-x, 1.5rem) / 2);
+            height: auto !important;
+        }
+        .survey-right-card-body {
+            flex: 1 1 0%;
+            min-height: 0;
+        }
+    }
+</style>
+
+<div class="row g-4 mt-1 survey-row">
     <!-- Kolom Form Tambah Survey -->
     <div class="col-md-4">
         <div class="card shadow-sm border-0" style="border-radius: 12px;">
@@ -63,13 +115,13 @@
     </div>
 
     <!-- Kolom Riwayat Survey -->
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0" style="border-radius: 12px; height: 100%; min-height: 510px;">
-            <div class="card-header bg-primary border-bottom-0"
+    <div class="col-md-8 survey-right-col">
+        <div class="card shadow-sm border-0 survey-right-card d-flex flex-column" style="border-radius: 12px;">
+            <div class="card-header bg-primary border-bottom-0 flex-shrink-0"
                 style="border-radius: 12px 12px 0 0; padding: 20px 24px 10px;">
                 <h6 class="mb-0 fw-bold text-white"><i class="fas fa-history me-2"></i>Riwayat Survey</h6>
             </div>
-            <div class="card-body p-2 p-md-2" style="background: #f8f9fa;">
+            <div class="card-body p-2 p-md-3 scrollable-card-body survey-right-card-body">
                 <?php if (empty($surveys)): ?>
                     <div class="text-center py-5 h-100 d-flex flex-column justify-content-center">
                         <i class="fas fa-clipboard-list mb-3" style="font-size: 3rem; color: #adb5bd;"></i>
@@ -95,23 +147,23 @@
                                         <!-- Info Kiri (Ikon + Judul + Note) -->
                                         <div class="col-12 col-md-5 d-flex gap-3">
                                             <?php if ($isPdf): ?>
-                                                <div class="flex-shrink-0 bg-danger bg-opacity-10 text-danger rounded-3 d-flex align-items-center justify-content-center"
-                                                    style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                                <div class="flex-shrink-0 rounded-3 d-flex align-items-center justify-content-center"
+                                                    style="width: 48px; height: 48px; font-size: 1.25rem; background-color: rgba(234, 84, 85, 0.12); color: #ea5455;">
                                                     <i class="fas fa-file-pdf"></i>
                                                 </div>
                                             <?php elseif ($isImage): ?>
-                                                <div class="flex-shrink-0 bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center"
-                                                    style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                                <div class="flex-shrink-0 rounded-3 d-flex align-items-center justify-content-center"
+                                                    style="width: 48px; height: 48px; font-size: 1.25rem; background-color: rgba(40, 199, 111, 0.12); color: #28c76f;">
                                                     <i class="fas fa-file-image"></i>
                                                 </div>
                                             <?php elseif ($isVideo): ?>
-                                                <div class="flex-shrink-0 bg-warning bg-opacity-10 text-warning rounded-3 d-flex align-items-center justify-content-center"
-                                                    style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                                <div class="flex-shrink-0 rounded-3 d-flex align-items-center justify-content-center"
+                                                    style="width: 48px; height: 48px; font-size: 1.25rem; background-color: rgba(255, 159, 67, 0.12); color: #ff9f43;">
                                                     <i class="fas fa-file-video"></i>
                                                 </div>
                                             <?php else: ?>
-                                                <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center"
-                                                    style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                                <div class="flex-shrink-0 rounded-3 d-flex align-items-center justify-content-center"
+                                                    style="width: 48px; height: 48px; font-size: 1.25rem; background-color: rgba(255, 92, 92, 0.12); color: var(--palette-primary, #ff5c5c);">
                                                     <i class="fas fa-file-alt"></i>
                                                 </div>
                                             <?php endif; ?>

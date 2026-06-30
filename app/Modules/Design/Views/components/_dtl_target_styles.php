@@ -420,18 +420,19 @@
         color: var(--palette-primary, #ff5c5c) !important;
         border: 1.5px solid transparent !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .btn-header-schedule:hover {
-        background: var(--palette-primary, #ff5c5c) !important;
-        color: #fff !important;
-        border: 1.5px solid #fff !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        background: #fff5f5 !important;
+        color: var(--palette-primary, #ff5c5c) !important;
+        border: 1.5px solid rgba(255, 92, 92, 0.2) !important;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
     }
 
     .btn-header-schedule:hover i {
-        color: #fff !important;
+        color: var(--palette-primary, #ff5c5c) !important;
     }
 
     .btn-header-add {
@@ -439,18 +440,25 @@
         color: var(--palette-primary, #ff5c5c) !important;
         border: 1.5px solid transparent !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .btn-header-add:hover {
-        background: var(--palette-primary, #ff5c5c) !important;
-        color: #fff !important;
-        border: 1.5px solid #fff !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        background: #fff5f5 !important;
+        color: var(--palette-primary, #ff5c5c) !important;
+        border: 1.5px solid rgba(255, 92, 92, 0.2) !important;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
     }
 
     .btn-header-add:hover i {
-        color: #fff !important;
+        color: var(--palette-primary, #ff5c5c) !important;
+    }
+
+    .btn-header-schedule:active,
+    .btn-header-add:active {
+        transform: translateY(-1px) scale(0.98) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
     }
 
     /* ── Empty state ── */

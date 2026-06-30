@@ -20,13 +20,45 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex align-items-center">
-                <!-- Detail Keluhan Button -->
-                <button type="button" class="btn btn-sm btn-outline-primary px-3 me-2 d-flex align-items-center" id="btn-toggle-report" style="border-radius: 30px; font-weight: 600; font-size: 0.75rem; gap: 5px; box-shadow: none;">
+            <div class="d-flex align-items-center" style="gap: 6px;">
+                <!-- Tombol Lihat Detail Proyek (hanya untuk project chat) -->
+                <a href="#" id="btn-view-project" class="btn btn-sm px-3 d-none d-flex align-items-center" 
+                   style="border-radius: 30px; font-weight: 600; font-size: 0.75rem; gap: 5px; box-shadow: none; background-color: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; text-decoration: none;">
+                    <i class="fas fa-folder-open"></i> Lihat Proyek
+                </a>
+                <!-- Detail Keluhan Button (hanya untuk CS chat) -->
+                <button type="button" class="btn btn-sm btn-outline-primary px-3 align-items-center" id="btn-toggle-report" style="display: none; border-radius: 30px; font-weight: 600; font-size: 0.75rem; gap: 5px; box-shadow: none;">
                     <i class="fas fa-file-alt"></i> Detail Keluhan
                 </button>
                 <div class="d-flex align-items-center" id="chat-status-action-wrapper">
                     <!-- Diisi dinamis via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Informasi Proyek (khusus project chat) -->
+        <div id="project-info-panel" class="bg-white border-bottom p-3" style="display: none; border-left: 4px solid #6366f1;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div class="d-flex align-items-center justify-content-center rounded-2" 
+                         style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                        <i class="fas fa-hard-hat text-white" style="font-size: 0.85rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; color: #6366f1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;" id="project-info-type">Tipe Proyek</div>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #1e293b;" id="project-info-name">Nama Proyek</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <a href="#" id="project-info-link" target="_blank"
+                       class="btn btn-sm px-3 d-flex align-items-center"
+                       style="border-radius: 20px; font-weight: 600; font-size: 0.72rem; gap: 4px; background-color: #6366f1; color: #fff; border: none; text-decoration: none;">
+                        <i class="fas fa-external-link-alt"></i> Buka Detail Proyek
+                    </a>
+                    <button type="button" id="btn-close-project-info" 
+                            style="background: transparent; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; padding: 2px 6px;" title="Tutup">
+                        &times;
+                    </button>
                 </div>
             </div>
         </div>
@@ -75,7 +107,7 @@
                     </svg>
                 </div>
                 <h5 class="text-dark fw-bold mb-2" style="font-size: 1.2rem;">Mulai Obrolan Real-time</h5>
-                <p class="text-muted" style="max-width: 340px; margin: 0 auto; font-size: 0.88rem; line-height: 1.6;">Pilih salah satu percakapan Klien atau Tukang di panel kiri untuk melihat riwayat pesan dan membalas secara langsung.</p>
+                <p class="text-muted" style="max-width: 340px; margin: 0 auto; font-size: 0.88rem; line-height: 1.6;">Pilih salah satu percakapan Klien atau Proyek di panel kiri untuk melihat riwayat pesan dan membalas secara langsung.</p>
             </div>
         </div>
 

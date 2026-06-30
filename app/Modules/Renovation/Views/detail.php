@@ -418,6 +418,13 @@
 
 <?= $this->section('content') ?>
 <?= $this->include('App\Modules\Renovation\Views\components\_dtl_content') ?>
+
+<!-- Floating Action Chat Widget -->
+<?= view('App\Modules\Chat\Views\components\_project_chat_widget', [
+    'projectId' => $renovation['id'],
+    'projectType' => 'renovation'
+]) ?>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>

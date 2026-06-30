@@ -100,7 +100,20 @@ class SupplierAuthController extends ResourceController
      */
     public function register()
     {
-        $data = $this->request->getJSON(true) ?? $this->request->getPost();
+        $data = [];
+        $contentType = $this->request->getHeaderLine('Content-Type');
+        if (strpos($contentType, 'application/json') !== false) {
+            try {
+                $data = $this->request->getJSON(true) ?? [];
+            } catch (\Exception $e) {
+                return $this->respond([
+                    'status' => 'error',
+                    'message' => ['json' => 'Format JSON tidak valid: ' . $e->getMessage()]
+                ], 400);
+            }
+        } else {
+            $data = $this->request->getPost() ?? [];
+        }
 
         $rules = [
             'name' => 'required|min_length[3]|max_length[100]',
@@ -109,10 +122,20 @@ class SupplierAuthController extends ResourceController
             'password' => 'required|min_length[8]|max_length[255]',
             'contact_person' => 'required|min_length[3]|max_length[100]',
             'address' => 'required|min_length[3]|max_length[255]',
-            'province' => 'required|min_length[3]|max_length[100]',
-            'city' => 'required|min_length[3]|max_length[100]',
-            'district' => 'required|min_length[3]|max_length[100]',
+            'province' => 'min_length[3]|max_length[100]',
+            'city' => 'min_length[3]|max_length[100]',
+            'district' => 'min_length[3]|max_length[100]',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ];
+
+        // Check if logo_url is an uploaded file or passed as text
+        $logoFile = $this->request->getFile('logo_url');
+        if ($logoFile && $logoFile->isValid()) {
+            $rules['logo_url'] = 'mime_in[logo_url,image/jpg,image/jpeg,image/png,image/webp]|max_size[logo_url,2048]';
+        } else {
+            $rules['logo_url'] = 'min_length[3]|max_length[255]';
+        }
 
         $messages = [
             'name' => [
@@ -148,19 +171,30 @@ class SupplierAuthController extends ResourceController
                 'max_length' => 'Alamat maksimal 255 karakter.'
             ],
             'province' => [
-                'required' => 'Provinsi wajib diisi.',
                 'min_length' => 'Provinsi minimal 3 karakter.',
                 'max_length' => 'Provinsi maksimal 100 karakter.'
             ],
             'city' => [
-                'required' => 'Kota wajib diisi.',
                 'min_length' => 'Kota minimal 3 karakter.',
                 'max_length' => 'Kota maksimal 100 karakter.'
             ],
             'district' => [
-                'required' => 'Kecamatan wajib diisi.',
                 'min_length' => 'Kecamatan minimal 3 karakter.',
                 'max_length' => 'Kecamatan maksimal 100 karakter.'
+            ],
+            'latitude' => [
+                'required' => 'Latitude wajib diisi.',
+                'numeric' => 'Latitude harus berupa koordinat valid.'
+            ],
+            'longitude' => [
+                'required' => 'Longitude wajib diisi.',
+                'numeric' => 'Longitude harus berupa koordinat valid.'
+            ],
+            'logo_url' => [
+                'mime_in' => 'Format file logo harus berupa JPG, JPEG, PNG, atau WEBP.',
+                'max_size' => 'Ukuran file logo maksimal 2MB.',
+                'min_length' => 'Logo minimal 3 karakter.',
+                'max_length' => 'Logo maksimal 255 karakter.'
             ]
         ];
 
@@ -169,6 +203,15 @@ class SupplierAuthController extends ResourceController
                 'status' => 'error',
                 'message' => $this->validator->getErrors()
             ], 400);
+        }
+
+        // Process logo upload if valid
+        $logoName = null;
+        if ($logoFile && $logoFile->isValid() && !$logoFile->hasMoved()) {
+            $logoName = $logoFile->getRandomName();
+            $logoFile->move('uploads/supplier/', $logoName);
+        } else {
+            $logoName = $data['logo_url'] ?? null;
         }
 
         $model = new SupplierModel();
@@ -183,6 +226,9 @@ class SupplierAuthController extends ResourceController
                 'province' => $data['province'] ?? null,
                 'city' => $data['city'] ?? null,
                 'district' => $data['district'] ?? null,
+                'logo_url' => $logoName,
+                'latitude' => $data['latitude'] ?? null,
+                'longitude' => $data['longitude'] ?? null,
                 'status' => 'pending',
                 'is_active' => 1
             ]);
@@ -361,7 +407,8 @@ class SupplierAuthController extends ResourceController
             $json = $this->request->getJSON();
             $fcmToken = $json->fcm_token ?? null;
 
-            if (empty($fcmToken)) return $this->fail('FCM Token kosong.', 400);
+            if (empty($fcmToken))
+                return $this->fail('FCM Token kosong.', 400);
 
             // Simpan ke tabel baru (multi-perangkat)
             $tokenRepo = new \App\Modules\Notifications\Repositories\FcmTokenRepository();

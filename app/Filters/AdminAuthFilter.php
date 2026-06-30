@@ -12,10 +12,35 @@ class AdminAuthFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        // Jika BELUM login, lempar ke halaman login
-        if (! session()->get('isLoggedIn')) {
-            return redirect()->to('/admin/login');
+        // 1. Ambil JWT token dari cookie
+        helper('cookie');
+        $token = get_cookie('admin_jwt');
+
+        // 2. Jika token kosong atau tidak valid, hancurkan session dan redirect ke login
+        if (empty($token) || !($decoded = \App\Libraries\AdminTokenHandler::verify($token))) {
+            // Hapus session jika ada sisa data
+            session()->destroy();
+            // Bersihkan cookie
+            \App\Libraries\AdminTokenHandler::deleteCookie();
+            
+            // Hapus Cookie Session (ci_session) dari browser
+            helper('cookie');
+            delete_cookie('ci_session');
+            
+            return redirect()->to('/admin/login')->withCookies();
         }
+
+        // 3. Jika valid, sinkronisasi data ke PHP Session untuk kompatibilitas view/controller
+        $sessionData = [
+            'user_id'     => $decoded['user_id'],
+            'full_name'   => $decoded['full_name'],
+            'email'       => $decoded['email'],
+            'role'        => $decoded['role'],
+            'photo'       => $decoded['photo'],
+            'permissions' => $decoded['permissions'],
+            'isLoggedIn'  => true
+        ];
+        session()->set($sessionData);
 
         // --- Cek Hak Akses Role Dinamis ---
         $uri = service('uri');

@@ -208,6 +208,15 @@ class TukangService
     }
 
     /**
+     * Ambil semua transaksi kelompok beserta status approval voting-nya.
+     * Digunakan untuk tampilan admin dashboard.
+     */
+    public function getGroupTransactionsForAdmin(): array
+    {
+        return $this->tukangRepository->findGroupTransactionsWithApprovals();
+    }
+
+    /**
      * Ambil target konstruksi grup & mandiri, dikelompokkan berdasarkan nama grup.
      */
     public function getGroupedConstructionTargets(): array

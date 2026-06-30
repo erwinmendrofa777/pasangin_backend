@@ -23,8 +23,7 @@ class MessageModel extends Model
         'latitude',
         'longitude',
         'is_read_by_admin',
-        'is_read_by_client',
-        'is_read_by_supplier'
+        'is_read_by_client'
     ];
 
     // Mengaktifkan penggunaan timestamps

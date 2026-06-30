@@ -1,14 +1,15 @@
-<div class="card header-card" style="margin-bottom: 16px;">
-    <div class="card-body p-4">
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+<div class="rab-panel">
+    <!-- ── Panel Header ── -->
+    <div class="rab-panel-header">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 w-100">
             <div class="d-flex align-items-center">
                 <div class="rounded-3 d-flex align-items-center justify-content-center me-3"
                     style="width: 48px; height: 48px; background: rgba(255, 92, 92, 0.1); color: var(--palette-primary); flex-shrink: 0; border-radius: 12px !important;">
                     <i class="fas fa-file-invoice-dollar" style="font-size: 1.25rem;"></i>
                 </div>
                 <div>
-                    <h5 class="mb-1 fw-bold text-dark" style="letter-spacing: -0.3px;">Manajemen RAB Proyek</h5>
-                    <p class="text-muted mb-0 small">Kelola data rancangan anggaran biaya (RAB) untuk proyek
+                    <h5 class="mb-1 fw-bold text-dark" style="letter-spacing: -0.3px; font-size: 1.1rem; margin-bottom: 2px !important;">Manajemen RAB Proyek</h5>
+                    <p class="text-muted mb-0 small" style="font-size: 0.82rem;">Kelola data rancangan anggaran biaya (RAB) untuk proyek
                         konstruksi ini.</p>
                 </div>
             </div>
@@ -50,9 +51,7 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="rab-panel">
     <!-- ── Table ── -->
     <div class="rab-table-wrapper">
         <div class="rab-table-scroll">

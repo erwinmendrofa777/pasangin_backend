@@ -1,28 +1,65 @@
-<?= $this->section('style') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_absensi_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_addendum_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_desain_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_loker_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_material_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_pembayaran_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_rab_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_survey_styles') ?>
-<?= $this->include('App\Modules\Construction\Views\components\_dtl_target_styles') ?>
-<?= $this->endSection() ?>
-
 <?= $this->extend('layout/app') ?>
 
-<?= $this->section('title') ?> Detail Konstruksi <?= $this->endSection() ?>
-<?= $this->section('page_title') ?> Detail Proyek Konstruksi <?= $this->endSection() ?>
+<?= $this->section('title') ?>
+Detail Proyek Konstruksi
+<?= $this->endSection() ?>
 
-<?= $this->section('content'); ?>
+<?= $this->section('page_title') ?>
+Detail Proyek Konstruksi
+<?= $this->endSection() ?>
+
+<?= $this->section('style') ?>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<script>
+    // Deteksi hash sebelum rendering halaman dimulai untuk mencegah Wrong Tab Flash
+    (function() {
+        var hash = window.location.hash.replace(/^#/, '');
+        var validTabs = ['survey', 'desain', 'rab', 'addendum', 'target', 'payment', 'absensi', 'material'];
+        if (hash && validTabs.indexOf(hash) !== -1) {
+            document.documentElement.className += ' has-tab-hash';
+            document.documentElement.setAttribute('data-active-tab', hash);
+        }
+    })();
+</script>
 
 <style>
+    @keyframes fadeInUpMini {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 15px, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .animate__fadeInUpMini {
+        animation-name: fadeInUpMini !important;
+        animation-duration: 0.35s !important;
+        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
     .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #34395e;
-        margin-bottom: 20px;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: var(--palette-primary);
+        margin-bottom: 16px;
+        margin-top: 10px;
+    }
+
+    .section-title i {
+        color: var(--palette-primary) !important;
     }
 
     .tab-content {
@@ -50,9 +87,9 @@
     /* Premium Nav Tabs Styling */
     /* ===== AVATAR & HERO ===== */
     .profile-hero {
-        background: var(--palette-primary);
-        border-radius: 16px 16px 0 0;
-        padding: 18px 28px 24px;
+        background: linear-gradient(135deg, var(--palette-primary) 0%, #ff7c81 100%);
+        border-radius: 16px;
+        padding: 24px 28px !important;
         position: relative;
         overflow: hidden;
     }
@@ -81,8 +118,6 @@
 
     .profile-body {
         padding: 0 24px 28px;
-        border-radius: 0 0 16px 16px;
-        background: #fff;
     }
 
     .avatar-wrapper {
@@ -91,30 +126,19 @@
         margin-top: -55px;
     }
 
-    .avatar-img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        object-position: center;
-        border-radius: 50%;
-        border: 4px solid #fff;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
-        background: #e9ecef;
-    }
-
     .avatar-initials {
         width: 100px;
         height: 100px;
-        border-radius: 50%;
+        border-radius: 12px;
         border: 4px solid #fff;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
-        background: var(--palette-primary);
+        background: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--palette-primary);
     }
 
     /* ===== STATUS PILL ===== */
@@ -122,12 +146,13 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 5px 14px;
+        padding: 6px 14px;
         border-radius: 50px;
         font-size: 0.78rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.5px;
         text-transform: uppercase;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
 
     .status-pill .dot {
@@ -176,10 +201,11 @@
     /* ===== INFO LIST ===== */
     .info-item {
         display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 12px 0;
-        border-bottom: 1px solid #f0f2f5;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
     }
 
     .info-item:last-child {
@@ -187,95 +213,47 @@
     }
 
     .info-icon {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
         border-radius: 10px;
-        background: #ffe5e5;
-        color: var(--palette-primary);
+        background: #f1f5f9;
+        color: #64748b;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .info-item:hover .info-icon {
+        background: #ffe5e5;
+        color: var(--palette-primary);
+        transform: scale(1.05);
     }
 
     .info-label {
         font-size: 0.72rem;
-        color: #6c757d;
+        color: #64748b;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.5px;
         font-weight: 600;
         margin-bottom: 2px;
     }
 
     .info-value {
-        font-size: 0.93rem;
-        color: #212529;
-        font-weight: 500;
+        font-size: 0.92rem;
+        color: #1e293b;
+        font-weight: 600;
         word-break: break-word;
     }
 
-    /* ===== CARDS & BUTTONS ===== */
+    /* ===== PROFILE CARD ===== */
     .profile-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .action-card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
-        height: 100%;
-    }
-
-    .action-card .card-header {
-        background: var(--palette-primary) !important;
-        border-radius: 16px 16px 0 0;
-        padding: 18px 22px;
-        border: none;
-    }
-
-    .status-action-btn {
-        border-radius: 10px;
-        font-size: 0.83rem;
-        font-weight: 600;
-        padding: 10px 12px;
-        transition: all 0.18s ease;
-        border: 2px solid transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-    }
-
-    .status-action-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-    }
-
-    .status-action-btn:disabled {
-        opacity: 0.85;
-        cursor: not-allowed;
-    }
-
-    .btn-current-status {
-        cursor: default;
-        opacity: 0.9;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .role-chip-hero {
-        background: rgba(255, 255, 255, 0.2);
-        color: #fff;
-        border-radius: 50px;
-        padding: 5px 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: capitalize;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
     }
 
 
@@ -284,9 +262,9 @@
         position: relative;
         display: flex;
         align-items: center;
-        background: #fff;
+        background: #ffffff;
         border-radius: 12px;
-        border-bottom: 1px solid #f1f3f9;
+        border-bottom: 1px solid #e2e8f0;
         overflow: hidden !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -296,122 +274,175 @@
         overflow: hidden;
         flex: 1;
         min-width: 0;
-        /* Critical for flex overflow */
         position: relative;
     }
 
+    .nav-tabs-wrapper::before,
+    .nav-tabs-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 24px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .nav-tabs-wrapper::before {
+        left: 0;
+        background: linear-gradient(to right, #ffffff, transparent);
+    }
+
+    .nav-tabs-wrapper::after {
+        right: 0;
+        background: linear-gradient(to left, #ffffff, transparent);
+    }
 
     .nav-tabs-premium {
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        padding: 0 10px;
-        gap: 5px;
+        padding: 0 0;
+        gap: 4px;
         scrollbar-width: none;
-        /* Firefox */
         -ms-overflow-style: none;
-        /* IE/Edge */
         border-bottom: none !important;
         scroll-behavior: smooth;
+        align-items: center;
+        width: 100%;
     }
 
     .nav-tabs-premium::-webkit-scrollbar {
         display: none;
-        /* Chrome/Safari */
     }
 
+
     .nav-scroll-btn {
-        width: 40px;
-        height: 100%;
-        min-height: 55px;
-        background: #fff;
+        width: 44px;
+        align-self: stretch;
+        background: #ffffff;
         border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--palette-primary);
+        color: #94a3b8;
         cursor: pointer;
         z-index: 10;
-        transition: all 0.3s ease;
-        font-size: 14px;
-        opacity: 0.8;
+        transition: all 0.2s ease;
+        font-size: 12px;
         flex-shrink: 0;
     }
 
-
     .nav-scroll-btn:hover {
-        background: #f8f9fa;
-        opacity: 1;
-        color: var(--palette-primary-hover);
+        color: var(--palette-primary);
+        background: #f8fafc;
     }
 
     .nav-scroll-btn.left {
-        border-right: 1px solid #f1f3f9;
-        box-shadow: 5px 0 10px rgba(0, 0, 0, 0.02);
+        border-right: 1px solid #f1f5f9;
     }
 
     .nav-scroll-btn.right {
-        border-left: 1px solid #f1f3f9;
-        box-shadow: -5px 0 10px rgba(0, 0, 0, 0.02);
+        border-left: 1px solid #f1f5f9;
     }
 
     .nav-tabs-premium .nav-item {
-        margin-bottom: -1px;
+        flex: 1 1 0%;
+        min-width: max-content;
+        margin-bottom: 0;
     }
 
     .nav-tabs-premium .nav-link {
+        position: relative;
         border: none !important;
-        border-bottom: 3px solid transparent !important;
-        color: #8e94a9 !important;
-        padding: 16px 20px !important;
-        font-weight: 700 !important;
-        font-size: 13px !important;
+        color: #64748b !important;
+        padding: 18px 16px !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 600 !important;
+        font-size: 13.5px !important;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         white-space: nowrap;
         display: flex;
         align-items: center;
+        justify-content: center;
+        width: 100%;
         gap: 8px;
         background: transparent !important;
+        border-radius: 0 !important;
     }
 
     .nav-tabs-premium .nav-link i {
         font-size: 14px;
+        color: #94a3b8;
+        transition: color 0.2s ease, transform 0.2s ease;
     }
 
     .nav-tabs-premium .nav-link:hover {
         color: var(--palette-primary) !important;
-        background: rgba(255, 92, 92, 0.03) !important;
+    }
+
+    .nav-tabs-premium .nav-link:hover i {
+        color: var(--palette-primary) !important;
+        transform: translateY(-1px);
     }
 
     .nav-tabs-premium .nav-link.active {
         color: var(--palette-primary) !important;
-        border-bottom: 3px solid var(--palette-primary) !important;
+        font-weight: 700 !important;
         background: transparent !important;
-        position: relative;
+    }
+
+    .nav-tabs-premium .nav-link.active i {
+        color: var(--palette-primary) !important;
+    }
+    .nav-tabs-premium .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%) scaleX(0);
+        width: calc(100% - 24px);
+        height: 3px;
+        background: var(--palette-primary);
+        border-radius: 3px 3px 0 0;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: center;
+    }
+
+    .nav-tabs-premium .nav-link.active::after {
+        transform: translateX(-50%) scaleX(1);
     }
 
     /* Active colors override for specific links */
     .nav-tabs-premium .nav-link.active.text-success {
-        border-bottom-color: #47c363 !important;
         color: #47c363 !important;
+    }
+    .nav-tabs-premium .nav-link.active.text-success::after {
+        background: #47c363 !important;
     }
 
     .nav-tabs-premium .nav-link.active.text-warning {
-        border-bottom-color: #ffa426 !important;
         color: #ffa426 !important;
+    }
+    .nav-tabs-premium .nav-link.active.text-warning::after {
+        background: #ffa426 !important;
     }
 
     .nav-tabs-premium .nav-link.active.text-primary {
-        border-bottom-color: var(--palette-primary) !important;
         color: var(--palette-primary) !important;
+    }
+    .nav-tabs-premium .nav-link.active.text-primary::after {
+        background: var(--palette-primary) !important;
     }
 
     .nav-tabs-premium .nav-link.active.text-danger {
-        border-bottom-color: #fc544b !important;
         color: #fc544b !important;
+    }
+    .nav-tabs-premium .nav-link.active.text-danger::after {
+        background: #fc544b !important;
     }
 
     /* ===== GLIGHTBOX VIDEO INLINE SLIDE PREMIUM SYSTEM ===== */
@@ -483,7 +514,74 @@
             border: 1px solid #dee2e6;
         }
     }
+
+    /* ===== WRONG TAB FLASH PREVENTION ===== */
+    html.has-tab-hash .tab-content #detail {
+        display: none !important;
+    }
+    html.has-tab-hash .tab-content #survey.tab-pane,
+    html.has-tab-hash .tab-content #desain.tab-pane,
+    html.has-tab-hash .tab-content #rab.tab-pane,
+    html.has-tab-hash .tab-content #addendum.tab-pane,
+    html.has-tab-hash .tab-content #target.tab-pane,
+    html.has-tab-hash .tab-content #payment.tab-pane,
+    html.has-tab-hash .tab-content #absensi.tab-pane,
+    html.has-tab-hash .tab-content #material.tab-pane {
+        display: none;
+    }
+    html[data-active-tab="survey"] .tab-content #survey.tab-pane,
+    html[data-active-tab="desain"] .tab-content #desain.tab-pane,
+    html[data-active-tab="rab"] .tab-content #rab.tab-pane,
+    html[data-active-tab="addendum"] .tab-content #addendum.tab-pane,
+    html[data-active-tab="target"] .tab-content #target.tab-pane,
+    html[data-active-tab="payment"] .tab-content #payment.tab-pane,
+    html[data-active-tab="absensi"] .tab-content #absensi.tab-pane,
+    html[data-active-tab="material"] .tab-content #material.tab-pane {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    html.has-tab-hash #myTab #detail-tab {
+        color: #64748b !important;
+        font-weight: 600 !important;
+    }
+    html.has-tab-hash #myTab #detail-tab::after {
+        transform: translateX(-50%) scaleX(0) !important;
+    }
+    html[data-active-tab="survey"] #myTab #survey-tab,
+    html[data-active-tab="desain"] #myTab #desain-tab,
+    html[data-active-tab="rab"] #myTab #rab-tab,
+    html[data-active-tab="addendum"] #myTab #addendum-tab,
+    html[data-active-tab="target"] #myTab #target-tab,
+    html[data-active-tab="payment"] #myTab #payment-tab,
+    html[data-active-tab="absensi"] #myTab #absensi-tab,
+    html[data-active-tab="material"] #myTab #material-tab {
+        color: var(--palette-primary) !important;
+        font-weight: 700 !important;
+    }
+    html[data-active-tab="survey"] #myTab #survey-tab::after,
+    html[data-active-tab="desain"] #myTab #desain-tab::after,
+    html[data-active-tab="rab"] #myTab #rab-tab::after,
+    html[data-active-tab="addendum"] #myTab #addendum-tab::after,
+    html[data-active-tab="target"] #myTab #target-tab::after,
+    html[data-active-tab="payment"] #myTab #payment-tab::after,
+    html[data-active-tab="absensi"] #myTab #absensi-tab::after,
+    html[data-active-tab="material"] #myTab #material-tab::after {
+        transform: translateX(-50%) scaleX(1) !important;
+    }
 </style>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_absensi_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_addendum_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_desain_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_loker_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_material_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_pembayaran_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_rab_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_survey_styles') ?>
+<?= $this->include('App\Modules\Construction\Views\components\_dtl_target_styles') ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('content'); ?>
 
 <div class="row">
     <div class="col-12">
@@ -492,63 +590,87 @@
         <div class="card shadow-sm mb-0" style="border-radius: 12px; overflow: hidden; border: none;">
             <div class="card-body p-0">
                 <div class="nav-tabs-container">
-                    <button class="nav-scroll-btn left" onclick="scrollNav('left')"><i
+                    <button class="nav-scroll-btn left" onclick="navigateTab('left')"><i
                             class="fas fa-chevron-left"></i></button>
                     <div class="nav-tabs-wrapper">
 
                         <ul class="nav nav-tabs nav-tabs-premium" id="myTab" role="tablist">
 
                             <?php if (can('construction_detail')): ?>
-                                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#detail"><i
-                                            class="fas fa-info-circle"></i> Detail</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="detail-tab" data-bs-toggle="tab" href="#detail">
+                                        <i class="fas fa-info-circle"></i> Detail
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction_survey')): ?>
-                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#survey"><i
-                                            class="fas fa-map-marker-alt"></i> Survey</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="survey-tab" data-bs-toggle="tab" href="#survey">
+                                        <i class="fas fa-map-marker-alt"></i> Survey
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction_desain')): ?>
-                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#desain"><i
-                                            class="fas fa-bezier-curve"></i> Desain</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="desain-tab" data-bs-toggle="tab" href="#desain">
+                                        <i class="fas fa-bezier-curve"></i> Desain
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction_rab')): ?>
-                                <li class="nav-item"><a class="nav-link text-primary" data-bs-toggle="tab" href="#rab"><i
-                                            class="fas fa-calculator"></i> Kelola RAB</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary" id="rab-tab" data-bs-toggle="tab" href="#rab">
+                                        <i class="fas fa-calculator"></i> Kelola RAB
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction_addendum')): ?>
-                                <li class="nav-item"><a class="nav-link text-primary" data-bs-toggle="tab"
-                                        href="#addendum"><i class="fas fa-file-signature"></i> Addendum</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary" id="addendum-tab" data-bs-toggle="tab" href="#addendum">
+                                        <i class="fas fa-file-signature"></i> Addendum
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction_target')): ?>
-                                <li class="nav-item"><a class="nav-link text-warning" data-bs-toggle="tab" href="#target"><i
-                                            class="fas fa-bullseye"></i> Target</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-warning" id="target-tab" data-bs-toggle="tab" href="#target">
+                                        <i class="fas fa-bullseye"></i> Target
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
-
                             <?php if (can('construction_pembayaran')): ?>
-                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#payment"><i
-                                            class="fas fa-credit-card"></i> Pembayaran</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="payment-tab" data-bs-toggle="tab" href="#payment">
+                                        <i class="fas fa-credit-card"></i> Pembayaran
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction_absensi')): ?>
-                                <li class="nav-item"><a class="nav-link text-primary" data-bs-toggle="tab"
-                                        href="#absensi"><i class="fas fa-user-check"></i> Absensi</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary" id="absensi-tab" data-bs-toggle="tab" href="#absensi">
+                                        <i class="fas fa-user-check"></i> Absensi
+                                    </a>
+                                </li>
                             <?php endif; ?>
 
                             <?php if (can('construction')): ?>
-                                <li class="nav-item"><a class="nav-link text-primary" data-bs-toggle="tab"
-                                        href="#material"><i class="fas fa-box-open"></i> Pengajuan Material</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary" id="material-tab" data-bs-toggle="tab" href="#material">
+                                        <i class="fas fa-box-open"></i> Pengajuan Material
+                                    </a>
+                                </li>
                             <?php endif; ?>
-
-
 
                         </ul>
                     </div>
-                    <button class="nav-scroll-btn right" onclick="scrollNav('right')"><i
+                    <button class="nav-scroll-btn right" onclick="navigateTab('right')"><i
                             class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
@@ -586,17 +708,7 @@
                 ]);
                 ?>
 
-                <div class="row g-4 align-items-start mt-1">
-                    <!-- Left: Profile & Project Details -->
-                    <div class="col-12 col-md-7 mb-4 mt-2">
-                        <?= $this->include('App\Modules\Construction\Views\components\_profile_info') ?>
-                    </div>
-
-                    <!-- Right: Workflow Status Controller -->
-                    <div class="col-12 col-md-5 mb-4 mt-2">
-                        <?= $this->include('App\Modules\Construction\Views\components\_status_manager') ?>
-                    </div>
-                </div>
+                <?= $this->include('App\Modules\Construction\Views\components\_dtl_tab_detail') ?>
             </div>
             <!-- end tab 1 detail -->
 
@@ -676,8 +788,36 @@
             <?php endif; ?>
 
         </div><!-- end .tab-content -->
+        <script>
+            // Jalankan sinkronisasi tab aktif secara instan sebelum seluruh halaman selesai dimuat/di-paint
+            (function() {
+                var hash = window.location.hash.replace(/^#/, '');
+                if (hash) {
+                    var triggerEl = document.querySelector('#myTab a[href="#' + hash + '"]');
+                    var targetPane = document.querySelector('.tab-content #' + hash);
+                    if (triggerEl && targetPane) {
+                        // Hapus active dari tab detail default
+                        document.querySelectorAll('#myTab .nav-link').forEach(function(el) {
+                            el.classList.remove('active');
+                        });
+                        document.querySelectorAll('.tab-content .tab-pane').forEach(function(el) {
+                            el.classList.remove('show', 'active');
+                        });
+                        // Set active ke tab tujuan
+                        triggerEl.classList.add('active');
+                        targetPane.classList.add('show', 'active');
+                    }
+                }
+            })();
+        </script>
     </div><!-- end .col-12 -->
 </div><!-- end .row -->
+
+<!-- Floating Action Chat Widget -->
+<?= view('App\Modules\Chat\Views\components\_project_chat_widget', [
+    'projectId' => $construction['id'],
+    'projectType' => 'construction'
+]) ?>
 
 <?= $this->endSection(); ?>
 

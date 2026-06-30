@@ -21,6 +21,11 @@
 
     // chocolate js
     $(document).ready(function () {
+        // Pindahkan semua modal ke body untuk mencegah backdrop menutupi modal (Bootstrap backdrop bug)
+        document.querySelectorAll('.modal').forEach(function (modal) {
+            document.body.appendChild(modal);
+        });
+
         // Flash Messages
         <?php if (session()->getFlashdata('success')): ?>
             iziToast.success({

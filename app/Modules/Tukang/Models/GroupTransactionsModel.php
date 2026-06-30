@@ -16,9 +16,11 @@ class GroupTransactionsModel extends Model
         'group_id',
         'amount',
         'type',
+        'status',
         'source_project_type',
         'source_invoice_id',
         'description',
+        'distributions_data',
         'created_at'
     ];
  

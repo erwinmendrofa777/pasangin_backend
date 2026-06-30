@@ -530,7 +530,9 @@ class DesignRequests extends BaseController
         }
 
         try {
-            $result = $this->designService->rejectDesign((int) $id, $this->request->getPost('revision_note') ?? '');
+            $note = $this->request->getPost('revision_note') ?? '';
+            $imageFiles = $this->request->getFileMultiple('image_revision_note') ?? [];
+            $result = $this->designService->rejectDesign((int) $id, $note, $imageFiles);
 
             // Kirim notifikasi ke klien
             $details = $this->designService->findDetailOrFail((int) $result['design_request_id']);

@@ -39,9 +39,10 @@ class Tukang extends BaseController
         }
 
         return view('App\Modules\Tukang\Views\index', [
-            'title' => 'Daftar Tukang / Mitra',
-            'tukang' => $this->tukangService->getAllTukangWithRating(),
+            'title'              => 'Daftar Tukang / Mitra',
+            'tukang'             => $this->tukangService->getAllTukangWithRating(),
             'constructionTargets' => $this->tukangService->getGroupedConstructionTargets(),
+            'groupTransactions'  => $this->tukangService->getGroupTransactionsForAdmin(),
         ]);
     }
 

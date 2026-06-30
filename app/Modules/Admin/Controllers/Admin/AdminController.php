@@ -115,17 +115,22 @@ class AdminController extends BaseController
         try {
             $this->svc->updateAdmin((int) $id, $this->request->getPost(), $this->request->getFile('photo'));
 
-            // Jika admin yang diedit adalah diri sendiri, perbarui session photo
+            // Jika admin yang diedit adalah diri sendiri, perbarui session photo & JWT Cookie
             if ((int) $id === (int) session()->get('user_id')) {
                 $updatedAdmin = $this->svc->findOrFail((int) $id);
                 if ($updatedAdmin) {
                     session()->set('photo', $updatedAdmin['photo'] ?? null);
+                    
+                    // Regenerasi token JWT dengan data baru dan perbarui cookie
+                    $sessionData = session()->get();
+                    $token = \App\Libraries\AdminTokenHandler::generate($sessionData);
+                    \App\Libraries\AdminTokenHandler::setCookie($token);
                 }
             }
 
             log_admin_activity('update', 'Admin Users', 'Mengubah data Admin dengan ID: ' . $id);
 
-            return redirect()->to('/admin/admin')->with('success', 'Data admin berhasil diupdate!');
+            return redirect()->to('/admin/admin')->with('success', 'Data admin berhasil diupdate!')->withCookies();
         } catch (RuntimeException $e) {
             return redirect()->back()->withInput()->with('error', $e->getMessage());
         }

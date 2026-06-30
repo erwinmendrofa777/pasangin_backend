@@ -97,22 +97,26 @@
 
             let badgeClass = 'file-icon-general';
             let iconClass = 'far fa-file-alt';
-            let isImage = false;
-            let thumbUrl = '';
+            let typeLabel = 'UMUM';
+            let typeBadgeColor = '#94a3b8';
 
             if (file.type.startsWith('image/')) {
                 isImage = true;
                 thumbUrl = URL.createObjectURL(file);
                 badgeClass = 'file-icon-image';
+                typeLabel = 'GAMBAR'; typeBadgeColor = '#6366f1';
             } else if (file.type === 'application/pdf' || ext === 'pdf') {
                 badgeClass = 'file-icon-pdf';
                 iconClass = 'far fa-file-pdf';
+                typeLabel = 'PDF'; typeBadgeColor = '#ef4444';
             } else if (file.type.startsWith('video/') || ['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(ext)) {
                 badgeClass = 'file-icon-video';
                 iconClass = 'far fa-file-video';
+                typeLabel = 'VIDEO'; typeBadgeColor = '#f59e0b';
             } else if (['obj', 'fbx', 'glb', 'gltf', 'dwg', 'rvt'].includes(ext)) {
                 badgeClass = 'file-icon-3d';
                 iconClass = 'fas fa-cubes';
+                typeLabel = '3D'; typeBadgeColor = '#0ea5e9';
             }
 
             const visualBlock = isImage
@@ -127,7 +131,10 @@
                         </div>
                         <div class="preview-file-details">
                             <div class="preview-file-name" title="${file.name}">${file.name}</div>
-                            <small class="preview-file-size">${formatBytes(file.size)}</small>
+                            <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                                <small class="preview-file-size">${formatBytes(file.size)}</small>
+                                <span style="font-size:8.5px; font-weight:800; padding:1px 5px; border-radius:4px; background:${typeBadgeColor}18; color:${typeBadgeColor}; border:1px solid ${typeBadgeColor}44; text-transform:uppercase; letter-spacing:0.4px;">${typeLabel}</span>
+                            </div>
                         </div>
                     </div>
                     <button type="button" class="btn-remove-preview" onclick="removeUploadedFile(${index})" title="Hapus Berkas">
@@ -164,6 +171,7 @@
             renderUploadPreviews();
         });
     }
+
 
     const btnGenerate3dKey = document.getElementById('btnGenerate3dKey');
     if (btnGenerate3dKey && objectNameInput) {

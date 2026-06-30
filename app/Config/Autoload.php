@@ -18,7 +18,7 @@ class Autoload extends AutoloadConfig
 
         // TAMBAHKAN BARIS INI UNTUK LIBRARY JWT KAMU:
         // 'Firebase\\JWT\\' => APPPATH . 'ThirdParty/php-jwt/',
-        'Firebase\\JWT' => APPPATH . 'ThirdParty/php-jwt/src',
+        // 'Firebase\\JWT' => APPPATH . 'ThirdParty/php-jwt/src',
     ];
 
     /**

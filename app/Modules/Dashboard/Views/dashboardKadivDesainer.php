@@ -245,7 +245,6 @@ Dashboard Kepala Divisi Desain
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
     padding-bottom: 12px;
     border-bottom: 1px solid #f6f7fb;
   }
@@ -276,10 +275,25 @@ Dashboard Kepala Divisi Desain
     position: relative;
     width: 100%;
     flex: 1;
-    min-height: 450px;
+    min-height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Workload Details Container */
+  .workload-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .workload-details-container {
+      border-left: 1px dashed #e2e8f0;
+      padding-left: 24px;
+    }
   }
 
   /* Premium scrollbar for review queue container */
@@ -287,18 +301,22 @@ Dashboard Kepala Divisi Desain
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 #f8fafc;
   }
+
   .review-scroll-container::-webkit-scrollbar {
     width: 6px;
   }
+
   .review-scroll-container::-webkit-scrollbar-track {
     background: #f8fafc;
     border-radius: 10px;
   }
+
   .review-scroll-container::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 10px;
     border: 1px solid #f8fafc;
   }
+
   .review-scroll-container::-webkit-scrollbar-thumb:hover {
     background: var(--palette-primary);
   }

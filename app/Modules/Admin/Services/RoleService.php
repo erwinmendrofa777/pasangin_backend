@@ -83,6 +83,15 @@ class RoleService
                         'products_status' => 'Ubah Status Produk'
                     ]
                 ],
+                'product_categories' => [
+                    'label' => 'Akses Menu Kategori Produk (Global)',
+                    'actions' => [
+                        'product_categories_view' => 'Lihat Kategori Produk',
+                        'product_categories_create' => 'Tambah Kategori Produk',
+                        'product_categories_edit' => 'Edit Kategori Produk',
+                        'product_categories_delete' => 'Hapus Kategori Produk'
+                    ]
+                ],
                 'satuan' => [
                     'label' => 'Akses Menu Satuan',
                     'actions' => [

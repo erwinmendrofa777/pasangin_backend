@@ -1,4 +1,4 @@
-<div class="premium-card" id="awaiting-review-section" style="height: 100%; padding: 20px 16px;">
+<div class="premium-card" id="awaiting-review-section" style="max-height: 420px; padding: 20px 16px; display: flex; flex-direction: column;">
   <div class="premium-card-title d-flex justify-content-between align-items-center flex-wrap gap-2">
     <h4 class="mb-0"><i class="fas fa-hourglass-half text-warning"></i> Perlu Persetujuan</h4>
     <span class="badge bg-warning text-dark fw-bold px-2.5 py-1.5" style="border-radius: 20px; font-size: 0.72rem;">
@@ -7,7 +7,7 @@
   </div>
 
   <div class="d-flex flex-column gap-2 review-scroll-container"
-    style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 6px;">
+    style="flex: 1; min-height: 0; max-height: 330px; overflow-y: auto; padding-right: 6px;">
     <?php if (!empty($kadivStats['awaiting_reviews'])): ?>
       <?php foreach ($kadivStats['awaiting_reviews'] as $r): ?>
         <?php

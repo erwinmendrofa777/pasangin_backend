@@ -17,6 +17,7 @@ class ProductModel extends Model
     protected $allowedFields    = [
         'supplier_id', 
         'category_id', 
+        'app_category_id',
         'name', 
         'description', 
         'price', 
@@ -61,8 +62,9 @@ class ProductModel extends Model
      */
     public function getProductsBySupplier($supplierId)
     {
-        return $this->select('products.*, categories.name as category_name')
+        return $this->select('products.*, categories.name as category_name, app_categories.name as app_category_name')
                     ->join('categories', 'categories.id = products.category_id', 'left')
+                    ->join('app_categories', 'app_categories.id = products.app_category_id', 'left')
                     ->where('products.supplier_id', $supplierId)
                     ->orderBy('products.created_at', 'DESC')
                     ->findAll();

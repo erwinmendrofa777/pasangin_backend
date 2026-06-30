@@ -839,7 +839,7 @@ class ConstructionApi extends BaseController
                                 'amount' => $paymentAmount,
                                 'type' => 'inflow',
                                 'source_project_type' => 'construction',
-                                'source_invoice_id' => null,
+                                'source_invoice_id' => (int) $id,
                                 'description' => $desc,
                                 'created_at' => date('Y-m-d H:i:s')
                             ]);

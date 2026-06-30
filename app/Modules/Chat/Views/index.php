@@ -330,6 +330,8 @@ echo $this->section('style');
         max-width: 100%;
         word-wrap: break-word;
         overflow-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: anywhere;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
@@ -798,6 +800,92 @@ echo $this->section('style');
         padding: 16px 25px !important;
     }
 
+    /* Panel Info Proyek */
+    #project-info-panel {
+        border-left: 4px solid #6366f1 !important;
+        background: linear-gradient(to right, rgba(99, 102, 241, 0.03), #ffffff) !important;
+        animation: slideDown 0.2s ease-out;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tombol Lihat Proyek */
+    #btn-view-project {
+        transition: all 0.2s ease !important;
+    }
+    #btn-view-project:hover {
+        background-color: #6366f1 !important;
+        color: #fff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25) !important;
+    }
+
+    /* Badge Project filter aktif */
+    .btn-filter[data-filter="project"].active {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+        color: #fff !important;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3) !important;
+    }
+
+    /* Item percakapan proyek - border accent ungu saat aktif */
+    .chat-list-user[data-chat-type="project"].active {
+        border-left-color: #6366f1 !important;
+        background-color: rgba(99, 102, 241, 0.04) !important;
+    }
+    .chat-list-user[data-chat-type="project"].active .chat-client-name {
+        color: #6366f1 !important;
+    }
+
+    /* Hover tombol mulai chat proyek */
+    #btn-start-project-chat:hover {
+        transform: scale(1.12) rotate(90deg);
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45) !important;
+    }
+
+    /* Modal mulai chat proyek */
+    #modalStartProjectChat .modal-header {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+    #modalStartProjectChat .modal-header .btn-close {
+        filter: invert(1);
+    }
+    #modalStartProjectChat .project-type-btn {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #f8fafc;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        flex: 1;
+    }
+    #modalStartProjectChat .project-type-btn:hover {
+        border-color: #6366f1;
+        background: #eef2ff;
+        color: #6366f1;
+    }
+    #modalStartProjectChat .project-type-btn.selected {
+        border-color: #6366f1;
+        background: linear-gradient(135deg, #eef2ff, #ede9fe);
+        color: #6366f1;
+    }
+    #modalStartProjectChat .project-type-btn i {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+    #modal-project-select option:disabled {
+        color: #94a3b8;
+        font-style: italic;
+    }
+
     /* Mobile-responsive refinements */
     @media (max-width: 767.98px) {
         .chat-list-container, .pasangin-chat-box {
@@ -880,6 +968,81 @@ echo $this->section('content');
 
 <!-- Lightbox Overlay untuk melihat gambar ukuran penuh -->
 <?= $this->include('App\Modules\Chat\Views\components\_lightbox') ?>
+
+<!-- Modal: Admin Mulai Chat Proyek Baru -->
+<div class="modal fade" id="modalStartProjectChat" tabindex="-1" aria-labelledby="modalStartProjectChatLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 460px;">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="padding: 18px 24px;">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div style="width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-comments" style="font-size: 0.9rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="modal-title fw-bold mb-0" id="modalStartProjectChatLabel" style="font-size: 0.95rem;">Mulai Chat Proyek Baru</h6>
+                        <div style="font-size: 0.72rem; opacity: 0.8;">Pilih proyek untuk memulai percakapan dengan klien</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <!-- Step 1: Pilih Tipe Proyek -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold" style="font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Tipe Proyek</label>
+                    <div class="d-flex" style="gap: 8px;">
+                        <div class="project-type-btn selected" data-type="design" id="ptype-design">
+                            <i class="fas fa-pencil-ruler"></i>
+                            Desain
+                        </div>
+                        <div class="project-type-btn" data-type="construction" id="ptype-construction">
+                            <i class="fas fa-hard-hat"></i>
+                            Konstruksi
+                        </div>
+                        <div class="project-type-btn" data-type="renovation" id="ptype-renovation">
+                            <i class="fas fa-tools"></i>
+                            Renovasi
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Pilih Proyek -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Pilih Proyek</label>
+                    <div id="modal-project-list-loader" class="text-center py-3" style="display: none;">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="ms-2 text-muted" style="font-size: 0.82rem;">Memuat daftar proyek...</span>
+                    </div>
+                    <select id="modal-project-select" class="form-select" style="border-radius: 10px; font-size: 0.85rem; border-color: #e2e8f0; padding: 10px 14px;">
+                        <option value="" disabled selected>— Pilih proyek —</option>
+                    </select>
+                    <!-- Info klien terpilih -->
+                    <div id="modal-client-info" class="mt-2 p-2 rounded-2" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0;">
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <img id="modal-client-avatar" src="" width="28" height="28" class="rounded-circle border" alt="avatar">
+                            <div>
+                                <div style="font-size: 0.78rem; font-weight: 700; color: #15803d;" id="modal-client-name">Nama Klien</div>
+                                <div style="font-size: 0.7rem; color: #4ade80;"><i class="fas fa-user-check me-1"></i>Client terdaftar</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Peringatan jika percakapan sudah ada -->
+                    <div id="modal-existing-warning" class="mt-2 p-2 rounded-2" style="display: none; background: #fefce8; border: 1px solid #fde68a;">
+                        <div style="font-size: 0.78rem; color: #d97706; font-weight: 600;">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Percakapan untuk proyek ini sudah ada. Anda akan dibuka ke percakapan tersebut.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #f1f5f9;">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 8px; font-weight: 600; font-size: 0.82rem;">Batal</button>
+                <button type="button" id="btn-confirm-start-chat" class="btn text-white px-4"
+                    style="border-radius: 8px; font-weight: 600; font-size: 0.82rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; box-shadow: 0 4px 10px rgba(99,102,241,0.3);" disabled>
+                    <i class="fas fa-comments me-1"></i> Mulai Chat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <?php
 echo $this->endSection();
 

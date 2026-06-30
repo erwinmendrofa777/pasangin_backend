@@ -56,14 +56,14 @@ Kelola Permintaan Desain
     .profile-card {
         border: none;
         border-radius: 16px;
-        box-shadow: 0 6px 28px rgba(255, 92, 92, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
         overflow: hidden;
     }
 
     .profile-hero {
-        background: var(--palette-primary);
-        border-radius: 16px 16px 0 0;
-        padding: 18px 28px 24px;
+        background: linear-gradient(135deg, var(--palette-primary) 0%, #ff7c81 100%);
+        border-radius: 16px;
+        padding: 24px 28px !important;
         position: relative;
         overflow: hidden;
     }
@@ -99,12 +99,13 @@ Kelola Permintaan Desain
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 5px 14px;
+        padding: 6px 14px;
         border-radius: 50px;
         font-size: 0.78rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.5px;
         text-transform: uppercase;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
 
     .status-pill .dot {
@@ -148,10 +149,11 @@ Kelola Permintaan Desain
     /* ===== INFO LIST ===== */
     .info-item {
         display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 12px 0;
-        border-bottom: 1px solid #f0f2f5;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
     }
 
     .info-item:last-child {
@@ -159,41 +161,54 @@ Kelola Permintaan Desain
     }
 
     .info-icon {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
         border-radius: 10px;
-        background: #ffe5e5;
-        color: var(--palette-primary);
+        background: #f1f5f9;
+        color: #64748b;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .info-item:hover .info-icon {
+        background: #ffe5e5;
+        color: var(--palette-primary);
+        transform: scale(1.05);
     }
 
     .info-label {
         font-size: 0.72rem;
-        color: #6c757d;
+        color: #64748b;
         text-transform: uppercase;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.5px;
         font-weight: 600;
         margin-bottom: 2px;
     }
 
     .info-value {
-        font-size: 0.93rem;
-        color: #212529;
-        font-weight: 500;
+        font-size: 0.92rem;
+        color: #1e293b;
+        font-weight: 600;
         word-break: break-word;
     }
 
     .section-title {
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.8px;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.6px;
         text-transform: uppercase;
         color: var(--palette-primary);
-        margin-bottom: 10px;
+        margin-bottom: 16px;
+        margin-top: 10px;
+    }
+
+    .section-title i {
+        color: var(--palette-primary) !important;
     }
 
     /* Premium Sliding Nav Tabs */
@@ -645,6 +660,13 @@ Kelola Permintaan Desain
         </script>
     </div>
 </div>
+
+<!-- Floating Action Chat Widget -->
+<?= view('App\Modules\Chat\Views\components\_project_chat_widget', [
+    'projectId' => $request['id'],
+    'projectType' => 'design'
+]) ?>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>

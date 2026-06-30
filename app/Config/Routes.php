@@ -393,6 +393,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
         $routes->get('my-status', 'TukangGroupApi::myStatus');
         $routes->get('requests', 'TukangGroupApi::myRequests');
         $routes->post('distribute-bulk', 'TukangGroupApi::distributeBulk');
+        $routes->get('transactions', 'TukangGroupApi::transactions');
+        $routes->get('job-balances', 'TukangGroupApi::jobBalances');
+        $routes->get('pending-distributions', 'TukangGroupApi::pendingDistributions');
+        $routes->post('vote-distribution', 'TukangGroupApi::voteDistribution');
     });
     $routes->get('tukang/profile/(:num)', 'TukangAuthController::getProfile/$1');
     $routes->get('tukang/jobs/construction', 'TukangJobApi::getConstructionJobs');
@@ -419,11 +423,25 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
 
     // Chat API
     $routes->group('chat', function ($routes) {
-        $routes->get('all/(:num)', 'ChatController::getAllConversationsForUser/$1');
-        $routes->get('messages/(:num)', 'ChatController::getMessages/$1');
-        $routes->post('send', 'ChatController::sendMessage');
-        $routes->post('create_or_get', 'ChatController::createOrGetConversation');
+        // Customer Service Chat (Klien / Tukang ↔ Admin)
+        $routes->get('cs/all/(:num)', 'CSChatController::getCSConversations/$1');
+        $routes->get('cs/messages/(:num)', 'CSChatController::getCSMessages/$1');
+        $routes->post('cs/send', 'CSChatController::sendCSMessage');
+        $routes->post('cs/create_or_get', 'CSChatController::createCSConversation');
+
+        // Supplier Chat (Klien ↔ Supplier)
+        $routes->get('supplier/all/(:num)', 'SupplierChatController::getSupplierConversations/$1');
+        $routes->get('supplier/messages/(:num)', 'SupplierChatController::getSupplierMessages/$1');
+        $routes->post('supplier/send', 'SupplierChatController::sendSupplierMessage');
+        $routes->post('supplier/create_or_get', 'SupplierChatController::createSupplierConversation');
+
         $routes->get('notifications', 'NotificationApi::index'); // Untuk riwayat notif di HP
+
+        // Rute Chat Proyek (Khusus Client)
+        $routes->get('project/all/(:num)', 'ProjectChatController::getAllProjectConversationsForUser/$1');
+        $routes->get('project/messages/(:num)', 'ProjectChatController::getProjectMessages/$1');
+        $routes->post('project/send', 'ProjectChatController::sendProjectMessage');
+        $routes->post('project/create_or_get', 'ProjectChatController::createOrGetProjectConversation');
     });
 
     // client
@@ -442,12 +460,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->post('(:any)/notifications/mark-all-read', 'NotificationController::markAllAsRead/$1');
     $routes->delete('(:any)/notifications/delete/(:num)/(:num)', 'NotificationController::deleteNotification/$1/$2/$3');
     $routes->get('(:any)/notifications/unread-count/(:num)', 'NotificationController::unreadCount/$1/$2');
-    $routes->post('(:any)/notifications/toggle', 'NotificationController::toggleNotification/$1');
 });
-
-
-
-
 
 if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
     require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';

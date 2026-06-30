@@ -505,6 +505,53 @@ Manajemen Tukang
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
         border-color: rgba(255, 92, 92, 0.18) !important;
     }
+
+    /* ===== PREMIUM MODAL TABS ===== */
+    .modal-nav-tabs {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+        border: none !important;
+    }
+    .modal-nav-tabs .nav-link {
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        border: none !important;
+        padding: 8px 16px !important;
+        transition: all 0.2s ease !important;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent !important;
+    }
+    .modal-nav-tabs .nav-link:hover {
+        color: #334155 !important;
+    }
+    .modal-nav-tabs .nav-link.active {
+        background: #ffffff !important;
+        color: var(--palette-primary) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* ===== PREMIUM TX CARD IN MODAL ===== */
+    .premium-tx-card {
+        transition: all 0.25s ease-in-out;
+    }
+    .premium-tx-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04) !important;
+        border-color: rgba(255, 92, 92, 0.15) !important;
+    }
+
+    .badge-gt-pending  { background:#fff7ed!important; color:#ea580c!important; border:1px solid #ffedd5!important; }
+    .badge-gt-approved { background:#f0fdf4!important; color:#16a34a!important; border:1px solid #bbf7d0!important; }
+    .badge-gt-rejected { background:#fef2f2!important; color:#dc2626!important; border:1px solid #fee2e2!important; }
+    .badge-gt-inflow   { background:#eff6ff!important; color:#2563eb!important; border:1px solid #bfdbfe!important; }
+    .badge-gt-outflow  { background:#fdf4ff!important; color:#9333ea!important; border:1px solid #e9d5ff!important; }
 </style>
 <?= $this->endSection() ?>
 

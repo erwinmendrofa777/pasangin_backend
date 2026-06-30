@@ -10,7 +10,7 @@ if ($tStatus === 'PENDING') {
     $statusLabel = 'Sedang Diproses';
     $tColor = 'progress';
 } elseif ($tStatus === 'DONE') {
-    $statusLabel = 'Selesai (Tanpa File)';
+    $statusLabel = 'Selesai';
     $tColor = 'done';
 }
 
@@ -155,33 +155,41 @@ if (!empty($task['request_start_date']) && !empty($task['request_target_date']))
     <?php endif; ?>
 
     <!-- Re-assign Designer Dropdown & Details action -->
-    <div class="d-flex justify-content-between align-items-center mt-0 pt-2" style="border-top:1px dashed #f1f5f9;">
-        <!-- Designer Dropdown -->
+    <div class="mt-0 pt-2" style="border-top:1px dashed #f1f5f9;">
         <?php 
         $role = strtolower(session()->get('role') ?? '');
         $isSuperAdmin = in_array('super_admin_override', session()->get('permissions') ?? []);
         if ($role === 'kepala divisi desain' || $isSuperAdmin): 
         ?>
-        <div class="flex-grow-1 me-2 kanban-card-designer-wrapper">
-            <select class="form-select form-select-sm kanban-card-designer-select" data-target-id="<?= $task['id'] ?>">
-                <option value="">— Pilih Desainer —</option>
-                <?php foreach ($designers as $designer): ?>
-                    <option value="<?= $designer['id'] ?>" <?= ($task['user_admin_id'] == $designer['id']) ? 'selected' : '' ?>>
-                        <?= esc($designer['full_name'] ?? $designer['username']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <label class="d-block mb-1" style="font-size: 0.6rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px;"><i class="fas fa-user-edit me-1"></i>Tugaskan Desainer</label>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="flex-grow-1 me-2">
+                <select class="form-select form-select-sm kanban-card-designer-select" data-target-id="<?= $task['id'] ?>">
+                    <option value="">— Pilih Desainer —</option>
+                    <?php foreach ($designers as $designer): ?>
+                        <option value="<?= $designer['id'] ?>" <?= ($task['user_admin_id'] == $designer['id']) ? 'selected' : '' ?>>
+                            <?= esc($designer['full_name'] ?? $designer['username']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <!-- Detail link (eye) -->
+            <a href="<?= base_url('admin/design/show/' . $task['design_request_id']) ?>" class="btn-kanban-action shadow-sm"
+                data-toggle="tooltip" title="Buka Detail Proyek" style="flex-shrink: 0;">
+                <i class="fas fa-eye"></i>
+            </a>
         </div>
         <?php else: ?>
-        <div class="flex-grow-1 me-2 text-muted text-truncate" style="font-size: 0.8rem; font-weight: 600;" title="<?= esc($task['designer_name'] ?? 'Belum Ditugaskan') ?>">
-            <i class="fas fa-user-circle me-1 text-primary"></i> <?= esc($task['designer_name'] ?? 'Belum Ditugaskan') ?>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="flex-grow-1 me-2 text-muted text-truncate" style="font-size: 0.8rem; font-weight: 600;" title="<?= esc($task['designer_name'] ?? 'Belum Ditugaskan') ?>">
+                <i class="fas fa-user-circle me-1 text-primary"></i> <?= esc($task['designer_name'] ?? 'Belum Ditugaskan') ?>
+            </div>
+            <!-- Detail link (eye) -->
+            <a href="<?= base_url('admin/design/show/' . $task['design_request_id']) ?>" class="btn-kanban-action shadow-sm"
+                data-toggle="tooltip" title="Buka Detail Proyek" style="flex-shrink: 0;">
+                <i class="fas fa-eye"></i>
+            </a>
         </div>
         <?php endif; ?>
-
-        <!-- Detail link (eye) -->
-        <a href="<?= base_url('admin/design/show/' . $task['design_request_id']) ?>" class="btn-kanban-action shadow-sm"
-            data-toggle="tooltip" title="Buka Detail Proyek">
-            <i class="fas fa-eye"></i>
-        </a>
     </div>
 </div>

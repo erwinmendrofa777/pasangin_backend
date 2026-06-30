@@ -184,4 +184,90 @@ class TukangRepository implements TukangRepositoryInterface
             ORDER BY ct.construction_id DESC, ct.start_week ASC
         ")->getResultArray();
     }
+
+    public function findGroupTransactionsWithApprovals(): array
+    {
+        $db = $this->model->db;
+
+        // 1. Ambil semua transaksi kelompok
+        $transactions = $db->query("
+            SELECT
+                gt.id,
+                gt.group_id,
+                tg.name_group,
+                t.name  AS mandor_name,
+                t.id    AS mandor_id,
+                gt.amount,
+                gt.type,
+                gt.status,
+                gt.source_project_type,
+                gt.source_invoice_id,
+                gt.description,
+                gt.distributions_data,
+                gt.created_at,
+                (
+                    SELECT COUNT(*)
+                    FROM group_transaction_approvals
+                    WHERE group_transaction_id = gt.id AND vote = 'approved'
+                ) AS total_approved,
+                (
+                    SELECT COUNT(*)
+                    FROM group_transaction_approvals
+                    WHERE group_transaction_id = gt.id AND vote = 'rejected'
+                ) AS total_rejected,
+                (
+                    SELECT COUNT(*) + 1
+                    FROM tukang_group_members
+                    WHERE tukang_group_id = gt.group_id
+                ) AS total_members
+            FROM group_transactions gt
+            JOIN tukang_group tg ON tg.id = gt.group_id
+            JOIN tukang t ON t.id = tg.tukang_id
+            ORDER BY gt.created_at DESC
+        ")->getResultArray();
+
+        if (empty($transactions)) {
+            return [];
+        }
+
+        // 2. Ambil semua votes berdasarkan ID transaksi yang ditemukan
+        $ids = array_column($transactions, 'id');
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+        $approvals = $db->query("
+            SELECT
+                gta.group_transaction_id,
+                gta.tukang_id,
+                gta.vote,
+                gta.created_at AS voted_at,
+                t.name         AS voter_name,
+                t.role         AS voter_role
+            FROM group_transaction_approvals gta
+            JOIN tukang t ON t.id = gta.tukang_id
+            WHERE gta.group_transaction_id IN ($placeholders)
+        ", $ids)->getResultArray();
+
+        // 3. Kelompokkan approvals per transaksi
+        $approvalsByTx = [];
+        foreach ($approvals as $a) {
+            $approvalsByTx[$a['group_transaction_id']][] = $a;
+        }
+
+        // 4. Attach approvals ke setiap transaksi
+        foreach ($transactions as &$tx) {
+            $tx['approvals'] = $approvalsByTx[$tx['id']] ?? [];
+
+            // Decode distributions_data jika ada
+            if (!empty($tx['distributions_data'])) {
+                $decoded = json_decode($tx['distributions_data'], true);
+                $tx['distributions'] = is_array($decoded) ? $decoded : [];
+            } else {
+                $tx['distributions'] = [];
+            }
+        }
+        unset($tx);
+
+        return $transactions;
+    }
 }
+

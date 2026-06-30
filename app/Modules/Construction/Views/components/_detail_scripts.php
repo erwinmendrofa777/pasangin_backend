@@ -3,19 +3,51 @@
     // Sliding Nav Logic - Globally Accessible
     function scrollNav(direction) {
         const container = document.querySelector('.nav-tabs-premium');
-        const scrollAmount = 400;
-        const currentScroll = container.scrollLeft;
-
+        const scrollAmount = 200;
         if (direction === 'left') {
-            container.scrollTo({
-                left: currentScroll - scrollAmount,
-                behavior: 'smooth'
-            });
+            container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
         } else {
-            container.scrollTo({
-                left: currentScroll + scrollAmount,
-                behavior: 'smooth'
-            });
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+
+    // Tab Navigation Logic via Arrow Buttons - Globally Accessible
+    function navigateTab(direction) {
+        const tabs = Array.from(document.querySelectorAll('#myTab .nav-link'));
+        const activeLink = document.querySelector('#myTab .nav-link.active');
+        if (!activeLink) return;
+        
+        let index = tabs.indexOf(activeLink);
+        if (index === -1) return;
+        
+        if (direction === 'left') {
+            index = index - 1;
+            if (index < 0) index = tabs.length - 1;
+        } else {
+            index = index + 1;
+            if (index >= tabs.length) index = 0;
+        }
+        
+        const targetTab = tabs[index];
+        if (targetTab) {
+            targetTab.click();
+            targetTab.scrollIntoView({ block: 'nearest', inline: 'center' });
+        }
+    }
+
+    function updateScrollButtons() {
+        const container = document.querySelector('.nav-tabs-premium');
+        const btnLeft = document.querySelector('.nav-scroll-btn.left');
+        const btnRight = document.querySelector('.nav-scroll-btn.right');
+        if (!container || !btnLeft || !btnRight) return;
+
+        const hasScroll = container.scrollWidth > container.clientWidth;
+        if (hasScroll) {
+            btnLeft.style.display = 'flex';
+            btnRight.style.display = 'flex';
+        } else {
+            btnLeft.style.display = 'none';
+            btnRight.style.display = 'none';
         }
     }
 
@@ -73,14 +105,42 @@
             $btn.find('.status-icon').removeClass('fa-chevron-right').addClass('fa-check-circle').css('font-size', '1rem').css('opacity', '1');
         });
 
+        // Hapus penanganan flash pencegah wrong-tab agar Bootstrap normal kembali
+        document.documentElement.classList.remove('has-tab-hash');
+        document.documentElement.removeAttribute('data-active-tab');
+
         // Restore Tab Logic
         var hash = window.location.hash;
         if (hash) {
             $('.nav-tabs a[href="' + hash + '"]').tab('show');
+            var triggerEl = document.querySelector('#myTab a[href="' + hash + '"]');
+            if (triggerEl) {
+                triggerEl.scrollIntoView({ block: 'nearest', inline: 'center' });
+            }
         }
+
+        // Update URL hash ketika tab di-klik dan jalankan animasi
         $('.nav-tabs a').on('shown.bs.tab', function (e) {
-            window.location.hash = e.target.hash;
+            // 1. Update URL Hash
+            if (history.pushState) {
+                history.pushState(null, null, e.target.hash);
+            } else {
+                window.location.hash = e.target.hash;
+            }
+
+            // 2. Animasi Tab Content dengan Animate.css (fadeInUpMini)
+            var targetSelector = e.target.hash;
+            var pane = document.querySelector(targetSelector);
+            if (pane) {
+                pane.classList.remove('animate__animated', 'animate__fadeIn', 'animate__faster', 'animate__fadeInUpMini');
+                void pane.offsetWidth;
+                pane.classList.add('animate__animated', 'animate__fadeInUpMini');
+            }
         });
+
+        // Cek visibilitas tombol scroll awal
+        updateScrollButtons();
+        window.addEventListener('resize', updateScrollButtons);
 
         // Call RAB calculation functions if they exist (defined in sub-views)
         try {

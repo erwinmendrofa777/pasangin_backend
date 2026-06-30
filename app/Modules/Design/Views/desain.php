@@ -2,18 +2,20 @@
 <div class="row mt-4 g-3">
     <!-- ── GALERI ── -->
     <div class="col-lg-12">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-                <h6 class="fw-bold mb-0" style="font-size:14px;"><i class="fas fa-images text-primary me-1"></i> Galeri Desain</h6>
-                <small class="text-muted"><?= count($design_results) ?> file tersimpan</small>
+        <div class="card tbl-outer shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white" 
+                 style="background: linear-gradient(135deg, var(--palette-primary, #ff5c5c) 0%, #ff7b7b 100%) !important; padding: 14px 22px !important; border-radius: 12px 12px 0 0 !important;">
+                <div>
+                    <h6 class="mb-0 fw-bold text-white"><i class="fas fa-images me-2"></i>Galeri Desain</h6>
+                    <small class="text-white text-opacity-75" style="font-size: 0.75rem;"><?= count($design_results) ?> file tersimpan</small>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-header-action btn-header-add" data-bs-toggle="modal" data-bs-target="#modalUploadDesign">
+                        <i class="fas fa-plus-circle"></i> Unggah Desain Baru
+                    </button>
+                </div>
             </div>
-            <div>
-                <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalUploadDesign"
-                    style="border-radius:10px; height: 38px; padding: 0 16px; letter-spacing: 0.2px; font-size: 12px; display: flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-plus-circle" style="font-size: 13px;"></i> Unggah Desain Baru
-                </button>
-            </div>
-        </div>
+            <div class="card-body p-4 bg-white" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
 
         <?php
         // Kelompokkan design_results berdasarkan design_targets_id
@@ -352,6 +354,8 @@
                 </div>
             </div>
         <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -498,12 +502,17 @@
                     <h6 class="modal-title mb-0" style="font-size: 13px;"><i class="fas fa-times-circle me-1"></i>Reject Revisi Rev. <?= $pm['revNum'] ?></h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 10px;"></button>
                 </div>
-                <form action="<?= base_url('admin/design/reject-design/' . $pm['id']) ?>" method="post">
+                <form action="<?= base_url('admin/design/reject-design/' . $pm['id']) ?>" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
                     <div class="modal-body py-3">
                         <div class="mb-3 text-start">
                             <label class="form-label fw-bold text-dark" style="font-size:11px;">Catatan untuk Klien</label>
                             <textarea name="revision_note" class="form-control" rows="3" placeholder="Contoh: Proporsi ruangan belum sesuai, mohon direvisi kembali." required style="font-size:11px; border-radius: 8px; border: 1.5px solid #cbd5e1;"></textarea>
+                        </div>
+                        <div class="mb-0 text-start">
+                            <label class="form-label fw-bold text-dark" style="font-size:11px;">Lampiran Gambar <span class="text-muted fw-normal">(Opsional, maks. 3 foto)</span></label>
+                            <input type="file" name="image_revision_note[]" class="form-control form-control-sm" multiple accept=".jpg,.jpeg,.png,.webp" style="font-size:11px; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                            <small class="text-muted d-block mt-1" style="font-size:9.5px;"><i class="fas fa-image me-1"></i>Format: JPG, PNG, WEBP. Gunakan untuk melampirkan anotasi atau referensi revisi.</small>
                         </div>
                     </div>
                     <div class="modal-footer py-2">

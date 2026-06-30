@@ -52,6 +52,11 @@ class Login extends BaseController
 
         try {
             $sessionData = $this->svc->attemptLogin($email, $password);
+            
+            // Generate JWT dan set HttpOnly Cookie
+            $token = \App\Libraries\AdminTokenHandler::generate($sessionData);
+            \App\Libraries\AdminTokenHandler::setCookie($token);
+
             session()->set($sessionData);
             
             // LOG AKTIVITAS LOGIN
@@ -82,7 +87,7 @@ class Login extends BaseController
                     'redirect' => site_url('admin/dashboard')
                 ]);
             }
-            return redirect()->to('/admin/dashboard');
+            return redirect()->to('/admin/dashboard')->withCookies();
         } catch (RuntimeException $e) {
             if ($isAjax) {
                 return $this->response->setJSON([
@@ -103,7 +108,15 @@ class Login extends BaseController
         // LOG AKTIVITAS LOGOUT (Dilakukan sebelum session dihancurkan agar helper bisa baca ID Admin)
         log_admin_activity('logout', 'Auth', 'Admin keluar dari sistem');
         
+        // Hapus Cookie JWT
+        \App\Libraries\AdminTokenHandler::deleteCookie();
+        
         session()->destroy();
-        return redirect()->to('/admin/login');
+        
+        // Hapus Cookie Session (ci_session) dari browser
+        helper('cookie');
+        delete_cookie('ci_session');
+        
+        return redirect()->to('/admin/login')->withCookies();
     }
 }

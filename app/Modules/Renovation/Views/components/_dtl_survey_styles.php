@@ -170,4 +170,40 @@
         overflow: hidden !important;
         background: #000 !important;
     }
+
+    .survey-right-card {
+        background-color: #f8f9fa !important;
+    }
+
+    .survey-right-card-body {
+        background: #f8f9fa;
+        overflow-y: auto;
+    }
+
+    @media (max-width: 767.98px) {
+        .survey-right-card-body {
+            max-height: 450px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .survey-row {
+            align-items: stretch;
+        }
+        .survey-right-col {
+            position: relative;
+        }
+        .survey-right-card {
+            position: absolute !important;
+            top: 0;
+            bottom: 0;
+            left: calc(var(--bs-gutter-x, 1.5rem) / 2);
+            right: calc(var(--bs-gutter-x, 1.5rem) / 2);
+            height: auto !important;
+        }
+        .survey-right-card-body {
+            flex: 1 1 0%;
+            min-height: 0;
+        }
+    }
 </style>

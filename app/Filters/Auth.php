@@ -3,10 +3,7 @@
 
 namespace App\Filters;
 
-// --- PERBAIKAN: Tambahkan kembali require_once untuk memuat library secara manual ---
-require_once APPPATH . '../app/ThirdParty/php-jwt/src/JWT.php';
-require_once APPPATH . '../app/ThirdParty/php-jwt/src/Key.php';
-// Kita tidak perlu memuat semua file exception, JWT.php akan menanganinya.
+
 
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;

@@ -16,4 +16,5 @@ interface TukangRepositoryInterface
     public function searchForDropdown(string $term): array;
     public function getInsertID(): int;
     public function findGroupConstructionTargets(): array;
+    public function findGroupTransactionsWithApprovals(): array;
 }

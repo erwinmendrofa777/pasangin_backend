@@ -1,0 +1,64 @@
+<!-- ===== DATA TABLE CARD ===== -->
+<div class="card table-card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped w-100" id="table-categories">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 80px;">No</th>
+                        <th>Nama Kategori</th>
+                        <th>Dibuat Pada</th>
+                        <th>Diubah Pada</th>
+                        <th class="text-center" style="width: 150px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($categories)): ?>
+                        <?php $no = 1; foreach ($categories as $item): ?>
+                            <tr>
+                                <td class="text-center"><?= $no++ ?></td>
+                                <td class="fw-bold text-dark"><?= esc($item['name']) ?></td>
+                                <td><?= !empty($item['created_at']) ? date('d M Y H:i', strtotime($item['created_at'])) : '-' ?></td>
+                                <td><?= !empty($item['updated_at']) ? date('d M Y H:i', strtotime($item['updated_at'])) : '-' ?></td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <?php if (can('product_categories_edit')): ?>
+                                            <button type="button" class="btn-action btn-action-edit btn-edit-category" 
+                                                    data-bs-toggle="modal" data-bs-target="#categoryModal"
+                                                    data-id="<?= $item['id'] ?>"
+                                                    data-nama="<?= esc($item['name']) ?>"
+                                                    title="Edit Kategori">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        <?php endif; ?>
+
+                                        <?php if (can('product_categories_delete')): ?>
+                                            <button type="button" class="btn-action btn-action-delete"
+                                                    data-bs-toggle="modal" data-bs-target="#globalDeleteModal"
+                                                    data-delete-url="<?= site_url('admin/product-categories/delete/' . $item['id']) ?>"
+                                                    data-delete-title="Hapus Kategori?"
+                                                    data-delete-msg="Apakah Anda yakin ingin menghapus kategori <strong><?= esc($item['name']) ?></strong>?"
+                                                    title="Hapus Kategori">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5" class="text-center p-0">
+                                <div class="empty-state">
+                                    <i class="fas fa-tags"></i>
+                                    <h6 class="fw-bold text-dark mb-1">Belum Ada Data Kategori</h6>
+                                    <p class="text-muted small mb-0">Silakan tambahkan data kategori baru dengan mengklik tombol di atas.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

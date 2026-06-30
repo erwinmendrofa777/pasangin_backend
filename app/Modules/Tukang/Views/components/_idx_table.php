@@ -517,16 +517,16 @@ foreach ($tukang as $row) {
     <div class="modal fade" id="modal-targets-<?= md5($gName) ?>" tabindex="-1" aria-labelledby="modalLabel-<?= md5($gName) ?>" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0">
-                <div class="modal-header border-0 pb-3 pt-4 px-4">
+                <div class="modal-header border-0 pb-2 pt-4 px-4">
                     <div class="d-flex align-items-center justify-content-between w-100">
                         <div class="d-flex align-items-center">
                             <div class="rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm"
                                  style="width: 42px; height: 42px; background: linear-gradient(135deg, rgba(255, 92, 92, 0.08), rgba(255, 92, 92, 0.18)); color: var(--palette-primary);">
-                                <i class="fas fa-tasks" style="font-size: 1.15rem;"></i>
+                                <i class="fas fa-users" style="font-size: 1.15rem;"></i>
                             </div>
                             <div>
                                 <h5 class="modal-title fw-bold text-dark mb-0" id="modalLabel-<?= md5($gName) ?>" style="font-size: 1.1rem; letter-spacing: -0.2px;">
-                                    Target Pekerjaan Kelompok
+                                    Detail Informasi Kelompok
                                 </h5>
                                 <span class="text-muted small fw-medium d-block mt-0.5" style="font-size: 0.8rem;">Nama Grup: <strong class="text-primary"><?= esc($group['name_group']) ?></strong></span>
                             </div>
@@ -538,88 +538,330 @@ foreach ($tukang as $row) {
                     </div>
                 </div>
                 <div class="modal-body p-4" style="background-color: #f8fafc; max-height: 60vh; overflow-y: auto;">
-                    <div class="target-jobs-container">
-                        <?php
-                        $targets = $constructionTargets['groups'][$gName] ?? [];
-                        if (empty($targets)):
-                        ?>
-                            <div class="text-center py-5 text-muted bg-white rounded-4 border p-4" style="border-color: rgba(226, 232, 240, 0.8) !important;">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
-                                     style="width: 54px; height: 54px; background: rgba(255, 92, 92, 0.05); color: var(--palette-primary);">
-                                    <i class="fas fa-clipboard-list" style="font-size: 1.4rem;"></i>
-                                </div>
-                                <h6 class="fw-bold text-dark mb-1">Belum Ada Target Pekerjaan</h6>
-                                <p class="small text-muted mb-0">Kelompok ini belum ditugaskan target pekerjaan konstruksi apa pun.</p>
-                            </div>
-                        <?php
-                        else:
-                            foreach ($targets as $t):
-                                $statusText = strtoupper($t['status'] ?? 'NOT_STARTED');
-                                $borderLeftColor = '#64748b'; // Default slate
-                                $statusClass = 'badge-status-notstarted';
-                                $statusLabel = 'BELUM MULAI';
-                                $statusIcon = 'fas fa-hourglass-start';
-                                
-                                if ($statusText === 'IN_PROGRESS' || $statusText === 'IN PROGRESS' || $statusText === 'PROGRESS') {
-                                    $statusClass = 'badge-status-inprogress';
-                                    $statusLabel = 'IN PROGRESS';
-                                    $statusIcon = 'fas fa-spinner fa-spin';
-                                    $borderLeftColor = '#3b82f6'; // Blue
-                                } elseif ($statusText === 'COMPLETED' || $statusText === 'SELESAI' || $statusText === 'ACHIEVED') {
-                                    $statusClass = 'badge-status-completed';
-                                    $statusLabel = 'SELESAI';
-                                    $statusIcon = 'fas fa-check-circle';
-                                    $borderLeftColor = '#10b981'; // Green
-                                } elseif ($statusText === 'PENDING') {
-                                    $statusClass = 'badge-status-pending';
-                                    $statusLabel = 'PENDING';
-                                    $statusIcon = 'fas fa-clock';
-                                    $borderLeftColor = '#f59e0b'; // Amber
-                                }
-                        ?>
-                            <!-- Premium Target Card -->
-                            <div class="premium-target-card mb-3 border bg-white position-relative"
-                                 style="border-left: 4px solid <?= $borderLeftColor ?> !important; border-color: rgba(226, 232, 240, 0.8) !important; border-radius: 12px; transition: all 0.2s ease; padding: 1.1rem 1.25rem !important;">
-                                <div class="row align-items-center g-3">
-                                    <!-- Left Side: ID, Title, Address -->
-                                    <div class="col-12 col-md-8">
-                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                                            <span class="badge project-card-badge px-2.5 py-1" style="font-size: 0.68rem; font-weight: 700;">
-                                                <i class="fas fa-project-diagram me-1" style="font-size: 0.65rem;"></i> Proyek #<?= esc($t['construction_id']) ?>
-                                            </span>
-                                            <span class="badge bg-light text-dark border px-2.5 py-1" style="font-size: 0.68rem; font-weight: 600; border-color: #e2e8f0 !important;">
-                                                <i class="far fa-calendar-alt text-muted me-1.5" style="font-size: 0.72rem;"></i> <?= schedRangeLabel((int)$t['start_week'], (int)$t['end_week'], $t['start_date'] ?? null, isset($t['workday']) ? (int)$t['workday'] : null) ?>
-                                            </span>
-                                        </div>
-                                        <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem; line-height: 1.4; color: #0f172a !important;">
-                                            <?= esc($t['activity_name'] ?: '-') ?>
-                                        </h6>
-                                        <div class="small text-muted d-flex align-items-start" style="font-size: 0.74rem; line-height: 1.35;">
-                                            <i class="fas fa-map-marker-alt text-primary me-2 mt-0.5" style="font-size: 0.75rem; flex-shrink: 0;"></i>
-                                            <span><?= esc($t['project_address'] ?: '-') ?></span>
-                                        </div>
-                                    </div>
-                                    <!-- Right Side: Volume & Status -->
-                                    <div class="col-12 col-md-4 d-flex align-items-center justify-content-between justify-content-md-end gap-3.5 border-top border-top-md-0 pt-3 pt-md-0"
-                                         style="border-color: #f1f5f9 !important;">
-                                        <div class="text-start text-md-end me-md-2">
-                                            <span class="text-muted d-block small mb-0.5" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Volume</span>
-                                            <span class="fw-bold text-dark" style="font-size: 0.95rem; color: #0f172a !important;">
-                                                <?= (float)$t['volume'] ?> <span class="text-muted fw-semibold" style="font-size: 0.78rem;"><?= esc($t['unit'] ?: '-') ?></span>
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <span class="badge <?= $statusClass ?> px-3 py-2 d-inline-flex align-items-center gap-1.5" style="font-size: 0.72rem; font-weight: 700; border-radius: 30px;">
-                                                <i class="<?= $statusIcon ?>"></i> <?= $statusLabel ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php
-                            endforeach;
-                        endif;
-                        ?>
+                    
+                    <!-- Segmented Controls / Tab Navigation -->
+                    <ul class="nav modal-nav-tabs mb-4" id="modalTab-<?= md5($gName) ?>" role="tablist">
+                        <li class="nav-item flex-grow-1 text-center" role="presentation">
+                            <button class="nav-link active w-100 justify-content-center" 
+                                    id="targets-tab-<?= md5($gName) ?>" 
+                                    data-bs-toggle="pill" 
+                                    data-bs-target="#targets-pane-<?= md5($gName) ?>" 
+                                    type="button" 
+                                    role="tab" 
+                                    aria-controls="targets-pane-<?= md5($gName) ?>" 
+                                    aria-selected="true">
+                                <i class="fas fa-tasks"></i> Target Pekerjaan
+                            </button>
+                        </li>
+                        <li class="nav-item flex-grow-1 text-center" role="presentation">
+                            <button class="nav-link w-100 justify-content-center" 
+                                    id="transactions-tab-<?= md5($gName) ?>" 
+                                    data-bs-toggle="pill" 
+                                    data-bs-target="#transactions-pane-<?= md5($gName) ?>" 
+                                    type="button" 
+                                    role="tab" 
+                                    aria-controls="transactions-pane-<?= md5($gName) ?>" 
+                                    aria-selected="false">
+                                <i class="fas fa-exchange-alt"></i> Transaksi & Voting
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="modalTabContent-<?= md5($gName) ?>">
+                        <!-- Tab 1: Target Pekerjaan -->
+                        <div class="tab-pane fade show active" 
+                             id="targets-pane-<?= md5($gName) ?>" 
+                             role="tabpanel" 
+                             aria-labelledby="targets-tab-<?= md5($gName) ?>" 
+                             tabindex="0">
+                             
+                             <div class="target-jobs-container">
+                                 <?php
+                                 $targets = $constructionTargets['groups'][$gName] ?? [];
+                                 if (empty($targets)):
+                                 ?>
+                                     <div class="text-center py-5 text-muted bg-white rounded-4 border p-4" style="border-color: rgba(226, 232, 240, 0.8) !important;">
+                                         <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                                              style="width: 54px; height: 54px; background: rgba(255, 92, 92, 0.05); color: var(--palette-primary);">
+                                             <i class="fas fa-clipboard-list" style="font-size: 1.4rem;"></i>
+                                         </div>
+                                         <h6 class="fw-bold text-dark mb-1">Belum Ada Target Pekerjaan</h6>
+                                         <p class="small text-muted mb-0">Kelompok ini belum ditugaskan target pekerjaan konstruksi apa pun.</p>
+                                     </div>
+                                 <?php
+                                 else:
+                                     foreach ($targets as $t):
+                                         $statusText = strtoupper($t['status'] ?? 'NOT_STARTED');
+                                         $borderLeftColor = '#64748b'; // Default slate
+                                         $statusClass = 'badge-status-notstarted';
+                                         $statusLabel = 'BELUM MULAI';
+                                         $statusIcon = 'fas fa-hourglass-start';
+                                         
+                                         if ($statusText === 'IN_PROGRESS' || $statusText === 'IN PROGRESS' || $statusText === 'PROGRESS') {
+                                             $statusClass = 'badge-status-inprogress';
+                                             $statusLabel = 'IN PROGRESS';
+                                             $statusIcon = 'fas fa-spinner fa-spin';
+                                             $borderLeftColor = '#3b82f6'; // Blue
+                                         } elseif ($statusText === 'COMPLETED' || $statusText === 'SELESAI' || $statusText === 'ACHIEVED') {
+                                             $statusClass = 'badge-status-completed';
+                                             $statusLabel = 'SELESAI';
+                                             $statusIcon = 'fas fa-check-circle';
+                                             $borderLeftColor = '#10b981'; // Green
+                                         } elseif ($statusText === 'PENDING') {
+                                             $statusClass = 'badge-status-pending';
+                                             $statusLabel = 'PENDING';
+                                             $statusIcon = 'fas fa-clock';
+                                             $borderLeftColor = '#f59e0b'; // Amber
+                                         }
+                                 ?>
+                                     <!-- Premium Target Card -->
+                                     <div class="premium-target-card mb-3 border bg-white position-relative"
+                                          style="border-left: 4px solid <?= $borderLeftColor ?> !important; border-color: rgba(226, 232, 240, 0.8) !important; border-radius: 12px; transition: all 0.2s ease; padding: 1.1rem 1.25rem !important;">
+                                         <div class="row align-items-center g-3">
+                                             <!-- Left Side: ID, Title, Address -->
+                                             <div class="col-12 col-md-8">
+                                                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                                     <span class="badge project-card-badge px-2.5 py-1" style="font-size: 0.68rem; font-weight: 700;">
+                                                         <i class="fas fa-project-diagram me-1" style="font-size: 0.65rem;"></i> Proyek #<?= esc($t['construction_id']) ?>
+                                                     </span>
+                                                     <span class="badge bg-light text-dark border px-2.5 py-1" style="font-size: 0.68rem; font-weight: 600; border-color: #e2e8f0 !important;">
+                                                         <i class="far fa-calendar-alt text-muted me-1.5" style="font-size: 0.72rem;"></i> <?= schedRangeLabel((int)$t['start_week'], (int)$t['end_week'], $t['start_date'] ?? null, isset($t['workday']) ? (int)$t['workday'] : null) ?>
+                                                     </span>
+                                                 </div>
+                                                 <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem; line-height: 1.4; color: #0f172a !important;">
+                                                     <?= esc($t['activity_name'] ?: '-') ?>
+                                                 </h6>
+                                                 <div class="small text-muted d-flex align-items-start" style="font-size: 0.74rem; line-height: 1.35;">
+                                                     <i class="fas fa-map-marker-alt text-primary me-2 mt-0.5" style="font-size: 0.75rem; flex-shrink: 0;"></i>
+                                                     <span><?= esc($t['project_address'] ?: '-') ?></span>
+                                                 </div>
+                                             </div>
+                                             <!-- Right Side: Volume & Status -->
+                                             <div class="col-12 col-md-4 d-flex align-items-center justify-content-between justify-content-md-end gap-3.5 border-top border-top-md-0 pt-3 pt-md-0"
+                                                  style="border-color: #f1f5f9 !important;">
+                                                 <div class="text-start text-md-end me-md-2">
+                                                     <span class="text-muted d-block small mb-0.5" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Volume</span>
+                                                     <span class="fw-bold text-dark" style="font-size: 0.95rem; color: #0f172a !important;">
+                                                         <?= (float)$t['volume'] ?> <span class="text-muted fw-semibold" style="font-size: 0.78rem;"><?= esc($t['unit'] ?: '-') ?></span>
+                                                     </span>
+                                                 </div>
+                                                 <div>
+                                                     <span class="badge <?= $statusClass ?> px-3 py-2 d-inline-flex align-items-center gap-1.5" style="font-size: 0.72rem; font-weight: 700; border-radius: 30px;">
+                                                         <i class="<?= $statusIcon ?>"></i> <?= $statusLabel ?>
+                                                     </span>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 <?php
+                                     endforeach;
+                                 endif;
+                                 ?>
+                             </div>
+                        </div>
+
+                        <!-- Tab 2: Transaksi & Voting -->
+                        <div class="tab-pane fade" 
+                             id="transactions-pane-<?= md5($gName) ?>" 
+                             role="tabpanel" 
+                             aria-labelledby="transactions-tab-<?= md5($gName) ?>" 
+                             tabindex="0">
+                             
+                             <div class="transactions-container">
+                                 <?php
+                                 $gTransactions = array_filter($groupTransactions, function($gt) use ($gName) {
+                                     return $gt['name_group'] === $gName;
+                                 });
+                                 
+                                 if (empty($gTransactions)):
+                                 ?>
+                                     <div class="text-center py-5 text-muted bg-white rounded-4 border p-4" style="border-color: rgba(226, 232, 240, 0.8) !important;">
+                                         <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                                              style="width: 54px; height: 54px; background: rgba(255, 92, 92, 0.05); color: var(--palette-primary);">
+                                             <i class="fas fa-exchange-alt" style="font-size: 1.4rem;"></i>
+                                         </div>
+                                         <h6 class="fw-bold text-dark mb-1">Belum Ada Transaksi</h6>
+                                         <p class="small text-muted mb-0">Kelompok ini belum memiliki riwayat transaksi distribusi saldo.</p>
+                                     </div>
+                                 <?php
+                                 else:
+                                     foreach ($gTransactions as $gt):
+                                         $majority   = floor($gt['total_members'] / 2) + 1;
+                                         $approved   = (int) $gt['total_approved'];
+                                         $rejected   = (int) $gt['total_rejected'];
+                                         $total      = (int) $gt['total_members'];
+                                         $pct        = $total > 0 ? round(($approved / $total) * 100) : 0;
+                                         $progressColor = $gt['status'] === 'approved' ? '#16a34a'
+                                                       : ($gt['status'] === 'rejected' ? '#dc2626' : '#f59e0b');
+
+                                         // Status badge
+                                         switch ($gt['status']) {
+                                             case 'approved':
+                                                 $badgeClass = 'badge-gt-approved';
+                                                 $badgeIcon  = 'fas fa-check-circle';
+                                                 $badgeLabel = 'Approved';
+                                                 break;
+                                             case 'rejected':
+                                                 $badgeClass = 'badge-gt-rejected';
+                                                 $badgeIcon  = 'fas fa-times-circle';
+                                                 $badgeLabel = 'Rejected';
+                                                 break;
+                                             default:
+                                                 $badgeClass = 'badge-gt-pending';
+                                                 $badgeIcon  = 'fas fa-clock';
+                                                 $badgeLabel = 'Pending';
+                                                 break;
+                                         }
+
+                                         // Tipe badge
+                                         $typeBadge = $gt['type'] === 'inflow'
+                                             ? '<span class="badge badge-gt-inflow px-2 py-1" style="font-size:0.65rem; font-weight:700; border-radius:12px;"><i class="fas fa-arrow-down me-1"></i>Masuk</span>'
+                                             : '<span class="badge badge-gt-outflow px-2 py-1" style="font-size:0.65rem; font-weight:700; border-radius:12px;"><i class="fas fa-arrow-up me-1"></i>Keluar</span>';
+                                 ?>
+                                         <!-- Premium Tx Card -->
+                                         <div class="card mb-3 border bg-white premium-tx-card" style="border-radius: 12px; border-color: rgba(226, 232, 240, 0.8) !important;">
+                                             <div class="card-body p-3">
+                                                 <div class="d-flex justify-content-between align-items-start mb-2">
+                                                     <div>
+                                                         <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 0.65rem; font-weight: 600; border-color: #e2e8f0 !important;">
+                                                             <i class="far fa-calendar-alt text-muted me-1"></i> <?= date('d M Y, H:i', strtotime($gt['created_at'])) ?>
+                                                         </span>
+                                                         <span class="ms-1"><?= $typeBadge ?></span>
+                                                     </div>
+                                                     <div>
+                                                         <span class="badge <?= $badgeClass ?> px-2.5 py-1" style="font-size: 0.68rem; font-weight: 700; border-radius: 12px;">
+                                                             <i class="<?= $badgeIcon ?> me-1"></i> <?= $badgeLabel ?>
+                                                         </span>
+                                                     </div>
+                                                 </div>
+
+                                                 <div class="d-flex justify-content-between align-items-center mb-3">
+                                                     <div>
+                                                         <span class="text-muted d-block small mb-0.5" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Nominal</span>
+                                                         <span class="fw-bold text-dark" style="font-size: 1.1rem; color: #0f172a !important;">
+                                                             Rp <?= number_format((float)$gt['amount'], 0, ',', '.') ?>
+                                                         </span>
+                                                     </div>
+                                                     <div class="text-end">
+                                                         <span class="text-muted d-block small mb-0.5" style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Voting</span>
+                                                         <span class="fw-bold text-dark" style="font-size: 0.85rem;">
+                                                             <?= $approved ?>/<?= $total ?> <span class="text-muted fw-semibold" style="font-size: 0.72rem;">Approved (<?= $pct ?>%)</span>
+                                                         </span>
+                                                     </div>
+                                                 </div>
+
+                                                 <!-- Description -->
+                                                 <?php if (!empty($gt['description'])): ?>
+                                                     <p class="text-muted mb-3" style="font-size: 0.82rem; line-height: 1.4;">
+                                                         <?= esc($gt['description']) ?>
+                                                     </p>
+                                                 <?php endif; ?>
+
+                                                 <!-- Progress Bar -->
+                                                 <div class="vote-progress-bar mb-3" style="height: 5px; background: #e2e8f0; border-radius: 99px; overflow: hidden;">
+                                                     <div class="vote-progress-fill" style="width: <?= $pct ?>%; height: 100%; background: <?= $progressColor ?>;"></div>
+                                                 </div>
+
+                                                 <!-- Toggle Button for Detail -->
+                                                 <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: #f1f5f9 !important;">
+                                                     <span class="text-muted small" style="font-size: 0.72rem;">
+                                                         <i class="fas fa-crown text-warning me-1"></i> Mandor: <strong><?= esc($gt['mandor_name']) ?></strong>
+                                                     </span>
+                                                     <button class="btn btn-link btn-sm text-primary fw-bold text-decoration-none p-0" 
+                                                             type="button" 
+                                                             data-bs-toggle="collapse" 
+                                                             data-bs-target="#collapse-tx-<?= $gt['id'] ?>" 
+                                                             aria-expanded="false" 
+                                                             aria-controls="collapse-tx-<?= $gt['id'] ?>"
+                                                             style="font-size: 0.78rem;">
+                                                         Lihat Rincian & Suara <i class="fas fa-chevron-down ms-1"></i>
+                                                     </button>
+                                                 </div>
+
+                                                 <!-- Collapsible Content -->
+                                                 <div class="collapse" id="collapse-tx-<?= $gt['id'] ?>">
+                                                     <div class="mt-3 pt-3 border-top" style="border-color: #f1f5f9 !important;">
+                                                         
+                                                         <!-- Rincian Distribusi -->
+                                                         <?php if (!empty($gt['distributions'])): ?>
+                                                             <div class="mb-3">
+                                                                 <div class="fw-bold text-dark mb-2" style="font-size: 0.78rem;">
+                                                                     <i class="fas fa-share-alt me-1.5 text-primary"></i> Rincian Distribusi Dana
+                                                                 </div>
+                                                                 <div class="table-responsive rounded-3 border bg-light overflow-hidden" style="border-color: #e2e8f0 !important;">
+                                                                     <table class="table table-sm table-hover mb-0" style="font-size: 0.78rem; background: #ffffff;">
+                                                                         <thead>
+                                                                             <tr style="background: #f8fafc;">
+                                                                                 <th class="ps-3 py-2 text-muted" style="font-weight: 700; font-size: 0.68rem; text-transform: uppercase;">Penerima</th>
+                                                                                 <th class="py-2 text-muted" style="font-weight: 700; font-size: 0.68rem; text-transform: uppercase;">Peran</th>
+                                                                                 <th class="py-2 text-end pe-3 text-muted" style="font-weight: 700; font-size: 0.68rem; text-transform: uppercase;">Jumlah</th>
+                                                                             </tr>
+                                                                         </thead>
+                                                                         <tbody>
+                                                                             <?php foreach ($gt['distributions'] as $dist): ?>
+                                                                                 <tr>
+                                                                                     <td class="ps-3 fw-semibold text-dark"><?= esc($dist['name'] ?? $dist['tukang_name'] ?? '-') ?></td>
+                                                                                     <td>
+                                                                                         <?php if (!empty($dist['role']) && $dist['role'] === 'mandor'): ?>
+                                                                                             <span class="badge" style="background:#fffbeb; color:#d97706; border:1px solid #fde68a; font-size:0.6rem; padding: 2px 6px;">Mandor</span>
+                                                                                         <?php else: ?>
+                                                                                             <span class="badge" style="background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-size:0.6rem; padding: 2px 6px;">Tukang</span>
+                                                                                         <?php endif; ?>
+                                                                                     </td>
+                                                                                     <td class="text-end pe-3 fw-bold text-dark">Rp <?= number_format((float)($dist['amount'] ?? 0), 0, ',', '.') ?></td>
+                                                                                 </tr>
+                                                                             <?php endforeach; ?>
+                                                                         </tbody>
+                                                                     </table>
+                                                                 </div>
+                                                             </div>
+                                                         <?php endif; ?>
+
+                                                         <!-- Status Voting Anggota -->
+                                                         <div>
+                                                             <div class="fw-bold text-dark mb-2" style="font-size: 0.78rem;">
+                                                                 <i class="fas fa-vote-yea me-1.5 text-primary"></i> Status Voting Anggota
+                                                             </div>
+                                                             <?php if (empty($gt['approvals'])): ?>
+                                                                 <div class="text-center py-3 text-muted bg-light rounded-3 border" style="border-color:#e2e8f0!important; font-size: 0.75rem;">
+                                                                     Belum ada suara masuk.
+                                                                 </div>
+                                                             <?php else: ?>
+                                                                 <?php foreach ($gt['approvals'] as $vote):
+                                                                     $voteColor = $vote['vote'] === 'approved' ? '#16a34a' : '#dc2626';
+                                                                     $voteBg    = $vote['vote'] === 'approved' ? '#f0fdf4' : '#fef2f2';
+                                                                     $voteIcon  = $vote['vote'] === 'approved' ? 'fa-check' : 'fa-times';
+                                                                     $voteLabel = $vote['vote'] === 'approved' ? 'Approved' : 'Rejected';
+                                                                 ?>
+                                                                     <div class="d-flex align-items-center justify-content-between p-2 mb-2 rounded border bg-white" style="border-color: #e2e8f0 !important; font-size: 0.78rem;">
+                                                                         <div class="d-flex align-items-center gap-2">
+                                                                             <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 24px; height: 24px; background: <?= $voteBg ?>; color: <?= $voteColor ?>; font-size: 0.65rem;">
+                                                                                 <?= strtoupper(substr($vote['voter_name'], 0, 1)) ?>
+                                                                             </div>
+                                                                             <div>
+                                                                                 <div class="fw-semibold text-dark" style="font-size: 0.78rem;"><?= esc($vote['voter_name']) ?></div>
+                                                                                 <div class="text-muted" style="font-size: 0.65rem;"><?= $vote['voter_role'] === 'mandor' ? 'Mandor' : 'Tukang' ?></div>
+                                                                             </div>
+                                                                         </div>
+                                                                         <span class="badge fw-bold" style="background: <?= $voteBg ?>; color: <?= $voteColor ?>; border: 1px solid <?= $voteColor ?>30; font-size: 0.65rem;">
+                                                                             <i class="fas <?= $voteIcon ?> me-1"></i><?= $voteLabel ?>
+                                                                         </span>
+                                                                     </div>
+                                                                 <?php endforeach; ?>
+                                                             <?php endif; ?>
+                                                         </div>
+
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                 <?php
+                                     endforeach;
+                                 endif;
+                                 ?>
+                             </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-top pt-3 pb-4 px-4" style="border-color: #f1f5f9 !important;">

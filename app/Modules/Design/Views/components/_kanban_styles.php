@@ -34,86 +34,101 @@
         min-width: 290px;
         max-width: 350px;
         background: #f8fafc;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        border-radius: 20px;
+        border: 1px solid #edf2f7;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.02), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
         display: flex;
         flex-direction: column;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        max-height: 82vh;
     }
 
-    /* Hanya kolom Selesai (DONE) yang memiliki batasan tinggi dan overflow */
-    .kanban-column.done {
-        max-height: 80vh;
-        overflow: hidden;
+    .kanban-column:hover {
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 10px 10px -5px rgba(15, 23, 42, 0.03);
+        border-color: #cbd5e1;
+    }
+
+    /* Kolom TINJAUAN: tampilkan visual disabled karena tidak bisa di-drag masuk manual */
+    .kanban-column.review {
+        position: relative;
     }
 
     .kanban-column.drag-over {
-        border-color: var(--palette-primary);
-        background: rgba(255, 92, 92, 0.02);
-        box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.1);
+        border-color: var(--palette-primary) !important;
+        background: rgba(255, 92, 92, 0.02) !important;
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.08) !important;
     }
 
     /* Column Header */
     .kanban-column-header {
-        padding: 16px 20px;
+        padding: 20px 24px 14px 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 2px solid transparent;
         background: #ffffff;
-        border-top-left-radius: 15px;
-        border-top-right-radius: 15px;
     }
 
     .kanban-column-title {
-        font-size: 0.88rem;
-        font-weight: 750;
+        font-size: 0.92rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #475569;
+        letter-spacing: 0.6px;
+        color: #334155;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
     .kanban-column-count {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 800;
-        background: #f1f5f9;
-        color: #64748b;
-        padding: 2px 8px;
-        border-radius: 20px;
-        border: 1px solid #e2e8f0;
+        padding: 2px 10px;
+        border-radius: 50px;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
     }
 
-    /* Column Colors */
+    /* Column Accent Colors & Glowing Top Borders */
+    .kanban-column.pending {
+        border-top: 4px solid #f59e0b !important;
+        background: #fefce8 !important;
+    }
     .kanban-column.pending .kanban-column-header {
-        border-bottom-color: #f59e0b;
+        border-bottom-color: rgba(245, 158, 11, 0.08);
     }
     .kanban-column.pending .kanban-column-title {
-        color: #d97706;
+        color: #b45309;
     }
     .kanban-column.pending .kanban-column-count {
         background: #fef3c7;
-        color: #d97706;
+        color: #b45309;
         border-color: #fde68a;
     }
 
+    .kanban-column.progress-col {
+        border-top: 4px solid #3b82f6 !important;
+        background: #eff6ff !important;
+    }
     .kanban-column.progress-col .kanban-column-header {
-        border-bottom-color: #3b82f6;
+        border-bottom-color: rgba(59, 130, 246, 0.08);
     }
     .kanban-column.progress-col .kanban-column-title {
-        color: #2563eb;
+        color: #1d4ed8;
     }
     .kanban-column.progress-col .kanban-column-count {
         background: #dbeafe;
-        color: #2563eb;
+        color: #1d4ed8;
         border-color: #bfdbfe;
     }
 
+    .kanban-column.review {
+        border-top: 4px solid var(--palette-primary, #ff5c5c) !important;
+        background: #fef2f2 !important;
+    }
     .kanban-column.review .kanban-column-header {
-        border-bottom-color: var(--palette-primary, #e53935);
+        border-bottom-color: rgba(255, 92, 92, 0.08);
     }
     .kanban-column.review .kanban-column-title {
         color: var(--palette-primary, #e53935);
@@ -124,19 +139,23 @@
         border-color: #ffcccc;
     }
 
+    .kanban-column.done {
+        border-top: 4px solid #10b981 !important;
+        background: #f0fdf4 !important;
+    }
     .kanban-column.done .kanban-column-header {
-        border-bottom-color: #10b981;
+        border-bottom-color: rgba(16, 185, 129, 0.08);
     }
     .kanban-column.done .kanban-column-title {
-        color: #059669;
+        color: #047857;
     }
     .kanban-column.done .kanban-column-count {
         background: #d1fae5;
-        color: #059669;
+        color: #047857;
         border-color: #a7f3d0;
     }
 
-    /* Column Body (Scrollable Task List) */
+    /* Column Body (Scrollable Task List) — semua kolom scrollable */
     .kanban-column-body {
         padding: 16px;
         flex: 1;
@@ -144,33 +163,46 @@
         flex-direction: column;
         gap: 12px;
         min-height: 150px;
-        overflow: visible; /* Default tanpa scroll untuk pending, progress, dan review */
-    }
-
-    /* Scrollable hanya untuk kolom Selesai (done) */
-    .kanban-column.done .kanban-column-body {
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
     }
 
-    /* Mempercantik Scrollbar Kolom Selesai (done) */
-    .kanban-column.done .kanban-column-body::-webkit-scrollbar {
-        width: 6px;
+    .kanban-column-body::-webkit-scrollbar {
+        width: 5px;
     }
 
-    .kanban-column.done .kanban-column-body::-webkit-scrollbar-track {
-        background: rgba(16, 185, 129, 0.02);
+    .kanban-column-body::-webkit-scrollbar-track {
+        background: transparent;
         border-radius: 10px;
     }
 
+    .kanban-column-body::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        transition: background 0.2s ease;
+    }
+
+    .kanban-column-body::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.22);
+    }
+
+    /* Scrollbar warna hijau khusus kolom Selesai (done) */
     .kanban-column.done .kanban-column-body::-webkit-scrollbar-thumb {
-        background: rgba(16, 185, 129, 0.25);
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        transition: background 0.25s ease;
+        background: rgba(16, 185, 129, 0.3);
     }
 
     .kanban-column.done .kanban-column-body::-webkit-scrollbar-thumb:hover {
-        background: rgba(16, 185, 129, 0.5);
+        background: rgba(16, 185, 129, 0.55);
+    }
+
+    /* Scrollbar warna merah untuk kolom Tinjauan (review) */
+    .kanban-column.review .kanban-column-body::-webkit-scrollbar-thumb {
+        background: rgba(229, 57, 53, 0.25);
+    }
+
+    .kanban-column.review .kanban-column-body::-webkit-scrollbar-thumb:hover {
+        background: rgba(229, 57, 53, 0.5);
     }
 
     /* Empty state */
@@ -191,22 +223,22 @@
     /* ===== KANBAN CARD ===== */
     .kanban-card {
         background: #ffffff;
-        border-radius: 12px;
+        border-radius: 16px;
         border: 1px solid #edf2f7;
-        padding: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.02);
         cursor: grab;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
     }
 
     .kanban-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-        border-color: #cbd5e1;
+        transform: translateY(-4px) scale(1.005);
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.06), 0 10px 10px -5px rgba(15, 23, 42, 0.02) !important;
+        border-color: var(--palette-primary, #ff5c5c) !important;
     }
 
     .kanban-card:active {
@@ -216,7 +248,7 @@
     /* SortableJS Drag Ghosting Styling */
     .sortable-ghost {
         opacity: 0.4;
-        background: rgba(229, 57, 53, 0.05);
+        background: rgba(255, 92, 92, 0.05);
         border: 2px dashed var(--palette-primary);
     }
 
@@ -228,19 +260,19 @@
 
     /* Card Details */
     .kanban-card-title {
-        font-size: 1.05rem;
+        font-size: 0.94rem;
         font-weight: 800;
         color: #1e293b;
-        line-height: 1.35;
-        margin-bottom: 8px;
+        line-height: 1.4;
         word-wrap: break-word;
     }
 
     .kanban-card-concept {
-        font-size: 0.76rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 800;
         color: var(--palette-primary);
-        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         display: flex;
         align-items: center;
         gap: 4px;
@@ -251,7 +283,7 @@
         justify-content: space-between;
         font-size: 0.72rem;
         color: #64748b;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         padding-bottom: 8px;
         border-bottom: 1px solid #f1f5f9;
     }
@@ -264,20 +296,25 @@
 
     /* Designer select picker in card */
     .kanban-card-designer-wrapper {
-        margin-top: 10px;
+        margin-top: 6px;
     }
 
     .kanban-card-designer-select {
-        font-size: 0.75rem !important;
-        font-weight: 600 !important;
-        padding: 5px 8px !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        padding: 6px 10px !important;
         height: auto !important;
-        border-radius: 8px !important;
-        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        border: 1.2px solid #cbd5e1 !important;
         background-color: #f8fafc !important;
-        color: #475569 !important;
+        color: #334155 !important;
         cursor: pointer;
         transition: all 0.2s ease;
+    }
+
+    .kanban-card-designer-select:hover {
+        background-color: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
     }
 
     .kanban-card-designer-select:focus {
@@ -291,61 +328,71 @@
         font-size: 0.65rem;
         font-weight: 850;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        margin-bottom: 8px;
+        letter-spacing: 0.6px;
+        padding: 3px 8px;
+        border-radius: 6px;
         display: inline-block;
     }
 
     /* Client Highlight Badge */
     .kanban-card-client-badge {
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 700;
         color: #475569;
-        background: #f8fafc;
-        border-radius: 8px;
-        padding: 6px 10px;
-        margin-bottom: 10px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        padding: 6px 12px;
+        margin-bottom: 2px;
         display: flex;
         align-items: center;
         gap: 6px;
-        border: 1px solid #e2e8f0;
+        border: none;
+        transition: all 0.25s ease;
+    }
+
+    .kanban-card:hover .kanban-card-client-badge {
+        background: rgba(255, 92, 92, 0.04);
+        color: var(--palette-primary, #ff5c5c);
     }
 
     .kanban-card-client-badge i {
         color: var(--palette-primary, #e53935);
-        font-size: 0.88rem;
+        font-size: 0.82rem;
     }
 
     .kanban-card-client-badge .client-name {
         font-weight: 800;
-        color: #0f172a;
+        color: #1e293b;
     }
 
     .badge-pending {
-        background: #fef3c7;
+        background: #fffbeb;
         color: #d97706;
+        border: 1px solid #fde68a;
     }
 
     .badge-progress {
-        background: #dbeafe;
+        background: #eff6ff;
         color: #2563eb;
+        border: 1px solid #bfdbfe;
     }
 
     .badge-review {
         background: #ffe5e5;
         color: var(--palette-primary);
+        border: 1px solid #ffcccc;
     }
 
     .badge-revisi {
-        background: #fee2e2;
-        color: #ef4444;
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
     }
 
     .badge-done {
-        background: #d1fae5;
+        background: #ecfdf5;
         color: #059669;
+        border: 1px solid #a7f3d0;
     }
 
     /* Floating action buttons inside cards */
@@ -354,28 +401,29 @@
         justify-content: flex-end;
         align-items: center;
         gap: 6px;
-        margin-top: 10px;
+        margin-top: 6px;
     }
 
     .btn-kanban-action {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
         background: #f1f5f9;
         color: #64748b;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         border: none;
-        transition: all 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         text-decoration: none;
     }
 
     .btn-kanban-action:hover {
-        background: var(--palette-primary);
+        background: var(--palette-primary, #ff5c5c);
         color: #ffffff;
-        transform: translateY(-1px);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 10px rgba(255, 92, 92, 0.25);
     }
 
     /* GLIGHTBOX PREVIEW ROW (Awaiting Review Cards) */
@@ -712,5 +760,223 @@
         align-items: center;
         gap: 4px;
         margin-left: 10px;
+    }
+
+    /* ===== Dropzone Area Style ===== */
+    .dropzone-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        position: relative;
+    }
+
+    .dropzone-area:hover,
+    .dropzone-area.dragover {
+        border-color: var(--palette-primary, #ff5c5c);
+        background: #f1f5f9;
+        box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.1);
+    }
+
+    .dropzone-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: #e2e8f0;
+        border-radius: 50%;
+        color: #64748b;
+        font-size: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .dropzone-area:hover .dropzone-icon-wrapper,
+    .dropzone-area.dragover .dropzone-icon-wrapper {
+        background: rgba(255, 92, 92, 0.1);
+        color: var(--palette-primary, #ff5c5c);
+    }
+
+    .dropzone-area:hover .dropzone-icon-wrapper i,
+    .dropzone-area.dragover .dropzone-icon-wrapper i {
+        color: var(--palette-primary, #ff5c5c) !important;
+    }
+
+    /* ===== Upload Previews in Modal ===== */
+    .preview-files-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .preview-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .preview-item:hover {
+        border-color: var(--palette-primary, #ff5c5c);
+        background: #f1f5f9;
+    }
+
+    .preview-item-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        flex-grow: 1;
+    }
+
+    .preview-thumb-container {
+        width: 42px;
+        height: 42px;
+        border-radius: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #cbd5e1;
+    }
+
+    .preview-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-file-details {
+        min-width: 0;
+        flex-grow: 1;
+    }
+
+    .preview-file-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .preview-file-size {
+        font-size: 10px;
+        color: #64748b;
+        margin-top: 1px;
+    }
+
+    .btn-remove-preview {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    .btn-remove-preview:hover {
+        background: #ef4444;
+        color: #fff;
+        transform: scale(1.1);
+    }
+
+    /* ===== Custom Scrollbar for Modal Results List ===== */
+    .design-results-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .design-results-list::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 8px;
+    }
+
+    .design-results-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 8px;
+        transition: background 0.2s ease;
+    }
+
+    .design-results-list::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* ===== Premium Modal Info Cards (Pending status) ===== */
+    .modal-info-card {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s ease;
+        height: 100%;
+    }
+
+    .modal-info-card:hover {
+        border-color: var(--palette-primary, #ff5c5c);
+        background: #fffdfd;
+        box-shadow: 0 4px 12px rgba(255, 92, 92, 0.04);
+    }
+
+    .modal-info-card-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .modal-info-card-icon.client {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+
+    .modal-info-card-icon.designer {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .modal-info-card-icon.schedule {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .modal-info-card-content {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .modal-info-card-label {
+        font-size: 8px;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 800;
+        margin-bottom: 2px;
+    }
+
+    .modal-info-card-value {
+        font-size: 12px;
+        color: #1e293b;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
