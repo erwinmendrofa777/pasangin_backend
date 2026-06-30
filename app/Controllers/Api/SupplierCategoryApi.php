@@ -28,27 +28,24 @@ class SupplierCategoryApi extends ResourceController
     public function index()
     {
         $supplierId = $this->getSupplierId();
-        if (!$supplierId)
-            return $this->failUnauthorized('pengguna tidak valid.');
+        if (!$supplierId) {
+            return $this->failUnauthorized('Pengguna tidak valid.');
+        }
 
-        $model = new CategoryModel();
+        try {
+            $model = new CategoryModel();
+            $data = $model->where('supplier_id', $supplierId)
+                ->orderBy('name', 'ASC')
+                ->findAll();
 
-        $data = $model->where('supplier_id', $supplierId)
-            ->orderBy('name', 'ASC')
-            ->findAll();
-
-        if ($data) {
             return $this->respond([
-                'status' => true,
-                'message' => 'list kategori supplier',
-                'data' => $data
+                'status'  => true,
+                'message' => empty($data) ? 'Belum ada kategori untuk supplier ini' : 'List kategori supplier',
+                'data'    => $data
             ]);
-        } else {
-            return $this->respond([
-                'status' => true,
-                'message' => 'Belum ada kategori untuk supplier ini',
-                'data' => $data
-            ]);
+        } catch (\Throwable $e) {
+            log_message('error', $e->getMessage());
+            return $this->failServerError('Terjadi kesalahan saat mengambil data kategori.');
         }
     }
 
