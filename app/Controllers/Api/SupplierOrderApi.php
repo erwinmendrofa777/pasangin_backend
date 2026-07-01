@@ -55,7 +55,7 @@ class SupplierOrderApi extends BaseController
         foreach ($orders as &$order) {
             // Ambil item produk khusus milik supplier ini di tiap order
             $order['items'] = $this->db->table('order_items')
-                ->select('order_items.*, products.name as product_name, products.photo')
+                ->select('order_items.*, products.name as product_name, products.photo, products.unit as product_unit')
                 ->join('products', 'products.id = order_items.product_id')
                 ->where('order_items.order_id', $order['id'])
                 ->where('products.supplier_id', $supplierId)
