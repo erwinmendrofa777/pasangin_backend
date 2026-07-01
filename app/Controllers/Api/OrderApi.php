@@ -299,7 +299,7 @@ class OrderApi extends BaseController
 
 
         $orders = $this->db->table('orders')
-            ->select('orders.id, orders.transaction_id, orders.order_id, orders.status, orders.created_at, orders.recipient_name, orders.recipient_phone, orders.shipping_address, orders.total_price, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, transactions.id as id_transaction, transactions.total_amount as transaction_total_amount')
+            ->select('orders.id, orders.transaction_id, orders.order_id, orders.status, orders.delivery_photo, orders.delivery_notes, orders.mandor_confirmed_at, orders.client_confirmed_at, orders.created_at, orders.recipient_name, orders.recipient_phone, orders.shipping_address, orders.total_price, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, transactions.id as id_transaction, transactions.total_amount as transaction_total_amount')
             ->join('transactions', 'transactions.transaction_id = orders.transaction_id')
             ->where('orders.user_id', $userId)
             ->orderBy('orders.id', 'DESC')
@@ -307,6 +307,12 @@ class OrderApi extends BaseController
             ->getResultArray();
 
         foreach ($orders as &$order) {
+            if (!empty($order['delivery_photo'])) {
+                $order['delivery_photo_url'] = base_url('uploads/deliveries/' . $order['delivery_photo']);
+            } else {
+                $order['delivery_photo_url'] = null;
+            }
+
             $order['items'] = $this->db->table('order_items')
                 ->select('order_items.quantity, order_items.price, products.name, products.photo')
                 ->join('products', 'products.id = order_items.product_id')
@@ -333,7 +339,7 @@ class OrderApi extends BaseController
     {
         //tambahkan informasi pesanan ini menggunakan voucher apa, berapa potongan harga, total sebelum diskon, total setelah diskon.
         $data = $this->db->table('order_items')
-            ->select('order_items.*, orders.voucher_code, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, products.name, products.photo')
+            ->select('order_items.*, orders.voucher_code, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, orders.delivery_photo, orders.delivery_notes, orders.mandor_confirmed_at, orders.client_confirmed_at, products.name, products.photo')
             ->join('products', 'products.id = order_items.product_id')
             ->join('orders', 'orders.id = order_items.order_id')
             ->where('order_items.order_id', $orderId)
@@ -341,6 +347,11 @@ class OrderApi extends BaseController
 
         foreach ($data as &$item) {
             $item['image_url'] = base_url('uploads/products/' . ($item['photo'] ?? 'default.png'));
+            if (!empty($item['delivery_photo'])) {
+                $item['delivery_photo_url'] = base_url('uploads/deliveries/' . $item['delivery_photo']);
+            } else {
+                $item['delivery_photo_url'] = null;
+            }
         }
 
         return $this->respond([
@@ -895,7 +906,7 @@ class OrderApi extends BaseController
 
         // 2. Ambil list pesanan berstatus SHIPPED yang terikat dengan proyek-proyek tersebut
         $orders = $this->db->table('orders')
-            ->select('orders.id as order_id, orders.order_id as order_code, orders.created_at, construction_invoices.construction_id as project_id')
+            ->select('orders.id as order_id, orders.order_id as order_code, orders.created_at, orders.updated_at, construction_invoices.construction_id as project_id')
             ->select("'construction' as project_type", false)
             ->join('construction_invoices', 'construction_invoices.id = orders.construction_invoice_id')
             ->join('construction_requests', 'construction_requests.id = construction_invoices.construction_id')
@@ -921,10 +932,116 @@ class OrderApi extends BaseController
 
             $order['supplier_name'] = $supplier ? $supplier->supplier_name : 'Toko Bangunan';
 
-            // Gunakan created_at sebagai shipped_at
-            $order['shipped_at'] = date('Y-m-d\TH:i:s\Z', strtotime($order['created_at']));
+            // Gunakan updated_at sebagai shipped_at jika tersedia, jika tidak created_at
+            $shippedTime = !empty($order['updated_at']) ? $order['updated_at'] : $order['created_at'];
+            $order['shipped_at'] = date('Y-m-d\TH:i:s\Z', strtotime($shippedTime));
 
             unset($order['created_at']);
+            unset($order['updated_at']);
+
+            // Ambil items detail
+            $items = $this->db->table('order_items')
+                ->select('products.name as material_name, order_items.quantity, products.unit')
+                ->join('products', 'products.id = order_items.product_id')
+                ->where('order_items.order_id', $order['order_id'])
+                ->get()
+                ->getResultArray();
+
+            foreach ($items as &$item) {
+                $item['quantity'] = (int) $item['quantity'];
+                $item['unit'] = $item['unit'] ?? 'pcs';
+            }
+
+            $order['items'] = $items;
+        }
+
+        return $this->respond([
+            'status' => true,
+            'data' => $orders
+        ]);
+    }
+
+    /**
+     * Mengambil riwayat pesanan (ARRIVED, COMPLETED) untuk proyek mandor yang login
+     * GET /api/orders/mandor-history
+     */
+    public function mandorHistory()
+    {
+        $user = $this->request->user;
+        if (!in_array($user->role, ['tukang', 'mandor'])) {
+            return $this->failForbidden('Akses khusus mandor atau tukang.');
+        }
+
+        $tukangId = $user->uid;
+
+        // 1. Ambil list construction_id proyek aktif yang ditugaskan ke mandor ini
+        $projectIds = $this->db->table('job_applications')
+            ->select('project_id')
+            ->where('tukang_id', $tukangId)
+            ->where('status', 'Siap Kerja')
+            ->where('project_type', 'construction')
+            ->get()
+            ->getResultArray();
+
+        if (empty($projectIds)) {
+            return $this->respond([
+                'status' => true,
+                'data' => []
+            ]);
+        }
+
+        $ids = array_column($projectIds, 'project_id');
+
+        // 2. Ambil list pesanan yang terikat dengan proyek-proyek tersebut
+        $builder = $this->db->table('orders')
+            ->select('orders.id as order_id, orders.order_id as order_code, orders.status, orders.delivery_photo, orders.delivery_notes, orders.mandor_confirmed_at, orders.client_confirmed_at, orders.created_at, orders.updated_at, construction_invoices.construction_id as project_id')
+            ->select("'construction' as project_type", false)
+            ->join('construction_invoices', 'construction_invoices.id = orders.construction_invoice_id')
+            ->join('construction_requests', 'construction_requests.id = construction_invoices.construction_id')
+            ->whereIn('construction_invoices.construction_id', $ids);
+
+        // Filter status berdasarkan query param, default ARRIVED dan COMPLETED
+        $statusParam = $this->request->getVar('status');
+        if (!empty($statusParam)) {
+            $statuses = explode(',', $statusParam);
+            $builder->whereIn('orders.status', $statuses);
+        } else {
+            $builder->whereIn('orders.status', ['ARRIVED', 'COMPLETED']);
+        }
+
+        $orders = $builder->orderBy('orders.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        // 3. Lengkapi detail supplier_name, shipped_at, delivery_photo_url, dan items
+        foreach ($orders as &$order) {
+            $order['order_id'] = (int) $order['order_id'];
+            $order['project_id'] = (int) $order['project_id'];
+
+            // Ambil supplier name dari item pertama order
+            $supplier = $this->db->table('order_items')
+                ->select('suppliers.name as supplier_name')
+                ->join('products', 'products.id = order_items.product_id')
+                ->join('suppliers', 'suppliers.id = products.supplier_id')
+                ->where('order_items.order_id', $order['order_id'])
+                ->get()
+                ->getRow();
+
+            $order['supplier_name'] = $supplier ? $supplier->supplier_name : 'Toko Bangunan';
+
+            // Gunakan updated_at sebagai shipped_at jika tersedia, jika tidak created_at
+            $shippedTime = !empty($order['updated_at']) ? $order['updated_at'] : $order['created_at'];
+            $order['shipped_at'] = date('Y-m-d\TH:i:s\Z', strtotime($shippedTime));
+
+            unset($order['created_at']);
+            unset($order['updated_at']);
+
+            // URL foto bukti pengiriman
+            if (!empty($order['delivery_photo'])) {
+                $order['delivery_photo_url'] = base_url('uploads/deliveries/' . $order['delivery_photo']);
+            } else {
+                $order['delivery_photo_url'] = null;
+            }
 
             // Ambil items detail
             $items = $this->db->table('order_items')
