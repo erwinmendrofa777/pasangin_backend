@@ -339,7 +339,7 @@ class OrderApi extends BaseController
     {
         //tambahkan informasi pesanan ini menggunakan voucher apa, berapa potongan harga, total sebelum diskon, total setelah diskon.
         $data = $this->db->table('order_items')
-            ->select('order_items.*, orders.voucher_code, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, orders.delivery_photo, orders.delivery_notes, orders.mandor_confirmed_at, orders.client_confirmed_at, products.name, products.photo')
+            ->select('order_items.*, orders.status, orders.order_id as order_code, orders.construction_invoice_id, orders.voucher_code, orders.discount_amount, orders.tax_amount, orders.app_fee, orders.shipping_fee, orders.delivery_photo, orders.delivery_notes, orders.mandor_confirmed_at, orders.client_confirmed_at, products.name, products.photo')
             ->join('products', 'products.id = order_items.product_id')
             ->join('orders', 'orders.id = order_items.order_id')
             ->where('order_items.order_id', $orderId)
