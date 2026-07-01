@@ -348,6 +348,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
 
     // Resource CRUD
     $routes->resource('products', ['controller' => 'ProductApi', 'except' => ['index', 'regions', 'show']]);
+    $routes->post('products/(:num)', 'ProductApi::update/$1');
     $routes->post('products/ratings/create', 'ProductApi::createRating');
     $routes->get('products/ratings/(:num)', 'ProductApi::showrating/$1');
     $routes->get('products/ratings/supplier', 'ProductApi::showRatingBySupplier');
