@@ -18,13 +18,52 @@ class ProductApi extends ResourceController
         $this->productsRatingModel = new ProductsRatingModel();
     }
     /**
-     * HELPER: Mendapatkan ID Supplier (Hanya untuk Tambah/Update/Hapus/List Saya)
+     * HELPER: Mendapatkan ID Supplier (Mendukung Supplier itu sendiri & Sales yang mengelolanya)
      */
     private function getSupplierId()
     {
-        if (isset($this->request->user) && $this->request->user->role === 'supplier') {
-            return $this->request->user->uid;
+        if (!isset($this->request->user) && !session()->get('isLoggedIn')) {
+            return null;
         }
+
+        // Ambil data user aktif (dari JWT atau Session Dashboard)
+        $role = null;
+        $userId = null;
+
+        if (isset($this->request->user)) {
+            $role = $this->request->user->role;
+            $userId = $this->request->user->uid;
+        } elseif (session()->get('isLoggedIn')) {
+            $role = session()->get('role');
+            $userId = session()->get('user_id');
+        }
+
+        // 1. Jika pengguna adalah Supplier, kembalikan ID dirinya sendiri
+        if ($role === 'supplier') {
+            return $userId;
+        }
+
+        // 2. Jika pengguna adalah Sales
+        if ($role === 'sales') {
+            // Sales harus menyertakan target supplier_id dalam parameter request
+            $targetSupplierId = $this->request->getVar('supplier_id');
+
+            if (empty($targetSupplierId)) {
+                return null;
+            }
+
+            // Validasi apakah Supplier tersebut berada di bawah kelolaan Sales ini
+            $db = \Config\Database::connect();
+            $isAuthorized = $db->table('suppliers')
+                ->where('id', $targetSupplierId)
+                ->where('sales_id', $userId)
+                ->countAllResults() > 0;
+
+            if ($isAuthorized) {
+                return (int) $targetSupplierId;
+            }
+        }
+
         return null;
     }
 

@@ -219,6 +219,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api', 'filter' => 'auth']
     $routes->get('supplier/withdrawals', 'SupplierOrderApi::withdrawalHistory');
     $routes->get('supplier/transactions', 'SupplierOrderApi::transactionHistory');
     $routes->post('supplier/change-password', 'SupplierAuthController::changePassword');
+    $routes->post('supplier/referral/generate', 'SalesAssistanceController::generateReferralCode');
 
     // API promo supplier
     $routes->get('supplier/promos', 'PromoApi::index');

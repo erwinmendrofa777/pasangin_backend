@@ -26,4 +26,16 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Suppli
     $routes->get('promo/detail/(:num)', 'PromoController::detail/$1');
     $routes->post('promo/update_status/(:num)/(:alpha)', 'PromoController::update_status/$1/$2');
     $routes->get('promo/delete/(:num)', 'PromoController::delete/$1');
+
+    // Sales Assistance Web UI
+    $routes->get('sales/claim', 'SalesSupplierController::claimView');
+    $routes->post('sales/claim', 'SalesSupplierController::claimProcess');
+    $routes->get('sales/suppliers', 'SalesSupplierController::mySuppliers');
+    $routes->get('sales/suppliers/(:num)/products', 'SalesSupplierController::supplierProducts/$1');
+    $routes->get('sales/suppliers/(:num)/products-ajax', 'SalesSupplierController::supplierProductsAjax/$1');
+    $routes->get('sales/suppliers/(:num)/products/create', 'SalesSupplierController::createProduct/$1');
+    $routes->post('sales/suppliers/(:num)/products/store', 'SalesSupplierController::storeProduct/$1');
+    $routes->get('sales/suppliers/(:num)/products/edit/(:num)', 'SalesSupplierController::editProduct/$1/$2');
+    $routes->post('sales/suppliers/(:num)/products/update/(:num)', 'SalesSupplierController::updateProduct/$1/$2');
+    $routes->get('sales/suppliers/(:num)/products/delete/(:num)', 'SalesSupplierController::deleteProduct/$1/$2');
 });

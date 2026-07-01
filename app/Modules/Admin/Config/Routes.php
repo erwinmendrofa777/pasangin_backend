@@ -3,6 +3,7 @@
 $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Admin\Controllers\Admin'], static function ($routes) {
     // MENU ADMIN (PEGAWAI)
     $routes->get('admin', 'AdminController::index');
+    $routes->post('sales/claim-supplier', '\App\Controllers\Api\SalesAssistanceController::claimSupplier');
     $routes->get('admin/create', 'AdminController::create');
     $routes->post('admin/store', 'AdminController::store');
     $routes->get('admin/edit/(:num)', 'AdminController::edit/$1');

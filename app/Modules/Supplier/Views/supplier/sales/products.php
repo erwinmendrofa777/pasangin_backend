@@ -1,0 +1,175 @@
+<?= $this->extend('layout/app') ?>
+
+<?= $this->section('title') ?>
+Kelola Produk - <?= esc($supplier['name']) ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('style') ?>
+<style>
+    .product-img-thumb {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    .badge-status {
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('content') ?>
+<section class="section">
+    <div class="section-header d-flex justify-content-between align-items-center">
+        <h1>Kelola Produk - <?= esc($supplier['name']) ?></h1>
+        <div>
+            <a href="<?= site_url('admin/sales/suppliers') ?>" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Supplier
+            </a>
+            <a href="<?= site_url('admin/sales/suppliers/' . $supplier['id'] . '/products/create') ?>" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Tambah Produk Baru
+            </a>
+        </div>
+    </div>
+
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible show fade">
+            <div class="alert-body">
+                <button class="close" data-bs-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+                <?= session()->getFlashdata('success') ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible show fade">
+            <div class="alert-body">
+                <button class="close" data-bs-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+                <?= session()->getFlashdata('error') ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <div class="section-body">
+        <div class="card shadow-sm" style="border-radius: 14px; overflow: hidden;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-md align-middle mb-0">
+                        <thead>
+                            <tr class="table-light">
+                                <th class="text-center" style="width: 80px;">Foto</th>
+                                <th>Nama Produk</th>
+                                <th>Kategori</th>
+                                <th class="text-end">Harga</th>
+                                <th class="text-center">Stok</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Verifikasi Admin</th>
+                                <th class="text-center" style="width: 120px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($products)): ?>
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
+                                        Belum ada produk terdaftar untuk supplier ini.
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($products as $p): ?>
+                                    <tr>
+                                        <td class="text-center">
+                                            <img src="<?= base_url('uploads/products/' . ($p['photo'] ?? 'default.png')) ?>" alt="Foto" class="product-img-thumb">
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-dark d-block"><?= esc($p['name']) ?></span>
+                                            <small class="text-muted"><?= esc($p['unit'] ?? 'pcs') ?> | Min. Order: <?= esc($p['min_order'] ?? 1) ?></small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border"><?= esc($p['category_name'] ?? 'Tanpa Kategori') ?></span>
+                                        </td>
+                                        <td class="text-end fw-bold text-dark">
+                                            Rp <?= number_format($p['price'], 0, ',', '.') ?>
+                                        </td>
+                                        <td class="text-center fw-bold">
+                                            <?= esc($p['stock']) ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if ($p['status'] === 'aktif'): ?>
+                                                <span class="badge bg-success badge-status text-white">Aktif</span>
+                                            <?php elseif ($p['status'] === 'habis'): ?>
+                                                <span class="badge bg-warning badge-status text-white">Habis</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary badge-status text-white">Tidak Aktif</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if ($p['approval_status'] === 'approved'): ?>
+                                                <span class="badge bg-success badge-status text-white"><i class="fas fa-check-circle me-1"></i> Disetujui</span>
+                                            <?php elseif ($p['approval_status'] === 'rejected'): ?>
+                                                <span class="badge bg-danger badge-status text-white"><i class="fas fa-times-circle me-1"></i> Ditolak</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning badge-status text-white"><i class="fas fa-clock me-1"></i> Pending</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="<?= site_url('admin/sales/suppliers/' . $supplier['id'] . '/products/edit/' . $p['id']) ?>" class="btn btn-warning btn-action me-1" title="Edit Produk">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-danger btn-action btn-delete-product" data-url="<?= site_url('admin/sales/suppliers/' . $supplier['id'] . '/products/delete/' . $p['id']) ?>" title="Hapus Produk">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?= $this->endSection() ?>
+
+<?= $this->section('script') ?>
+<script>
+    $(document).ready(function() {
+        $('.btn-delete-product').on('click', function() {
+            var url = $(this).data('url');
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Produk akan dihapus permanen dari toko supplier ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e53935',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+</script>
+<?= $this->endSection() ?>

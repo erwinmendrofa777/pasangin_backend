@@ -251,6 +251,14 @@ class RoleService
                 ],
             ],
             'AKSES' => [
+                'sales' => [
+                    'label' => 'Akses Menu Sales Agen',
+                    'actions' => [
+                        'sales_referrals' => 'Klaim / Hubungkan Supplier (Scan QR)',
+                        'sales_suppliers' => 'Melihat Daftar Supplier Saya',
+                        'sales_products'  => 'Mengelola / Input Produk Supplier Terhubung'
+                    ]
+                ],
                 'settings' => [
                     'label' => 'Akses Pengaturan Aplikasi',
                     'actions' => [

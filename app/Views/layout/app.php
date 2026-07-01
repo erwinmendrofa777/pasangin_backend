@@ -1005,6 +1005,15 @@
               </li>
             <?php endif; ?>
 
+            <!-- ============ SALES AGEN ============ -->
+            <?php if (session()->get('role') === 'sales'): ?>
+              <li class="menu-header">Sales Agen</li>
+              <li class="<?= ($seg2 == 'sales' && $uri->getTotalSegments() >= 3 && $uri->getSegment(3) === 'suppliers') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= site_url('admin/sales/suppliers') ?>"><i class="fas fa-store"></i>
+                  <span>Supplier Saya</span></a>
+              </li>
+            <?php endif; ?>
+
             <!-- ============ PROYEK ============ -->
             <?php if (canAny(['design', 'construction', 'renovation']) || $isAccounting || in_array(strtolower(session()->get('role') ?? ''), ['drafter', 'arsitek'])): ?>
               <?php if (strtolower(session()->get('role') ?? '') === 'kepala divisi desain'): ?>

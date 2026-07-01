@@ -34,7 +34,8 @@ class SupplierModel extends Model
         'total_ulasan',
         'status',
         'balance',
-        'fcm_token'
+        'fcm_token',
+        'sales_id'
     ];
 
     // === TIMESTAMPS (Sesuai Struktur Tabel) ===
