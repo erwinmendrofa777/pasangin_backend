@@ -895,7 +895,7 @@ class OrderApi extends BaseController
 
         // 2. Ambil list pesanan berstatus SHIPPED yang terikat dengan proyek-proyek tersebut
         $orders = $this->db->table('orders')
-            ->select('orders.id as order_id, orders.order_id as order_code, orders.created_at, orders.updated_at, construction_invoices.construction_id as project_id')
+            ->select('orders.id as order_id, orders.order_id as order_code, orders.created_at, construction_invoices.construction_id as project_id')
             ->select("'construction' as project_type", false)
             ->join('construction_invoices', 'construction_invoices.id = orders.construction_invoice_id')
             ->join('construction_requests', 'construction_requests.id = construction_invoices.construction_id')
@@ -921,12 +921,10 @@ class OrderApi extends BaseController
 
             $order['supplier_name'] = $supplier ? $supplier->supplier_name : 'Toko Bangunan';
 
-            // Gunakan updated_at sebagai shipped_at jika tersedia, jika tidak created_at
-            $shippedTime = !empty($order['updated_at']) ? $order['updated_at'] : $order['created_at'];
-            $order['shipped_at'] = date('Y-m-d\TH:i:s\Z', strtotime($shippedTime));
+            // Gunakan created_at sebagai shipped_at
+            $order['shipped_at'] = date('Y-m-d\TH:i:s\Z', strtotime($order['created_at']));
 
             unset($order['created_at']);
-            unset($order['updated_at']);
 
             // Ambil items detail
             $items = $this->db->table('order_items')
