@@ -371,6 +371,10 @@ class SupplierOrderApi extends BaseController
             "Status pesanan {$order->order_id} Anda telah diperbarui menjadi: " . strtoupper($status)
         );
 
+        if (strtoupper($status) === 'SHIPPED') {
+            $this->notifService->sendShippedNotificationToMandor((int) $id);
+        }
+
         return $this->respond(['status' => true, 'message' => 'Status pesanan berhasil diperbarui']);
     }
 

@@ -295,4 +295,60 @@ class NotificationService
 
         return [];
     }
+
+    /**
+     * Kirim push notification ke Mandor ketika status pesanan menjadi SHIPPED
+     */
+    public function sendShippedNotificationToMandor(int $orderId): void
+    {
+        $db = \Config\Database::connect();
+        
+        // 1. Ambil data order
+        $order = $db->table('orders')->where('id', $orderId)->get()->getRow();
+        if (!$order || empty($order->construction_invoice_id)) {
+            return;
+        }
+        
+        // 2. Ambil construction_id dari construction_invoices
+        $invoice = $db->table('construction_invoices')
+            ->where('id', $order->construction_invoice_id)
+            ->get()
+            ->getRow();
+        if (!$invoice || empty($invoice->construction_id)) {
+            return;
+        }
+        
+        $projectId = $invoice->construction_id;
+        
+        // 3. Cari mandor/tukang yang bertugas di proyek tersebut
+        $assignedTukangs = $db->table('job_applications')
+            ->where('project_id', $projectId)
+            ->where('project_type', 'construction')
+            ->where('status', 'Siap Kerja')
+            ->get()
+            ->getResultArray();
+            
+        foreach ($assignedTukangs as $app) {
+            $tukangId = $app['tukang_id'];
+            
+            // Simpan riwayat notifikasi ke database
+            $notifId = $this->notificationRepository->insert([
+                'target_type' => 'tukang',
+                'target_id' => $tukangId,
+                'title' => 'Material Sedang Dikirim',
+                'message' => "Material untuk pesanan {$order->order_id} sedang dalam perjalanan ke lokasi proyek.",
+                'image_url' => null,
+            ]);
+            
+            // Kirim push notification via FCM
+            $extra = [
+                'notification_id' => (string) $notifId,
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                'topic' => 'order',
+                'order_id' => (string) $orderId,
+            ];
+            
+            $this->notifyTukang((int) $tukangId, 'Material Sedang Dikirim', "Material untuk pesanan {$order->order_id} sedang dalam perjalanan ke lokasi proyek.", $extra, null, 'order');
+        }
+    }
 }

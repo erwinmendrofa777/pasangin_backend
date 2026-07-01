@@ -861,4 +861,92 @@ class OrderApi extends BaseController
             return $this->fail($e->getMessage());
         }
     }
+
+    /**
+     * Mengambil daftar pesanan dalam perjalanan (SHIPPED) untuk proyek mandor yang login
+     * GET /api/orders/shipped
+     */
+    public function shippedOrders()
+    {
+        $user = $this->request->user;
+        if (!in_array($user->role, ['tukang', 'mandor'])) {
+            return $this->failForbidden('Akses khusus mandor atau tukang.');
+        }
+
+        $tukangId = $user->uid;
+
+        // 1. Ambil list construction_id proyek aktif yang ditugaskan ke mandor ini
+        $projectIds = $this->db->table('job_applications')
+            ->select('project_id')
+            ->where('tukang_id', $tukangId)
+            ->where('status', 'Siap Kerja')
+            ->where('project_type', 'construction')
+            ->get()
+            ->getResultArray();
+
+        if (empty($projectIds)) {
+            return $this->respond([
+                'status' => true,
+                'data' => []
+            ]);
+        }
+
+        $ids = array_column($projectIds, 'project_id');
+
+        // 2. Ambil list pesanan berstatus SHIPPED yang terikat dengan proyek-proyek tersebut
+        $orders = $this->db->table('orders')
+            ->select('orders.id as order_id, orders.order_id as order_code, orders.created_at, orders.updated_at, construction_invoices.construction_id as project_id')
+            ->select("'construction' as project_type", false)
+            ->join('construction_invoices', 'construction_invoices.id = orders.construction_invoice_id')
+            ->join('construction_requests', 'construction_requests.id = construction_invoices.construction_id')
+            ->whereIn('construction_invoices.construction_id', $ids)
+            ->where('orders.status', 'SHIPPED')
+            ->orderBy('orders.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        // 3. Lengkapi detail supplier_name, shipped_at, dan items
+        foreach ($orders as &$order) {
+            $order['order_id'] = (int) $order['order_id'];
+            $order['project_id'] = (int) $order['project_id'];
+
+            // Ambil supplier name dari item pertama order
+            $supplier = $this->db->table('order_items')
+                ->select('suppliers.name as supplier_name')
+                ->join('products', 'products.id = order_items.product_id')
+                ->join('suppliers', 'suppliers.id = products.supplier_id')
+                ->where('order_items.order_id', $order['order_id'])
+                ->get()
+                ->getRow();
+
+            $order['supplier_name'] = $supplier ? $supplier->supplier_name : 'Toko Bangunan';
+
+            // Gunakan updated_at sebagai shipped_at jika tersedia, jika tidak created_at
+            $shippedTime = !empty($order['updated_at']) ? $order['updated_at'] : $order['created_at'];
+            $order['shipped_at'] = date('Y-m-d\TH:i:s\Z', strtotime($shippedTime));
+
+            unset($order['created_at']);
+            unset($order['updated_at']);
+
+            // Ambil items detail
+            $items = $this->db->table('order_items')
+                ->select('products.name as material_name, order_items.quantity, products.unit')
+                ->join('products', 'products.id = order_items.product_id')
+                ->where('order_items.order_id', $order['order_id'])
+                ->get()
+                ->getResultArray();
+
+            foreach ($items as &$item) {
+                $item['quantity'] = (int) $item['quantity'];
+                $item['unit'] = $item['unit'] ?? 'pcs';
+            }
+
+            $order['items'] = $items;
+        }
+
+        return $this->respond([
+            'status' => true,
+            'data' => $orders
+        ]);
+    }
 }

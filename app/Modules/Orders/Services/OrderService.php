@@ -101,5 +101,10 @@ class OrderService
         }
 
         $this->orderRepository->update($id, ['status' => $status]);
+
+        if (strtoupper($status) === 'SHIPPED') {
+            $notifService = new \App\Modules\Notifications\Services\NotificationService();
+            $notifService->sendShippedNotificationToMandor((int) $id);
+        }
     }
 }
