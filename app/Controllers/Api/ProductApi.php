@@ -416,6 +416,7 @@ class ProductApi extends ResourceController
                 'unit'                 => $input['unit'] ?? 'pcs',
                 'stock'                => $input['stock'],
                 'min_order'            => $input['min_order'] ?? 1,
+                'quantity'             => $input['quantity'] ?? 0,
                 'status'               => 'tidak aktif', // Awalnya wajib tidak aktif sampai disetujui admin
                 'approval_status'      => 'pending',     // Murni persetujuan admin
                 'photo'                => $photoName,

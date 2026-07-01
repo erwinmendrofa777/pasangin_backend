@@ -101,10 +101,10 @@
                     </div>
                 </div>
                 <div class="info-item">
-                    <div class="info-icon"><i class="fas fa-weight-hanging"></i></div>
+                    <div class="info-icon"><i class="fas fa-box"></i></div>
                     <div>
-                        <div class="info-label">Berat</div>
-                        <div class="info-value"><?= esc($product['weight'] ?? '0') ?> Gram</div>
+                        <div class="info-label">Quantity / Isi</div>
+                        <div class="info-value"><?= esc($product['quantity'] ?? '0') ?></div>
                     </div>
                 </div>
                 <div class="info-item">

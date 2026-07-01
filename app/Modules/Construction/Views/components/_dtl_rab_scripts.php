@@ -476,9 +476,9 @@
                                             <span class="badge bg-light text-secondary border d-inline-flex align-items-center gap-1" style="font-size: 9px; border-radius: 6px; border-color: #e2e8f0 !important;">
                                                 <i class="fas fa-shopping-cart" style="font-size: 8px;"></i> Min: ${rec.product_min_order} ${rec.product_unit || ''}
                                             </span>
-                                            ${rec.product_weight > 0 ? `
+                                            ${rec.product_quantity > 0 ? `
                                             <span class="badge bg-light text-secondary border d-inline-flex align-items-center gap-1" style="font-size: 9px; border-radius: 6px; border-color: #e2e8f0 !important;">
-                                                <i class="fas fa-weight-hanging" style="font-size: 8px;"></i> ${rec.product_weight} kg
+                                                <i class="fas fa-box" style="font-size: 8px;"></i> Isi: ${rec.product_quantity} ${rec.product_unit || ''}
                                             </span>` : ''}
                                         </div>
 

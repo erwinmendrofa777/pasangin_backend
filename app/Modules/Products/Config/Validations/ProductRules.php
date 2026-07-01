@@ -11,8 +11,8 @@ trait ProductRules
         'supplier_category_id' => 'permit_empty|numeric',
         'name'                 => 'required|min_length[3]|max_length[255]',
         'price'                => 'required|numeric',
-        'stock'                => 'required|numeric',
         'unit'                 => 'permit_empty|max_length[50]',
+        'quantity'             => 'permit_empty|numeric',
         'photo'                => 'permit_empty|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
     ];
 
@@ -41,6 +41,9 @@ trait ProductRules
             'mime_in'  => 'Format gambar yang diperbolehkan: JPG, JPEG, PNG, atau WEBP.',
             'max_size' => 'Ukuran gambar maksimal adalah 2MB.',
         ],
+        'quantity' => [
+            'numeric'  => 'Quantity produk harus berupa angka.'
+        ],
     ];
 
     /**
@@ -52,6 +55,7 @@ trait ProductRules
         'name'                 => 'permit_empty|min_length[3]|max_length[255]',
         'price'                => 'permit_empty|numeric',
         'stock'                => 'permit_empty|numeric',
+        'quantity'             => 'permit_empty|numeric',
         'photo'                => 'permit_empty|is_image[photo]|mime_in[photo,image/jpg,image/jpeg,image/png,image/webp]|max_size[photo,2048]',
     ];
 
@@ -76,6 +80,9 @@ trait ProductRules
             'is_image' => 'File yang diunggah harus berupa gambar.',
             'mime_in'  => 'Format gambar yang diperbolehkan: JPG, JPEG, PNG, atau WEBP.',
             'max_size' => 'Ukuran gambar maksimal adalah 2MB.',
+        ],
+        'quantity' => [
+            'numeric' => 'Quantity produk harus berupa angka.'
         ],
     ];
 

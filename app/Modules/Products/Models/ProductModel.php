@@ -13,7 +13,7 @@ class ProductModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
 
-    // ▼▼▼ FIELD SUDAH DILENGKAPI DENGAN KATEGORI, UNIT, MIN ORDER, DAN WEIGHT ▼▼▼
+    // ▼▼▼ FIELD SUDAH DILENGKAPI DENGAN KATEGORI, UNIT, MIN ORDER, DAN QUANTITY ▼▼▼
     protected $allowedFields    = [
         'supplier_id', 
         'supplier_category_id', 
@@ -24,7 +24,7 @@ class ProductModel extends Model
         'unit', 
         'stock', 
         'min_order', 
-        'weight', 
+        'quantity', 
         'status', 
         'approval_status',
         'photo',
