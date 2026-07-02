@@ -1560,13 +1560,30 @@ Supplier Saya
                     }, 1500);
 
                     stopScanning();
+
+                    // Show success scan toast
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Memindai',
+                        text: 'Kode "' + codeValue + '" dimasukkan.',
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true
+                    });
                 },
                 function (errorMessage) {
                     // Silent ignore scan errors
                 }
             ).catch(err => {
                 console.error("Gagal memulai kamera: ", err);
-                alert("Gagal mengakses kamera. Harap izinkan akses kamera pada browser Anda.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Akses Kamera Gagal',
+                    text: 'Harap pastikan izin akses kamera telah diberikan di browser Anda.',
+                    confirmButtonColor: '#e53935'
+                });
                 stopScanning();
             });
         }
@@ -1636,6 +1653,32 @@ Supplier Saya
                 }
             });
         });
+
+        // Session flash messages handler
+        <?php if (session()->getFlashdata('success')): ?>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: '<?= esc(session()->getFlashdata('success')) ?>',
+                toast: true,
+                position: 'top',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+            });
+        <?php endif; ?>
+        <?php if (session()->getFlashdata('error')): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: '<?= esc(session()->getFlashdata('error')) ?>',
+                toast: true,
+                position: 'top',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+            });
+        <?php endif; ?>
     });
 </script>
 <?= $this->endSection() ?>

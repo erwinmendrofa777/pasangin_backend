@@ -39,4 +39,6 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Suppli
     $routes->post('sales/suppliers/(:num)/products/update/(:num)', 'SalesSupplierController::updateProduct/$1/$2');
     $routes->get('sales/suppliers/(:num)/products/delete/(:num)', 'SalesSupplierController::deleteProduct/$1/$2');
     $routes->get('sales/suppliers/(:num)/release', 'SalesSupplierController::releaseSupplier/$1');
+    $routes->post('sales/suppliers/(:num)/categories/store', 'SalesSupplierController::storeCategory/$1');
+    $routes->post('sales/satuan/store', 'SalesSupplierController::storeSatuan');
 });

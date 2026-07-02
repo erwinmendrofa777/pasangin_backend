@@ -8,6 +8,7 @@ use App\Modules\Supplier\Models\SupplierReferralModel;
 use App\Modules\Products\Models\ProductModel;
 use App\Modules\Products\Models\AppCategoryModel;
 use App\Modules\Supplier\Models\CategoryModel;
+use App\Modules\Satuan\Models\SatuanModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use Exception;
 
@@ -187,12 +188,17 @@ class SalesSupplierController extends BaseController
 
         // Ambil kategori supplier milik supplier ini untuk dropdown
         $categoryModel = new CategoryModel();
-        $categories = $categoryModel->orderBy('name', 'ASC')->findAll();
+        $categories = $categoryModel->where('supplier_id', $supplierId)->orderBy('name', 'ASC')->findAll();
+
+        // Ambil master satuan dari database
+        $satuanModel = new SatuanModel();
+        $satuans = $satuanModel->orderBy('nama_satuan', 'ASC')->findAll();
 
         return view('App\Modules\Supplier\Views\supplier/sales/create_product', [
             'title'      => 'Tambah Produk Baru',
             'supplier'   => $supplier,
-            'categories' => $categories
+            'categories' => $categories,
+            'satuans'    => $satuans
         ]);
     }
 
@@ -254,13 +260,18 @@ class SalesSupplierController extends BaseController
         }
 
         $categoryModel = new CategoryModel();
-        $categories = $categoryModel->orderBy('name', 'ASC')->findAll();
+        $categories = $categoryModel->where('supplier_id', $supplierId)->orderBy('name', 'ASC')->findAll();
+
+        // Ambil master satuan dari database
+        $satuanModel = new SatuanModel();
+        $satuans = $satuanModel->orderBy('nama_satuan', 'ASC')->findAll();
 
         return view('App\Modules\Supplier\Views\supplier/sales/edit_product', [
             'title'      => 'Edit Produk',
             'supplier'   => $supplier,
             'product'    => $product,
-            'categories' => $categories
+            'categories' => $categories,
+            'satuans'    => $satuans
         ]);
     }
 
@@ -350,6 +361,107 @@ class SalesSupplierController extends BaseController
             return redirect()->to('/admin/sales/suppliers')->with('success', 'Berhasil melepas toko supplier: ' . $supplier['name']);
         } catch (Exception $e) {
             return redirect()->to('/admin/sales/suppliers')->with('error', 'Gagal melepas supplier: ' . $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 11. SIMPAN KATEGORI BARU (AJAX)
+    // -------------------------------------------------------------------------
+    public function storeCategory($supplierId)
+    {
+        try {
+            $this->checkSalesAuth($supplierId);
+
+            $name = $this->request->getPost('name');
+            if (empty($name)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Nama kategori tidak boleh kosong.'
+                ]);
+            }
+
+            $categoryModel = new CategoryModel();
+            
+            $existing = $categoryModel->where([
+                'supplier_id' => $supplierId,
+                'name'        => $name
+            ])->first();
+
+            if ($existing) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Kategori ini sudah terdaftar untuk supplier ini.'
+                ]);
+            }
+
+            $id = $categoryModel->insert([
+                'supplier_id' => $supplierId,
+                'name'        => $name
+            ]);
+
+            return $this->response->setJSON([
+                'success'    => true,
+                'category'   => [
+                    'id'   => $id,
+                    'name' => $name
+                ],
+                'csrf_token' => csrf_token(),
+                'csrf_hash'  => csrf_hash()
+            ]);
+
+        } catch (Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Sistem error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function storeSatuan()
+    {
+        try {
+            $this->checkSalesAuth();
+
+            $name = $this->request->getPost('name');
+            $name = trim($name);
+
+            if (empty($name)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Nama satuan tidak boleh kosong.'
+                ]);
+            }
+
+            $satuanModel = new SatuanModel();
+            
+            $existing = $satuanModel->where('nama_satuan', $name)->first();
+
+            if ($existing) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Satuan ini sudah terdaftar di sistem.'
+                ]);
+            }
+
+            $id = $satuanModel->insert([
+                'nama_satuan' => $name
+            ]);
+
+            return $this->response->setJSON([
+                'success'    => true,
+                'satuan'     => [
+                    'id'   => $id,
+                    'name' => $name
+                ],
+                'csrf_token' => csrf_token(),
+                'csrf_hash'  => csrf_hash()
+            ]);
+
+        } catch (Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Sistem error: ' . $e->getMessage()
+            ]);
         }
     }
 }

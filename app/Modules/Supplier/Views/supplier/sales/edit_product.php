@@ -254,15 +254,52 @@ Edit Produk - <?= esc($product['name']) ?>
                             <input type="text" name="name" class="form-control" placeholder="Contoh: Semen Gresik 50kg" value="<?= old('name', $product['name']) ?>" required autocomplete="off">
                         </div>
 
-                        <!-- Kategori -->
+                        <!-- Kategori (Custom Dropdown) -->
                         <div class="mb-4">
-                            <label class="form-label">Kategori Toko Supplier</label>
-                            <select name="supplier_category_id" class="form-select w-100">
-                                <option value="">-- Pilih Kategori --</option>
-                                <?php foreach ($categories as $cat): ?>
-                                    <option value="<?= $cat['id'] ?>" <?= old('supplier_category_id', $product['supplier_category_id']) == $cat['id'] ? 'selected' : '' ?>><?= esc($cat['name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <label class="form-label">Kategori Toko Supplier (Etalase)</label>
+                            <input type="hidden" name="supplier_category_id" id="supplierCategoryInput" value="<?= old('supplier_category_id', $product['supplier_category_id']) ?>">
+                            <div class="dropdown w-100" style="position: relative;">
+                                <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center dropdown-toggle" type="button" id="categoryDropdownBtn" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"
+                                    style="border: 2px solid #dee2e6; border-radius: 10px; height: 50px; font-weight: 500; font-size: 0.95rem; color: #475569; background: #fff; padding-left: 15px; border-color: #dee2e6 !important;">
+                                    <span id="selectedCategoryName">
+                                        <?php 
+                                        $selectedName = '-- Pilih Kategori --';
+                                        $targetId = old('supplier_category_id', $product['supplier_category_id']);
+                                        if ($targetId) {
+                                            foreach ($categories as $cat) {
+                                                if ($targetId == $cat['id']) {
+                                                    $selectedName = esc($cat['name']);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        echo $selectedName;
+                                        ?>
+                                    </span>
+                                </button>
+                                <ul class="dropdown-menu w-100 shadow-sm border-0 mt-1 py-0" aria-labelledby="categoryDropdownBtn" style="border-radius: 12px; max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0 !important; padding: 0;">
+                                    <li class="dropdown-header text-dark fw-bold d-flex justify-content-between align-items-center px-3 py-2.5" style="font-size: 0.9rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc; letter-spacing: 0.2px;">
+                                        <span>Pilih Etalase</span>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger fw-bold d-flex align-items-center py-2.5 px-3 text-decoration-none" href="#" id="btnShowAddCategory" style="font-size: 0.9rem; background: transparent; transition: all 0.2s; border-bottom: 1px solid #f1f5f9;">
+                                            <i class="fas fa-plus-circle me-2" style="font-size: 1.1rem; color: #e53935;"></i> Tambah Etalase Baru
+                                        </a>
+                                    </li>
+                                    <div id="categoryDropdownList">
+                                        <?php foreach ($categories as $cat): ?>
+                                            <li>
+                                                <a class="dropdown-item py-2.5 px-3 text-dark category-select-item" href="#" data-id="<?= $cat['id'] ?>" style="font-weight: 500; font-size: 0.9rem; transition: all 0.15s;">
+                                                    <?= esc($cat['name']) ?>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                        <?php if (empty($categories)): ?>
+                                            <li class="no-category-placeholder"><span class="dropdown-item py-3 text-muted small text-center" style="background: transparent;">Belum ada etalase</span></li>
+                                        <?php endif; ?>
+                                    </div>
+                                </ul>
+                            </div>
                         </div>
 
                         <!-- Harga & Satuan -->
@@ -275,8 +312,38 @@ Edit Produk - <?= esc($product['name']) ?>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Satuan Jual</label>
-                                <input type="text" name="unit" class="form-control" placeholder="Contoh: sak, pcs, kg" value="<?= old('unit', $product['unit']) ?>" autocomplete="off">
+                                <label class="form-label">Satuan Jual <span class="text-danger">*</span></label>
+                                <input type="hidden" name="unit" id="satuanInput" value="<?= old('unit', $product['unit']) ?>">
+                                <div class="dropdown w-100" style="position: relative;">
+                                    <button class="btn btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center dropdown-toggle" type="button" id="satuanDropdownBtn" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"
+                                        style="border: 2px solid #dee2e6; border-radius: 10px; height: 50px; font-weight: 500; font-size: 0.95rem; color: #475569; background: #fff; padding-left: 15px; border-color: #dee2e6 !important;">
+                                        <span id="selectedSatuanName">
+                                            <?= old('unit', $product['unit']) ?: '-- Pilih Satuan --' ?>
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu w-100 shadow-sm border-0 mt-1 py-0" aria-labelledby="satuanDropdownBtn" style="border-radius: 12px; max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0 !important; padding: 0;">
+                                        <li class="dropdown-header text-dark fw-bold d-flex justify-content-between align-items-center px-3 py-2.5" style="font-size: 0.9rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc; letter-spacing: 0.2px;">
+                                            <span>Pilih Satuan</span>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger fw-bold d-flex align-items-center py-2.5 px-3 text-decoration-none" href="#" id="btnShowAddSatuan" style="font-size: 0.9rem; background: transparent; transition: all 0.2s; border-bottom: 1px solid #f1f5f9;">
+                                                <i class="fas fa-plus-circle me-2" style="font-size: 1.1rem; color: #e53935;"></i> Tambah Satuan Baru
+                                            </a>
+                                        </li>
+                                        <div id="satuanDropdownList">
+                                            <?php foreach ($satuans as $s): ?>
+                                                <li>
+                                                    <a class="dropdown-item py-2.5 px-3 text-dark satuan-select-item" href="#" data-value="<?= esc($s['nama_satuan']) ?>" style="font-weight: 500; font-size: 0.9rem; transition: all 0.15s;">
+                                                        <?= esc($s['nama_satuan']) ?>
+                                                    </a>
+                                                </li>
+                                            <?php endforeach; ?>
+                                            <?php if (empty($satuans)): ?>
+                                                <li class="no-satuan-placeholder"><span class="dropdown-item py-3 text-muted small text-center" style="background: transparent;">Belum ada satuan</span></li>
+                                            <?php endif; ?>
+                                        </div>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
@@ -299,7 +366,7 @@ Edit Produk - <?= esc($product['name']) ?>
                         <!-- Deskripsi -->
                         <div class="mb-4">
                             <label class="form-label">Deskripsi Produk</label>
-                            <textarea name="description" class="form-control" rows="4" placeholder="Tuliskan spesifikasi detail, keunggulan, atau catatan produk lainnya..." style="resize: none;"><?= old('description', $product['description']) ?></textarea>
+                            <textarea name="description" class="form-control" rows="8" placeholder="Tuliskan spesifikasi detail, keunggulan, atau catatan produk lainnya..." style="min-height: 180px; resize: vertical; border-radius: 10px;"><?= old('description', $product['description']) ?></textarea>
                         </div>
 
                         <!-- Action Buttons -->
@@ -321,9 +388,83 @@ Edit Produk - <?= esc($product['name']) ?>
         </div>
     </div>
 </section>
+
+<!-- Modal Tambah Kategori -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div class="modal-header text-white text-center d-block p-3"
+                style="background: linear-gradient(135deg, #e53935, #ff6b6b); border-bottom: none; position: relative;">
+                <button type="button" class="btn-close btn-close-white position-absolute"
+                    style="top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1rem; opacity: 0.8;"
+                    data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                <h5 class="modal-title w-100 fw-bold mb-0" id="addCategoryModalLabel">Kategori Baru</h5>
+            </div>
+            <div class="modal-body p-3">
+                <form id="formAddCategory">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">NAMA KATEGORI</label>
+                        <input type="text" id="newCategoryName" class="form-control text-center fw-bold" placeholder="Contoh: Alat Berat" required autocomplete="off" style="border-radius: 8px;">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" id="btnSubmitCategory" class="btn btn-primary"
+                            style="border-radius: 8px; font-weight: 700; background: linear-gradient(135deg, #e53935, #c62828); border: none;">
+                            Simpan Kategori
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Satuan -->
+<div class="modal fade" id="addSatuanModal" tabindex="-1" aria-labelledby="addSatuanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div class="modal-header text-white text-center d-block p-3"
+                style="background: linear-gradient(135deg, #e53935, #ff6b6b); border-bottom: none; position: relative;">
+                <button type="button" class="btn-close btn-close-white position-absolute"
+                    style="top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1rem; opacity: 0.8;"
+                    data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                <h5 class="modal-title w-100 fw-bold mb-0" id="addSatuanModalLabel">Satuan Baru</h5>
+            </div>
+            <div class="modal-body p-3">
+                <form id="formAddSatuan">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">NAMA SATUAN</label>
+                        <input type="text" id="newSatuanName" class="form-control text-center fw-bold" placeholder="Contoh: box, roll, kg" required autocomplete="off" style="border-radius: 8px;">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" id="btnSubmitSatuan" class="btn btn-primary"
+                            style="border-radius: 8px; font-weight: 700; background: linear-gradient(135deg, #e53935, #c62828); border: none;">
+                            Simpan Satuan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
+<style>
+    /* Custom Dropdown Styling */
+    .category-select-item, .satuan-select-item {
+        transition: all 0.2s ease !important;
+    }
+    .category-select-item:hover, .satuan-select-item:hover {
+        background-color: #fff5f5 !important;
+        color: #e53935 !important;
+        padding-left: 24px !important;
+    }
+    #btnShowAddCategory:hover, #btnShowAddSatuan:hover {
+        background-color: #fff5f5 !important;
+        color: #c62828 !important;
+    }
+</style>
 <script>
     function previewImage() {
         const fileInput = document.getElementById('photo');
@@ -343,5 +484,181 @@ Edit Produk - <?= esc($product['name']) ?>
             // Keep current image if cancel
         }
     }
+
+    $(document).ready(function() {
+        $(document).on('click', '#btnShowAddCategory', function(e) {
+            e.preventDefault();
+            $('#addCategoryModal').modal('show');
+        });
+
+        $(document).on('click', '.category-select-item', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var name = $(this).text().trim();
+            
+            $('#supplierCategoryInput').val(id);
+            $('#selectedCategoryName').text(name);
+        });
+
+        $(document).on('click', '#btnSubmitCategory', function(e) {
+            e.preventDefault();
+            var name = $('#newCategoryName').val().trim();
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: 'Nama kategori tidak boleh kosong.',
+                    confirmButtonColor: '#e53935'
+                });
+                return;
+            }
+
+            var btn = $(this);
+            var oldHtml = btn.html();
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+
+            $.ajax({
+                url: '<?= site_url("admin/sales/suppliers/{$supplier['id']}/categories/store") ?>',
+                method: 'POST',
+                data: {
+                    name: name,
+                    <?= csrf_token() ?>: '<?= csrf_hash() ?>'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    btn.prop('disabled', false).html(oldHtml);
+                    if (response.success) {
+                        $('.no-category-placeholder').remove();
+                        var newHtml = '<li><a class="dropdown-item py-2 text-dark category-select-item" href="#" data-id="' + response.category.id + '" style="font-weight: 500; font-size: 0.9rem; padding-left: 20px; transition: background 0.15s;">' + response.category.name + '</a></li>';
+                        $('#categoryDropdownList').append(newHtml);
+                        
+                        $('#supplierCategoryInput').val(response.category.id);
+                        $('#selectedCategoryName').text(response.category.name);
+
+                        $('#newCategoryName').val('');
+                        $('#addCategoryModal').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Kategori baru berhasil ditambahkan.',
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true
+                        });
+
+                        if (response.csrf_token && response.csrf_hash) {
+                            $('input[name="' + response.csrf_token + '"]').val(response.csrf_hash);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.message || 'Gagal menyimpan kategori.',
+                            confirmButtonColor: '#e53935'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    btn.prop('disabled', false).html(oldHtml);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan server saat menyimpan kategori.',
+                        confirmButtonColor: '#e53935'
+                    });
+                }
+            });
+        });
+
+        // Satuan Dropdown Handlers
+        $(document).on('click', '#btnShowAddSatuan', function(e) {
+            e.preventDefault();
+            $('#addSatuanModal').modal('show');
+        });
+
+        $(document).on('click', '.satuan-select-item', function(e) {
+            e.preventDefault();
+            var val = $(this).data('value');
+            
+            $('#satuanInput').val(val);
+            $('#selectedSatuanName').text(val);
+        });
+
+        $(document).on('click', '#btnSubmitSatuan', function(e) {
+            e.preventDefault();
+            var name = $('#newSatuanName').val().trim();
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: 'Nama satuan tidak boleh kosong.',
+                    confirmButtonColor: '#e53935'
+                });
+                return;
+            }
+
+            var btn = $(this);
+            var oldHtml = btn.html();
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+
+            $.ajax({
+                url: '<?= site_url("admin/sales/satuan/store") ?>',
+                method: 'POST',
+                data: {
+                    name: name,
+                    <?= csrf_token() ?>: '<?= csrf_hash() ?>'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    btn.prop('disabled', false).html(oldHtml);
+                    if (response.success) {
+                        $('.no-satuan-placeholder').remove();
+                        var newHtml = '<li><a class="dropdown-item py-2.5 px-3 text-dark satuan-select-item" href="#" data-value="' + response.satuan.name + '" style="font-weight: 500; font-size: 0.9rem; transition: all 0.15s;">' + response.satuan.name + '</a></li>';
+                        $('#satuanDropdownList').append(newHtml);
+                        
+                        $('#satuanInput').val(response.satuan.name);
+                        $('#selectedSatuanName').text(response.satuan.name);
+
+                        $('#newSatuanName').val('');
+                        $('#addSatuanModal').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Satuan baru berhasil ditambahkan.',
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true
+                        });
+
+                        if (response.csrf_token && response.csrf_hash) {
+                            $('input[name="' + response.csrf_token + '"]').val(response.csrf_hash);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.message || 'Gagal menyimpan satuan.',
+                            confirmButtonColor: '#e53935'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    btn.prop('disabled', false).html(oldHtml);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan server saat menyimpan satuan.',
+                        confirmButtonColor: '#e53935'
+                    });
+                }
+            });
+        });
+    });
 </script>
 <?= $this->endSection() ?>
