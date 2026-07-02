@@ -408,6 +408,17 @@ Supplier Saya
             border: 1px solid #fde68a !important;
         }
     }
+
+    #btnStartScan:hover {
+        background: rgba(229, 57, 53, 0.05) !important;
+        color: var(--palette-primary) !important;
+        border-color: var(--palette-primary) !important;
+    }
+
+    #barcode-reader video {
+        border-radius: 8px !important;
+        object-fit: cover !important;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -911,10 +922,28 @@ Supplier Saya
                         <label class="form-label text-center d-block fw-bold mb-3 text-muted"
                             style="font-size: 0.8rem; letter-spacing: 0.5px;">MASUKKAN KODE REFERAL DARI HP
                             SUPPLIER</label>
-                        <input type="text" name="code" class="form-control form-control-lg text-center fw-bold"
-                            placeholder="SUP-XXXXXX"
-                            style="font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; border: 2px solid #dee2e6;"
-                            required autocomplete="off">
+                        <div class="input-group">
+                            <input type="text" name="code" id="referralCodeInput" class="form-control form-control-lg text-center fw-bold"
+                                placeholder="SUP-XXXXXX"
+                                style="font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px 0 0 10px; border: 2px solid #dee2e6; height: 50px;"
+                                required autocomplete="off">
+                            <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center" id="btnStartScan"
+                                style="border-radius: 0 10px 10px 0; border: 2px solid #dee2e6; border-left: none; width: 60px; height: 50px; color: var(--palette-primary); background: #fdfdfd; transition: all 0.2s;">
+                                <i class="fas fa-qrcode fa-lg"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Camera Scanner View Container -->
+                        <div id="barcodeScannerWrapper" class="mt-3 p-2 bg-light border rounded-3 text-center" style="display: none; position: relative;">
+                            <div class="fw-bold mb-2 text-primary" style="font-size: 0.8rem;">
+                                <i class="fas fa-camera me-1"></i> Memindai Barcode / QR...
+                            </div>
+                            <div id="barcode-reader" style="width: 100%; max-width: 320px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #000;"></div>
+                            <button type="button" class="btn btn-sm btn-danger mt-2" id="btnStopScan" style="border-radius: 6px;">
+                                <i class="fas fa-stop me-1"></i> Batal Scan
+                            </button>
+                        </div>
+
                         <small class="text-muted d-block text-center mt-2" style="font-size: 0.78rem;">Kode dinamis
                             berlaku selama 10 menit.</small>
                     </div>
@@ -932,6 +961,7 @@ Supplier Saya
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script>
     $(document).ready(function () {
         // Initialize Bootstrap tooltips
@@ -1381,6 +1411,77 @@ Supplier Saya
                 }
             }
         }
+
+        // ===== BARCODE SCANNER LOGIC =====
+        var html5QrCode;
+
+        function startScanning() {
+            $('#barcodeScannerWrapper').slideDown(200);
+            
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("barcode-reader");
+            }
+
+            const config = { 
+                fps: 15, 
+                qrbox: function(width, height) {
+                    var minEdge = Math.min(width, height);
+                    var boxWidth = Math.floor(minEdge * 0.7);
+                    if (boxWidth < 200) boxWidth = 200;
+                    return { width: boxWidth, height: boxWidth };
+                }
+            };
+
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config,
+                function(qrCodeMessage) {
+                    var codeValue = qrCodeMessage.trim().toUpperCase();
+                    $('#referralCodeInput').val(codeValue);
+                    
+                    $('#referralCodeInput').addClass('is-valid');
+                    setTimeout(function() {
+                        $('#referralCodeInput').removeClass('is-valid');
+                    }, 1500);
+
+                    stopScanning();
+                },
+                function(errorMessage) {
+                    // Silent ignore scan errors
+                }
+            ).catch(err => {
+                console.error("Gagal memulai kamera: ", err);
+                alert("Gagal mengakses kamera. Harap izinkan akses kamera pada browser Anda.");
+                stopScanning();
+            });
+        }
+
+        function stopScanning() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    $('#barcodeScannerWrapper').slideUp(200);
+                }).catch(err => {
+                    console.error("Gagal menonaktifkan kamera: ", err);
+                    $('#barcodeScannerWrapper').slideUp(200);
+                });
+            } else {
+                $('#barcodeScannerWrapper').slideUp(200);
+            }
+        }
+
+        $(document).on('click', '#btnStartScan', function(e) {
+            e.preventDefault();
+            startScanning();
+        });
+
+        $(document).on('click', '#btnStopScan', function(e) {
+            e.preventDefault();
+            stopScanning();
+        });
+
+        $('#claimSupplierModal').on('hidden.bs.modal', function () {
+            stopScanning();
+        });
 
         // SweetAlert confirm deletion
         $(document).on('click', '.btn-delete-product', function () {
