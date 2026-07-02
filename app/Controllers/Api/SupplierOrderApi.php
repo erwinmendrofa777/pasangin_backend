@@ -53,6 +53,12 @@ class SupplierOrderApi extends BaseController
             ->get()->getResultArray();
 
         foreach ($orders as &$order) {
+            if (!empty($order['delivery_photo'])) {
+                $order['delivery_photo_url'] = base_url('uploads/deliveries/' . $order['delivery_photo']);
+            } else {
+                $order['delivery_photo_url'] = null;
+            }
+
             // Ambil item produk khusus milik supplier ini di tiap order
             $order['items'] = $this->db->table('order_items')
                 ->select('order_items.*, products.name as product_name, products.photo, products.unit as product_unit')
