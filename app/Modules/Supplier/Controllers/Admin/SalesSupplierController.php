@@ -335,4 +335,21 @@ class SalesSupplierController extends BaseController
             return redirect()->to("/admin/sales/suppliers?supplier_id={$supplierId}")->with('error', 'Gagal menghapus produk: ' . $e->getMessage());
         }
     }
+
+    // -------------------------------------------------------------------------
+    // 10. LEPAS SUPPLIER
+    // -------------------------------------------------------------------------
+    public function releaseSupplier($supplierId)
+    {
+        $supplier = $this->checkSalesAuth($supplierId);
+
+        try {
+            $this->supplierModel->update($supplierId, [
+                'sales_id' => null
+            ]);
+            return redirect()->to('/admin/sales/suppliers')->with('success', 'Berhasil melepas toko supplier: ' . $supplier['name']);
+        } catch (Exception $e) {
+            return redirect()->to('/admin/sales/suppliers')->with('error', 'Gagal melepas supplier: ' . $e->getMessage());
+        }
+    }
 }

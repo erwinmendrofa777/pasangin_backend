@@ -342,30 +342,37 @@ Supplier Saya
         .w-100-mobile {
             width: 100% !important;
         }
+
         .btn-w-100-mobile {
             width: 100% !important;
             margin-top: 8px;
         }
+
         /* Style for 2-column mobile statistics grid */
         .header-card .row.g-3 .col-6 {
             padding-left: 6px !important;
             padding-right: 6px !important;
         }
+
         .header-card .row.g-3 .col-6 .d-flex {
             padding-left: 2px !important;
             padding-right: 2px !important;
         }
+
         .header-card .row.g-3 .col-6 .rounded-circle {
             width: 34px !important;
             height: 34px !important;
             margin-right: 6px !important;
         }
+
         .header-card .row.g-3 .col-6 .rounded-circle i {
             font-size: 0.95rem !important;
         }
+
         .header-card .row.g-3 .col-6 h4 {
             font-size: 1.1rem !important;
         }
+
         .header-card .row.g-3 .col-6 span {
             font-size: 0.62rem !important;
         }
@@ -380,28 +387,34 @@ Supplier Saya
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
             transition: all 0.2s ease !important;
         }
+
         .group-parent-card-mobile.expanded {
             background-color: #fff9f9 !important;
             border-color: #ffcccc !important;
             box-shadow: 0 6px 20px rgba(255, 92, 92, 0.05) !important;
         }
+
         .group-parent-card-mobile.expanded .transition-icon {
             transform: rotate(90deg);
             color: var(--palette-primary);
         }
+
         .group-parent-card-mobile .transition-icon-wrapper {
             transition: all 0.2s ease;
         }
+
         .bg-success-light {
             background: #f0fdf4 !important;
             color: #16a34a !important;
             border: 1px solid #bbf7d0 !important;
         }
+
         .bg-danger-light {
             background: #fef2f2 !important;
             color: #dc2626 !important;
             border: 1px solid #fee2e2 !important;
         }
+
         .bg-warning-light {
             background: #fffbeb !important;
             color: #d97706 !important;
@@ -410,14 +423,63 @@ Supplier Saya
     }
 
     #btnStartScan:hover {
-        background: rgba(229, 57, 53, 0.05) !important;
-        color: var(--palette-primary) !important;
+        background: #fee2e2 !important;
+        color: #c62828 !important;
         border-color: var(--palette-primary) !important;
+        transform: scale(1.03);
     }
 
     #barcode-reader video {
         border-radius: 8px !important;
         object-fit: cover !important;
+    }
+
+    /* Laser scan line animation */
+    .scanner-laser {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, transparent, #e53935, #ff8a80, #e53935, transparent);
+        box-shadow: 0 0 8px #e53935;
+        animation: scanning 2.5s infinite ease-in-out;
+        z-index: 10;
+    }
+
+    @keyframes scanning {
+        0% {
+            top: 0%;
+        }
+
+        50% {
+            top: 100%;
+        }
+
+        100% {
+            top: 0%;
+        }
+    }
+
+    @keyframes pulse-icon {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.6;
+            transform: scale(0.92);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-pulse {
+        animation: pulse-icon 1.5s infinite ease-in-out;
     }
 </style>
 <?= $this->endSection() ?>
@@ -449,7 +511,8 @@ Supplier Saya
                         <i class="fas fa-search search-icon"></i>
                     </div>
                     <!-- Claim Supplier Button -->
-                    <button type="button" class="btn btn-primary btn-w-100-mobile d-flex align-items-center justify-content-center"
+                    <button type="button"
+                        class="btn btn-primary btn-w-100-mobile d-flex align-items-center justify-content-center"
                         data-bs-toggle="modal" data-bs-target="#claimSupplierModal"
                         style="border-radius: 10px; font-size: 0.82rem; height: 40px; padding: 0 16px; white-space: nowrap; font-weight: 600;">
                         <i class="fas fa-plus me-1"></i> Hubungkan Supplier
@@ -547,7 +610,7 @@ Supplier Saya
                                 style="width: 5%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-top-left-radius: 12px; border-bottom: none;">
                                 NO</th>
                             <th class="text-start py-3"
-                                style="width: 45%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: none;">
+                                style="width: 35%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: none;">
                                 NAMA SUPPLIER</th>
                             <th class="text-start py-3"
                                 style="width: 20%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: none;">
@@ -556,7 +619,7 @@ Supplier Saya
                                 style="width: 15%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: none;">
                                 JUMLAH PRODUK</th>
                             <th class="py-3"
-                                style="width: 15%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-top-right-radius: 12px; border-bottom: none;">
+                                style="width: 25%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border-top-right-radius: 12px; border-bottom: none;">
                                 AKSI</th>
                         </tr>
                     </thead>
@@ -589,7 +652,8 @@ Supplier Saya
                                             </div>
                                             <?php if (!empty($s['logo_url']) && file_exists('uploads/supplier_logos/' . $s['logo_url'])): ?>
                                                 <img src="<?= base_url('uploads/supplier_logos/' . $s['logo_url']) ?>" alt="Logo"
-                                                    class="rounded-circle me-2" style="width: 28px; height: 28px; object-fit: cover;">
+                                                    class="rounded-circle me-2"
+                                                    style="width: 28px; height: 28px; object-fit: cover;">
                                             <?php endif; ?>
                                             <div>
                                                 <span class="fw-bold text-dark text-lg"><?= esc($s['name']) ?></span>
@@ -616,11 +680,21 @@ Supplier Saya
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/products/create') ?>"
-                                            class="btn btn-sm btn-outline-primary px-3 d-inline-flex align-items-center justify-content-center"
-                                            style="border-radius: 8px; font-size: 0.75rem; font-weight: 600; height: 34px; border: 1.5px solid var(--palette-primary); color: var(--palette-primary); background: transparent;">
-                                            <i class="fas fa-plus me-1"></i> Tambah Produk
-                                        </a>
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <a href="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/products/create') ?>"
+                                                class="btn btn-sm btn-outline-primary px-2 d-inline-flex align-items-center justify-content-center"
+                                                style="border-radius: 8px; font-size: 0.75rem; font-weight: 600; height: 34px; border: 1.5px solid var(--palette-primary); color: var(--palette-primary); background: transparent; white-space: nowrap !important;"
+                                                title="Tambah Produk Baru">
+                                                <i class="fas fa-plus me-1"></i> Tambah Produk
+                                            </a>
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger btn-release-supplier px-2 d-inline-flex align-items-center justify-content-center"
+                                                data-url="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/release') ?>"
+                                                style="border-radius: 8px; font-size: 0.75rem; font-weight: 600; height: 34px; border: 1.5px solid #dc3545; color: #dc3545; background: transparent; white-space: nowrap !important;"
+                                                title="Lepas Hubungan Supplier">
+                                                <i class="fas fa-unlink me-1"></i> Lepas
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <!-- Supplier Products Child Row -->
@@ -679,7 +753,8 @@ Supplier Saya
                                                                 </td>
                                                                 <td class="text-start">
                                                                     <div class="fw-bold text-dark"><?= esc($p['name']) ?></div>
-                                                                    <small class="text-muted"><?= esc($p['unit'] ?? 'pcs') ?> | Min. Order:
+                                                                    <small class="text-muted"><?= esc($p['unit'] ?? 'pcs') ?> | Min.
+                                                                        Order:
                                                                         <?= esc($p['min_order'] ?? 1) ?></small>
                                                                 </td>
                                                                 <td class="text-start">
@@ -690,14 +765,19 @@ Supplier Saya
                                                                 </td>
                                                                 <td class="text-end">
                                                                     <div class="fw-bold text-dark" style="font-size: 0.85rem;">Rp
-                                                                        <?= number_format($p['price'], 0, ',', '.') ?></div>
+                                                                        <?= number_format($p['price'], 0, ',', '.') ?>
+                                                                    </div>
                                                                     <div class="small text-muted">Stok: <?= esc($p['stock']) ?></div>
                                                                 </td>
                                                                 <td>
                                                                     <?php if ($p['status'] === 'aktif'): ?>
-                                                                        <span class="status-badge status-siap py-1 px-2" style="font-size: 0.65rem; display: block;"><i class="fas fa-check-circle me-1"></i> Aktif</span>
+                                                                        <span class="status-badge status-siap py-1 px-2"
+                                                                            style="font-size: 0.65rem; display: block;"><i
+                                                                                class="fas fa-check-circle me-1"></i> Aktif</span>
                                                                     <?php else: ?>
-                                                                        <span class="status-badge status-ditolak py-1 px-2" style="font-size: 0.65rem; display: block;"><i class="fas fa-times-circle me-1"></i> Nonaktif</span>
+                                                                        <span class="status-badge status-ditolak py-1 px-2"
+                                                                            style="font-size: 0.65rem; display: block;"><i
+                                                                                class="fas fa-times-circle me-1"></i> Nonaktif</span>
                                                                     <?php endif; ?>
                                                                 </td>
                                                                 <td>
@@ -733,9 +813,12 @@ Supplier Saya
                                                 </tbody>
                                             </table>
                                             <!-- Product Pagination Footer -->
-                                            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light" id="prod-pagination-footer-<?= $s['id'] ?>">
-                                                <div class="product-pagination-info small text-muted" id="prod-info-<?= $s['id'] ?>"></div>
-                                                <ul class="pagination pagination-sm mb-0 justify-content-end" id="prod-pagination-list-<?= $s['id'] ?>"></ul>
+                                            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light"
+                                                id="prod-pagination-footer-<?= $s['id'] ?>">
+                                                <div class="product-pagination-info small text-muted"
+                                                    id="prod-info-<?= $s['id'] ?>"></div>
+                                                <ul class="pagination pagination-sm mb-0 justify-content-end"
+                                                    id="prod-pagination-list-<?= $s['id'] ?>"></ul>
                                             </div>
                                         </div>
                                     </td>
@@ -748,7 +831,8 @@ Supplier Saya
         </div>
 
         <!-- Pagination Footer -->
-        <div class="card-footer dt-footer d-flex justify-content-between align-items-center" id="table-pagination-footer">
+        <div class="card-footer dt-footer d-flex justify-content-between align-items-center"
+            id="table-pagination-footer">
             <div class="dataTables_info" id="pagination-info" role="status" aria-live="polite"></div>
             <div class="dataTables_paginate paging_simple_numbers">
                 <ul class="pagination mb-0" id="pagination-list"></ul>
@@ -765,13 +849,14 @@ Supplier Saya
             Belum ada supplier yang terhubung.
         </div>
     <?php else: ?>
-        <?php foreach ($suppliers as $s): 
+        <?php foreach ($suppliers as $s):
             $supplierProducts = $productsBySupplier[$s['id']] ?? [];
             $parentIdMobile = 'parent-mobile-' . $s['id'];
             $childIdMobile = 'child-mobile-' . $s['id'];
             ?>
             <!-- Supplier Card Mobile -->
-            <div class="group-parent-card-mobile card mb-3" id="<?= $parentIdMobile ?>" data-group-name="<?= esc($s['name']) ?>" style="border-radius:16px; border: 1px solid #e2e8f0; overflow:hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.2s ease; cursor: pointer;">
+            <div class="group-parent-card-mobile card mb-3" id="<?= $parentIdMobile ?>" data-group-name="<?= esc($s['name']) ?>"
+                style="border-radius:16px; border: 1px solid #e2e8f0; overflow:hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.2s ease; cursor: pointer;">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center">
@@ -787,13 +872,16 @@ Supplier Saya
                             <div>
                                 <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;"><?= esc($s['name']) ?></h6>
                                 <?php if ($s['status'] === 'approved'): ?>
-                                    <span class="badge bg-success text-white" style="font-size: 0.6rem; border-radius: 4px; padding: 1px 4px;">Disetujui</span>
+                                    <span class="badge bg-success text-white"
+                                        style="font-size: 0.6rem; border-radius: 4px; padding: 1px 4px;">Disetujui</span>
                                 <?php else: ?>
-                                    <span class="badge bg-warning text-white" style="font-size: 0.6rem; border-radius: 4px; padding: 1px 4px;"><?= esc($s['status']) ?></span>
+                                    <span class="badge bg-warning text-white"
+                                        style="font-size: 0.6rem; border-radius: 4px; padding: 1px 4px;"><?= esc($s['status']) ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.68rem; font-weight: 600;">
+                        <span class="badge bg-primary text-white rounded-pill px-2 py-1"
+                            style="font-size: 0.68rem; font-weight: 600;">
                             <?= count($supplierProducts) ?> Produk
                         </span>
                     </div>
@@ -804,13 +892,20 @@ Supplier Saya
                         <div><i class="fas fa-envelope me-1 opacity-70"></i><?= esc($s['email'] ?: '-') ?></div>
                     </div>
 
-                    <!-- Action: Tambah Produk -->
-                    <div class="d-grid">
+                    <!-- Action: Tambah & Lepas Produk -->
+                    <div class="d-flex gap-2">
                         <a href="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/products/create') ?>"
-                            class="btn btn-sm btn-outline-primary w-100"
-                            style="border-radius: 8px; font-size: 0.75rem; font-weight: 600; padding: 6px 12px; border: 1.5px solid var(--palette-primary); color: var(--palette-primary); background: transparent;">
-                            <i class="fas fa-plus me-1"></i> Tambah Produk Baru
+                            class="btn btn-sm btn-outline-primary w-50 d-flex align-items-center justify-content-center"
+                            style="border-radius: 8px; font-size: 0.72rem; font-weight: 600; padding: 6px 4px; border: 1.5px solid var(--palette-primary); color: var(--palette-primary); background: transparent; height: 36px; white-space: nowrap;">
+                            <i class="fas fa-plus me-1"></i> Tambah Produk
                         </a>
+                        <button type="button"
+                            class="btn btn-sm btn-outline-danger btn-release-supplier w-50 d-flex align-items-center justify-content-center"
+                            data-url="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/release') ?>"
+                            style="border-radius: 8px; font-size: 0.72rem; font-weight: 600; padding: 6px 4px; border: 1.5px solid #dc3545; color: #dc3545; background: transparent; height: 36px; white-space: nowrap;"
+                            title="Lepas Hubungan Supplier">
+                            <i class="fas fa-unlink me-1"></i> Lepas Supplier
+                        </button>
                     </div>
                 </div>
             </div>
@@ -824,32 +919,41 @@ Supplier Saya
                         </div>
                     <?php else: ?>
                         <!-- Products card list -->
-                        <?php foreach ($supplierProducts as $p): 
+                        <?php foreach ($supplierProducts as $p):
                             $photoSrc = !empty($p['photo']) ? base_url('uploads/products/' . $p['photo']) : base_url('uploads/products/default.png');
                             ?>
-                            <div class="product-card-mobile card mb-2 p-2 border-0 shadow-sm" data-role="product-mobile" style="border-radius: 12px;">
+                            <div class="product-card-mobile card mb-2 p-2 border-0 shadow-sm" data-role="product-mobile"
+                                style="border-radius: 12px;">
                                 <div class="d-flex">
-                                    <img src="<?= $photoSrc ?>" alt="<?= esc($p['name']) ?>" class="me-2" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
+                                    <img src="<?= $photoSrc ?>" alt="<?= esc($p['name']) ?>" class="me-2"
+                                        style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
                                     <div class="flex-grow-1 min-w-0">
-                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;"><?= esc($p['name']) ?></div>
-                                        <div class="text-muted" style="font-size: 0.72rem;"><?= esc($p['unit'] ?? 'pcs') ?> | Min. Order: <?= esc($p['min_order'] ?? 1) ?></div>
+                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;"><?= esc($p['name']) ?>
+                                        </div>
+                                        <div class="text-muted" style="font-size: 0.72rem;"><?= esc($p['unit'] ?? 'pcs') ?> | Min.
+                                            Order: <?= esc($p['min_order'] ?? 1) ?></div>
                                     </div>
                                 </div>
                                 <div class="mt-2 pt-2 border-top" style="border-top: 1px dashed #f1f5f9 !important;">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small text-muted">Kategori:</span>
-                                        <span class="badge bg-light text-dark border px-2 py-0" style="font-size: 0.68rem;"><?= esc($p['category_name'] ?? 'Tanpa Kategori') ?></span>
+                                        <span class="badge bg-light text-dark border px-2 py-0"
+                                            style="font-size: 0.68rem;"><?= esc($p['category_name'] ?? 'Tanpa Kategori') ?></span>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small text-muted">Harga & Stok:</span>
-                                        <span class="fw-bold text-dark" style="font-size: 0.8rem;">Rp <?= number_format($p['price'], 0, ',', '.') ?> <span class="text-muted font-weight-normal" style="font-size:0.7rem;">(Stok: <?= esc($p['stock']) ?>)</span></span>
+                                        <span class="fw-bold text-dark" style="font-size: 0.8rem;">Rp
+                                            <?= number_format($p['price'], 0, ',', '.') ?> <span class="text-muted font-weight-normal"
+                                                style="font-size:0.7rem;">(Stok: <?= esc($p['stock']) ?>)</span></span>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small text-muted">Status Akun:</span>
                                         <?php if ($p['status'] === 'aktif'): ?>
-                                            <span class="badge bg-success-light text-success px-2 py-0" style="font-size: 0.65rem;"><i class="fas fa-check-circle me-1"></i> Aktif</span>
+                                            <span class="badge bg-success-light text-success px-2 py-0" style="font-size: 0.65rem;"><i
+                                                    class="fas fa-check-circle me-1"></i> Aktif</span>
                                         <?php else: ?>
-                                            <span class="badge bg-danger-light text-danger px-2 py-0" style="font-size: 0.65rem;"><i class="fas fa-times-circle me-1"></i> Nonaktif</span>
+                                            <span class="badge bg-danger-light text-danger px-2 py-0" style="font-size: 0.65rem;"><i
+                                                    class="fas fa-times-circle me-1"></i> Nonaktif</span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -869,20 +973,21 @@ Supplier Saya
                                         <a href="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/products/edit/' . $p['id']) ?>"
                                             class="btn btn-sm btn-light border" style="font-size: 0.72rem; padding: 4px 8px;"
                                             title="Edit Produk"><i class="fas fa-pencil-alt me-1"></i> Edit</a>
-                                        <button type="button"
-                                            class="btn btn-sm btn-danger btn-delete-product"
+                                        <button type="button" class="btn btn-sm btn-danger btn-delete-product"
                                             data-url="<?= site_url('admin/sales/suppliers/' . $s['id'] . '/products/delete/' . $p['id']) ?>"
-                                            style="font-size: 0.72rem; padding: 4px 8px;"
-                                            title="Hapus Produk"><i class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            style="font-size: 0.72rem; padding: 4px 8px;" title="Hapus Produk"><i
+                                                class="fas fa-trash-alt me-1"></i> Hapus</button>
                                     </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
-                        
+
                         <!-- Product Pagination Footer Mobile -->
-                        <div class="d-flex flex-column align-items-center p-2 mt-2 bg-white rounded-3 border" id="prod-pagination-footer-mobile-<?= $s['id'] ?>">
+                        <div class="d-flex flex-column align-items-center p-2 mt-2 bg-white rounded-3 border"
+                            id="prod-pagination-footer-mobile-<?= $s['id'] ?>">
                             <div class="product-pagination-info small text-muted mb-2" id="prod-info-mobile-<?= $s['id'] ?>"></div>
-                            <ul class="pagination pagination-sm mb-0 justify-content-center" id="prod-pagination-list-mobile-<?= $s['id'] ?>"></ul>
+                            <ul class="pagination pagination-sm mb-0 justify-content-center"
+                                id="prod-pagination-list-mobile-<?= $s['id'] ?>"></ul>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -904,16 +1009,20 @@ Supplier Saya
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content"
-            style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            style="border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.18);">
             <div class="modal-header text-white text-center d-block p-4"
-                style="background: linear-gradient(135deg, var(--palette-primary, #e53935), #ff7070); border-bottom: none; position: relative;">
+                style="background: linear-gradient(135deg, #e53935, #ff6b6b); border-bottom: none; position: relative;">
                 <button type="button" class="btn-close btn-close-white position-absolute"
-                    style="top: 20px; right: 20px; background: none; border: none; color: white; font-size: 1.2rem;"
+                    style="top: 20px; right: 20px; background: none; border: none; color: white; font-size: 1.25rem; opacity: 0.8; transition: opacity 0.2s;"
                     data-bs-dismiss="modal" aria-label="Close">&times;</button>
-                <i class="fas fa-qrcode fa-3x mb-3"></i>
-                <h4 class="modal-title w-100 fw-bold" id="claimSupplierModalLabel">Klaim Toko Supplier</h4>
-                <p class="mb-0 text-white-50" style="font-size: 0.9rem;">Hubungkan akun supplier yang Anda bantu input
-                    produknya</p>
+                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 60px; height: 60px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.25);">
+                    <i class="fas fa-qrcode fa-lg"></i>
+                </div>
+                <h4 class="modal-title w-100 fw-bold text-white" id="claimSupplierModalLabel"
+                    style="letter-spacing: -0.5px;">Klaim Toko Supplier</h4>
+                <p class="mb-0 text-white-50" style="font-size: 0.85rem; letter-spacing: 0.2px;">Hubungkan akun
+                    supplier yang Anda bantu input produknya</p>
             </div>
             <div class="modal-body p-4">
                 <form action="<?= site_url('admin/sales/claim') ?>" method="POST">
@@ -923,24 +1032,30 @@ Supplier Saya
                             style="font-size: 0.8rem; letter-spacing: 0.5px;">MASUKKAN KODE REFERAL DARI HP
                             SUPPLIER</label>
                         <div class="input-group">
-                            <input type="text" name="code" id="referralCodeInput" class="form-control form-control-lg text-center fw-bold"
-                                placeholder="SUP-XXXXXX"
+                            <input type="text" name="code" id="referralCodeInput"
+                                class="form-control form-control-lg text-center fw-bold" placeholder="SUP-XXXXXX"
                                 style="font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px 0 0 10px; border: 2px solid #dee2e6; height: 50px;"
                                 required autocomplete="off">
-                            <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center" id="btnStartScan"
-                                style="border-radius: 0 10px 10px 0; border: 2px solid #dee2e6; border-left: none; width: 60px; height: 50px; color: var(--palette-primary); background: #fdfdfd; transition: all 0.2s;">
+                            <button type="button" id="btnStartScan"
+                                style="border-radius: 0 10px 10px 0; border: 2px solid #dee2e6; border-left: none; width: 60px; height: 50px; color: #e53935; background: #fff5f5; transition: all 0.2s; display: flex; align-items: center; justify-content: center; outline: none; cursor: pointer;">
                                 <i class="fas fa-qrcode fa-lg"></i>
                             </button>
                         </div>
-                        
+
                         <!-- Camera Scanner View Container -->
-                        <div id="barcodeScannerWrapper" class="mt-3 p-2 bg-light border rounded-3 text-center" style="display: none; position: relative;">
-                            <div class="fw-bold mb-2 text-primary" style="font-size: 0.8rem;">
-                                <i class="fas fa-camera me-1"></i> Memindai Barcode / QR...
+                        <div id="barcodeScannerWrapper" class="mt-3 p-3 bg-white border rounded-4 shadow-sm text-center"
+                            style="display: none; position: relative; border: 1.5px solid #ffcccc !important;">
+                            <div class="fw-bold mb-2 text-danger" style="font-size: 0.82rem; letter-spacing: 0.5px;">
+                                <i class="fas fa-camera me-1 animate-pulse"></i> MEMINDAI BARCODE / QR...
                             </div>
-                            <div id="barcode-reader" style="width: 100%; max-width: 320px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #000;"></div>
-                            <button type="button" class="btn btn-sm btn-danger mt-2" id="btnStopScan" style="border-radius: 6px;">
-                                <i class="fas fa-stop me-1"></i> Batal Scan
+                            <div
+                                style="position: relative; width: 100%; max-width: 280px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); background: #0b0f19; border: 3px solid #ffcccc;">
+                                <div class="scanner-laser"></div>
+                                <div id="barcode-reader" style="width: 100%; height: 100%; border: none;"></div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-light border text-danger mt-3 px-3 py-1.5"
+                                id="btnStopScan" style="border-radius: 8px; font-weight: 600; font-size: 0.75rem;">
+                                <i class="fas fa-times me-1"></i> Batal Scan
                             </button>
                         </div>
 
@@ -949,7 +1064,7 @@ Supplier Saya
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg"
-                            style="border-radius: 10px; font-weight: 700; background: linear-gradient(135deg, var(--palette-primary, #e53935), #c62828); border: none;">
+                            style="border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, #e53935, #c62828); border: none; box-shadow: 0 4px 15px rgba(229,57,53,0.3); height: 50px; transition: all 0.2s ease;">
                             <i class="fas fa-link me-2"></i> Hubungkan Toko
                         </button>
                     </div>
@@ -1135,7 +1250,7 @@ Supplier Saya
             var childRow = $('#child-' + supplierId);
             var allRows = childRow.find('tbody tr[data-role="product"]');
             var searchQuery = $('#searchInput').val().toLowerCase().trim();
-            
+
             var targetRows;
             if (searchQuery !== '') {
                 targetRows = allRows.filter('.matches-search');
@@ -1153,7 +1268,7 @@ Supplier Saya
             var info = $('#prod-info-' + supplierId);
             var list = $('#prod-pagination-list-' + supplierId);
             var footer = $('#prod-pagination-footer-' + supplierId);
-            
+
             list.empty();
 
             if (allRows.length === 0) {
@@ -1193,7 +1308,7 @@ Supplier Saya
         }
 
         // Desktop product pagination click
-        $(document).on('click', '[id^="prod-pagination-list-"] .page-link', function(e) {
+        $(document).on('click', '[id^="prod-pagination-list-"] .page-link', function (e) {
             e.preventDefault();
             var sId = $(this).data('supplier');
             var page = parseInt($(this).data('page'));
@@ -1212,7 +1327,7 @@ Supplier Saya
             var childCard = $('#child-mobile-' + supplierId);
             var allCards = childCard.find('.product-card-mobile');
             var searchQuery = $('#searchInput').val().toLowerCase().trim();
-            
+
             var targetCards;
             if (searchQuery !== '') {
                 targetCards = allCards.filter('.matches-search');
@@ -1230,7 +1345,7 @@ Supplier Saya
             var info = $('#prod-info-mobile-' + supplierId);
             var list = $('#prod-pagination-list-mobile-' + supplierId);
             var footer = $('#prod-pagination-footer-mobile-' + supplierId);
-            
+
             list.empty();
 
             if (allCards.length === 0) {
@@ -1270,7 +1385,7 @@ Supplier Saya
         }
 
         // Mobile product pagination click
-        $(document).on('click', '[id^="prod-pagination-list-mobile-"] .page-link', function(e) {
+        $(document).on('click', '[id^="prod-pagination-list-mobile-"] .page-link', function (e) {
             e.preventDefault();
             var sId = $(this).data('supplier-mobile');
             var page = parseInt($(this).data('page'));
@@ -1382,7 +1497,7 @@ Supplier Saya
         if (autoSupplierId) {
             var parentRow = $('#parent-' + autoSupplierId);
             var parentCard = $('#parent-mobile-' + autoSupplierId);
-            
+
             if (parentRow.length || parentCard.length) {
                 var index = $('.group-parent-row').index(parentRow);
                 if (index === -1) {
@@ -1417,14 +1532,14 @@ Supplier Saya
 
         function startScanning() {
             $('#barcodeScannerWrapper').slideDown(200);
-            
+
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("barcode-reader");
             }
 
-            const config = { 
-                fps: 15, 
-                qrbox: function(width, height) {
+            const config = {
+                fps: 15,
+                qrbox: function (width, height) {
                     var minEdge = Math.min(width, height);
                     var boxWidth = Math.floor(minEdge * 0.7);
                     if (boxWidth < 200) boxWidth = 200;
@@ -1433,20 +1548,20 @@ Supplier Saya
             };
 
             html5QrCode.start(
-                { facingMode: "environment" }, 
+                { facingMode: "environment" },
                 config,
-                function(qrCodeMessage) {
+                function (qrCodeMessage) {
                     var codeValue = qrCodeMessage.trim().toUpperCase();
                     $('#referralCodeInput').val(codeValue);
-                    
+
                     $('#referralCodeInput').addClass('is-valid');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('#referralCodeInput').removeClass('is-valid');
                     }, 1500);
 
                     stopScanning();
                 },
-                function(errorMessage) {
+                function (errorMessage) {
                     // Silent ignore scan errors
                 }
             ).catch(err => {
@@ -1469,12 +1584,12 @@ Supplier Saya
             }
         }
 
-        $(document).on('click', '#btnStartScan', function(e) {
+        $(document).on('click', '#btnStartScan', function (e) {
             e.preventDefault();
             startScanning();
         });
 
-        $(document).on('click', '#btnStopScan', function(e) {
+        $(document).on('click', '#btnStopScan', function (e) {
             e.preventDefault();
             stopScanning();
         });
@@ -1494,6 +1609,26 @@ Supplier Saya
                 confirmButtonColor: '#e53935',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        });
+
+        // SweetAlert confirm release supplier
+        $(document).on('click', '.btn-release-supplier', function (e) {
+            e.preventDefault();
+            var url = $(this).data('url');
+            Swal.fire({
+                title: 'Lepas Supplier?',
+                text: "Anda tidak akan dapat mengelola produk supplier ini lagi setelah hubungan dilepaskan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Lepas!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {

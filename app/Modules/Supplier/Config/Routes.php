@@ -38,4 +38,5 @@ $routes->group('admin', ['filter' => 'login', 'namespace' => 'App\Modules\Suppli
     $routes->get('sales/suppliers/(:num)/products/edit/(:num)', 'SalesSupplierController::editProduct/$1/$2');
     $routes->post('sales/suppliers/(:num)/products/update/(:num)', 'SalesSupplierController::updateProduct/$1/$2');
     $routes->get('sales/suppliers/(:num)/products/delete/(:num)', 'SalesSupplierController::deleteProduct/$1/$2');
+    $routes->get('sales/suppliers/(:num)/release', 'SalesSupplierController::releaseSupplier/$1');
 });
